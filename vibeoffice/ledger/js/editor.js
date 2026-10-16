@@ -160,6 +160,8 @@
     const z = G().zoomOf(sh);
     const f = Object.assign({}, st.font || {}, { name: LY.fontName(sh.wb, st.font || {}) });
     cell.style.font = LY.cssFont(f, z);
+    const slots = LY.scriptSlots(sh.wb, st.font, sh.get(E.r, E.c));
+    if (slots.fontEA && L.fontKey(slots.fontEA) !== L.fontKey(slots.font)) cell.style.fontFamily = L.fontStack(slots.font, slots.fontEA);
     cell.style.color = M.colorHex(sh.wb, f.color, '#000000');
     cell.style.fontWeight = f.b ? 'bold' : 'normal';
     cell.style.fontStyle = f.i ? 'italic' : 'normal';

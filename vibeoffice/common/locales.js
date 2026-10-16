@@ -22,7 +22,10 @@
  *       851/992 (12), 18pt grid (10), 12pt (12), tabs 480 (12), 新細明體 theme (13).
  *       Both use compressPunctuation. Simplified Chinese uses 等线 for both faces, the same as a blank
  *       document. Traditional Chinese keeps Times New Roman with 新細明體.
- *       Excel: 宋体 11 (3 files) / 新細明體 11 (1); PowerPoint: 宋体 theme (6/10) / 新細明體 (3/3).
+ *       Excel and PowerPoint follow that choice: a blank workbook or presentation, and French, German and
+ *       Simplified Chinese ones, use 等线 (Excel keeps 11pt and charset 134 for Simplified Chinese, 10pt otherwise).
+ *       Japanese, Korean and Traditional Chinese keep their own faces. The corpora had 宋体 11 / 新細明體 11 and
+ *       those theme fonts; 等线 is the face a blank document already uses.
  */
 (function (root) {
   'use strict';
@@ -58,8 +61,8 @@
       pPr: { jc: 'both', widow: false },
       defTab: tw(420), charSpacing: 'compressPunctuation', themeLang: { val: 'en-US', eastAsia: 'zh-CN' },
       themeEA: { minor: '等线', major: '等线' },
-      sheet: { font: '宋体', sz: 11, charset: 134, family: 2, paper: 9 },
-      slide: { fontEA: '宋体', lang: 'zh-CN' },
+      sheet: { font: '等线', sz: 11, charset: 134, family: 2, paper: 9 },
+      slide: { font: '等线', fontEA: '等线', lang: 'zh-CN' },
     },
     'zh-Hant': {
       unit: 'cm',

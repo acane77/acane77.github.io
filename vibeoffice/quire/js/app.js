@@ -67,7 +67,7 @@
           'ruler', '-', 'docMap', 'thumbnails', '-', 'headerFooter', 'footnotes', 'markup', '-', 'fullScreen', 'zoomDlg'],
       },
       {
-        label: '&Insert', items: () => ['insertBreak', 'pageNumbers', 'dateTime', { label: '&AutoText', sub: () => L.autocorrect ? L.autocorrect.autoTextMenu() : [] }, 'insertField', 'insertSymbol', 'insertComment', '-',
+        label: '&Insert', items: () => ['insertBreak', 'pageNumbers', 'dateTime', { label: '&AutoText', sub: () => L.autocorrect ? L.autocorrect.autoTextMenu() : [] }, 'insertField', 'insertSymbol', 'insertEquation', 'insertComment', '-',
           { label: 'Refere&nce', sub: ['insertFootnote', 'insertCaption', 'crossReference', 'indexTables'] }, '-',
           { label: '&Picture', icon: 'picture', sub: ['insertClipArt', 'insertPicture', '-', 'newDrawing', { label: '&AutoShapes', icon: 'autoshapes', run: () => A.openAutoShapes() }, 'insertWordArt', 'insertChart'] },
           'insertDiagram', 'textBox', 'insertFile', 'insertObject', 'bookmark', 'hyperlink'],
@@ -1100,6 +1100,7 @@
   A.contextMenu = function (e) {
     e.preventDefault();
     if (!E.objSel) E.syncSel();   /* the press moved the caret, but 'selectionchange' comes after this */
+    const mathEl = e.target.closest && e.target.closest('.math');
     const inTable = L.tables && L.tables.inTable();
     const items = ['cut', 'copy', 'paste', '-'];
     if (E.objSel) items.push({ label: 'Text W&rapping', sub: () => A.wrapItems() }, 'formatObject', '-');
@@ -1115,7 +1116,8 @@
     if (cm) items.push({ label: '&Edit Comment', run: () => L.review.editComment(cm) }, { label: 'Delete Co&mment', run: () => L.review.deleteComment(cm) }, '-');
     items.push('fontDlg', 'paragraphDlg', 'bulletsDlg', '-', 'hyperlink', 'research');
     /* on a misspelled word or a grammar problem Word shows only the proofing menu */
-    if (!E.objSel && L.spell && L.spell.suggestionsAt) { const s = L.spell.suggestionsAt(e); if (s && s.length) { ui.openMenu(s.concat(['-', 'cut', 'copy', 'paste']), { x: e.clientX, y: e.clientY }); return; } }
+    if (!mathEl && !E.objSel && L.spell && L.spell.suggestionsAt) { const s = L.spell.suggestionsAt(e); if (s && s.length) { ui.openMenu(s.concat(['-', 'cut', 'copy', 'paste']), { x: e.clientX, y: e.clientY }); return; } }
+    if (mathEl) items.unshift({ label: 'Edit &Equation...', run: () => L.dlg.editEquation() }, '-');
     ui.openMenu(items, { x: e.clientX, y: e.clientY });
   };
   A.browseKind = 'page';

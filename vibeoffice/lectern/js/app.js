@@ -180,7 +180,7 @@
   }
   /* the toolbars' boxes and menus, also used by the ribbon (js/ribbon.js): each call makes a new box */
   A.parts = {
-    font: (o) => ui.combo(Object.assign({ id: 'tb-font', width: 136, tip: 'Font', options: () => { const d = E.slide() && L.pres.designs[E.slide().design]; return L.fontSections({ major: d?.fonts?.major, minor: d?.fonts?.minor }); }, complete: L.fontComplete, preview: (v) => `font-family:${L.fontStack(v)};font-size:13px`, note: L.fontNote, listCls: 'fonts', value: () => { const s = textState(); return s ? s.font : ''; }, enabled: () => !!textState(), onChange: (v) => A.setFontName(v) }, o)),
+    font: (o) => ui.combo(Object.assign({ id: 'tb-font', width: 136, tip: 'Font', options: () => { const d = E.slide() && L.pres.designs[E.slide().design]; return L.fontSections({ major: d?.fonts?.major, minor: d?.fonts?.minor }); }, complete: L.fontComplete, preview: (v) => `font-family:${L.fontStack(v)};font-size:13px`, note: L.fontNote, listCls: 'fonts', value: () => { const s = textState(); if (!s) return ''; return s.onEA && s.fontEA ? s.fontEA : (s.font || ''); }, enabled: () => !!textState(), onChange: (v) => A.setFontName(v) }, o)),
     size: (o) => ui.combo(Object.assign({ id: 'tb-size', width: 44, tip: 'Font Size', options: () => L.SIZE_LIST, value: () => { const s = textState(); return s && s.sz ? String(L.round(s.sz, 1)) : ''; }, enabled: () => !!textState(), onChange: (v) => A.setFontSize(parseFloat(v)) }, o)),
     zoom: (o) => ui.combo(Object.assign({ id: 'tb-zoom', width: 64, tip: 'Zoom', options: () => [L.t('Fit'), '400%', '200%', '150%', '100%', '75%', '66%', '50%', '33%', '25%'], value: () => (E.zoom === 'fit' ? L.t('Fit') : E.zoomPct() + '%'), onChange: (v) => { if (/fit/i.test(v) || v === L.t('Fit')) E.setZoom('fit'); else { const n = parseFloat(v); if (n > 0) E.setZoom(n / 100); } } }, o)),
   };
@@ -1169,7 +1169,18 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
   A.applyFontColor = function (c) {
     L.fmt.run((r) => { const n = Object.assign({}, r); if (c) n.color = c; else delete n.color; delete n.fill; return n; }, 'Font Color', (wa) => { wa.fill = c ? { t: 'solid', c, a: 1 } : { t: 'solid', c: 'tx1', a: 1 }; });
   };
-  A.setFontName = (v) => { if (!v) return; L.addRecentFont(v); L.fmt.run((r) => Object.assign({}, r, { font: v }), L.N('Font'), (wa) => { wa.font = v; }); };
+  A.setFontName = (v) => {
+    if (!v) return;
+    L.addRecentFont(v);
+    const design = E.design();
+    L.fmt.run((r) => {
+      const pick = L.fontPick(v, { font: L.style.font(r.font, design), fontEA: L.style.fontEA(r.fontEA, design) || '' });
+      const n = Object.assign({}, r);
+      if (pick.font) n.font = pick.font;
+      if (pick.fontEA) n.fontEA = pick.fontEA;
+      return n;
+    }, L.N('Font'), (wa) => { wa.font = v; });
+  };
   A.setFontSize = (v) => { if (!(v > 0)) return; v = L.clamp(v, 1, 4000); L.fmt.run((r) => Object.assign({}, r, { sz: v }), 'Font Size'); };
   A.toggleRun = function (key) {
     const st = L.fmt.state();
@@ -1772,8 +1783,8 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
   const TEXT_SAFE = new Set(['bold', 'italic', 'underline', 'alignCenter', 'alignLeft', 'alignRight', 'justify', 'growFont', 'shrinkFont', 'subscript', 'superscript', 'resetChar', 'fontDlg', 'hyperlink', 'changeCase', 'promote', 'demote', 'moveParaUp', 'moveParaDown', 'undo', 'redo', 'save', 'open', 'new', 'print', 'newSlide', 'find', 'replace', 'showFromStart', 'showFromCurrent', 'help', 'spelling', 'taskPane', 'saveAs']);
   document.addEventListener('keydown', (e) => {
     if (L.show.active) return;
-    if (ui.dialogOpen()) { ui.dialogKey(e); return; }
     if (ui.menuOpen()) { if (ui.menuKey(e)) { e.preventDefault(); e.stopPropagation(); } return; }
+    if (ui.dialogOpen()) { ui.dialogKey(e); return; }
     if (e.key === 'F10' || (e.key === 'Alt' && false)) { e.preventDefault(); A.menuBar.openIndex(0); return; }
     if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.length === 1 && /[a-z]/i.test(e.key)) { if (A.menuBar.openByKey(e.key)) { e.preventDefault(); return; } }
     const k = keyName(e);

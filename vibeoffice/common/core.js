@@ -531,6 +531,52 @@
     }
     return out;
   };
+  /** which face a cell uses for Latin and for East Asian text. styleName is the resolved cell font;
+      runs are rich text ({t, font:{name}}) or absent, when the cell font draws both. */
+  L.scriptSlots = function (styleName, runs) {
+    let latin = styleName || '';
+    let ea = '';
+    if (runs && runs.length) {
+      for (const run of runs) {
+        const name = (run.font && run.font.name) || latin;
+        if (L.hasEAText(run.t)) { if (L.fontIsEA(name)) ea = name; else if (!ea && L.fontIsEA(latin)) ea = latin; }
+        else if (run.t) latin = name;
+      }
+    }
+    if (!ea && L.fontIsEA(latin)) ea = latin;
+    return { font: latin, fontEA: ea };
+  };
+  /** rich-text runs after a toolbar font pick, or null when the cell font alone is enough.
+      styleFont supplies size and weight; pick is L.fontPick's result. A single East Asian run is kept
+      when its face is not the Latin face, so Chinese-only text does not follow a Latin font. */
+  L.scriptFontRuns = function (text, runs, styleFont, pick) {
+    text = text == null ? '' : String(text);
+    const latin = pick && pick.font;
+    if (!text || !latin) return null;
+    const ea = pick.fontEA || '';
+    const base = styleFont || {};
+    const joined = runs && runs.length ? runs.map((r) => r.t || '').join('') : null;
+    const src = joined === text ? runs : [{ t: text, font: base }];
+    const copy = (from, name) => {
+      const srcF = Object.assign({}, base, from || {});
+      const f = { name };
+      for (const k of ['b', 'i', 'u', 'strike', 'sz', 'color', 'vert']) if (srcF[k] != null) f[k] = srcF[k];
+      return f;
+    };
+    const out = [];
+    for (const run of src) {
+      for (const piece of L.splitEA(run.t || '')) {
+        const name = piece.ea ? (ea || (run.font && run.font.name) || latin) : latin;
+        const font = copy(run.font, name);
+        const prev = out[out.length - 1];
+        if (prev && JSON.stringify(prev.font) === JSON.stringify(font)) prev.t += piece.text;
+        else out.push({ t: piece.text, font });
+      }
+    }
+    if (!out.length) return null;
+    if (out.every((r) => L.fontKey(r.font.name) === L.fontKey(latin))) return null;
+    return out;
+  };
   /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font */
   L.splitEA = function (s) {
     const out = [];

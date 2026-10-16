@@ -606,12 +606,66 @@
   }
 
   /* ================= blocks ================= */
-  function paraXML(p, ctx) {
+  const lineBreakItem = (it) => it.t === 'br' && it.type !== 'page' && it.type !== 'column' && !(it.rPr && it.rPr.del);
+  const liveMath = (it) => it.t === 'raw' && it.math && !(it.rPr && it.rPr.del);
+  /**
+   * Word joins every display equation in one paragraph into a single equation, and drops a line break
+   * that sits beside an equation. A paragraph that has an equation is written as one paragraph per line.
+   * Two display equations on the same line are written as one paragraph each. One display equation keeps
+   * a following equation number in that same paragraph.
+   */
+  function mathParagraphs(p) {
+    if (!p.runs.some(liveMath)) return null;
+    const lines = [[]];
+    let broke = false;
+    const nl = () => { broke = true; lines.push([]); };
+    for (const it of p.runs) {
+      if (lineBreakItem(it)) { nl(); continue; }
+      if (it.t === 'text' && it.text.includes('\n') && !(it.rPr && it.rPr.del)) {
+        it.text.split('\n').forEach((text, i) => { if (i) nl(); if (text) lines[lines.length - 1].push(Object.assign({}, it, { text })); });
+        continue;
+      }
+      lines[lines.length - 1].push(it);
+    }
+    const segs = [];
+    let isolated = false;
+    const displayMath = (it) => it.t === 'raw' && it.math && it.para && !(it.rPr && it.rPr.del);
+    for (const line of lines) {
+      if (!line.length) { segs.push([]); continue; }
+      /* one display equation stays with a following number; two in one paragraph are what Word merges */
+      if (line.filter(displayMath).length < 2) { segs.push(line); continue; }
+      isolated = true;
+      let buf = [];
+      const flush = () => { if (buf.length) { segs.push(buf); buf = []; } };
+      for (const it of line) {
+        if (displayMath(it)) {
+          const marks = [];
+          while (buf.length && !D.ilen(buf[buf.length - 1])) marks.unshift(buf.pop());
+          flush();
+          segs.push(marks.concat([it]));
+        } else buf.push(it);
+      }
+      flush();
+    }
+    if (segs.length < 2 || (!broke && !isolated)) return null;
+    return segs.map((runs, i) => ({
+      t: 'p', runs, rPr: p.rPr,
+      mark: i === segs.length - 1 ? p.mark : undefined,
+      sect: i === segs.length - 1 ? p.sect : undefined,
+      pPr: i > 0 && p.pPr && p.pPr.num ? Object.assign({}, p.pPr, { num: undefined }) : p.pPr,
+    }));
+  }
+  function oneParaXML(p, ctx) {
     const markR = rPrXML(p.rPr || {}, p.mark, ctx);
     const pPr = pPrXML(p.pPr, ctx, { rPr: markR, sect: p.sect && ctx.main ? sectXML(p.sect, ctx) : '' });
     /* display math paragraphs */
     const runs = runsXML(p, ctx);
     return `<w:p>${pPr}${runs}</w:p>`;
+  }
+  function paraXML(p, ctx) {
+    const parts = mathParagraphs(p);
+    if (parts) return parts.map((q) => oneParaXML(q, ctx)).join('');
+    return oneParaXML(p, ctx);
   }
   function tableXML(t, ctx) {
     if (t.keep?.gridRepair) ctx.writer.loss({ id: 'table-grid:' + ctx.part, what: 'Incomplete or unusable table column widths were reconstructed. Table layout may change.', where: ctx.part, action: 'conversion' });

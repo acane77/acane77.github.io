@@ -525,10 +525,15 @@
       hf: { dt: false, dtAuto: true, dtFmt: 'datetime1', dtText: '', num: false, ftr: false, ftrText: '', notOnTitle: false },
       props: { author: '', subject: '', keywords: '', comments: '', company: '', category: '', created: new Date().toISOString() },
     };
-    /* the text language and East Asian font of the UI's language, as its PowerPoint makes a new presentation
-       (common/locales.js); not for a file being read (pptx-read.js: locale false) */
-    const loc = opts.locale !== false && L.locale && L.locale.get().slide;
-    if (loc) { pres.lang = loc.lang; if (loc.fontEA) Object.assign(design.fonts, { majorEA: loc.fontEA, minorEA: loc.fontEA }); }
+    /* the text language and fonts of the UI's language (common/locales.js); not for a file being read
+       (pptx-read.js: locale false). A language without its own faces uses 等线 for both, as a blank document does. */
+    if (opts.locale !== false && L.locale) {
+      const loc = L.locale.get().slide;
+      if (loc && loc.lang) pres.lang = loc.lang;
+      if (loc && loc.font) Object.assign(design.fonts, { major: loc.font, minor: loc.font });
+      if (loc && loc.fontEA) Object.assign(design.fonts, { majorEA: loc.fontEA, minorEA: loc.fontEA });
+      if (!loc || (!loc.font && !loc.fontEA)) Object.assign(design.fonts, { major: '等线', minor: '等线', majorEA: '等线', minorEA: '等线' });
+    }
     if (opts.empty !== true) pres.slides.push(M.newSlide(pres, 'title', design.id));
     return pres;
   };

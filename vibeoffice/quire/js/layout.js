@@ -514,6 +514,7 @@
   }
   /** after inserting a paragraph fragment: tabs, floats */
   function postPara(frag, p, ctx, frame) {
+    if (frag.querySelector('.mml')) R.fitMath(frag, frame.width || frame.el.clientWidth);
     if (frag.querySelector('.tb')) {
       const colRect = frame.el.getBoundingClientRect();
       frag._tabs = { p, ctx, frame };
@@ -1506,6 +1507,20 @@
         if (o > a && o < a + n) return { node: k.firstChild, offset: o - a };
         if (o === a + n) candidate = { node: k.firstChild, offset: n };
         if (o === a) { if (candidate && candidate.node.parentNode !== k) return candidate; return { node: k.firstChild, offset: 0 }; }
+      } else if (k.classList.contains('math')) {
+        /* the caret stays in a text node beside the equation; an element boundary here falls into the MathML */
+        if (o === a) {
+          if (candidate) return candidate;
+          const prev = k.previousElementSibling;
+          if (prev && prev.classList.contains('zw') && prev.firstChild) return { node: prev.firstChild, offset: 0 };
+          const i = Array.prototype.indexOf.call(pc.childNodes, k);
+          return { node: pc, offset: i };
+        }
+        if (o === a + n) {
+          const next = k.nextElementSibling;
+          if (next && next.classList.contains('zw') && +next.dataset.z === o && next.firstChild) candidate = { node: next.firstChild, offset: 0 };
+          else if (next && next.dataset.o != null && next.contentEditable !== 'false' && +next.dataset.o === o && next.firstChild && next.firstChild.nodeType === 3) candidate = { node: next.firstChild, offset: 0 };
+        }
       } else {
         if (o === a) { if (candidate) return candidate; const i = Array.prototype.indexOf.call(pc.childNodes, k); return { node: pc, offset: i }; }
         if (o === a + n) { const i = Array.prototype.indexOf.call(pc.childNodes, k); candidate = { node: pc, offset: i + 1 }; }

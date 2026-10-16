@@ -35,7 +35,7 @@
         { label: 'Comments', items: [{ cmd: 'insertComment', size: 'large', label: 'Comment' }] },
         { label: 'Header & Footer', items: ['headerFooter', 'pageNumbers'] },
         { label: 'Text', items: [{ cmd: 'textBox', size: 'large', label: 'Text Box' }, 'insertWordArt', 'dropCap', 'dateTime', 'insertField', 'insertObject', 'insertFile'] },
-        { label: 'Symbols', items: [{ cmd: 'insertSymbol', size: 'large', label: 'Symbol' }] },
+        { label: 'Symbols', items: [{ cmd: 'insertSymbol', size: 'large', label: 'Symbol' }, { cmd: 'insertEquation', size: 'large', label: 'Equation' }] },
       ] },
       { id: 'design', label: '&Design', groups: [
         { label: 'Document Formatting', items: [{ cmd: 'themeDlg', size: 'large', label: 'Themes' }, 'autoFormat'] },

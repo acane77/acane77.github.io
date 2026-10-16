@@ -57,31 +57,88 @@
 
   /* ---------- Font ---------- */
   D.font = function () {
-    const st = L.fmt.state();
-    if (!st) { ui.msg('Select some text or a text object first.'); return; }
-    const o = { font: st.font, sz: st.sz, b: st.b, i: st.i, u: st.u, shd: st.shd, emb: !!(st.r && st.r.emb), base: (st.r && st.r.base) || 0, color: st.r ? st.r.color : null };
-    const fontList = h('select', { id: 'fd-font', size: 7, style: 'width:180px' });
-    L.FONT_LIST.forEach((f) => { const op = h('option', { value: f, text: f, translate: 'no' }); if (f === o.font) op.selected = true; fontList.appendChild(op); });
-    if (!L.FONT_LIST.includes(o.font)) fontList.insertBefore(h('option', { value: o.font, text: o.font, selected: true, translate: 'no' }), fontList.firstChild);
-    const fontIn = h('input', { type: 'text', id: 'fd-font-in', value: o.font, style: 'width:180px' });
+    const cur = L.fmt.state();
+    if (!cur) { ui.msg('Select some text or a text object first.'); return; }
+    const USE_EA = '\u0001';
+    const o = { font: cur.font, fontEA: cur.fontEA || '', sz: cur.sz, b: cur.b, i: cur.i, u: cur.u, shd: cur.shd, emb: !!(cur.r && cur.r.emb), base: (cur.r && cur.r.base) || 0, color: cur.r ? cur.r.color : null };
+    const box = { font: L.fontUsesEA(o.font, o.fontEA) ? USE_EA : o.font, fontEA: o.fontEA };
+    const changed = new Set();
+    const useLabel = () => L.t('(Use Asian text font)');
+    const latinName = () => (box.font === USE_EA ? box.fontEA : box.font) || '';
+    const fontNames = () => {
+      const d = design();
+      const extra = d && d.fonts ? [d.fonts.major, d.fonts.minor, d.fonts.majorEA, d.fonts.minorEA] : [];
+      const names = L.FONT_LIST.concat(L.localFonts(), extra);
+      for (const v of [box.font, box.fontEA]) if (v && v !== USE_EA && !names.includes(v)) names.push(v);
+      return Array.from(new Set(names.filter(Boolean))).sort((a, b) => a.localeCompare(b));
+    };
+    let eaBox, fontBox;
+    function fontCombo(id, key, allowUse) {
+      const wrap = h('div', { class: 'combo' });
+      const inp = h('input', { type: 'text', class: 'combo-in', id, autocomplete: 'off', spellcheck: 'false', translate: 'no' });
+      const btn = h('button', { class: 'combo-btn', type: 'button', tabindex: '-1', 'aria-label': 'Open list', html: '<span class="dd-arrow"></span>' });
+      wrap.append(inp, btn);
+      const labelOf = (v) => (v === USE_EA ? useLabel() : (v || ''));
+      const applyVal = (v) => { box[key] = v; changed.add(key); if (key === 'fontEA' && box.font === USE_EA) changed.add('font'); upd(); };
+      wrap.show = () => { if (document.activeElement !== inp) inp.value = labelOf(box[key]); };
+      ui.bindComplete(inp, {
+        values: () => (allowUse ? [useLabel()] : []).concat(fontNames()),
+        order: L.fontComplete,
+        onText: (text) => { if (!text) return; applyVal(allowUse && text.toLowerCase() === useLabel().toLowerCase() ? USE_EA : text); },
+      });
+      inp.addEventListener('focus', () => wrap.classList.add('focus'));
+      inp.addEventListener('blur', () => wrap.classList.remove('focus'));
+      btn.addEventListener('pointerdown', (e) => e.preventDefault());
+      btn.addEventListener('click', () => {
+        const rect = wrap.getBoundingClientRect();
+        const items = [];
+        if (allowUse) items.push({ label: '(Use Asian text font)', value: USE_EA });
+        for (const name of fontNames()) items.push({ label: String(name).replace(/&/g, '&&'), value: name, raw: true });
+        ui.openMenu(items.map((x) => ({
+          label: x.label, value: x.value, raw: !!x.raw,
+          checked: () => String(box[key]) === String(x.value),
+          run: () => { inp.value = labelOf(x.value); applyVal(x.value); },
+        })), { left: rect.left, bottom: rect.bottom }, { cls: 'combo-list fonts' });
+        const menu = document.querySelector('.menu.combo-list');
+        if (menu) {
+          menu.style.minWidth = rect.width + 'px';
+          const show = (row) => { const v = row._it && row._it.value; if (!v || v === USE_EA) return; const lbl = L.$('.m-lbl', row); if (lbl) lbl.style.cssText = `font-family:${L.fontStack(v)};font-size:13px`; };
+          const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }), { root: menu }) : null;
+          L.$$('.m-item', menu).forEach((row) => (row._it && row._it.value != null ? (io ? io.observe(row) : show(row)) : null));
+        }
+        const on = document.querySelector('.menu.combo-list .m-item.chk');
+        if (on) on.scrollIntoView({ block: 'nearest' });
+      });
+      wrap.show();
+      return wrap;
+    }
     const styleSel = h('select', { id: 'fd-style', size: 4, style: 'width:110px' }, ...[L.N('Regular'), L.N('Italic'), L.N('Bold'), 'Bold Italic'].map((s) => h('option', { value: s, text: s })));
     styleSel.value = o.b && o.i ? 'Bold Italic' : o.b ? 'Bold' : o.i ? 'Italic' : 'Regular';
     const sizeIn = h('input', { type: 'text', id: 'fd-size', value: o.sz, style: 'width:60px' });
     const sizeSel = h('select', { size: 4, style: 'width:60px' }, ...L.SIZE_LIST.map((s) => h('option', { value: s, text: s })));
     sizeSel.value = String(o.sz);
-    const preview = h('div', { class: 'preview-box font-preview', text: 'AaBbYyZz', translate: 'no' });
+    const preview = h('div', { class: 'preview-box font-preview', translate: 'no' });
     const upd = () => {
+      const latin = latinName() || 'Arial';
+      const ea = box.fontEA || latin;
+      L.clear(preview);
+      const host = h('span', { translate: 'no' });
+      for (const piece of L.splitEA('AaBbYyZz 中文')) {
+        const sp = h('span', { translate: 'no', text: piece.text });
+        sp.style.fontFamily = L.fontStack(piece.ea ? ea : latin);
+        host.appendChild(sp);
+      }
+      preview.appendChild(host);
       const r = preview.style;
-      r.fontFamily = L.fontStack(fontIn.value);
       r.fontWeight = /Bold/.test(styleSel.value) ? '700' : '400';
       r.fontStyle = /Italic/.test(styleSel.value) ? 'italic' : 'normal';
       r.textDecoration = u.input.checked ? 'underline' : 'none';
       r.textShadow = s.input.checked ? '2px 2px 0 rgba(0,0,0,.35)' : emb.input.checked ? '-1px -1px 0 #fff, 1px 1px 0 #666' : 'none';
       r.color = col.get() ? L.model.resolveColor(col.get(), design()) : '#000';
       r.fontSize = Math.min(40, Math.max(10, parseFloat(sizeIn.value) || 18)) + 'px';
+      if (eaBox) eaBox.show();
+      if (fontBox) fontBox.show();
     };
-    fontList.addEventListener('change', () => { fontIn.value = fontList.value; upd(); });
-    fontIn.addEventListener('input', upd);
     styleSel.addEventListener('change', upd);
     sizeSel.addEventListener('change', () => { sizeIn.value = sizeSel.value; upd(); });
     sizeIn.addEventListener('input', upd);
@@ -89,9 +146,11 @@
     const sup = ui.check('Su&perscript', o.base > 0, () => { if (sup.input.checked) sub.input.checked = false; }), sub = ui.check('Su&bscript', o.base < 0, () => { if (sub.input.checked) sup.input.checked = false; });
     const off = ui.spin({ value: o.base ? Math.abs(o.base / 1000) : 30, min: 1, max: 100, step: 1, unit: '%', dec: 0 });
     const col = colorPick(o.color, upd, { automatic: true });
+    eaBox = fontCombo('fd-font-ea', 'fontEA', false);
+    fontBox = fontCombo('fd-font', 'font', true);
     const body = h('div', { class: 'col' },
       h('div', { class: 'row' },
-        h('div', { class: 'col' }, h('label', { for: 'fd-font-in', html: ui.ampHTML('&Font:') }), fontIn, fontList),
+        h('div', { class: 'col', style: 'flex:2;min-width:190px' }, h('label', { for: 'fd-font-ea', html: ui.ampHTML('Asian te&xt font:') }), eaBox, h('label', { for: 'fd-font', html: ui.ampHTML('&Font:'), style: 'margin-top:6px' }), fontBox),
         h('div', { class: 'col' }, h('label', { for: 'fd-style', html: ui.ampHTML('F&ont style:') }), styleSel),
         h('div', { class: 'col' }, h('label', { for: 'fd-size', html: ui.ampHTML('&Size:') }), sizeIn, sizeSel)),
       h('div', { class: 'row' },
@@ -101,14 +160,19 @@
       h('div', { class: 'tp-note', text: 'This is a TrueType font. The same font will be used on both your printer and your screen.' }));
     upd();
     ui.dialog({
-      title: 'Font', body, width: 470, buttons: [{
+      title: 'Font', body, width: 540, buttons: [{
         label: 'OK', primary: true, onClick: () => {
           const props = {
-            font: fontIn.value.trim() || o.font, sz: L.clamp(parseFloat(sizeIn.value) || o.sz, 1, 4000), b: /Bold/.test(styleSel.value), i: /Italic/.test(styleSel.value),
+            sz: L.clamp(parseFloat(sizeIn.value) || o.sz, 1, 4000), b: /Bold/.test(styleSel.value), i: /Italic/.test(styleSel.value),
             u: u.input.checked ? 'sng' : undefined, shd: s.input.checked || undefined, emb: emb.input.checked || undefined,
             base: sup.input.checked ? off.get() * 1000 : sub.input.checked ? -off.get() * 1000 : undefined, color: col.get() || undefined,
           };
-          L.fmt.run((r) => { const n = Object.assign({}, r, props); for (const k in props) if (props[k] === undefined) delete n[k]; if (props.color) delete n.fill; return n; }, L.N('Font'), (wa) => { wa.font = props.font; wa.b = props.b; wa.i = props.i; });
+          const use = box.font === USE_EA;
+          if (changed.has('font') || (use && changed.has('fontEA'))) props.font = (use ? box.fontEA : box.font) || undefined;
+          if (changed.has('fontEA')) props.fontEA = box.fontEA || undefined;
+          if (props.font) L.addRecentFont(props.font);
+          if (props.fontEA) L.addRecentFont(props.fontEA);
+          L.fmt.run((r) => { const n = Object.assign({}, r, props); for (const k in props) if (props[k] === undefined) delete n[k]; if (props.color) delete n.fill; return n; }, L.N('Font'), (wa) => { wa.font = latinName() || wa.font; wa.b = props.b; wa.i = props.i; });
         },
       }, { label: 'Cancel' }],
     });

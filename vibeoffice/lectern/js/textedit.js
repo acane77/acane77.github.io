@@ -895,8 +895,16 @@
     if (!p) return null;
     const ps = L.style.para(sh, p, design);
     const r = Object.assign({}, ps.rPr || {}, run || {});
+    const raw = T.paraText(p);
+    let ch = raw[0] || '';
+    if (TE.active()) {
+      const sel = T.norm(TE.currentSel() || T.allRange(tx));
+      const i = sel.o0 < raw.length ? sel.o0 : Math.max(0, sel.o0 - 1);
+      ch = raw[i] || '';
+    }
     return {
-      font: L.style.font(r.font, design), sz: r.sz ? L.round(r.sz * (tx.fontScale || 1), 1) : 18, b: !!r.b, i: !!r.i, u: !!(r.u && r.u !== 'none'),
+      font: L.style.font(r.font, design), fontEA: L.style.fontEA(r.fontEA, design) || '', onEA: L.hasEAText(ch),
+      sz: r.sz ? L.round(r.sz * (tx.fontScale || 1), 1) : 18, b: !!r.b, i: !!r.i, u: !!(r.u && r.u !== 'none'),
       shd: !!r.shd, algn: ps.algn || 'l', bu: ps.bu ? ps.bu.t : 'none', color: r.color, lvl: p.lvl || 0, ps, r,
     };
   };

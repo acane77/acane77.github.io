@@ -133,6 +133,7 @@
       return cell;
     }
     let cell = dup(old);
+    const oldRt = old && old.rt;
     delete cell.f; delete cell.rt; delete cell.af; delete cell.am; delete cell.dt; delete cell.ast; delete cell._fsrc; delete cell.edited;
     cell.v = p.v;
     if (p.v == null) { O.put(sh, r, c, emptyKeepStyle(old) || (old && old.s ? { v: null, s: old.s } : null)); return null; }
@@ -140,6 +141,14 @@
       cell.s = wb.styles.derive(cell.s != null ? cell.s : LY.styleIdOf(sh, r, c, old), { nf: p.fmt });
     }
     if (typeof p.v === 'string' && /\n/.test(p.v)) cell.s = wb.styles.derive(cell.s != null ? cell.s : LY.styleIdOf(sh, r, c, old), { align: { wrap: true } });
+    /* a Latin face and an East Asian face stay two runs, including after the text is edited */
+    if (typeof p.v === 'string') {
+      const slots = L.scriptSlots(LY.fontName(wb, st.font || {}), oldRt);
+      if (slots.fontEA && L.fontKey(slots.fontEA) !== L.fontKey(slots.font)) {
+        const runs = L.scriptFontRuns(p.v, null, st.font, { font: slots.font, fontEA: slots.fontEA });
+        if (runs) cell.rt = runs;
+      }
+    }
     if (cell.s == null) { const sid = LY.styleIdOf(sh, r, c, old); if (sid) cell.s = sid; }
     O.put(sh, r, c, cell);
     return cell;
@@ -330,6 +339,52 @@
     LY.invalidate(sh);
     void rg;
   }
+  /**
+   * Toolbar Font box. An East Asian family becomes the cell font (it draws Latin too). A Latin family
+   * changes only Latin text; East Asian characters keep their face, as a second run when the two differ.
+   */
+  O.setScriptFont = function (sh, ranges, name) {
+    const wb = sh.wb;
+    O.tx(wb, L.N('Font'), () => {
+      const styleFor = (sid, cell) => {
+        const st = wb.styles.get(sid);
+        const slots = L.scriptSlots(LY.fontName(wb, st.font || {}), cell && cell.rt);
+        const pick = L.fontPick(name, slots);
+        const font = { name: pick.font, scheme: undefined };
+        if (!L.fontIsEA(pick.font)) font.charset = undefined;
+        return { pick, st, sid: wb.styles.derive(sid, { font }) };
+      };
+      const plan = (r, c, cell) => {
+        const sid = cell && cell.s != null ? cell.s : LY.styleIdOf(sh, r, c, cell);
+        const got = styleFor(sid, cell);
+        const text = cell && typeof cell.v === 'string' ? cell.v : '';
+        const runs = text ? L.scriptFontRuns(text, cell && cell.rt, got.st.font, got.pick) : null;
+        return { sid: got.sid, runs, changed: got.sid !== sid || !!runs || !!(cell && cell.rt) };
+      };
+      for (const rg of ranges) {
+        const allCols = rg.c1 === 0 && rg.c2 >= MAXC - 1, allRows = rg.r1 === 0 && rg.r2 >= MAXR - 1;
+        const jobs = [];
+        sh.each(rg.r1, rg.c1, rg.r2, rg.c2, (cell, r, c) => jobs.push({ r, c, plan: plan(r, c, cell) }));
+        if (allCols || allRows) lineStyles(sh, rg, (sid) => styleFor(sid, null).sid, allCols, allRows);
+        for (const job of jobs) {
+          const cur = sh.get(job.r, job.c);
+          if (!cur) continue;
+          const n = dup(cur);
+          n.s = job.plan.sid;
+          if (job.plan.runs) n.rt = job.plan.runs;
+          else delete n.rt;
+          O.put(sh, job.r, job.c, n);
+        }
+        if (!allCols && !allRows && (rg.r2 - rg.r1 + 1) * (rg.c2 - rg.c1 + 1) <= 2000) {
+          for (let r = rg.r1; r <= rg.r2; r++) for (let c = rg.c1; c <= rg.c2; c++) {
+            if (sh.get(r, c)) continue;
+            const p = plan(r, c, null);
+            if (p.changed) O.put(sh, r, c, { v: null, s: p.sid });
+          }
+        }
+      }
+    });
+  };
   /** font toggles: bold / italic / underline follow the active cell */
   O.toggleFont = function (sh, ranges, key, activeStyle) {
     const on = !(activeStyle.font && activeStyle.font[key]);

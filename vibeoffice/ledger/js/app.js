@@ -25,7 +25,7 @@
   const DEFAULT_OPTS = {
     statusBar: true, formulaBar: true, taskOpen: true, paneFollows: true, moveAfterEnter: true, enterDir: 'down', autoComplete: true, dragDrop: true,
     toolbars: { standard: true, formatting: true, drawing: false, chart: 'auto', auditing: false, reviewing: false, picture: 'auto', borders: false, list: 'auto' },
-    userName: 'Ledger User', recent: [], defaultFont: LOCALE.font || 'Arial', defaultSize: LOCALE.sz || 10, sheetsInNew: 3, r1c1: false, calcMode: 'auto', iterate: false, iterateCount: 100, iterateDelta: 0.001, autoCalcFn: 'SUM',
+    userName: 'Ledger User', recent: [], defaultFont: LOCALE.font || '等线', defaultSize: LOCALE.sz || 10, sheetsInNew: 3, r1c1: false, calcMode: 'auto', iterate: false, iterateCount: 100, iterateDelta: 0.001, autoCalcFn: 'SUM',
   };
   const A = (L.app = Object.assign(L.app || {}, { opts: L.clone(DEFAULT_OPTS), books: [], cur: -1, lastFill: '#FFFF00', lastFontColor: '#FF0000', lastBorder: 'bottom' }));
   const book = () => A.books[A.cur];
@@ -34,7 +34,7 @@
 
   /* ------------------------------------------------------------ options */
   /* the options that follow the UI's language, with their English values (common/locales.js) */
-  const EN_OPTS = { defaultFont: 'Arial', defaultSize: 10 };
+  const EN_OPTS = { defaultFont: '等线', defaultSize: 10 };
   A.loadOpts = () => { A.opts = L.deepMerge(L.clone(DEFAULT_OPTS), L.locale.savedOpts(L.store.get('opts', {}), EN_OPTS)); };
   A.saveOpts = () => { L.store.set('opts', L.locale.optsToSave(A.opts, DEFAULT_OPTS, EN_OPTS)); };
   A.applyOpts = () => {
@@ -57,7 +57,7 @@
 
   /* ------------------------------------------------------------ workbooks */
   A.blankWorkbook = function () {
-    const font = { name: A.opts.defaultFont || 'Arial', sz: A.opts.defaultSize || 10 };
+    const font = { name: A.opts.defaultFont || '等线', sz: A.opts.defaultSize || 10 };
     if (LOCALE.charset && font.name === LOCALE.font) Object.assign(font, { family: LOCALE.family, charset: LOCALE.charset });
     const w = new M.Workbook({ font });
     if (LOCALE.paper) w.paper = LOCALE.paper;   // its sheets' paper (Sheet's print.paper)
@@ -536,7 +536,7 @@
   const TB = {};
   /* the toolbars' boxes and buttons with menus, also used by the ribbon (js/ribbon.js): each call makes a new one */
   A.parts = {
-    font: (o) => ui.combo(Object.assign({ id: 'fontname', width: 128, tip: 'Font', value: () => { const st = curStyle(); return LY.fontName(wb(), st.font || {}); }, options: () => L.fontSections({ major: wb().theme?.major, minor: wb().theme?.minor }), complete: L.fontComplete, preview: (v) => `font-family:${LY.fontStack(v)}`, note: L.fontNote, listCls: 'fonts', onChange: (v) => { if (G().guardProtect('formatCells')) return; L.addRecentFont(v); O.format(sh(), G().ranges(), { font: { name: v, scheme: undefined } }, L.N('Font')); G().paint(); } }, o)),
+    font: (o) => ui.combo(Object.assign({ id: 'fontname', width: 128, tip: 'Font', value: () => { const s = G().sel(); const cell = sh().get(s.r, s.c); const st = curStyle(); const slots = LY.scriptSlots(wb(), st.font, cell); const ch = cell && typeof cell.v === 'string' ? cell.v[0] : ''; return ch && L.hasEAText(ch) && slots.fontEA ? slots.fontEA : slots.font; }, options: () => L.fontSections({ major: wb().theme?.major, minor: wb().theme?.minor }), complete: L.fontComplete, preview: (v) => `font-family:${LY.fontStack(v)}`, note: L.fontNote, listCls: 'fonts', onChange: (v) => { if (G().guardProtect('formatCells')) return; L.addRecentFont(v); O.setScriptFont(sh(), G().ranges(), v); G().paint(); } }, o)),
     size: (o) => ui.combo(Object.assign({ id: 'fontsize', width: 42, tip: 'Font Size', value: () => String((curStyle().font || {}).sz || 10), options: () => L.SIZE_LIST, onChange: (v) => { const n = parseFloat(v); if (!(n >= 1 && n <= 409)) { ui.msg('The number must be between 1 and 409.', { icon: 'warn' }); return; } if (G().guardProtect('formatCells')) return; O.format(sh(), G().ranges(), { font: { sz: n } }, 'Font Size'); O.tx(wb(), L.N('AutoFit'), () => { for (const r of A.selRows()) O.autoRow(sh(), r); }); G().paint(); } }, o)),
     zoom: (o) => ui.combo(Object.assign({ id: 'zoombox', width: 52, tip: 'Zoom', value: () => (sh().view.zoom || 100) + '%', options: () => ['200%', '100%', '75%', '50%', '25%', { value: 'Selection', label: L.t('Selection') }], onChange: (v) => { if (/^sel/i.test(v)) { A.zoomToSelection(); return; } const n = parseInt(v, 10); if (n >= 10 && n <= 400) G().setZoom(n); else ui.msg('Enter a number between 10 and 400.', { icon: 'warn' }); } }, o)),
   };

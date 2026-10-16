@@ -126,6 +126,31 @@
   /* a theme font: the theme's, unless it is an East Asian font (a Japanese Excel's ＭＳ Ｐゴシック is its theme's font for
      Japanese, <a:font script="Jpan">, while the theme's Latin font is Calibri) */
   LY.fontName = (wb, f) => (f.name && L.fontIsEA && L.fontIsEA(f.name) ? f.name : f.scheme === 'minor' && wb.theme && wb.theme.minor ? wb.theme.minor : f.scheme === 'major' && wb.theme && wb.theme.major ? wb.theme.major : f.name || 'Arial');
+  /** faces a cell draws with: the cell font, unless rich text names its own */
+  LY.scriptSlots = (wb, font, cell) => L.scriptSlots(LY.fontName(wb, font || {}), cell && cell.rt);
+  /** rich-text pieces to draw, or null when the cell font draws the whole value */
+  LY.fontPieces = function (wb, font, cell, text) {
+    if (!cell || !cell.rt || !cell.rt.length || typeof text !== 'string') return null;
+    if (cell.rt.map((r) => r.t || '').join('') !== text) return null;
+    const latin = LY.fontName(wb, font || {});
+    const pieces = [];
+    for (const run of cell.rt) {
+      const name = run.font && run.font.name ? LY.fontName(wb, run.font) : latin;
+      const prev = pieces[pieces.length - 1];
+      if (prev && L.fontKey(prev.name) === L.fontKey(name)) prev.t += run.t || '';
+      else pieces.push({ t: run.t || '', name });
+    }
+    if (pieces.length === 1 && L.fontKey(pieces[0].name) === L.fontKey(latin)) return null;
+    return pieces.length ? pieces : null;
+  };
+  LY.piecesWidth = function (pieces, font, z, scale) {
+    let w = 0;
+    for (const p of pieces) {
+      if (!p.t) continue;
+      w += LY.measure(LY.cssFont(Object.assign({}, font, { name: p.name }), z, scale), p.t);
+    }
+    return w;
+  };
 
   /* ------------------------------------------------------------ display text */
   /**

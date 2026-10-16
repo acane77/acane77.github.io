@@ -67,6 +67,7 @@
     find: `${page(1, 1, 10, 14)}<circle cx="10" cy="9.5" r="3" fill="${LB}" stroke="${K}"/><path d="M12.2 11.7l2.6 2.6" stroke="${K}" stroke-width="2"/>`,
     replace: `${txt(1, 7, 'ab', 7, K)}<path d="M8 3.5h4.5v6" fill="none" stroke="${B}" stroke-width="1.3"/><path d="M10.5 8l2 2.3 2-2.3" fill="none" stroke="${B}" stroke-width="1.3"/>${txt(6, 15, 'ac', 7, R)}`,
     symbol: txt(2, 13, 'Ω', 13, B),
+    equation: txt(1, 13, 'π', 13, B),
     date: `<rect x="1.5" y="2.5" width="13" height="12" fill="#fff" stroke="#556"/><rect x="2" y="3" width="12" height="3" fill="${R}"/>${txt(4, 13.5, '15', 7, K)}`,
     slideNumber: `<rect x="1.5" y="2.5" width="13" height="11" fill="#fff" stroke="#556"/>${txt(5, 11.5, '#', 9, B)}`,
     comment: `<path d="M1.5 2.5h13v8h-7l-3 3v-3h-3z" fill="#fff6b0" stroke="#a08a20"/>`,

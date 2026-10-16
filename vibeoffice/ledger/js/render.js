@@ -302,6 +302,46 @@
     return out;
   }
   RD.wrapLines = wrapLines;
+  function fillPieces(ctx, pieces, x, y, font, z, scale) {
+    let tx = x;
+    for (const p of pieces) {
+      if (!p.t) continue;
+      const css = LY.cssFont(Object.assign({}, font, { name: p.name }), z, scale);
+      ctx.font = css;
+      ctx.fillText(p.t, tx, y);
+      tx += LY.measure(css, p.t);
+    }
+    return tx - x;
+  }
+  function asPieces(chars) {
+    const pcs = [];
+    for (const c of chars) {
+      const prev = pcs[pcs.length - 1];
+      if (prev && prev.name === c.name) prev.t += c.ch;
+      else pcs.push({ t: c.ch, name: c.name });
+    }
+    return pcs;
+  }
+  function wrapPieces(pieces, font, z, width) {
+    const chars = [];
+    for (const p of pieces) for (const ch of p.t) chars.push({ ch, name: p.name });
+    const lines = [];
+    let cur = [];
+    const wide = (arr) => (arr.length ? LY.piecesWidth(asPieces(arr), font, z) : 0);
+    const flush = () => { lines.push(asPieces(cur)); cur = []; };
+    for (const c of chars) {
+      if (c.ch === '\n' || c.ch === '\r') { if (c.ch === '\n') flush(); continue; }
+      if (cur.length && wide(cur.concat([c])) > width) {
+        let sp = -1;
+        for (let i = cur.length - 1; i >= 0; i--) if (/\s/.test(cur[i].ch)) { sp = i; break; }
+        if (sp > 0) { const rest = cur.slice(sp + 1); cur = cur.slice(0, sp); flush(); cur = rest; }
+        else flush();
+      }
+      cur.push(c);
+    }
+    flush();
+    return lines;
+  }
 
   /* ------------------------------------------------------------ main draw */
   /**
@@ -626,10 +666,12 @@
     const fpx = ((f.sz || 11) * 96) / 72 * z;
     const lineH = Math.round(fpx * 1.2);
     let text = disp.text;
-    if (ha === 'fill' && text) { const tw = LY.measure(font, text); if (tw > 0) text = text.repeat(Math.max(1, Math.floor(avail / tw))); ha = 'left'; }
+    const pieces = !disp.num && !disp.hashes && !disp.segs && ha !== 'fill' ? LY.fontPieces(wb, f, cell, text) : null;
+    if (ha === 'fill' && text) { const tw0 = LY.measure(font, text); if (tw0 > 0) text = text.repeat(Math.max(1, Math.floor(avail / tw0))); ha = 'left'; }
     /* clip region: own cell, or overflow neighbours for unwrapped text */
     let clipL = x, clipR = x + w - 1;
-    const tw = disp.segs ? LY.segWidth(disp.segs, font) : LY.measure(font, text);
+    const pScale = vert ? 0.7 : 1;
+    const tw = pieces ? LY.piecesWidth(pieces, ff, z, pScale) : disp.segs ? LY.segWidth(disp.segs, font) : LY.measure(font, text);
     const overflow = !wrap && !rot && !m && !disp.num && !al.shrink && tw > avail;
     if (overflow) {
       const row = sh.rows[r];
@@ -653,18 +695,21 @@
     };
     if (rot) {
       drawRotated(ctx, text, font, f, fpx, rot, x, y, w, h, ha, va, pad, z, deco);
-    } else if (wrap || /\n/.test(text) && wrap) {
-      const lines = wrapLines(font, text, Math.max(4, avail));
+    } else if ((wrap || /\n/.test(text)) && wrap) {
+      const pieceLines = pieces ? wrapPieces(pieces, ff, z, Math.max(4, avail)) : null;
+      const lines = pieceLines || wrapLines(font, text, Math.max(4, avail));
       const total = lines.length * lineH;
       let ty;
       if (va === 'top') ty = y + pad + fpx * 0.95;
       else if (va === 'center' || va === 'distributed' || va === 'justify') ty = y + (h - total) / 2 + fpx * 0.95;
       else ty = y + h - total - pad + fpx * 0.95;
-      for (const ln of lines) {
-        const lw = LY.measure(font, ln);
+      for (let li = 0; li < lines.length; li++) {
+        const ln = lines[li];
+        const lw = pieceLines ? LY.piecesWidth(ln, ff, z) : LY.measure(font, ln);
         let tx = ha === 'right' ? x + w - pad - 1 - lw - indentPx : ha === 'center' ? x + (w - lw) / 2 : x + pad + indentPx;
-        if (ha === 'justify' && ln !== lines[lines.length - 1]) tx = x + pad;
-        ctx.fillText(ln, tx, Math.round(ty));
+        if (ha === 'justify' && li !== lines.length - 1) tx = x + pad;
+        if (pieceLines) fillPieces(ctx, ln, tx, Math.round(ty), ff, z, 1);
+        else ctx.fillText(ln, tx, Math.round(ty));
         deco(tx, Math.round(ty), lw);
         ty += lineH;
       }
@@ -706,7 +751,8 @@
         else tx = x + pad + indentPx + (it.cf && it.cf.icon && ha !== 'right' ? iconW : 0);
         if (disp.hashes) tx = x + pad;
         /* a number that fits by Excel's (hinted) measure but not by the browser's is narrowed, never clipped */
-        if (disp.num && !disp.hashes && width > avail + 1) { const room = w - 2; tx = ha === 'left' ? x + 1 : ha === 'right' ? x + w - 1 - room : x + 1; ctx.fillText(text, Math.round(tx), ty, room); deco(Math.round(tx), ty, room); }
+        if (pieces) { fillPieces(ctx, pieces, Math.round(tx), ty, ff, z, scale * pScale); deco(Math.round(tx), ty, width); }
+        else if (disp.num && !disp.hashes && width > avail + 1) { const room = w - 2; tx = ha === 'left' ? x + 1 : ha === 'right' ? x + w - 1 - room : x + 1; ctx.fillText(text, Math.round(tx), ty, room); deco(Math.round(tx), ty, room); }
         else { ctx.fillText(text, Math.round(tx), ty); deco(Math.round(tx), ty, width); }
       }
     }

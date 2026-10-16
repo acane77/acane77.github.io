@@ -91,6 +91,7 @@
     setTimeout(() => { settingDom = Math.max(0, settingDom - 1); }, 0);
     if (!noScroll) E.scrollToCaret();
     E.markCells();
+    markMathSel();
   };
   E.readDom = function () {
     const s = window.getSelection();
@@ -113,11 +114,97 @@
   const offLimits = (n) => { const e = n && (n.nodeType === 3 ? n.parentNode : n); return !!(e && e.closest && e.closest(LY.hfEdit ? '.pg-body' : '.pg-hdr, .pg-ftr') && !e.closest('.tbx')); };
   /** while a header or footer is edited, the page it is edited on follows the selection */
   const hfPage = (n) => { const e = n && (n.nodeType === 3 ? n.parentNode : n), pg = e && e.closest && e.closest('.pg'); if (LY.hfEdit && pg && pg.dataset.pg != null) LY.hfEdit.page = +pg.dataset.pg; };
+  /** the equation element containing this DOM node, if the caret or selection has entered its MathML */
+  const mathHost = (node) => { const e = node && (node.nodeType === 3 ? node.parentNode : node); return e && e.closest ? e.closest('.math') : null; };
+  const mathEnds = (host) => {
+    const frag = host.closest && host.closest('.p[data-pid]');
+    const p = frag && D.byId(doc(), +frag.dataset.pid);
+    if (!p || host.dataset.o == null) return null;
+    const start = +host.dataset.o;
+    return { p, start, end: start + (+host.dataset.n || 1) };
+  };
+  /** how far `dir` (+1 / -1) must jump to clear an equation that begins or ends exactly at o; 0 when the neighbour is text */
+  function mathStep(p, o, dir) {
+    const loc = D.locate(p, o, dir < 0 ? 'before' : undefined);
+    const it = p.runs[loc.i];
+    if (!it || it.t !== 'raw' || !it.math) return 0;
+    if (dir > 0) return loc.off === 0 ? D.ilen(it) : 0;
+    return loc.start + D.ilen(it) === o ? D.ilen(it) : 0;
+  }
+  /** the selection is exactly one equation */
+  function selectedMathAtom(a, b) {
+    if (!a || !b || a.p !== b.p || a.o === b.o) return null;
+    const s = a.o < b.o ? a : b, e = a.o < b.o ? b : a;
+    const n = mathStep(s.p, s.o, 1);
+    if (!n || s.o + n !== e.o) return null;
+    return { p: s.p, start: s.o, end: e.o };
+  }
+  /** a DOM selection that has entered an equation, rewritten so the equation is whole or the caret sits on one side */
+  function mathSelectionFromDom(s) {
+    const ae = mathHost(s.anchorNode), fe = mathHost(s.focusNode);
+    const aEnds = ae && mathEnds(ae), fEnds = fe && mathEnds(fe);
+    if (!aEnds && !fEnds) return null;
+    if (s.isCollapsed || (aEnds && fEnds && aEnds.p === fEnds.p && aEnds.start === fEnds.start)) {
+      const e = fEnds || aEnds;
+      /* a click already selected this equation; the browser then drops the caret inside it. Keep the selection. */
+      const atom = E.sel && selectedMathAtom(E.sel.a, E.sel.f);
+      if (atom && atom.p === e.p && atom.start === e.start) return { a: { p: e.p, o: e.start }, f: { p: e.p, o: e.end } };
+      const prev = E.sel && E.sel.f;
+      const o = prev && prev.p === e.p && prev.o >= e.end ? e.start : e.end;
+      return { a: { p: e.p, o }, f: { p: e.p, o } };
+    }
+    const m = E.readDom();
+    if (!m) return null;
+    const away = (ends, other) => {
+      if (!ends) return other;
+      if (!other || other.p !== ends.p || other.o <= ends.start) return { p: ends.p, o: ends.end };
+      if (other.o >= ends.end) return { p: ends.p, o: ends.start };
+      return { p: ends.p, o: ends.end };
+    };
+    let a = m.a, f = m.f;
+    if (aEnds && fEnds && aEnds.p === fEnds.p && aEnds.start === fEnds.start) return { a: { p: aEnds.p, o: aEnds.start }, f: { p: aEnds.p, o: aEnds.end } };
+    if (fEnds && !aEnds) f = away(fEnds, a);
+    else if (aEnds && !fEnds) a = away(aEnds, f);
+    else { a = away(aEnds, f); f = away(fEnds, a); }
+    return { a, f };
+  }
+  /** pull a selection back out of MathML; the model already has no position inside an equation */
+  let mathSettle = 0;
+  function settleMathSelection(s) {
+    if (settingDom || mathSettle > 2 || !s || !s.rangeCount) return false;
+    if (!mathHost(s.anchorNode) && !mathHost(s.focusNode)) return false;
+    const fixed = mathSelectionFromDom(s);
+    if (!fixed) return false;
+    mathSettle++;
+    setTimeout(() => { mathSettle = 0; }, 0);
+    if (E.sel && D.eqPos(E.sel.a, fixed.a) && D.eqPos(E.sel.f, fixed.f)) { E.restoreDom(true); return true; }
+    E.setSel(fixed.a, fixed.f, { noScroll: true });
+    return true;
+  }
+  /** outline every equation the selection covers completely */
+  function markMathSel() {
+    const root = LY.root;
+    if (!root) return;
+    const d = doc();
+    const range = E.sel ? E.range() : null;
+    for (const el of root.querySelectorAll('.math')) {
+      let on = false;
+      if (range) {
+        const ends = mathEnds(el);
+        if (ends && D.storyOf(d, range[0].p) === D.storyOf(d, ends.p)) {
+          const pg = LY.hfEdit && el.closest('.pg');
+          if (!pg || +pg.dataset.pg === LY.hfEdit.page) on = D.cmp(d, range[0], { p: ends.p, o: ends.start }) <= 0 && D.cmp(d, range[1], { p: ends.p, o: ends.end }) >= 0;
+        }
+      }
+      el.classList.toggle('sel', on);
+    }
+  }
   E.onSelectionChange = function () {
     if (E.composing) return;
     if (E.sel && domIsOurs()) return;   /* our own (the caret held at a floating object's anchor, a selection-bar drag) */
     const s = window.getSelection();
     if (!s.rangeCount || !isEditableNode(s.focusNode)) return;
+    if (settleMathSelection(s)) return;
     const m = E.readDom();
     /* caret landed somewhere unmapped (page gap, margin), or a drag reached the empty part of a page (the
        browser puts it at the page's first position) — snap to the nearest paragraph */
@@ -136,6 +223,7 @@
     E.drawSel(false);
     E.selChanged();
     E.markCells();
+    markMathSel();
   };
   /* The model's selection drawn while the keyboard is elsewhere (Find and Replace keeps it): putting it into the
      page would take the focus with it, as Chrome focuses the editable page a selection lands in. Drawn again after
@@ -151,12 +239,13 @@
     try { r.setStart(a.node, a.offset); r.setEnd(b.node, b.offset); } catch (e) { CSS.highlights.delete('quire-sel'); return; }
     CSS.highlights.set('quire-sel', new Highlight(r));
   };
-  L.bus.on('layout-done', () => { if (selDrawn) E.drawSel(true); });
+  L.bus.on('layout-done', () => { if (selDrawn) E.drawSel(true); markMathSel(); });
   /** pull a pending DOM selection into the model before acting on a key (selectionchange is asynchronous) */
   E.syncSel = function () {
     if (E.composing || !LY.root || domIsOurs()) return;
     const s = window.getSelection();
     if (!s.rangeCount || !isEditableNode(s.focusNode)) return;
+    if (settleMathSelection(s)) return;
     const m = E.readDom();
     if (!m) { snapCaret(); return; }
     if (E.sel && D.eqPos(m.a, E.sel.a) && D.eqPos(m.f, E.sel.f)) return;
@@ -164,6 +253,7 @@
     hfPage(s.focusNode);
     E.pending = null; D.breakMerge();
     E.sel = m; E.clearObjSel(); E.selChanged();
+    markMathSel();
   };
   /* A press in the document is a ui.drag (common/ui.js) that watches the browser's own text selection: it holds no
      pointer and draws nothing. Its release ends the selection ('sel-done'); a release the page never sees (let go in
@@ -802,6 +892,25 @@
       if (shift) E.setSel(E.sel.a, target); else E.setSel(target);
       return;
     }
+    /* an equation is one character: Left and Right step over it, and a selection of just that equation
+       collapses to the side the arrow points */
+    if (!ctrl && !alt && (k === 'ArrowLeft' || k === 'ArrowRight') && E.sel && !E.objSel) {
+      const dir = k === 'ArrowRight' ? 1 : -1;
+      const atom = !shift && selectedMathAtom(E.sel.a, E.sel.f);
+      if (atom) {
+        e.preventDefault();
+        E.setSel(D.pos(atom.p, dir > 0 ? atom.end : atom.start));
+        return;
+      }
+      const f = E.sel.f;
+      const n = mathStep(f.p, f.o, dir);
+      if (n) {
+        e.preventDefault();
+        const target = D.pos(f.p, f.o + dir * n);
+        if (shift) E.setSel(E.sel.a, target); else E.setSel(target);
+        return;
+      }
+    }
     /* word movement the Word way: Ctrl+→ goes to the start of the next word, so Ctrl+Shift+→ takes the trailing space too */
     if (ctrl && !alt && (k === 'ArrowLeft' || k === 'ArrowRight') && E.sel && !E.objSel) {
       e.preventDefault();
@@ -963,6 +1072,21 @@
     /* the part of the page not being edited (the body while a header is, a header while the body is) takes no
        caret; a double-click there switches (onDblClick) */
     if (offLimits(t)) { e.preventDefault(); return; }
+    /* an equation is one character: the press selects it whole and never puts the caret in the MathML */
+    const mathEl = t.closest && t.closest('.math');
+    if (mathEl && mathEl.closest('.p')) {
+      e.preventDefault();
+      const start = LY.domToPos(mathEl, 0);
+      if (!start) return;
+      const end = { p: start.p, o: start.o + (+mathEl.dataset.n || 1) };
+      if (e.button === 2 && E.sel) {
+        const [a, b] = E.range();
+        if (D.cmp(doc(), a, start) <= 0 && D.cmp(doc(), b, end) >= 0) return;
+      }
+      if (e.shiftKey && E.sel) E.setSel(E.sel.a, D.cmp(doc(), E.sel.a, start) <= 0 ? end : start);
+      else E.setSel(start, end);
+      return;
+    }
     /* floating objects & inline images; a right-click selects one too (a selected one stays so), so the menu is its own */
     const obj = t.closest && t.closest('.img, .shp, .flt');
     if (obj && L.drawing && L.drawing.onObjectDown && L.drawing.onObjectDown(e, obj)) return;
@@ -1067,6 +1191,7 @@
   }
   function onDblClick(e) {
     const t = e.target;
+    if (t.closest && t.closest('.math')) { e.preventDefault(); if (L.dlg && L.dlg.editEquation) L.dlg.editEquation(); return; }
     const hf = t.closest && t.closest('.pg-hdr, .pg-ftr');
     if (hf && !LY.hfEdit && L.app && L.app.editHeaderFooter) { e.preventDefault(); L.app.editHeaderFooter(hf.dataset.kind, +hf.closest('.pg').dataset.pg, e); return; }
     if (LY.hfEdit && t.closest && t.closest('.pg-body') && L.app && L.app.closeHeaderFooter) { e.preventDefault(); L.app.closeHeaderFooter(false, e); return; }

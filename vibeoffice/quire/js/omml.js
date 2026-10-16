@@ -277,4 +277,195 @@
     const jc = isPara ? prop(node, 'oMathParaPr', 'jc') || 'centerGroup' : null;
     return { math, display: isPara, jc };
   };
+
+  /* Office's LaTeX export dialect. The next open derives it again, so braces may differ from what was typed. */
+  const FUN = new Set(['sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'log', 'ln', 'lim', 'max', 'min', 'sup', 'inf', 'det', 'gcd', 'exp', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh']);
+  const NARY_CMD = { '∑': '\\sum', '∏': '\\prod', '∫': '\\int', '∮': '\\oint', '⋃': '\\bigcup', '⋂': '\\bigcap' };
+  const ACC_CMD = { '\u0302': '\\hat', '\u02C6': '\\hat', '\u0303': '\\tilde', '\u02DC': '\\tilde', '\u0304': '\\bar', '\u00AF': '\\bar', '\u0305': '\\overline', '\u0307': '\\dot', '\u20D7': '\\vec', '\u2192': '\\vec' };
+  const CHAR_CMD = {
+    '\u2026': '\\ldots', '\u22EF': '\\cdots', '\u22EE': '\\vdots', '\u22F1': '\\ddots', '\u221E': '\\infty', '\u2212': '-',
+    '\u00B1': '\\pm', '\u2213': '\\mp', '\u00D7': '\\times', '\u00F7': '\\div', '\u22C5': '\\cdot',
+    '\u2264': '\\leq', '\u2265': '\\geq', '\u2260': '\\neq', '\u2248': '\\approx', '\u2261': '\\equiv',
+    '\u2192': '\\to', '\u2190': '\\leftarrow', '\u21D2': '\\Rightarrow', '\u21D0': '\\Leftarrow',
+    '\u2208': '\\in', '\u2209': '\\notin', '\u2202': '\\partial', '\u2207': '\\nabla',
+  };
+  const joinLatex = (parts) => {
+    let s = '';
+    for (const p of parts) {
+      if (!p) continue;
+      if (s && /\\[a-zA-Z]+$/.test(s) && /^[A-Za-z0-9]/.test(p)) s += ' ';
+      s += p;
+    }
+    return s;
+  };
+  const braceAtom = (s) => {
+    if (!s) return '{}';
+    if (/^[A-Za-z0-9]$/.test(s) || /^\\[a-zA-Z]+$/.test(s)) return s;
+    if (/^\\(left|frac|sqrt|sum|prod|int|oint|mathrm|operatorname|hat|bar|vec|dot|tilde|overline|underline)/.test(s)) return s;
+    return '{' + s + '}';
+  };
+  const scripted = (base, sub, sup) => {
+    let s = braceAtom(base);
+    if (sub && sub.trim()) s += '_{' + sub + '}';
+    if (sup && sup.trim()) s += '^{' + sup + '}';
+    return s;
+  };
+  const fence = (ch, side) => {
+    const c = ch == null ? (side === 'l' ? '(' : ')') : ch;
+    const cmd = side === 'l' ? '\\left' : '\\right';
+    if (!c) return cmd + '.';
+    if (c === '{' || c === '}') return cmd + '\\' + c;
+    if (c === '\u2016' || c === '\u2225') return cmd + '\\|';
+    if (c === '\u27E8') return cmd + '\\langle';
+    if (c === '\u27E9') return cmd + '\\rangle';
+    return cmd + c;
+  };
+  function charsToLatex(text) {
+    let s = '', buf = '';
+    const flush = () => { s += buf; buf = ''; };
+    for (const ch of text) {
+      const cmd = CHAR_CMD[ch];
+      if (cmd) {
+        flush();
+        if (cmd.startsWith('\\') && s && /[a-zA-Z]$/.test(s)) s += ' ';
+        s += cmd;
+        continue;
+      }
+      if ('\\{}^_&#%'.includes(ch)) {
+        flush();
+        s += ch === '\\' ? '\\backslash ' : '\\mathrm{' + ch + '}';
+        continue;
+      }
+      buf += ch;
+    }
+    flush();
+    return s;
+  }
+  function runLatex(r) {
+    let text = '';
+    for (const c of kids(r)) if (lname(c) === 't') text += c.textContent;
+    const sty = prop(r, 'rPr', 'sty');
+    if ((sty === 'p' || sty === 'b') && FUN.has(text)) return '\\' + text;
+    if ((sty === 'p' || sty === 'b') && text && !/[\\{}^_&#%]/.test(text)) return '\\mathrm{' + text + '}';
+    return charsToLatex(text);
+  }
+  function argLatex(n) { return n ? joinLatex(kids(n).map(latexOf)) : ''; }
+  function latexOf(c) {
+    switch (lname(c)) {
+      case 'r': return runLatex(c);
+      case 'f': return '\\frac{' + argLatex(kid(c, 'num')) + '}{' + argLatex(kid(c, 'den')) + '}';
+      case 'sSup': return scripted(argLatex(kid(c, 'e')), '', argLatex(kid(c, 'sup')));
+      case 'sSub': return scripted(argLatex(kid(c, 'e')), argLatex(kid(c, 'sub')), '');
+      case 'sSubSup': return scripted(argLatex(kid(c, 'e')), argLatex(kid(c, 'sub')), argLatex(kid(c, 'sup')));
+      case 'sPre': return '{}_{' + argLatex(kid(c, 'sub')) + '}^{' + argLatex(kid(c, 'sup')) + '}' + braceAtom(argLatex(kid(c, 'e')));
+      case 'd': {
+        const parts = kids(c, 'e').map(argLatex);
+        const sep = prop(c, 'dPr', 'sepChr');
+        return fence(prop(c, 'dPr', 'begChr'), 'l') + parts.join(parts.length > 1 ? (sep == null ? '|' : sep) : '') + fence(prop(c, 'dPr', 'endChr'), 'r');
+      }
+      case 'rad': {
+        const hide = onOff(prop(c, 'radPr', 'degHide'));
+        const deg = argLatex(kid(c, 'deg')).trim();
+        const e = argLatex(kid(c, 'e'));
+        if (hide || !deg) return '\\sqrt{' + e + '}';
+        return '\\sqrt[' + deg + ']{' + e + '}';
+      }
+      case 'nary': {
+        const chr = prop(c, 'naryPr', 'chr') || '∫';
+        const cmd = NARY_CMD[chr] || '\\operatorname{' + chr + '}';
+        const sub = onOff(prop(c, 'naryPr', 'subHide')) ? '' : argLatex(kid(c, 'sub')).trim();
+        const sup = onOff(prop(c, 'naryPr', 'supHide')) ? '' : argLatex(kid(c, 'sup')).trim();
+        const e = argLatex(kid(c, 'e')).trim();
+        let s = cmd;
+        if (sub) s += '_{' + sub + '}';
+        if (sup) s += '^{' + sup + '}';
+        if (e) s += ' ' + e;
+        return s;
+      }
+      case 'func': {
+        const name = argLatex(kid(c, 'fName')).trim();
+        const e = argLatex(kid(c, 'e')).trim();
+        let s = /[\\^_]/.test(name) ? name : FUN.has(name) ? '\\' + name : '\\operatorname{' + name + '}';
+        if (e) s += ' ' + e;
+        return s;
+      }
+      case 'acc': {
+        const ch = prop(c, 'accPr', 'chr') || '\u0302';
+        return (ACC_CMD[ch] || '\\hat') + '{' + argLatex(kid(c, 'e')) + '}';
+      }
+      case 'bar': {
+        const top = prop(c, 'barPr', 'pos') !== 'bot';
+        return (top ? '\\overline{' : '\\underline{') + argLatex(kid(c, 'e')) + '}';
+      }
+      case 'm': return '\\matrix{' + kids(c, 'mr').map((mr) => kids(mr, 'e').map(argLatex).join('&')).join('\\\\') + '}';
+      case 'eqArr': return kids(c, 'e').map(argLatex).join('\\\\');
+      case 'limLow': return scripted(argLatex(kid(c, 'e')), argLatex(kid(c, 'lim')), '');
+      case 'limUpp': return scripted(argLatex(kid(c, 'e')), '', argLatex(kid(c, 'lim')));
+      case 'groupChr': case 'box': case 'borderBox': case 'phant': return argLatex(kid(c, 'e'));
+      case 'oMath': case 'ins': case 'sdt': case 'sdtContent': case 'customXml': case 'smartTag': case 'moveTo': return argLatex(c);
+      case 'del': case 'moveFrom': case 'oMathParaPr': case 'ctrlPr': return '';
+      default: return '';
+    }
+  }
+  function runsOnly(n) {
+    for (const c of kids(n)) {
+      const name = lname(c);
+      if (name === 'r') continue;
+      if ((name === 'ins' || name === 'sdt' || name === 'sdtContent' || name === 'customXml' || name === 'smartTag' || name === 'moveTo' || name === 'oMath') && runsOnly(c)) continue;
+      return false;
+    }
+    return true;
+  }
+  function zoneText(n) {
+    let s = '';
+    for (const c of kids(n)) {
+      if (lname(c) === 'r') { for (const t of kids(c)) if (lname(t) === 't') s += t.textContent; }
+      else s += zoneText(c);
+    }
+    return s;
+  }
+  function looksLikeLatex(s) {
+    if (/\\[a-zA-Z]/.test(s)) return true;
+    if (/[∫∑∏√]/.test(s)) return false;
+    return /[\^_]/.test(s);
+  }
+  function unicodeToLatex(s) {
+    let t = s.trim();
+    t = t.replace(/√\(([^()]*)\)/g, '\\sqrt{$1}').replace(/√\s*([A-Za-z0-9]+)/g, '\\sqrt{$1}');
+    t = t.replace(/∑/g, '\\sum ').replace(/∏/g, '\\prod ').replace(/∫/g, '\\int ').replace(/∮/g, '\\oint ');
+    t = t.replace(/\u2026/g, '\\ldots').replace(/\u22EF/g, '\\cdots').replace(/\u221E/g, '\\infty');
+    const atom = '(?:\\\\(?:sqrt|sum|prod|int|oint|ldots|cdots|infty)(?:\\{[^{}]*\\})*|\\{[^{}]*\\}|\\([^()]*\\)|[A-Za-z0-9]+)';
+    for (let i = 0; i < 6; i++) {
+      const next = t.replace(new RegExp('(' + atom + ')\\s*/\\s*(' + atom + ')'), '\\frac{$1}{$2}');
+      if (next === t) break;
+      t = next;
+    }
+    return t.replace(/[ \t]+/g, ' ').trim();
+  }
+  function oneLatex(om) {
+    if (runsOnly(om)) {
+      const text = zoneText(om).trim();
+      if (looksLikeLatex(text)) return text;
+      return unicodeToLatex(text);
+    }
+    return argLatex(om);
+  }
+
+  /** LaTeX for an m:oMath / m:oMathPara element or its serialized XML. Empty when it cannot be read. */
+  M.toLatex = function (src) {
+    let node = src;
+    if (typeof src === 'string') {
+      if (!src) return '';
+      const xml = /xmlns:m=/.test(src) ? src : src.replace(/^<m:(oMath\w*)/, '<m:$1 xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"');
+      const doc = new DOMParser().parseFromString(xml, 'application/xml');
+      if (doc.getElementsByTagName('parsererror').length) return '';
+      node = doc.documentElement;
+    }
+    if (!node) return '';
+    if (lname(node) === 'oMathPara') {
+      const maths = kids(node, 'oMath');
+      return maths.map(oneLatex).filter(Boolean).join('\\\\');
+    }
+    return oneLatex(node);
+  };
 })();

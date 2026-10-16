@@ -495,12 +495,13 @@
 
   /* ================= Insert Object ================= */
   G.insertObject = function () {
-    const types = [['chart', L.N('Chart')], ['equation', L.N('Equation')], ['wordart', L.N('LettersArt')], ['excel', L.N('Spreadsheet (table)')], ['document', L.N('Document (inserted as text)')], ['picture', L.N('Bitmap Image')]];
+    const types = [['chart', L.N('Chart')], ['equation', L.N('Equation')], ['equationLegacy', L.N('Equation (Legacy)')], ['wordart', L.N('LettersArt')], ['excel', L.N('Spreadsheet (table)')], ['document', L.N('Document (inserted as text)')], ['picture', L.N('Bitmap Image')]];
     const lb = G.listBox(types.map(([v, l]) => ({ value: v, label: l })), 'chart', { height: 160, onDbl: () => ok.click() });
     const dlg = ui.dialog({ title: 'Object', width: 360, body: ui.tabs([{ label: '&Create New', body: h('div', { class: 'col' }, h('label', { text: 'Object type:' }), lb) }, { label: 'Create from &File', body: h('div', { class: 'col' }, h('div', { class: 'tp-note', text: 'Insert the contents of a .docx, .txt or .htm file, or a picture.' }), ui.button('&Browse...', () => { dlg.close(null); A().insertFileDialog(); })) }]), buttons: [{ label: 'OK', primary: true, onClick: () => {
       const v = lb.get();
       if (v === 'chart') A().insertChart();
       else if (v === 'equation') G.equation();
+      else if (v === 'equationLegacy') G.equationLegacy();
       else if (v === 'wordart') G.wordart();
       else if (v === 'excel') L.tables.insert(4, 5, { worksheet: true });
       else if (v === 'document') A().insertFileDialog();
@@ -508,12 +509,14 @@
     } }, { label: 'Cancel' }] });
     const ok = dlg.buttons[0];
   };
-  /** a simple equation editor: linear format with Unicode math symbols */
-  G.equation = function () {
+  /** Insert ▸ Equation, and Insert ▸ Object ▸ Equation: the LaTeX dialog, with Insert as the button. */
+  G.equation = function () { G.editEquation({ insert: true }); };
+  /** Insert ▸ Object ▸ Equation (Legacy): the earlier editor, Cambria Math italics, not OMML. */
+  G.equationLegacy = function () {
     const inp = h('textarea', { rows: 3, id: 'eq-in', style: 'width:100%;font:16px "Cambria Math",Caladea,serif' });
     const pal = h('div', { class: 'sym-recent', style: 'grid-template-columns:repeat(16,26px)' });
     for (const c of '±×÷≠≈≤≥∞√∛∑∏∫∂∆∇πθαβγδλμσφωΩ→⇒∈∉⊂⊃∪∩∀∃¬∧∨²³⁴ⁿ₀₁₂ᵢ½'.split('')) { const b = h('button', { type: 'button', text: c }); b.addEventListener('click', () => { const s = inp.selectionStart; inp.value = inp.value.slice(0, s) + c + inp.value.slice(inp.selectionEnd); inp.focus(); inp.setSelectionRange(s + 1, s + 1); }); pal.appendChild(b); }
-    ui.dialog({ title: 'Equation', width: 470, focus: inp, body: h('div', { class: 'col' }, pal, inp, h('div', { class: 'tp-note', text: 'Type the equation; it is inserted in Cambria Math italics.' })), buttons: [{ label: 'OK', primary: true, onClick: () => { if (!inp.value.trim()) return; E.edit('Insert Equation', () => { const pos = E.deleteSelection(); return O.insertText(pos, inp.value.trim(), Object.assign(O.inheritRPr(pos), { font: 'Cambria Math', i: true })); }); } }, { label: 'Cancel' }] });
+    ui.dialog({ title: 'Equation (Legacy)', width: 470, focus: inp, body: h('div', { class: 'col' }, pal, inp, h('div', { class: 'tp-note', text: 'Type the equation; it is inserted in Cambria Math italics.' })), buttons: [{ label: 'OK', primary: true, onClick: () => { if (!inp.value.trim()) return; E.edit(L.N('Insert Equation (Legacy)'), () => { const pos = E.deleteSelection(); return O.insertText(pos, inp.value.trim(), Object.assign(O.inheritRPr(pos), { font: 'Cambria Math', i: true })); }); } }, { label: 'Cancel' }] });
   };
 
   /* ================= Diagram Gallery ================= */
@@ -826,5 +829,112 @@
     const r = G.radios('tx-s', [['para', '&Paragraph marks'], ['\t', '&Tabs'], [',', '&Commas'], ['other', '&Other:']], '\t');
     const other = h('input', { type: 'text', maxlength: 1, value: '-', style: 'width:30px' });
     ui.dialog({ title: 'Convert Table to Text', width: 280, body: ui.group('Separate text with', r, other), buttons: [{ label: 'OK', primary: true, onClick: () => L.tables.tableToText(r.get() === 'other' ? other.value || '-' : r.get()) }, { label: 'Cancel' }] });
+  };
+
+  /* a built-down zone whose text is already LaTeX, used when the OMML walk yields nothing */
+  function linearLatex(it) {
+    const xml = it.xml || '';
+    if (/<m:(sSup|sSub|sSubSup|sPre|f\b|d\b|nary|rad|func|acc|eqArr|groupChr|limLow|limUpp|m\b|box|borderBox|phant|bar)\b/.test(xml)) return '';
+    const text = (it.text || '').replace(/\u200b/g, '').trim();
+    if (!/\\[a-zA-Z]+|[\^_]/.test(text)) return '';
+    return text;
+  }
+  function equationLatex(it) {
+    try {
+      const s = L.omml && L.omml.toLatex ? L.omml.toLatex(it.xml) : '';
+      if (s && String(s).trim()) return String(s).trim();
+    } catch (e) { /* the linear text below is the fallback */ }
+    return linearLatex(it);
+  }
+  function paraPrOf(it) {
+    const m = /<m:oMathParaPr\b[^>]*>[\s\S]*?<\/m:oMathParaPr>/.exec(it.xml || '');
+    return m ? m[0] : '';
+  }
+  function mathPlain(xml) {
+    const out = [];
+    const re = /<m:t\b([^>]*)>([^<]*)<\/m:t>/g;
+    let m;
+    while ((m = re.exec(xml))) out.push(m[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
+    return out.join('');
+  }
+  function selectedEquation() {
+    if (!E.sel || !E.sel.f || E.sel.a.p !== E.sel.f.p) return null;
+    const it = D.itemBefore(E.sel.f.p, Math.min(E.sel.a.o, E.sel.f.o) + 1);
+    return it && it.t === 'raw' && it.math ? it : null;
+  }
+  /**
+   * Pages-style equation editor: LaTeX above, a live preview below.
+   * Editing fills the field from the equation; Update replaces its OMML when the text changed and parses.
+   * Insert (opts.insert) starts empty. An empty paragraph becomes a display equation; a paragraph that
+   * already has text gets an inline one. The primary button stays disabled while the LaTeX does not parse.
+   * An empty field is not an error: editing keeps the equation, and Insert does not add one.
+   */
+  G.editEquation = function (opts) {
+    opts = opts || {};
+    const inserting = !!opts.insert;
+    const it = inserting ? null : (opts.item || selectedEquation());
+    if (!inserting && !it) return;
+    const filled = inserting ? '' : equationLatex(it);
+    const ta = h('textarea', { rows: 5, spellcheck: 'false' });
+    ta.value = filled;
+    const pv = h('div', { class: 'eq-preview' });
+    const note = h('div', { class: 'eq-note' });
+    let bad = false;
+    const showOriginal = () => {
+      if (!it) return;
+      const m = R.mathFor(it);
+      if (m && m.math) { const c = m.math.cloneNode(true); if (!c.getAttribute('displaystyle')) c.setAttribute('displaystyle', 'true'); pv.appendChild(c); }
+    };
+    const dlg = ui.dialog({
+      title: inserting ? 'Insert Equation' : 'Edit Equation', width: 480, focus: ta,
+      body: h('div', { class: 'col eq-editor' }, h('label', { text: 'LaTeX' }), ta, h('label', { text: 'Preview' }), pv, note),
+      buttons: [{ label: opts.button || (inserting ? 'Insert' : 'Update'), primary: true, onClick: () => {
+        if (bad) return false;
+        const src = ta.value.trim();
+        if (!src || (!inserting && src === filled)) return inserting ? false : undefined;
+        const probe = L.latex && L.latex.toOMML(src, { para: false });
+        if (!probe) { bad = true; apply.disabled = true; note.textContent = L.t('This LaTeX has a syntax error.'); return false; }
+        if (inserting) {
+          if (!E.sel) return false;
+          const ok = E.edit(L.N('Insert Equation'), () => {
+            const pos = E.deleteSelection();
+            const para = D.plen(pos.p) === 0;
+            const xml = L.latex.toOMML(src, { para });
+            if (!xml) return pos;
+            return O.insertItem(pos, D.item('raw', { math: true, text: mathPlain(xml), xml, para }));
+          });
+          if (ok === false) return false;
+          return;
+        }
+        const xml = L.latex.toOMML(src, { para: !!it.para, paraPr: paraPrOf(it) });
+        if (!xml) { bad = true; apply.disabled = true; note.textContent = L.t('This LaTeX has a syntax error.'); return false; }
+        const p = E.sel && E.sel.f && E.sel.f.p;
+        if (!p || !p.runs || p.runs.indexOf(it) < 0) return false;
+        const ok = E.edit(L.N('Update Equation'), () => {
+          D.touch(p);
+          it.xml = xml;
+          it.text = mathPlain(xml);
+        });
+        if (ok === false) return false;
+      } }, { label: 'Cancel', cancel: true }],
+    });
+    const apply = dlg.buttons[0];
+    const paint = () => {
+      const v = ta.value;
+      pv.replaceChildren();
+      if (!v.trim()) {
+        bad = false;
+        note.textContent = '';
+        showOriginal();
+      } else {
+        const math = L.latex && L.latex.toMathML(v);
+        if (math) { bad = false; pv.appendChild(math); note.textContent = ''; }
+        else if (!inserting && v.trim() === filled) { bad = false; note.textContent = ''; showOriginal(); }
+        else { bad = true; note.textContent = L.t('This LaTeX has a syntax error.'); }
+      }
+      apply.disabled = bad;
+    };
+    ta.addEventListener('input', paint);
+    paint();
   };
 })();

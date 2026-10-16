@@ -34,6 +34,17 @@
     }
     return maths === 1 && other.replace(/[\s()[\]0-9.,:;\-–a-zA-Z]/g, '').length === 0 && other.trim().length <= 14;
   };
+  /* a paragraph whose text is only an equation number: Word still centers the display equation on a justified line */
+  R.mathLine = (p) => {
+    let text = '';
+    for (const it of p.runs) {
+      if (it.t === 'raw' && it.math) continue;
+      if (it.t === 'text') text += it.text;
+      else if (it.t === 'tab' || it.t === 'ptab' || it.t === 'br' || D.ilen(it) === 0) continue;
+      else return false;
+    }
+    return text.replace(/[\s()[\]0-9.,:;\-–]/g, '').length === 0;
+  };
   /* equations: MathML built once per source XML */
   const mathCache = new Map();
   R.mathFor = (it) => {
@@ -45,6 +56,86 @@
       mathCache.set(it.xml, m);
     }
     return m;
+  };
+  /* Word breaks a line of math before a binary operator when the line is wider than its column or cell (brkBin before). */
+  const MATH_BREAK = new Set(['=', '+', '-', '\u2212', '\u00b1', '\u2213', '\u00d7', '\u00f7', '\u22c5', '\u00b7', '<', '>', '\u2264', '\u2265', '\u2260', '\u2248', '\u2261', '\u223c', '\u221d', '\u2208', '\u2209', '\u2192', '\u21d2']);
+  const mathAtoms = (math) => {
+    let nodes = [...math.childNodes].filter((n) => n.nodeType === 1);
+    if (nodes.length === 1 && nodes[0].localName === 'mrow') nodes = [...nodes[0].childNodes].filter((n) => n.nodeType === 1);
+    return nodes;
+  };
+  const mathBreakOp = (n) => n.localName === 'mo' && MATH_BREAK.has((n.textContent || '').replace(/\s/g, ''));
+  /** natural edges of the top-level atoms; a size-contained cell reports 0, so this is measured on its own */
+  function mathEdges(el, math) {
+    const host = document.createElement('span');
+    host.className = el.className;
+    host.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;width:max-content;white-space:nowrap';
+    const from = getComputedStyle(el);
+    host.style.fontSize = from.fontSize;
+    host.style.fontFamily = from.fontFamily;
+    const clone = math.cloneNode(true);
+    host.appendChild(clone);
+    document.body.appendChild(host);
+    try {
+      const nodes = mathAtoms(clone);
+      const rects = nodes.map((n) => n.getBoundingClientRect());
+      if (rects.length < 2 || !rects.some((r) => r.width > 0)) return null;
+      const base = rects[0].left;
+      return rects.map((r) => ({ left: r.left - base, right: r.right - base }));
+    } finally { host.remove(); }
+  }
+  R.fitMath = function (frag, frameW) {
+    if (!frameW || frameW < 20 || !document.body) return;
+    const pc = frag.querySelector(':scope > .pc') || frag;
+    const cs = getComputedStyle(pc);
+    const avail = Math.max(20, frameW - (parseFloat(cs.marginLeft) || 0) - (parseFloat(cs.marginRight) || 0) - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0));
+    for (const el of frag.querySelectorAll('.mml')) {
+      const math = [...el.children].find((n) => n.localName === 'math');
+      if (!math) continue;
+      if (el.clientWidth > 40 && el.scrollWidth <= el.clientWidth + 2 && el.clientWidth <= avail + 2) continue;
+      const nodes = mathAtoms(math);
+      if (nodes.length < 2) continue;
+      const edges = mathEdges(el, math);
+      if (!edges || edges.length !== nodes.length) continue;
+      const span = (i, j) => edges[j - 1].right - edges[i].left;
+      if (span(0, nodes.length) <= avail + 2) continue;
+      const lines = [];
+      let start = 0, lastOp = 0;
+      for (let i = 0; i < nodes.length; i++) {
+        if (i > start && span(start, i + 1) > avail + 2) {
+          const at = lastOp > start ? lastOp : i;
+          /* a binary operator stays with the atom after it, even when that pair is wider than the cell */
+          const glued = mathBreakOp(nodes[i - 1]) && (at === i - 1 || (at === i && start === i - 1)) && span(i - 1, i + 1) > avail + 2;
+          if (glued) {
+            if (i - 1 > start) lines.push(nodes.slice(start, i - 1));
+            lines.push(nodes.slice(i - 1, i + 1));
+            start = i + 1;
+            lastOp = start;
+            continue;
+          }
+          lines.push(nodes.slice(start, at));
+          start = at;
+          lastOp = start;
+          i = at - 1;
+          continue;
+        }
+        if (mathBreakOp(nodes[i]) && i > start) lastOp = i;
+      }
+      if (start < nodes.length) lines.push(nodes.slice(start));
+      if (lines.length < 2) continue;
+      const stack = document.createElement('span');
+      stack.className = 'mstack';
+      for (const line of lines) {
+        if (!line.length) continue;
+        const m = math.cloneNode(false);
+        for (const n of line) m.appendChild(n);
+        const row = document.createElement('span');
+        row.className = 'mln';
+        row.appendChild(m);
+        stack.appendChild(row);
+      }
+      el.replaceChildren(stack);
+    }
   };
 
   /* ---------- colours ---------- */
@@ -613,7 +704,18 @@
           /* Office Math rendered as MathML */
           el.style.cssText = R.runCSS(r, mult) + ';font-style:normal;font-weight:normal;text-decoration:none';
           el.classList.add('mml');
-          if (mres.display) { el.classList.add('mpara'); el.style.textAlign = mres.jc === 'left' ? 'left' : mres.jc === 'right' ? 'right' : 'center'; }
+          if (mres.display) {
+            el.classList.add('mpara');
+            const align = mres.jc === 'left' ? 'left' : mres.jc === 'right' ? 'right' : 'center';
+            el.style.textAlign = align;
+            el.style.textAlignLast = align;
+            /* a justified or left line packs a short inline to the start; Word centers the display equation (centerGroup) */
+            const pjc = ALIGN[pPr.jc] || 'left';
+            if (align === 'center' && pjc !== 'center' && R.mathLine(p)) {
+              pc.style.textAlign = 'center';
+              pc.style.textAlignLast = 'center';
+            }
+          }
           const mm = mres.math.cloneNode(true);
           /* an equation alone on its line (perhaps with a tab and a number) is laid out in display style, as Word does */
           if (!mres.display && R.mathSolo(p)) mm.setAttribute('displaystyle', 'true');
@@ -632,6 +734,19 @@
       el.dataset.n = 1;
       controlSpan(el);
       if (cls.length && el.classList) for (const c of cls) el.classList.add(c);
+      /* a caret anchor before an equation that nothing editable abuts, so the caret can sit in a text
+         node instead of inside the MathML */
+      if (el.classList.contains('math')) {
+        const prev = pc.lastChild;
+        const abut = prev && prev.nodeType === 1 && prev.dataset.o != null && prev.contentEditable !== 'false' && prev.firstChild && prev.firstChild.nodeType === 3 && +prev.dataset.o + +prev.dataset.n === a;
+        if (!abut) {
+          const z = document.createElement('span');
+          z.className = 'zw';
+          z.dataset.z = a;
+          z.appendChild(document.createTextNode('\u200b'));
+          pc.appendChild(z);
+        }
+      }
       pc.appendChild(el);
     }
     /* trailing zero-width filler so the caret can sit after a trailing non-editable object */

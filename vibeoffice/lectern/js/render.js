@@ -296,14 +296,24 @@
       } else {
         for (const r of p.rs) {
           const rp = L.style.run(ps, r);
-          const sp = h('span', { class: 'r' });
           const own = L.txt.runProps(r);
-          if (Object.keys(own).length) sp.dataset.r = JSON.stringify(own);
-          if (r.fld) { sp.dataset.fld = r.fld; sp.contentEditable = 'false'; }
-          R.runStyle(sp, rp, design, ctx, scale);
-          if (r.link) sp.dataset.link = JSON.stringify(r.link);
-          appendText(sp, r.fld ? fieldText(r, ctx) : r.t);
-          el.appendChild(sp);
+          const latin = L.style.font(rp.font, design);
+          const ea = L.style.fontEA(rp.fontEA, design);
+          const raw = r.fld ? fieldText(r, ctx) : r.t;
+          const parts = !r.fld && ea && L.fontKey(latin) !== L.fontKey(ea) && L.hasEAText(raw) ? L.splitEA(raw) : null;
+          const emit = (text, face, eaFace) => {
+            const sp = h('span', { class: 'r' });
+            if (Object.keys(own).length) sp.dataset.r = JSON.stringify(own);
+            if (r.fld) { sp.dataset.fld = r.fld; sp.contentEditable = 'false'; }
+            const draw = Object.assign({}, rp, { font: face });
+            if (eaFace) draw.fontEA = eaFace; else delete draw.fontEA;
+            R.runStyle(sp, draw, design, ctx, scale);
+            if (r.link) sp.dataset.link = JSON.stringify(r.link);
+            appendText(sp, text);
+            el.appendChild(sp);
+          };
+          if (!parts) emit(raw, rp.font, rp.fontEA);
+          else for (const piece of parts) emit(piece.text, piece.ea ? ea : latin, piece.ea ? ea : '');
         }
         if (/\n$/.test(L.txt.paraText(p))) el.appendChild(h('br'));
       }

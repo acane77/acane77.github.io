@@ -109,10 +109,19 @@
 .img.missing { border: 1px solid #999; background: repeating-linear-gradient(45deg, #eee 0 6px, #ddd 6px 12px); font: 10px Arial, Arimo, sans-serif; color: #555; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 .nref { cursor: default; }
 .sym { display: inline; }
-.raw.math { white-space: pre; }
-.raw.mml { white-space: normal; display: inline-block; text-indent: 0; }
-.raw.mml.mpara { display: block; margin: 2px 0; }
-.raw.mml math { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Sans Math", math; font-style: normal; }
+.raw.math { white-space: normal; cursor: default; }
+.raw.math * { user-select: none; pointer-events: none; }
+.raw.math.sel { outline: 1px solid #316ac5; background: rgba(49, 106, 197, .18); }
+.raw.mml { white-space: normal; display: inline-block; max-width: 100%; vertical-align: middle; text-indent: 0; margin: 0; }
+.raw.mml.mpara { display: inline-block; max-width: 100%; margin: 0; }
+.mstack { display: inline-block; max-width: 100%; vertical-align: middle; text-align: left; text-align-last: left; }
+.raw.mml.mpara .mstack { display: inline-block; }
+.mln { display: block; }
+.eq-editor textarea { width: 100%; box-sizing: border-box; min-height: 96px; font-family: Consolas, "Courier New", monospace; }
+.eq-preview { min-height: 84px; margin: 2px 0 4px; padding: 16px 8px; border: 1px solid var(--face-2-line); background: #fff; color: #000; text-align: center; overflow: auto; }
+.eq-preview math { margin: 0; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Sans Math", math; }
+.eq-note { min-height: 1.2em; color: var(--ink-5); }
+.raw.mml math { margin: 0; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Sans Math", math; font-style: normal; }
 .raw.mml mtable mtd { padding: 1px 4px; }
 .raw.empty::before { content: var(--t-object, "[object]"); color: #888; font: 10px Arial, Arimo, sans-serif; }
 .anc { display: inline-block; width: 0; height: 0; overflow: hidden; vertical-align: baseline; }
@@ -373,6 +382,7 @@ body.bluebg .pages .pc, body.bluebg .pages .pc span { color: #fff !important; }
 <script src="js/dmodel.js"></script>
 <script src="js/ops.js"></script>
 <script src="js/omml.js"></script>
+<script src="js/latexprev.js"></script>
 <script src="js/render.js"></script>
 <script src="js/portions.js"></script>
 <script src="js/layout.js"></script>

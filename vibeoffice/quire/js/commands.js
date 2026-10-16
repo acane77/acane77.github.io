@@ -281,6 +281,7 @@
   C('dateTime', { label: 'Date and &Time...', icon: 'date', enabled: canEdit, run: dlg('dateTime') });
   C('insertField', { label: '&Field...', enabled: canEdit, run: dlg('field') });
   C('insertSymbol', { label: '&Symbol...', icon: 'symbol', enabled: canEdit, run: dlg('symbol') });
+  C('insertEquation', { label: '&Equation...', icon: 'equation', tip: 'Insert Equation', enabled: canEdit, run: dlg('equation') });
   C('insertComment', { label: 'Co&mment', icon: 'comment', key: 'Ctrl+Alt+M', tip: 'Insert Comment', enabled: () => !!D.doc && !viewing(), run: () => L.review && L.review.insertComment() });
   C('insertFootnote', { label: '&Footnote...', icon: 'footnote', enabled: canEdit, run: dlg('footnote') });
   C('insertFootnoteNow', { label: 'Insert Footnote', enabled: canEdit, run: () => L.notes && L.notes.insert('fn') });
