@@ -553,8 +553,8 @@
       if (isFig && !d.styles.TableofFigures) { D.touchKey(d, 'styles'); d.styles.TableofFigures = D.builtinStyles().TableofFigures; D.stylesChanged(); }
       const rp = links ? { style: 'Hyperlink', link: { anchor: bm } } : {};
       if (links && !d.styles.Hyperlink) { D.touchKey(d, 'styles'); d.styles.Hyperlink = D.builtinStyles().Hyperlink; }
-      /* TOC hyperlinks keep the TOC style's look (Word uses \h without visible link formatting) */
-      if (links) delete rp.style;
+      /* The entry keeps the Hyperlink character style. On a TOC paragraph that style draws as
+         automatic colour with no underline (D.rProps); the page number does not carry the style. */
       const runs = [D.text(e.text, rp)];
       const showPg = !(noPg && e.level >= +noPg[1] && e.level <= +noPg[2]);
       if (showPg) {

@@ -508,6 +508,22 @@
     if (num !== pPr.num) pPr = Object.assign({}, pPr, { num });
     return pPr;
   };
+  /** Hyperlink / FollowedHyperlink, including a file whose style id is not the canonical name */
+  D.hyperlinkCharStyle = function (doc, id) {
+    if (!id) return false;
+    const s = doc.styles[id];
+    const name = ((s && s.name) || (id === 'Hyperlink' || id === 'FollowedHyperlink' ? id : '')).replace(/\s+/g, '').toLowerCase();
+    if (name !== 'hyperlink' && name !== 'followedhyperlink') return false;
+    return !s || s.type !== 'paragraph';
+  };
+  /** TOC 1–9 and Table of Figures: the paragraph styles an automatic contents field writes */
+  D.tocParaStyle = function (doc, id) {
+    if (!id) return false;
+    const s = doc.styles[id];
+    const name = ((s && s.name) || '').toLowerCase();
+    if (/^toc [1-9]$/.test(name) || name === 'table of figures') return true;
+    return /^TOC[1-9]$/.test(id) || id === 'TableofFigures';
+  };
   /** run properties after style chain, table style, character style, direct formatting */
   D.rProps = function (doc, p, it, ctx) {
     const sp = D.styleProps(doc, p.pPr.style || 'Normal');
@@ -517,7 +533,18 @@
       if (ctx.tblRPr.sz && !(doc.settings && doc.settings.tblFsJcOverride) && D.isDefaultParaStyle(doc, p.pPr.style || 'Normal')) r = Object.assign({}, r, { sz: ctx.tblRPr.sz });
     }
     const rp = it ? it.rPr : p.rPr;
-    if (rp && rp.style) r = D.mergeRPr(r, D.charStyleProps(doc, rp.style));
+    if (rp && rp.style) {
+      let cr = D.charStyleProps(doc, rp.style);
+      /* A contents entry records the Hyperlink character style, but that style's colour and
+         underline are not drawn: the TOC paragraph style supplies the look (automatic, no underline). */
+      if (D.tocParaStyle(doc, p.pPr && p.pPr.style) && D.hyperlinkCharStyle(doc, rp.style)) {
+        cr = Object.assign({}, cr);
+        delete cr.color;
+        delete cr.u;
+        delete cr.uColor;
+      }
+      r = D.mergeRPr(r, cr);
+    }
     return D.mergeRPr(r, rp);
   };
   D.stylePPrOnly = function (doc, id) {
