@@ -748,16 +748,17 @@
   const blank = () => D.applyLocale(D.newDoc(), L.locale && L.locale.get());
   A.newDocument = async function (opts) {
     /* VS Code: ask for a file, then open that new document in its own tab. Web pages, e-mail and the welcome document stay in this tab. */
+    const fresh = () => (opts && opts.doc ? opts.doc : (opts && opts.modern ? D.newDoc({ modern: true }) : blank()));
     if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument && !(opts && opts.inplace)) {
       await VO.host.createDocument(async () => {
-        const d = opts && opts.modern ? D.newDoc({ modern: true }) : blank();
+        const d = fresh();
         if (opts && opts.build) opts.build(d);
         return L.docx.write(d, { format: 'docx' });
       });
       return;
     }
     A.untitled++;
-    const d = opts && opts.modern ? D.newDoc({ modern: true }) : blank();
+    const d = fresh();
     if (opts && opts.build) opts.build(d);
     /* a new document opens in its own window, as in Word; an untouched blank one is simply replaced */
     A.loadDoc(d, 'Document' + A.untitled, { newWindow: !pristine() });
@@ -1403,9 +1404,13 @@
     if (narrow) A.opts.taskOpen = false;
     L.$('#taskpane').hidden = !A.opts.taskOpen;
     LY.zoom = narrow ? Math.max(0.4, (window.innerWidth - 40) / 816) : A.opts.zoom || 1;
-    /* a template from the Start Center, otherwise a blank document */
+    /* a template from the Start Center, otherwise a blank document.
+       Thesis (NEU, China) is a .docx fetched after the page is up; L.templates.ready stays false until it replaces this blank. */
     const launch = window.VO && VO.launch;
-    A.loadDoc(launch && launch.template && L.templates ? L.templates.build(launch.template) : blank(), 'Document1');
+    const fileTpl = launch && launch.template && L.templates && L.templates.file(launch.template);
+    if (fileTpl) L.templates.ready = false;
+    const untitledAt = A.untitled;
+    A.loadDoc(fileTpl ? blank() : (launch && launch.template && L.templates ? L.templates.build(launch.template) : blank()), 'Document1');
     A.view = 'x';
     A.setView(A.opts.view && ['print', 'normal', 'web', 'outline'].includes(A.opts.view) ? A.opts.view : 'print');
     if (L.panes && A.opts.taskOpen) L.panes.task.show('getting-started');
@@ -1437,6 +1442,19 @@
       message: (t) => ui.msg(t, { icon: 'warn' }),
       templates: () => (L.templates ? L.templates.list().map(({ id, name }) => ({ id, name })) : []),
     });
+    if (fileTpl) {
+      const name = (L.templates.list().find((t) => t.id === launch.template) || {}).name || '';
+      ui.busy(true, L.t('Opening {0}...', L.t(name)));
+      L.templates.load(launch.template).then((d) => {
+        ui.busy(false);
+        /* still the untouched Document1 this page started with */
+        if (A.docs.length === 1 && A.untitled === untitledAt && A.fileName === 'Document1' && !A.saved && doc() && !doc().dirty) A.loadDoc(d, 'Document1');
+      }, (e) => {
+        ui.busy(false);
+        console.error(e);
+        ui.msg(L.t("{0} can't open {1}. {2}", L.APP, L.t(name), e && e.message ? e.message : ''), { icon: 'error' });
+      }).finally(() => { L.templates.ready = true; });
+    }
   };
   const winOf = (d) => (d === doc() ? A : A.docs.find((x) => x && x.doc === d) || A);
   /** Recent Files picture: the first page, drawn as for PDF (print layout only) */

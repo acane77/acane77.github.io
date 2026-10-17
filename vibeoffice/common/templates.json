@@ -54,6 +54,11 @@
    "id": "recipe",
    "name": "Recipe",
    "img": "quire/templates/recipe.jpg"
+  },
+  {
+   "id": "neu-thesis",
+   "name": "Thesis (NEU, China)",
+   "img": null
   }
  ],
  "ledger": [
