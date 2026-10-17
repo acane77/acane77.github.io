@@ -134,8 +134,11 @@
     const depth = opts.depth || 0;
     ui.closeMenus(depth);
     const list = (typeof items === 'function' ? items() : items).map(resolveItem).filter((x) => x && !(typeof x.hidden === 'function' ? x.hidden() : x.hidden));
-    /* a menu from inside a dialog (a drop-down button there) goes above the dialogs */
-    const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (ui.dialogOpen() ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
+    /* popup menus and right-click menus stay above every window, modal or not */
+    let menuZ = 6000;
+    for (const w of winStack) { const n = parseInt(w.overlay.style.zIndex, 10); if (n >= menuZ) menuZ = n + 20; }
+    const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (winStack.length ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
+    el.style.zIndex = String(menuZ);
     const rows = [];
     list.forEach((it) => {
       if (it.sep) { el.appendChild(h('div', { class: 'm-sep' })); return; }
@@ -457,10 +460,81 @@
   });
 
   /* ---------- dialogs ---------- */
+  /* dlgStack: modal dialogs only, topmost last (keyboard). winStack: every open window, frontmost last. */
   const dlgStack = [];
+  const winStack = [];
+  let dlgBackdrop = null;
   ui.dialogOpen = () => dlgStack.length > 0;
+  /** drop windows a test removed from the page, then stack the rest and show the veil behind them when a modal is open */
+  function layoutWindows() {
+    for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].overlay.isConnected) {
+      const gone = winStack.splice(i, 1)[0];
+      const k = dlgStack.indexOf(gone);
+      if (k >= 0) dlgStack.splice(k, 1);
+    }
+    let topModal = -1;
+    for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].modeless) { topModal = i; break; }
+    if (topModal >= 0) {
+      if (!dlgBackdrop) dlgBackdrop = h('div', { class: 'dlg-overlay dlg-backdrop' });
+      const first = winStack[0].overlay;
+      if (dlgBackdrop.nextSibling !== first) document.body.insertBefore(dlgBackdrop, first);
+    } else if (dlgBackdrop) { dlgBackdrop.remove(); dlgBackdrop = null; }
+    winStack.forEach((w, i) => {
+      w.overlay.style.zIndex = String(2000 + i);
+      /* a modal in front keeps the windows behind it from taking clicks; they stay on screen */
+      w.dlg.style.pointerEvents = topModal >= 0 && i < topModal ? 'none' : '';
+    });
+    if (flashing && flashing !== (topModal >= 0 ? winStack[topModal] : null)) stopFlash();
+    syncActive();
+  }
+  /** the front modal is active; otherwise the modeless window that holds the keyboard. prefer: a window just clicked or opened.
+   *  a modal that is flashing owns its own active/inactive class until the flash ends */
+  function syncActive(prefer) {
+    let topModal = null;
+    for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].modeless) { topModal = winStack[i]; break; }
+    let active = topModal;
+    if (!active) {
+      const ae = document.activeElement;
+      if (prefer && winStack.indexOf(prefer) >= 0 && (!ae || prefer.dlg.contains(ae) || ae === document.body || ae === document.documentElement)) active = prefer;
+      else for (let i = winStack.length - 1; i >= 0; i--) if (ae && winStack[i].dlg.contains(ae)) { active = winStack[i]; break; }
+    }
+    for (const w of winStack) if (w !== flashing) w.dlg.classList.toggle('inactive', w !== active);
+  }
+  /* a click outside the front modal flashes it between the active and inactive looks, then leaves it active */
+  let flashing = null;
+  let flashTimer = 0;
+  function stopFlash() {
+    if (flashTimer) clearInterval(flashTimer);
+    flashTimer = 0;
+    const was = flashing;
+    flashing = null;
+    if (was && was.dlg.isConnected) was.dlg.classList.remove('inactive');
+  }
+  function flashModal(entry) {
+    if (!entry || !entry.dlg.isConnected) return;
+    stopFlash();
+    flashing = entry;
+    let step = 0;
+    const tick = () => {
+      if (!entry.dlg.isConnected) { stopFlash(); syncActive(); return; }
+      step++;
+      entry.dlg.classList.toggle('inactive', step % 2 === 1);
+      if (step >= 6) { stopFlash(); syncActive(); }
+    };
+    tick();
+    flashTimer = setInterval(tick, 80);
+  }
+  /** bring a window to the front. a modal in front of it stays in front */
+  function raiseWindow(entry) {
+    const i = winStack.indexOf(entry);
+    if (i < 0) return;
+    for (let k = i + 1; k < winStack.length; k++) if (!winStack[k].modeless) return;
+    if (i !== winStack.length - 1) { winStack.splice(i, 1); winStack.push(entry); document.body.appendChild(entry.overlay); }
+    layoutWindows();
+  }
   /**
-   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help}
+   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless}
+   * a new window opens in front of the ones already open and leaves them where they are
    */
   ui.dialog = function (opts) {
     ui.closeMenus();
@@ -469,8 +543,8 @@
     /* the selection in text being edited, for text the app doesn't give back itself (Lectern's speaker notes) */
     const s0 = window.getSelection();
     const prevRange = prevFocus && prevFocus.isContentEditable && s0.rangeCount && prevFocus.contains(s0.anchorNode) ? s0.getRangeAt(0).cloneRange() : null;
-    const overlay = h('div', { class: 'dlg-overlay' });
-    const dlg = h('div', { class: 'dlg', role: 'dialog', 'aria-modal': 'true', 'aria-label': opts.title });
+    const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') });
+    const dlg = h('div', { class: 'dlg', role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title });
     dlg.style.width = Math.min(opts.width || 380, window.innerWidth - 16) + 'px';
     const titleBar = h('div', { class: 'dlg-title' }, h('span', { class: 'dlg-ttl', text: opts.title }),
       opts.help ? h('button', { class: 'dlg-x dlg-help', type: 'button', 'aria-label': 'Help', text: '?', onclick: opts.help }) : null,
@@ -492,10 +566,18 @@
     dlg.append(titleBar, body, foot);
     overlay.appendChild(dlg);
     document.body.appendChild(overlay);
-    /* center */
+    /* center; each further window steps down so the one behind it stays visible */
     const r = dlg.getBoundingClientRect();
-    dlg.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px';
-    dlg.style.top = Math.max(4, (window.innerHeight - r.height) / 2.4) + 'px';
+    const step = Math.min(winStack.length, 8) * 28;
+    dlg.style.left = L.clamp((window.innerWidth - r.width) / 2 + step, 4, Math.max(4, window.innerWidth - r.width - 4)) + 'px';
+    dlg.style.top = L.clamp((window.innerHeight - r.height) / 2.4 + step, 4, Math.max(4, window.innerHeight - 40)) + 'px';
+    const entry = { overlay, dlg, modeless: !!opts.modeless, keys: null };
+    dlg.addEventListener('pointerdown', (e) => {
+      raiseWindow(entry);
+      /* a press on the frame, not a control, still counts as the window taking the keyboard */
+      if (!e.target.closest('input, select, textarea, button, a[href], [contenteditable="true"]')) { try { dlg.focus({ preventScroll: true }); } catch (err) { /* ignore */ } }
+      syncActive(entry);
+    });
     /* drag */
     titleBar.addEventListener('pointerdown', (e) => {
       if (e.target.closest('button')) return;
@@ -506,11 +588,11 @@
       titleBar.addEventListener('pointermove', mv);
       titleBar.addEventListener('pointerup', up);
     });
-    const entry = { overlay, dlg, keys: null };
-    if (opts.modeless) {
-      overlay.classList.add('modeless');
-      dlg.addEventListener('keydown', (e) => { entry.keys(e); e.stopPropagation(); });   // keys stay in a modeless dialog
-    } else dlgStack.push(entry);
+    winStack.push(entry);
+    if (opts.modeless) dlg.addEventListener('keydown', (e) => { entry.keys(e); e.stopPropagation(); });   // keys stay in a modeless dialog
+    else dlgStack.push(entry);
+    layoutWindows();
+    syncActive(entry);
     entry.keys = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); const ci = (opts.buttons || []).findIndex((b) => b.cancel || /^cancel$|^close$/i.test(plainAmp(b.label))); if (ci >= 0) btns[ci].click(); else close(null); return true; }
       if (e.key === 'Enter' && !e.shiftKey && !(e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || e.target.isContentEditable || e.target.tagName === 'SELECT'))) {
@@ -529,7 +611,10 @@
     function close(i) {
       const k = dlgStack.indexOf(entry);
       if (k >= 0) dlgStack.splice(k, 1);
+      const w = winStack.indexOf(entry);
+      if (w >= 0) winStack.splice(w, 1);
       overlay.remove();
+      layoutWindows();
       if (opts.onClose) opts.onClose(i);
       result(i);
       /* the keyboard goes back to what had it: a box, a pane's list, the dialog under this one, the grid, text being
@@ -540,6 +625,7 @@
         try { prevFocus.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
         if (prevRange && prevRange.startContainer.isConnected && prevRange.endContainer.isConnected) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(prevRange); }
       } else ui.hooks.refocus();
+      syncActive();
     }
     setTimeout(() => {
       const first = opts.focus ? (typeof opts.focus === 'string' ? L.$(opts.focus, dlg) : opts.focus) : L.$('input:not([type=checkbox]):not([type=radio]),select,textarea', body) || btns.find((b, i) => opts.buttons && opts.buttons[i] && opts.buttons[i].primary) || btns[0];
@@ -549,6 +635,17 @@
     return { el: dlg, body, close, done, buttons: btns };
   };
   ui.dialogKey = (e) => { const top = dlgStack[dlgStack.length - 1]; return top ? top.keys(e) || true : false; };
+  if (typeof document !== 'undefined') {
+    document.addEventListener('focusin', () => syncActive());
+    document.addEventListener('pointerdown', (e) => {
+      if (!dlgBackdrop || !dlgBackdrop.isConnected || e.target.closest('.menu')) return;
+      let top = null;
+      for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].modeless) { top = winStack[i]; break; }
+      if (!top) return;
+      if (top.dlg.contains(e.target)) { if (flashing) { stopFlash(); syncActive(); } return; }
+      flashModal(top);
+    }, true);
+  }
 
   /** Message box. Returns Promise<buttonIndex|null> */
   ui.msg = function (text, o) {
@@ -1002,6 +1099,167 @@
     swallow.seen.add(type);
     if (swallow.seen.has('mouseup') && swallow.seen.has(swallow.button === 2 ? 'contextmenu' : 'auxclick')) swallow = null;
   }, true);
+
+  /* ---------- zoom ---------- */
+  /* A notch of a mouse wheel (about 100px, or 3 lines) changes the zoom by roughly a tenth. A trackpad
+     pinch arrives as many small deltaY values and stays smooth. */
+  ui.wheelZoomFactor = function (deltaY, deltaMode) {
+    let dy = deltaY || 0;
+    if (deltaMode === 1) dy *= 32;
+    else if (deltaMode === 2) dy *= 800;
+    if (!dy) return 1;
+    return Math.exp(-dy * 0.0015);
+  };
+  /** two fingers: scale is the change in the span between them, dx/dy how their midpoint moved */
+  ui.pinchStep = function (a0, b0, a1, b1) {
+    const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+    const d0 = dist(a0, b0);
+    return {
+      scale: d0 > 0.5 ? dist(a1, b1) / d0 : 1,
+      dx: (a1.x + b1.x) / 2 - (a0.x + b0.x) / 2,
+      dy: (a1.y + b1.y) / 2 - (a0.y + b0.y) / 2,
+    };
+  };
+  /** scroll position that keeps the point under `from` under `to` after oldZ becomes newZ.
+      `from` and `to` are viewport coordinates; `scroll` is the element's scrollLeft/scrollTop. */
+  ui.zoomScroll = function (scroll, oldZ, newZ, from, to) {
+    const ratio = oldZ ? newZ / oldZ : 1;
+    return {
+      left: (from.x + scroll.left) * ratio - to.x,
+      top: (from.y + scroll.top) * ratio - to.y,
+    };
+  };
+  /** status-bar zoom: −, a slider, +, and a percent that can be typed. o.min/o.max are percents.
+      o.value() is the current percent; o.onChange(pct) runs as the slider moves and as a typed
+      number settles. Listens for 'zoom' (and 'layout-done') to catch up. */
+  ui.zoomBar = function (o) {
+    const min = o.min, max = o.max, step = o.step || 10;
+    const minus = h('button', { type: 'button', class: 'sb-zoom-btn', tabindex: '-1', 'aria-label': 'Zoom Out', text: '−' });
+    const range = h('input', { type: 'range', class: 'sb-zoom-range', min: String(min), max: String(max), step: '1', value: '100', 'aria-label': 'Zoom' });
+    const plus = h('button', { type: 'button', class: 'sb-zoom-btn', tabindex: '-1', 'aria-label': 'Zoom In', text: '+' });
+    const pct = h('input', { type: 'text', class: 'sb-zoom-pct', value: '100%', 'aria-label': 'Zoom', inputmode: 'numeric', spellcheck: 'false', autocomplete: 'off' });
+    const box = h('div', { class: 'sb-zoom' }, minus, range, plus, pct);
+    let typing = false, revert = false, typeGen = 0;
+    const read = () => {
+      const n = Math.round(Number(o.value()));
+      return n >= min && n <= max ? n : Math.round(L.clamp(Number(o.value()) || 100, min, max));
+    };
+    const show = (n) => {
+      if (String(range.value) !== String(n)) range.value = String(n);
+      if (document.activeElement !== pct) pct.value = n + '%';
+    };
+    const apply = (n) => { n = Math.round(L.clamp(n, min, max)); o.onChange(n); show(n); };
+    const sync = () => { if (!typing) show(read()); };
+    const stepTo = (dir) => {
+      const n = read();
+      apply(dir < 0 ? Math.floor((n - 1) / step) * step : Math.ceil((n + 1) / step) * step);
+    };
+    const liveType = L.debounce((gen) => {
+      if (gen !== typeGen || !typing) return;
+      const m = /^(\d{1,4})\s*%?$/.exec(pct.value.trim());
+      if (!m) return;
+      const n = Number(m[1]);
+      if (n >= min && n <= max) { o.onChange(n); if (String(range.value) !== String(n)) range.value = String(n); }
+    }, 250);
+    minus.addEventListener('click', () => stepTo(-1));
+    plus.addEventListener('click', () => stepTo(1));
+    range.addEventListener('input', () => apply(Number(range.value)));
+    range.addEventListener('pointerup', () => {
+      range.blur();
+      setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) ui.hooks.refocus(); }, 0);
+    });
+    range.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); range.blur(); ui.hooks.refocus(); }
+    });
+    pct.addEventListener('focus', () => { typing = true; pct.value = String(read()); pct.select(); });
+    pct.addEventListener('input', () => liveType(++typeGen));
+    pct.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); pct.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); revert = true; pct.blur(); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); stepTo(e.key === 'ArrowUp' ? 1 : -1); pct.value = String(read()); }
+    });
+    pct.addEventListener('blur', () => {
+      typing = false;
+      typeGen++;
+      if (!revert) {
+        const m = /(\d+)/.exec(pct.value);
+        apply(m ? Number(m[1]) : read());
+      }
+      revert = false;
+      show(read());
+      setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) ui.hooks.refocus(); }, 0);
+    });
+    if (L.bus) { L.bus.on('zoom', sync); L.bus.on('layout-done', sync); }
+    sync();
+    return box;
+  };
+  /** Pinch and two-finger pan on an editing surface. o.zoom() is a fraction (1 = 100%), o.setZoom(z)
+      applies one, o.min/o.max bound it. o.about(oldZ, newZ, x0, y0, x1, y1) replaces the default,
+      which scrolls `el`. o.wheelScroll(e) handles a two-finger swipe that is not a pinch; without it
+      the browser scrolls `el`. o.ignore(e) leaves the event alone. o.metaZoom also treats ⌘+scroll
+      as a pinch. A pinch anywhere else is cancelled so the browser does not zoom the page. */
+  ui.watchDocGestures = function (el, o) {
+    if (!el) return;
+    el.setAttribute('data-doc-zoom', '');
+    let gesture = null;
+    const applyZoom = (oldZ, newZ, x0, y0, x1, y1) => {
+      newZ = L.clamp(newZ, o.min, o.max);
+      if (o.about) { o.about(oldZ, newZ, x0, y0, x1, y1); return; }
+      const rect = el.getBoundingClientRect();
+      const scroll = { left: el.scrollLeft, top: el.scrollTop };
+      if (Math.abs(newZ - oldZ) > 1e-4) o.setZoom(newZ);
+      const s = ui.zoomScroll(scroll, oldZ, newZ, { x: x0 - rect.left, y: y0 - rect.top }, { x: x1 - rect.left, y: y1 - rect.top });
+      el.scrollLeft = s.left;
+      el.scrollTop = s.top;
+    };
+    el.addEventListener('wheel', (e) => {
+      if (o.ignore && o.ignore(e)) return;
+      if (e.ctrlKey || (o.metaZoom && e.metaKey)) {
+        e.preventDefault();
+        if (gesture || pinch) return;
+        const oldZ = o.zoom();
+        applyZoom(oldZ, oldZ * ui.wheelZoomFactor(e.deltaY, e.deltaMode), e.clientX, e.clientY, e.clientX, e.clientY);
+        return;
+      }
+      if (o.wheelScroll) o.wheelScroll(e);
+    }, { passive: false, capture: true });
+    const fingers = (e) => [{ x: e.touches[0].clientX, y: e.touches[0].clientY }, { x: e.touches[1].clientX, y: e.touches[1].clientY }];
+    let pinch = null;
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 2 || (o.ignore && o.ignore(e))) return;
+      const [a, b] = fingers(e);
+      pinch = { a, b, z: o.zoom() };
+    }, { passive: false });
+    el.addEventListener('touchmove', (e) => {
+      if (!pinch || e.touches.length !== 2) return;
+      e.preventDefault();
+      const [a, b] = fingers(e);
+      const step = ui.pinchStep(pinch.a, pinch.b, a, b);
+      const newZ = L.clamp(pinch.z * step.scale, o.min, o.max);
+      const mid0 = { x: (pinch.a.x + pinch.b.x) / 2, y: (pinch.a.y + pinch.b.y) / 2 };
+      const mid1 = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      applyZoom(pinch.z, newZ, mid0.x, mid0.y, mid1.x, mid1.y);
+      pinch.a = a; pinch.b = b; pinch.z = newZ;
+    }, { passive: false });
+    const endPinch = () => { pinch = null; };
+    el.addEventListener('touchend', endPinch);
+    el.addEventListener('touchcancel', endPinch);
+    el.addEventListener('gesturestart', (e) => { e.preventDefault(); gesture = { z: o.zoom(), x: e.clientX, y: e.clientY }; }, { passive: false });
+    el.addEventListener('gesturechange', (e) => {
+      e.preventDefault();
+      if (!gesture || pinch) return;
+      const newZ = L.clamp(gesture.z * (e.scale || 1), o.min, o.max);
+      applyZoom(o.zoom(), newZ, gesture.x, gesture.y, e.clientX, e.clientY);
+      gesture.x = e.clientX; gesture.y = e.clientY;
+    }, { passive: false });
+    el.addEventListener('gestureend', () => { gesture = null; });
+  };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false, capture: true });
+    const stopGesture = (e) => e.preventDefault();
+    window.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
+    window.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
+  }
 
   /* ---------- status bar & misc ---------- */
   /** a short notice at the bottom; action: { label, run } adds a button to it (e.g. Browse) */

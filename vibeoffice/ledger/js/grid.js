@@ -11,7 +11,7 @@
   G.wb = null;
   G.zoomOf = (sh) => (sh.view.zoom || 100) / 100;
   G.state = { marquee: null, hl: null, fillTo: null, dragTo: null, pages: null };
-  let wrap, canvas, layer, vbar, hbar, inp;
+  let wrap, canvas, layer, vbar, hbar, inp, touchN = 0;
   let dirty = true, raf = 0;
 
   G.sheet = () => G.wb.sheets[G.wb.active];
@@ -52,7 +52,9 @@
     wrap.addEventListener('pointerdown', onPointerDown);
     wrap.addEventListener('pointermove', onHover);
     wrap.addEventListener('dblclick', onDblClick);
-    wrap.addEventListener('wheel', onWheel, { passive: false });
+    wrap.addEventListener('touchstart', (e) => { touchN = e.touches.length; }, true);
+    wrap.addEventListener('touchend', (e) => { touchN = e.touches.length; }, true);
+    wrap.addEventListener('touchcancel', (e) => { touchN = e.touches.length; }, true);
     wrap.addEventListener('contextmenu', onContext);
     wrap.addEventListener('focus', () => G.focus());
     inp.addEventListener('keydown', onKey);
@@ -62,6 +64,19 @@
     inp.addEventListener('cut', (e) => { if (L.editor.active) return; e.preventDefault(); L.clip.copy(e, true); });
     inp.addEventListener('paste', (e) => { if (L.editor.active) return; e.preventDefault(); L.clip.paste(e); });
     new ResizeObserver(() => G.paint(true)).observe(wrap);
+    L.ui.watchDocGestures(wrap, {
+      zoom: () => G.zoomOf(G.sheet()),
+      setZoom: (z) => G.setZoom(z * 100),
+      min: 0.1, max: 4,
+      metaZoom: true,
+      ignore: (e) => !!(e.target && e.target.closest && e.target.closest('.dlg, .menu, .gobj.chart.editing')),
+      about(oldZ, newZ, x0, y0, x1, y1) {
+        const pct = Math.round(newZ * 100);
+        if ((G.sheet().view.zoom || 100) !== pct) G.setZoom(pct);
+        panPx(x1 - x0, y1 - y0);
+      },
+      wheelScroll: onWheel,
+    });
     G.focus();
   };
   G.setWorkbook = function (wb) {
@@ -450,7 +465,7 @@
     L.ui.closeMenus();
     G.deselectObject();
     const p = pt(e);
-    if (e.pointerType === 'touch') { startTouch(e, p); return; }
+    if (e.pointerType === 'touch') { if (touchN > 1) return; startTouch(e, p); return; }
     const z = zone(p);
     const ed = L.editor;
     /* formula point mode: clicking a cell inserts a reference */
@@ -798,14 +813,7 @@
     } catch (err) { L.app.error(err); }
   }
   function onWheel(e) {
-    if (e.target.closest('.dlg, .menu, .gobj.chart.editing')) return;
     e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      const sh = G.sheet();
-      const z = Math.max(10, Math.min(400, (sh.view.zoom || 100) + (e.deltaY < 0 ? 15 : -15)));
-      G.setZoom(z);
-      return;
-    }
     let dy = e.deltaY, dx = e.deltaX;
     if (e.shiftKey && !dx) { dx = dy; dy = 0; }
     const unit = e.deltaMode === 1 ? 1 : e.deltaMode === 2 ? 20 : 1 / 33;
@@ -813,6 +821,17 @@
     const rows = Math.trunc(G._wy), cols = Math.trunc(G._wx);
     if (rows) { G._wy -= rows; G.scrollBy(rows * (e.deltaMode === 1 ? 1 : 1), 0); }
     if (cols) { G._wx -= cols; G.scrollBy(0, cols); }
+  }
+  let panX = 0, panY = 0;
+  function panPx(dx, dy) {
+    panX -= dx; panY -= dy;
+    const fr = G.frame();
+    if (!fr) return;
+    const g = LY.geo(G.sheet());
+    const rh = g.rows.size(G.vs().scrollR) * fr.z || 20, cw = g.cols.size(G.vs().scrollC) * fr.z || 64;
+    const dr = Math.trunc(panY / rh), dc = Math.trunc(panX / cw);
+    if (dr) { panY -= dr * rh; G.scrollBy(dr, 0); }
+    if (dc) { panX -= dc * cw; G.scrollBy(0, dc); }
   }
   G.setZoom = function (z) {
     L.ui.dragCancel();   /* what a drag measured is at the old zoom */
@@ -830,6 +849,7 @@
     const g = LY.geo(sh);
     const lp = setTimeout(() => { if (!moved) { if (z0.kind === 'cell') G.select(z0.r, z0.c, { noScroll: true }); L.app.contextMenu({ clientX: e.clientX, clientY: e.clientY, preventDefault() {} }, z0); } }, 600);
     const mv = (ev) => {
+      if (touchN > 1) { moved = true; clearTimeout(lp); return; }
       const q = pt(ev);
       if (Math.abs(q.x - p.x) + Math.abs(q.y - p.y) > 6) { moved = true; clearTimeout(lp); }
       if (!moved) return;

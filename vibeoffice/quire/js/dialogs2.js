@@ -497,7 +497,7 @@
   G.insertObject = function () {
     const types = [['chart', L.N('Chart')], ['equation', L.N('Equation')], ['equationLegacy', L.N('Equation (Legacy)')], ['wordart', L.N('LettersArt')], ['excel', L.N('Spreadsheet (table)')], ['document', L.N('Document (inserted as text)')], ['picture', L.N('Bitmap Image')]];
     const lb = G.listBox(types.map(([v, l]) => ({ value: v, label: l })), 'chart', { height: 160, onDbl: () => ok.click() });
-    const dlg = ui.dialog({ title: 'Object', width: 360, body: ui.tabs([{ label: '&Create New', body: h('div', { class: 'col' }, h('label', { text: 'Object type:' }), lb) }, { label: 'Create from &File', body: h('div', { class: 'col' }, h('div', { class: 'tp-note', text: 'Insert the contents of a .docx, .txt or .htm file, or a picture.' }), ui.button('&Browse...', () => { dlg.close(null); A().insertFileDialog(); })) }]), buttons: [{ label: 'OK', primary: true, onClick: () => {
+    const dlg = ui.dialog({ title: 'Object', width: 360, body: ui.tabs([{ label: '&Create New', body: h('div', { class: 'col' }, h('label', { text: 'Object type:' }), lb) }, { label: 'Create from &File', body: h('div', { class: 'col' }, h('div', { class: 'tp-note', text: 'Insert the contents of a .docx, .txt or .htm file, or a picture.' }), ui.button('&Browse...', () => { A().insertFileDialog(); })) }]), buttons: [{ label: 'OK', primary: true, onClick: () => {
       const v = lb.get();
       if (v === 'chart') A().insertChart();
       else if (v === 'equation') G.equation();
@@ -862,6 +862,70 @@
     const it = D.itemBefore(E.sel.f.p, Math.min(E.sel.a.o, E.sel.f.o) + 1);
     return it && it.t === 'raw' && it.math ? it : null;
   }
+  /* Word promotes an inline equation that is the only content of its paragraph back to display.
+     A space after it keeps the equation inline; converting back to display removes that space. */
+  function anchorInline(p) {
+    if (!L.docx || !L.docx.loneInlineMath(p)) return;
+    const i = p.runs.reduce((at, r, n) => (r.t === 'raw' && r.math && !r.para && !(r.rPr && r.rPr.del) ? n : at), -1);
+    if (i >= 0) p.runs.splice(i + 1, 0, D.text(' '));
+  }
+  function dropInlineAnchor(p, it) {
+    const i = p.runs.indexOf(it);
+    const n = i >= 0 ? p.runs[i + 1] : null;
+    if (!n || n.t !== 'text' || !/^\s+$/.test(n.text || '')) return;
+    let any = '';
+    for (const r of p.runs) if (r !== n && r.t === 'text' && !(r.rPr && r.rPr.del)) any += r.text || '';
+    if (!any.trim()) p.runs.splice(i + 1, 1);
+  }
+  /** Right-click: Change to Inline / Change to Display. The OMML is wrapped or unwrapped; it is not rebuilt. */
+  G.setEquationDisplay = function (display) {
+    const it = selectedEquation();
+    if (!it || !it.xml || !L.omml || !!it.para === !!display) return;
+    const xml = display ? L.omml.asDisplay(it.xml) : L.omml.asInline(it.xml);
+    if (!xml || xml === it.xml) return;
+    const p = E.sel.f.p;
+    const start = Math.min(E.sel.a.o, E.sel.f.o);
+    E.edit(display ? L.N('Change to Display') : L.N('Change to Inline'), () => {
+      D.touch(p);
+      it.para = !!display;
+      it.xml = xml;
+      it.text = mathPlain(xml);
+      if (display) dropInlineAnchor(p, it);
+      else anchorInline(p);
+      return { a: { p, o: start }, f: { p, o: start + 1 } };
+    });
+  };
+  const JC_NAME = { left: 'Left', right: 'Right', center: 'Centered', centerGroup: 'Centered as Group' };
+  /** Justification is Word's m:jc. It applies only to a display equation on a justified paragraph. */
+  G.setEquationJc = function (jc) {
+    const it = selectedEquation();
+    if (!it || !it.para || !it.xml || !L.omml || !L.omml.setJc) return;
+    if (L.omml.jcOf(it.xml) === jc && /<m:jc\b/.test(it.xml)) return;
+    const xml = L.omml.setJc(it.xml, jc);
+    if (!xml || xml === it.xml) return;
+    const p = E.sel.f.p;
+    const start = Math.min(E.sel.a.o, E.sel.f.o);
+    E.edit(L.N(JC_NAME[jc] || 'Justification'), () => {
+      D.touch(p);
+      it.xml = xml;
+      return { a: { p, o: start }, f: { p, o: start + 1 } };
+    });
+  };
+  /** Equation commands for the right-click menu. Justification is grey unless this paragraph is justified. */
+  G.equationItems = function (display) {
+    const it = selectedEquation();
+    const p = it && E.sel.f.p;
+    const jcName = (p && D.pProps(D.doc, p).jc) || '';
+    const justified = !!(L.R && L.R.isJustified && L.R.isJustified(jcName));
+    const cur = it && it.xml && L.omml && L.omml.jcOf ? L.omml.jcOf(it.xml) : 'centerGroup';
+    const opt = (val, label) => ({ label, radio: true, checked: () => cur === val, run: () => G.setEquationJc(val) });
+    return [
+      { label: 'Edit &Equation...', run: () => G.editEquation() },
+      display ? { label: 'Change to In&line', run: () => G.setEquationDisplay(false) } : { label: 'Change to &Display', run: () => G.setEquationDisplay(true) },
+      { label: '&Justification', disabled: !justified || !display, sub: [opt('left', '&Left'), opt('right', '&Right'), opt('center', '&Centered'), opt('centerGroup', 'Centered as &Group')] },
+      '-',
+    ];
+  };
   /**
    * Pages-style equation editor: LaTeX above, a live preview below.
    * Editing fills the field from the equation; Update replaces its OMML when the text changed and parses.

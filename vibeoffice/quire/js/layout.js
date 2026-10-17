@@ -264,7 +264,7 @@
       const segEnd = brk >= 0 ? brk + 1 : n;
       const prevP = st.bi > 0 && blocks[st.bi - 1].t === 'p' ? blocks[st.bi - 1] : null;
       const nextP = st.bi + 1 < blocks.length && blocks[st.bi + 1].t === 'p' ? blocks[st.bi + 1] : null;
-      const fctx = Object.assign({}, ctx, { prev: prevP, next: nextP, atTop: frame.empty && frame.natural && o === 0, frameEmpty: frame.empty && !ctx.inCell, openCmts: LY.openFor(p), fieldStack: LY.openMap ? LY.openMap.get('f' + p.id) : null, firstInCell: st.bi === 0, lastInCell: st.bi === blocks.length - 1, prevTbl: st.bi > 0 && blocks[st.bi - 1].t === 'tbl' });
+      const fctx = Object.assign({}, ctx, { prev: prevP, next: nextP, atTop: frame.empty && frame.natural && o === 0, frameEmpty: frame.empty && !ctx.inCell, openCmts: LY.openFor(p), fieldStack: LY.openMap ? LY.openMap.get('f' + p.id) : null, firstInCell: st.bi === 0, lastInCell: st.bi === blocks.length - 1, prevTbl: st.bi > 0 && blocks[st.bi - 1].t === 'tbl', contentWidth: frame.width });
       let frag = R.para(p, o, segEnd, fctx);
       frame.el.appendChild(frag);
       postPara(frag, p, fctx, frame);

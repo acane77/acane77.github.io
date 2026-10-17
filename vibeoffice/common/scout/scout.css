@@ -1,6 +1,8 @@
 /* Scout, the assistant (scout.js, assistant.js): his box on the window, his speech balloon and its choices.
    Chrome colours and the font are the look's settings (common/looks.css), as a tooltip's; the character
-   keeps his own colours in every look. Above the document and task pane, under menus and dialogs. */
+   keeps his own colours in every look. Windows 7 draws his balloon with that look's balloon face,
+   shadow and tail (looks.css); tooltips take the face and the shadow only. Above the document and
+   task pane, under menus and dialogs. */
 .scout-agent { position: fixed; left: 0; top: 0; z-index: 900; width: var(--scout-w, 154px); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .scout-agent.is-inline { position: relative; left: auto; top: auto; z-index: auto; margin: 0 auto; }
 .scout-agent svg, .scout-agent canvas { display: block; width: 100%; height: auto; overflow: visible; }
@@ -16,10 +18,10 @@
 .scout-balloon.is-below { transform-origin: var(--scout-tip, 50%) 0; }
 .scout-balloon.is-below::before { top: auto; bottom: 100%; border-width: 0 8px 10px; border-bottom-color: var(--tip-line); border-top-color: transparent; }
 .scout-balloon.is-below::after { top: auto; bottom: 100%; border-width: 0 7px 9px; border-bottom-color: var(--tip-bg); border-top-color: transparent; margin-top: 0; margin-bottom: -1px; }
-.scout-balloon.has-choices { max-width: min(260px, calc(100vw - 24px)); }
+.scout-balloon.has-choices { min-width: min(240px, calc(100vw - 24px)); max-width: min(280px, calc(100vw - 24px)); }
 .scout-choices { display: grid; gap: 1px; margin: 6px -5px -3px; }
 .scout-choices[hidden] { display: none; }
-.scout-choices button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 3px 5px; border: 0; border-radius: 3px; background: none; color: var(--tip-link); font: inherit; text-align: left; cursor: pointer; }
+.scout-choices button { display: flex; align-items: center; gap: 8px; width: auto; padding: 3px 5px; border: 0; border-radius: 3px; background: none; color: var(--tip-link); font: inherit; text-align: left; cursor: pointer; }
 .scout-choices button::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--tip-link); }
 .scout-choices button:hover, .scout-choices button:focus-visible { background: var(--menu-hot); outline: none; text-decoration: underline; text-underline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .scout-balloon { transition: none; } }

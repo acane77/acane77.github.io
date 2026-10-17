@@ -451,9 +451,9 @@
     const alt = h('textarea', { rows: '3', style: 'width:100%' });
     alt.value = st.alt;
     tabs.push({ label: 'Web', body: h('div', { class: 'col' }, h('label', { text: 'Alternative text:' }), alt) });
-    if (d.kind === 'chart' && d.chart) tabs.unshift({ label: 'Chart', body: h('div', { class: 'col' }, ui.button('Chart &Options...', () => { dlg.close(null); L.chartWizard.open({ edit: d }); }), ui.button('Chart &Type...', (e) => { dlg.close(null); L.chartWizard.typeMenu({ x: e.clientX, y: e.clientY }); })) });
+    if (d.kind === 'chart' && d.chart) tabs.unshift({ label: 'Chart', body: h('div', { class: 'col' }, ui.button('Chart &Options...', () => { L.chartWizard.open({ edit: d }); }), ui.button('Chart &Type...', (e) => { L.chartWizard.typeMenu({ x: e.clientX, y: e.clientY }); })) });
     const title = d.kind === 'image' ? 'Format Picture' : d.kind === 'chart' ? 'Format Chart Area' : d.txBox ? 'Format Text Box' : 'Format AutoShape';
-    const dlg = ui.dialog({ title, body: ui.tabs(tabs), width: 420, buttons: [{ label: 'OK', primary: true, onClick: () => {
+    ui.dialog({ title, body: ui.tabs(tabs), width: 420, buttons: [{ label: 'OK', primary: true, onClick: () => {
       const patch = { descr: alt.value || undefined, unlocked: st.locked ? undefined : true, noPrint: st.print ? undefined : true };
       if (d.kind === 'shape') Object.assign(patch, { fill: st.fill, line: st.line, lineW: st.lineW, geom: p.geom, text: d.text != null ? d.text : p.text, dirty: true, font: d.font || { name: 'Arial', sz: 10 } });
       if (d.kind === 'chart' && d.chart && st.fill !== (d.chart.bg && d.chart.bg.color)) patch.chart = Object.assign({}, d.chart, { bg: st.fill ? { t: 'solid', color: st.fill } : { t: 'none' }, dirty: true });

@@ -40,16 +40,20 @@
     });
     E.scroller.addEventListener('dblclick', onDbl);
     E.scroller.addEventListener('contextmenu', onContext);
-    E.scroller.addEventListener('wheel', (e) => {
-      if (e.ctrlKey) { e.preventDefault(); const z = E.scale / L.PX_PER_PT; E.setZoom(L.clamp(z * (e.deltaY < 0 ? 1.1 : 0.9), 0.1, 4)); return; }
-      /* in fit mode, the wheel pages through slides like PowerPoint */
-      if (E.zoom === 'fit' && E.view === 'normal' && !E.editing() && Math.abs(e.deltaY) > 20) {
-        const now = Date.now();
-        if (now - (E._wheelT || 0) < 350) return;
-        E._wheelT = now;
-        E.goto(E.idx + (e.deltaY > 0 ? 1 : -1));
-      }
-    }, { passive: false });
+    L.ui.watchDocGestures(E.scroller, {
+      zoom: () => E.scale / L.PX_PER_PT,
+      setZoom: (z) => E.setZoom(z),
+      min: 0.1, max: 4,
+      /* in fit mode, a vertical swipe pages through slides like PowerPoint; otherwise the scroller pans */
+      wheelScroll(e) {
+        if (E.zoom === 'fit' && E.view === 'normal' && !E.editing() && Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 20) {
+          const now = Date.now();
+          if (now - (E._wheelT || 0) < 350) return;
+          E._wheelT = now;
+          E.goto(E.idx + (e.deltaY > 0 ? 1 : -1));
+        }
+      },
+    });
     if (window.ResizeObserver) new ResizeObserver(() => { if (E.zoom === 'fit') E.layout(); else E.layout(); }).observe(E.scroller);
     else window.addEventListener('resize', () => E.layout());
   };

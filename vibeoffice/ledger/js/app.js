@@ -611,6 +611,7 @@
     sbCalc.addEventListener('click', (e) => calcMenu(e));
     sb.append(sbMode, sbText, sbCalc);
     for (const k of [L.N('CAPS'), L.N('NUM'), L.N('SCRL'), L.N('END')]) { sbInd[k] = h('div', { class: 'sb-cell ind off', text: k }); sb.appendChild(sbInd[k]); }
+    sb.appendChild(ui.zoomBar({ min: 10, max: 400, value: () => (G().wb ? (G().sheet().view.zoom || 100) : 100), onChange: (n) => G().setZoom(n) }));
     document.addEventListener('keydown', (e) => { if (e.getModifierState) { sbInd.CAPS.classList.toggle('off', !e.getModifierState('CapsLock')); sbInd.NUM.classList.toggle('off', !e.getModifierState('NumLock')); sbInd.SCRL.classList.toggle('off', !e.getModifierState('ScrollLock')); G().scrollLock = e.getModifierState('ScrollLock'); } }, true);
   }
   function calcMenu(e) {
@@ -1431,10 +1432,10 @@
   A.init = function () {
     A.loadOpts();
     if (window.VO) VO.setIcon(L.icons.app(32));
-    /* opened from the Start Center: a template, or blank (a new workbook, or to open a file into); else the sample */
+    /* a template from the Start Center, otherwise a blank workbook */
     const launch = window.VO && VO.launch;
     const tpl = launch && launch.template && L.panes && L.panes.TEMPLATES[launch.template];
-    const w = tpl ? L.panes.buildTemplate(launch.template) : launch ? A.blankWorkbook() : A.sampleWorkbook();
+    const w = tpl ? L.panes.buildTemplate(launch.template) : A.blankWorkbook();
     untitled = 1;
     A.prepare(w);
     G().init(w);

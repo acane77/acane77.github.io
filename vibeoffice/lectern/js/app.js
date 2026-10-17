@@ -279,11 +279,9 @@
     A.sbMsg = h('div', { class: 'sb-cell grow' });
     A.sbDesign = h('div', { class: 'sb-cell fit' });
     A.sbLang = h('div', { class: 'sb-cell fit', text: 'English (U.S.)' });
-    const zr = h('input', { type: 'range', min: 10, max: 400, value: 100, id: 'sb-zoom', 'aria-label': 'Zoom' });
-    zr.addEventListener('input', () => E.setZoom(zr.value / 100));
-    A.sbZoom = h('div', { class: 'sb-cell fit sb-zoom' }, h('span', { text: '100%' }), zr);
+    A.sbZoom = ui.zoomBar({ min: 10, max: 400, value: () => E.zoomPct(), onChange: (n) => E.setZoom(n / 100) });
     sb.append(A.sbSlide, A.sbDesign, A.sbMsg, A.sbLang, A.sbZoom);
-    L.bus.on('zoom', () => { A.sbZoom.firstChild.textContent = E.zoomPct() + '%'; zr.value = E.zoomPct(); ui.refresh(); });
+    L.bus.on('zoom', () => ui.refresh());
   }
   A.status = (msg) => { if (!A.sbMsg) return; A.sbMsg.textContent = L.t(msg); clearTimeout(statusTimer); statusTimer = setTimeout(() => { A.sbMsg.textContent = ''; }, 3000); };
   A.updateStatus = function () {
@@ -2174,10 +2172,9 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     buildToolbars();
     L.ribbonUI.init();
     buildStatus();
-    /* opened from the Start Center: a template, or blank (a new presentation, or to open a file into); else the sample */
+    /* a template from the Start Center, otherwise a blank presentation */
     const launch = window.VO && VO.launch;
-    const blank = !!launch;
-    L.pres = (launch && launch.template && L.templates && L.templates.build(launch.template, A.newSize())) || (blank ? M.newPresentation(Object.assign({ design: 'default' }, A.newSize())) : buildSample());
+    L.pres = (launch && launch.template && L.templates && L.templates.build(launch.template, A.newSize())) || M.newPresentation(Object.assign({ design: 'default' }, A.newSize()));
     L.panes.left.mount(L.$('#leftpane'));
     L.panes.notes.mount(L.$('#notes'));
     L.panes.task.mount(L.$('#taskpane'));
@@ -2197,7 +2194,7 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     setupSplitters();
     setupDrop();
     wire();
-    A.loadPres(L.pres, blank ? 'Presentation1' : 'Harbor & Pine — 2027 Expansion (sample)');
+    A.loadPres(L.pres, 'Presentation1');
     const wantTask = A.opts.taskOpen;
     L.panes.task.show('getting-started');
     if (!wantTask) { L.$('#taskpane').hidden = true; A.opts.taskOpen = false; }

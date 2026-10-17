@@ -3,7 +3,7 @@
  * loaded first; each app's own CSS comes after this file and wins. */
 [hidden] { display: none !important; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--dock-b); color: var(--ink); font: var(--ui-size)/1.25 var(--ui-font); overflow: hidden; }
+body { margin: 0; background: var(--dock-b); color: var(--ink); font: var(--ui-size)/1.25 var(--ui-font); overflow: hidden; touch-action: pan-x pan-y; }
 * { box-sizing: border-box; }
 button { font: inherit; color: inherit; }
 input, select, textarea { font: inherit; color: var(--ink); }
@@ -20,7 +20,7 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .menubar::before { content: ""; width: 3px; height: 16px; margin-right: 5px; background: radial-gradient(circle, var(--grip) 1px, transparent 1.2px) 0 0 / 3px 4px; }
 .mb-item { padding: 3px 7px 4px; border: 1px solid transparent; cursor: default; white-space: nowrap; user-select: none; }
 .mb-item:hover { background: linear-gradient(var(--hot-a), var(--hot-b)); border-color: var(--hot-border); }
-.mb-item.open { background: linear-gradient(var(--tb-a), var(--menu-open)); border-color: var(--menu-border); border-bottom-color: transparent; position: relative; z-index: 1001; }
+.mb-item.open { background: linear-gradient(var(--tb-a), var(--menu-open)); border-color: var(--menu-border); border-bottom-color: transparent; position: relative; z-index: 6100; }
 .cmd-search { margin-left: auto; flex: none; position: relative; display: flex; align-items: center; }
 .cmd-search .cs-glass { position: absolute; left: 6px; color: var(--hint-ink); pointer-events: none; }
 .cmd-search input { width: 190px; height: 19px; border: 1px solid var(--combo-border); padding: 1px 4px 1px 22px; background: var(--surface); color: var(--ink-3); font: inherit; }
@@ -64,7 +64,7 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .combo-btn:hover { background: linear-gradient(var(--hot-a), var(--hot-b)); }
 .ico-swatch { display: block; }
 /* ---------- menus ---------- */
-.menu { position: fixed; z-index: 1000; min-width: 150px; max-height: calc(100% - 8px); overflow-y: auto; background: var(--surface) linear-gradient(90deg, var(--tb-a), var(--tb-b) 18px, var(--tb-c) 25px, var(--menu-face) 25px) no-repeat; border: 1px solid var(--menu-border); padding: 2px; box-shadow: 2px 2px 3px var(--shadow-c); user-select: none; outline: none; }
+.menu { position: fixed; z-index: 6000; min-width: 150px; max-height: calc(100% - 8px); overflow-y: auto; background: var(--surface) linear-gradient(90deg, var(--tb-a), var(--tb-b) 18px, var(--tb-c) 25px, var(--menu-face) 25px) no-repeat; border: 1px solid var(--menu-border); padding: 2px; box-shadow: 2px 2px 3px var(--shadow-c); user-select: none; outline: none; }
 .m-item { display: grid; grid-template-columns: 22px 1fr auto 12px; align-items: center; min-height: 21px; border: 1px solid transparent; cursor: default; padding-right: 2px; white-space: nowrap; }
 .m-item.act:not(.dis) { background: var(--menu-hot); border-color: var(--hot-border); }
 .m-item.dis { color: var(--dis-ink); }
@@ -169,7 +169,7 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .search-hit b { background: var(--find-hit); font-weight: normal; }
 
 .statusbar { flex: none; display: flex; align-items: center; height: 22px; padding: 0 4px; background: linear-gradient(var(--dock-a), var(--dock-b)); border-top: 1px solid var(--chrome-line); gap: 0; overflow: hidden; white-space: nowrap; }
-.sb-cell { padding: 0 8px; border-right: 1px solid var(--sb-sep); box-shadow: 1px 0 0 var(--sb-sep-hi); height: 16px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; flex: none; }
+.sb-cell { padding: 0 8px; border-right: 1px solid var(--sb-sep); box-shadow: 1px 0 0 var(--sb-sep-hi); height: 16px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; min-width: 0; }
 .sb-cell.grow { flex: 1; min-width: 0; border-right: 0; box-shadow: none; }
 .sb-cell.flag { color: var(--flag-off); cursor: default; font-weight: bold; padding: 0 5px; }
 .sb-cell.flag.on { color: var(--ink); }
@@ -177,6 +177,29 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .sb-cell.act:hover { background: var(--menu-hot); }
 .sb-spell { display: inline-flex; align-items: center; }
 .sb-spell.off svg { filter: grayscale(1); opacity: .5; }
+/* zoom control at the right of the status bar (ui.zoomBar). The groove and the raised thumb are the
+   Windows slider: Derived from 7.css gui/_slider.scss (MIT). Colours are the look's, not that file's.
+   The editing surface opts in with data-doc-zoom (ui.watchDocGestures). */
+[data-doc-zoom] { touch-action: pan-x pan-y; overscroll-behavior: contain; }
+.sb-zoom { display: flex; align-items: center; gap: 3px; margin-left: auto; flex: 0 0 auto; height: 100%; padding: 0 4px 0 8px; }
+.sb-zoom-btn { width: 16px; height: 16px; padding: 0; border: 1px solid transparent; border-radius: var(--ctl-radius); background: transparent; line-height: 12px; font-size: 13px; cursor: default; }
+.sb-zoom-btn:hover { background: var(--menu-hot); border-color: var(--hot-border); }
+.sb-zoom-btn:active { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); border-color: var(--btn-border); }
+.sb-zoom-range { -webkit-appearance: none; appearance: none; width: 108px; height: 18px; margin: 0; padding: 0 1px; background: transparent; cursor: default; touch-action: none; vertical-align: middle; }
+.sb-zoom-range:focus { outline: none; }
+.sb-zoom-range:focus-visible { outline: 1px dotted var(--ink); outline-offset: 1px; }
+.sb-zoom-range::-webkit-slider-runnable-track { height: 3px; background: var(--face-2); border: 0; border-radius: 0; box-shadow: inset 1px 1px 1px var(--ctl-line), inset -1px 0 var(--split-lo), 0 1px var(--split-hi); }
+.sb-zoom-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; box-sizing: border-box; width: 10px; height: 18px; margin-top: -8px; border: 1px solid var(--btn-border); border-radius: 2px; background: linear-gradient(var(--btn-a), var(--btn-b)); box-shadow: inset 0 0 0 1px var(--split-hi), 1px 1px 0 var(--split-lo); }
+.sb-zoom-range:hover::-webkit-slider-thumb { background: linear-gradient(var(--btn-a), var(--btn-hot-b)); border-color: var(--sel); }
+.sb-zoom-range:active::-webkit-slider-thumb { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); }
+.sb-zoom-range::-moz-range-track { height: 3px; background: var(--face-2); border: 0; border-radius: 0; box-shadow: inset 1px 1px 1px var(--ctl-line), inset -1px 0 var(--split-lo), 0 1px var(--split-hi); }
+.sb-zoom-range::-moz-range-thumb { box-sizing: border-box; width: 10px; height: 18px; border: 1px solid var(--btn-border); border-radius: 2px; background: linear-gradient(var(--btn-a), var(--btn-b)); box-shadow: inset 0 0 0 1px var(--split-hi), 1px 1px 0 var(--split-lo); }
+.sb-zoom-range:hover::-moz-range-thumb { background: linear-gradient(var(--btn-a), var(--btn-hot-b)); border-color: var(--sel); }
+.sb-zoom-range:active::-moz-range-thumb { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); }
+.sb-zoom-pct { width: 4.2em; height: 16px; margin: 0; padding: 0 2px; border: 1px solid transparent; border-radius: var(--ctl-radius); background: transparent; color: inherit; font: var(--ui-size)/16px var(--ui-font); font-weight: normal; text-align: right; }
+.sb-zoom-pct:hover { background: var(--menu-hot); }
+.sb-zoom-pct:focus { background: var(--surface); color: var(--ink); border-color: var(--field-border); outline: none; text-align: left; }
+@media (max-width: 640px) { .sb-zoom-range { width: 72px; } }
 
 /* floating toolbars */
 .floatbar { position: absolute; z-index: 60; background: linear-gradient(var(--tb-a), var(--tb-b)); border: 1px solid var(--tb-border); border-radius: 3px; box-shadow: 2px 2px 5px var(--shadow-c); display: flex; flex-direction: column; }
@@ -188,8 +211,12 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .floatbar .fb-body .tb-grip { display: none; }
 
 /* ---------- dialogs ---------- */
-.dlg-overlay { position: fixed; inset: 0; z-index: 2000; background: var(--overlay); }
-.menu.over-dlg { z-index: 2100; }
+/* a dialog's overlay only hosts the window: it does not paint over the windows already open.
+   the veil, when a modal dialog is up, is a separate layer behind every window */
+.dlg-overlay { position: fixed; inset: 0; z-index: 2000; background: transparent; pointer-events: none; }
+.dlg-overlay .dlg { pointer-events: auto; }
+.dlg-overlay.dlg-backdrop { background: var(--overlay); pointer-events: auto; z-index: 1990; }
+.menu.over-dlg { z-index: 6000; }
 .dlg { position: absolute; background: var(--dlg); border: 1px solid var(--tb-border); box-shadow: 0 6px 20px var(--dlg-shadow-c); padding: 0; max-height: calc(100% - 8px); display: flex; flex-direction: column; color: var(--dlg-ink); }
 .dlg-title { height: 26px; margin: 0 0 3px; padding: 0 2px 0 9px; display: flex; align-items: center; gap: 2px; color: var(--pane-ink); font: bold 11px/1 var(--ui-font); cursor: default; user-select: none;
   background: linear-gradient(var(--tb-a), var(--tb-b)); border-bottom: 1px solid var(--pane-line); }
@@ -201,6 +228,13 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .dlg-body { padding: 8px 12px 6px; overflow: auto; min-height: 0; }
 .dlg-foot { display: flex; justify-content: flex-end; gap: 6px; padding: 6px 12px 9px; flex-wrap: wrap; }
 .dlg-foot .btn.left { margin-right: auto; }
+/* inactive: the title and the window's own text fade. Windows 7 replaces this with its own frame (looks.css) */
+html:not([data-look="win7"]) .dlg.inactive .dlg-title,
+html:not([data-look="win7"]) .dlg.inactive .dlg-ttl,
+html:not([data-look="win7"]) .dlg.inactive .dlg-x { color: var(--muted); }
+html:not([data-look="win7"]) .dlg.inactive .dlg-body,
+html:not([data-look="win7"]) .dlg.inactive .dlg-foot { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
 .btn { min-width: 75px; height: 23px; padding: 0 10px; border: 1px solid var(--btn-border); border-radius: 2px; background: linear-gradient(var(--btn-a), var(--btn-b)); cursor: default; }
 .btn:hover:not(:disabled) { border-color: var(--tb-border); background: linear-gradient(var(--btn-a), var(--btn-hot-b)); }
 .btn:active:not(:disabled) { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); }
@@ -304,9 +338,7 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .drop-hint { position: fixed; inset: 0; z-index: 2400; background: var(--drop-veil); border: 3px dashed var(--sel); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--pane-ink); pointer-events: none; }
 .smarttag { position: absolute; z-index: 35; width: 20px; height: 16px; border: 1px solid var(--combo-border); background: linear-gradient(var(--tb-a), var(--tb-b)); display: flex; align-items: center; justify-content: center; padding: 0; }
 
-/* ---- dialogs: modeless windows let the document keep working underneath ---- */
-.dlg-overlay.modeless { background: transparent; pointer-events: none; }
-.dlg-overlay.modeless .dlg { pointer-events: auto; }
+/* modeless windows let the document keep working underneath; the overlay itself never takes clicks */
 .options-tabs .tabs-head { row-gap: 0; }
 .options-tabs .tabs-body { min-height: 300px; }
 .cpk { display: inline-flex; align-items: center; gap: 4px; height: 21px; min-width: 120px; padding: 0 4px; border: 1px solid var(--field-border); background: var(--surface); cursor: default; }

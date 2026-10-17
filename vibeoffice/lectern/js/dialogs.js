@@ -723,7 +723,7 @@
     if (replace) {
       btns.push({ label: '&Replace', onClick: () => { read(); doReplaceOne(); return false; } });
       btns.push({ label: 'Replace &All', onClick: () => { read(); const n = replaceAll(); ui.msg(n > 1 ? L.t('{0} has finished searching the presentation and made {1} replacements.', L.APP, n) : n ? L.t('{0} has finished searching the presentation and made 1 replacement.', L.APP) : 'The search item wasn\'t found.', { icon: 'info' }); return false; } });
-    } else btns.push({ label: 'Re&place...', onClick: (close) => { read(); close(null); setTimeout(() => D.find(true), 0); return false; } });
+    } else btns.push({ label: 'Re&place...', onClick: () => { read(); D.find(true); return false; } });
     btns.push({ label: 'Close' });
     ui.dialog({ title: replace ? 'Replace' : 'Find', body, width: 440, buttons: btns });
     function doReplaceOne() {

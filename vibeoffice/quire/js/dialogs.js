@@ -601,7 +601,7 @@
       title: 'Bullets and Numbering', width: 450, body: tabs,
       buttons: [
         { label: '&Reset', onClick: () => { L.lists.remove(); return true; } },
-        { label: 'Customi&ze...', onClick: () => { const a = abs() || (info ? L.clone(D.numDef(doc(), info.numId).abs) : D.makeBulletAbs('•', 'Symbol', '')); dlg.close(null); G.customizeList(a, info ? info.lvl : 0); return false; } },
+        { label: 'Customi&ze...', onClick: () => { const a = abs() || (info ? L.clone(D.numDef(doc(), info.numId).abs) : D.makeBulletAbs('•', 'Symbol', '')); G.customizeList(a, info ? info.lvl : 0); return false; } },
         { label: 'OK', primary: true, onClick: () => { if (!choice) return; if (choice.none) { L.lists.remove(); return; } const a = abs(); if (choice.kind === 'outline' && choice.it.headings) applyHeadingNumbering(a); else L.lists.apply(a, { restart, newList: !info || restart }); } },
         { label: 'Cancel' },
       ],

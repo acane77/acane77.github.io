@@ -279,11 +279,14 @@
       let left = W * 0.5 - bw * 0.5;
       if (this._pos[0] + left < 8) left += 8 - (this._pos[0] + left);
       if (this._pos[0] + left + bw > innerWidth - 8) left -= this._pos[0] + left + bw - (innerWidth - 8);
+      const win7 = document.documentElement.dataset.look === 'win7';
       const above = this._pos[1] + 4 - bh >= 8;
       b.style.left = left + 'px';
-      if (above) { b.style.top = 'auto'; b.style.bottom = (H + 10) + 'px'; }
-      else { b.style.top = (H - 4) + 'px'; b.classList.add('is-below'); }
-      b.style.setProperty('--scout-tip', clamp(W * 0.5 - left, 16, Math.max(16, bw - 16)) + 'px');
+      if (above) { b.style.top = 'auto'; b.style.bottom = (H + (win7 ? 16 : 10)) + 'px'; }
+      else { b.style.top = (win7 ? H + 2 : H - 4) + 'px'; b.classList.add('is-below'); }
+      const tip = clamp(W * 0.5 - left, 16, Math.max(16, bw - 16));
+      b.style.setProperty('--scout-tip', tip + 'px');
+      b.classList.toggle('is-tip-right', win7 && tip + 18 > bw - 1);
     }
     _bind() {
       const el = this.el, o = this.o;

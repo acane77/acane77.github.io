@@ -2927,13 +2927,17 @@
         if (host.left + left < 8) left = 8 - host.left;
         if (host.left + left + bw > vw - 8) left = vw - 8 - host.left - bw;
       }
-      const top = headTop - bh - 12;
+      const win7 = document.documentElement.dataset.look === 'win7';
+      const gap = win7 ? 18 : 12;
+      const top = headTop - bh - gap;
       const absTop = this.o.mode === 'desktop' ? this._pos[1] + top : this.el.getBoundingClientRect().top + top;
       const above = absTop >= 8;
       b.style.left = f(left) + 'px';
-      if (above) { b.style.top = 'auto'; b.style.bottom = f(H - headTop + 12) + 'px'; }
-      else { b.style.top = f(H - 6) + 'px'; b.style.bottom = 'auto'; b.classList.add('is-below'); }
-      b.style.setProperty('--scout-tip', f(clamp(headX - left, 16, bw - 16)) + 'px');
+      if (above) { b.style.top = 'auto'; b.style.bottom = f(H - headTop + gap) + 'px'; }
+      else { b.style.top = f(win7 ? H + 2 : H - 6) + 'px'; b.style.bottom = 'auto'; b.classList.add('is-below'); }
+      const tip = clamp(headX - left, 16, bw - 16);
+      b.style.setProperty('--scout-tip', f(tip) + 'px');
+      b.classList.toggle('is-tip-right', win7 && tip + 18 > bw - 1);
       this._bDir = clamp((left + bw / 2 - headX) / 90, -1, 1);
       this._bUp = above ? 1 : -1;
     }

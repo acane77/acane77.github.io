@@ -468,4 +468,61 @@
     }
     return oneLatex(node);
   };
+
+  /**
+   * Justification of a display equation: m:oMathParaPr/m:jc. Omitted means Centered as Group,
+   * which is what Word uses when the element is absent.
+   */
+  M.jcOf = function (xml) {
+    const pr = /<m:oMathParaPr\b[^>]*>[\s\S]*?<\/m:oMathParaPr>/.exec(String(xml || ''));
+    if (!pr) return 'centerGroup';
+    const m = /<m:jc\b[^>]*\bm:val="(left|right|center|centerGroup)"/.exec(pr[0]);
+    return m ? m[1] : 'centerGroup';
+  };
+
+  /** Set m:jc on a display equation. The equation body is kept. An inline equation is unchanged. */
+  M.setJc = function (xml, jc) {
+    if (jc !== 'left' && jc !== 'right' && jc !== 'center' && jc !== 'centerGroup') return xml;
+    const s = String(xml || '').trim();
+    if (!/^<m:oMathPara[\s>]/.test(s)) return s;
+    const tag = `<m:jc m:val="${jc}"/>`;
+    const empty = /<m:oMathParaPr\b[^>]*\/>/.exec(s);
+    if (empty) return s.slice(0, empty.index) + '<m:oMathParaPr>' + tag + '</m:oMathParaPr>' + s.slice(empty.index + empty[0].length);
+    const pr = /<m:oMathParaPr\b[^>]*>[\s\S]*?<\/m:oMathParaPr>/.exec(s);
+    if (!pr) return s.replace(/^(<m:oMathPara\b[^>]*>)/, '$1<m:oMathParaPr>' + tag + '</m:oMathParaPr>');
+    let body = pr[0];
+    if (/<m:jc\b/.test(body)) body = body.replace(/<m:jc\b[^>]*\/>/, tag).replace(/<m:jc\b[^>]*>[\s\S]*?<\/m:jc>/, tag);
+    else body = body.replace(/(<m:oMathParaPr\b[^>]*>)/, '$1' + tag);
+    return s.slice(0, pr.index) + body + s.slice(pr.index + pr[0].length);
+  };
+
+  /**
+   * Inline m:oMath wrapped as a display m:oMathPara. Namespaces move to the outer element.
+   * An equation that is already display is returned unchanged.
+   */
+  M.asDisplay = function (xml) {
+    const s = String(xml || '').trim();
+    if (/^<m:oMathPara[\s>]/.test(s)) return s;
+    const m = /^<m:oMath\b([^>]*)>/.exec(s);
+    if (!m) return '<m:oMathPara>' + s + '</m:oMathPara>';
+    return '<m:oMathPara' + m[1] + '><m:oMath>' + s.slice(m[0].length) + '</m:oMathPara>';
+  };
+
+  /**
+   * Display m:oMathPara unwrapped to its m:oMath. Drops m:oMathParaPr.
+   * Namespaces move onto the m:oMath. Several equations become one.
+   */
+  M.asInline = function (xml) {
+    const s = String(xml || '').trim();
+    const m = /^<m:oMathPara\b([^>]*)>([\s\S]*)<\/m:oMathPara>$/.exec(s);
+    if (!m) return s;
+    let inner = m[2].replace(/^\s*<m:oMathParaPr\b[\s\S]*?<\/m:oMathParaPr>\s*/, '');
+    const parts = [...inner.matchAll(/<m:oMath\b[^>]*>[\s\S]*?<\/m:oMath>/g)];
+    if (parts.length > 1) {
+      const bodies = parts.map((p) => p[0].replace(/^<m:oMath\b[^>]*>/, '').replace(/<\/m:oMath>$/, ''));
+      inner = '<m:oMath>' + bodies.join('') + '</m:oMath>';
+    }
+    if (m[1] && /xmlns/.test(m[1]) && /^<m:oMath\b(?![^>]*\bxmlns\b)/.test(inner)) inner = inner.replace(/^<m:oMath\b/, '<m:oMath' + m[1]);
+    return inner.trim();
+  };
 })();

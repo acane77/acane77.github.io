@@ -555,7 +555,7 @@
     const ref = h('input', { type: 'text', style: 'width:100%' });
     const lb = list(Array.from(new Set(names)), null, (v) => { ref.value = v; }, { translate: 'no' });
     const d = ui.dialog({ title: 'Go To', width: 320, body: h('div', { class: 'col' }, h('label', { text: 'Go to:' }), lb, ui.field('&Reference:', ref)),
-      buttons: [{ label: '&Special...', onClick: () => { d.close(null); D.goToSpecial(); return false; } }, { label: 'OK', primary: true, onClick: () => { if (!A().goToRef(ref.value.trim())) { ui.msg('Reference is not valid.', { icon: 'warn' }); return false; } } }, { label: 'Cancel' }] });
+      buttons: [{ label: '&Special...', onClick: () => { D.goToSpecial(); return false; } }, { label: 'OK', primary: true, onClick: () => { if (!A().goToRef(ref.value.trim())) { ui.msg('Reference is not valid.', { icon: 'warn' }); return false; } } }, { label: 'Cancel' }] });
     lb.ondbl = (v) => { d.close(0); A().goToRef(v); };
   };
   D.goToSpecial = function () {

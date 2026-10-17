@@ -22,8 +22,70 @@
   R.lineFactor = (font) => LH[L.fontKey(font)] || 1.17;
   /* a run's line factor: its East Asian font's where its text has East Asian characters and that font is taller */
   const runFactorFont = (r) => (r.eaText && r.fontEA && LH[L.fontKey(r.fontEA)] > R.lineFactor(r.font) ? r.fontEA : r.font);
-  const SPACE_EM = { 'times new roman': 0.25, arial: 0.2778, calibri: 0.2261, 'calibri light': 0.2261, cambria: 0.2197, georgia: 0.2412, verdana: 0.3516, tahoma: 0.3125, 'courier new': 0.6, garamond: 0.25, 'book antiqua': 0.25, 'palatino linotype': 0.25, 'segoe ui': 0.2744, 'trebuchet ms': 0.3013, 'century gothic': 0.2773, helvetica: 0.2778, aptos: 0.2, 'arial narrow': 0.2278 };
+  const SPACE_EM = { 'times new roman': 0.25, arial: 0.2778, calibri: 0.2261, 'calibri light': 0.2261, cambria: 0.2197, georgia: 0.2412, verdana: 0.3516, tahoma: 0.3125, 'courier new': 0.6, garamond: 0.25, 'book antiqua': 0.25, 'palatino linotype': 0.25, 'segoe ui': 0.2744, 'trebuchet ms': 0.3013, 'century gothic': 0.2773, helvetica: 0.2778, aptos: 0.2, 'arial narrow': 0.2278, simsun: 0.5, nsimsun: 0.5, simhei: 0.5, kaiti: 0.5, fangsong: 0.5, dengxian: 0.5, 'microsoft yahei': 0.5, 'ms gothic': 0.5, 'ms mincho': 0.5 };
   R.spaceEm = (font) => SPACE_EM[L.fontKey(font)] || 0.25;
+  /* Word's balanceSingleByteDoubleByteWidth draws an ASCII space as half a fullwidth em */
+  R.balanceSBCS = (d) => !!(d && d.settings && /<w:balanceSingleByteDoubleByteWidth[\s/>]/.test(d.settings.compatXML || ''));
+  /** one fullwidth East Asian advance (ideographs and fullwidth punctuation, not halfwidth kana) */
+  R.fullWidthChar = (ch) => {
+    const c = ch.codePointAt(0);
+    return (c >= 0x1100 && c <= 0x11FF) || (c >= 0x2E80 && c <= 0x9FFF) || (c >= 0xAC00 && c <= 0xD7AF) || (c >= 0xF900 && c <= 0xFAFF) || (c >= 0xFE30 && c <= 0xFE4F) || (c >= 0xFF01 && c <= 0xFF60) || (c >= 0xFFE0 && c <= 0xFFE6);
+  };
+  /** fullwidth punctuation whose advance a justified line may narrow, down to half an em */
+  R.compressPunct = (ch) => {
+    if (!ch) return '';
+    if ('、。，．：；'.includes(ch)) return 'middle';
+    if ('〈《「『【〔〖〘〚（［｛〝'.includes(ch)) return 'left';
+    if ('〉》」』】〕〗〙〛）］｝〞〟'.includes(ch)) return 'right';
+    return '';
+  };
+  /** the document allows that squeeze (Word's compress punctuation; kana is left alone) */
+  R.punctCompress = (d) => !d || !d.settings || d.settings.charSpacing !== 'doNotCompress';
+  /**
+   * One line of fullwidth advances (px) under distributed or justified alignment.
+   * Shorter than the measure: distributed spreads the spare space between characters.
+   * Longer: fullwidth punctuation may narrow to half an em, and only by as much as the
+   * overflow needs. If that still does not fit, the line wraps (null). Justified text
+   * that already fits is left as the last line of a justified paragraph.
+   */
+  R.distributeFit = function (advances, inner, opts) {
+    opts = opts || {};
+    const chars = opts.chars || [];
+    const n = advances.length;
+    if (!n || !(inner > 0)) return null;
+    let sum = 0;
+    for (const w of advances) sum += w;
+    const over = sum - inner;
+    if (over > 0.05) {
+      if (opts.compress === false) return null;
+      let budget = 0;
+      const save = [];
+      for (let i = 0; i < n; i++) {
+        const w = advances[i];
+        const room = R.compressPunct(chars[i]) && w >= 0.75 * (opts.em || w) ? w / 2 : 0;
+        save.push(room);
+        budget += room;
+      }
+      if (!(budget > 0) || over > budget + 0.5) return null;
+      const frac = over / budget;
+      const out = [];
+      let got = 0;
+      for (let i = 0; i < n; i++) {
+        const w = advances[i] - save[i] * frac;
+        out.push(w);
+        got += w;
+      }
+      const dust = inner - got;
+      if (Math.abs(dust) > 0.01) {
+        for (let i = n - 1; i >= 0; i--) if (save[i]) { out[i] += dust; break; }
+      }
+      return { advances: out };
+    }
+    if (opts.mode === 'justify') return null;
+    return { gap: n > 1 ? Math.max(0, -over / (n - 1)) : 0 };
+  };
+  /* a lone equation is a display zone, including one that has only its number.
+     Whitespace alone is not: that space is what keeps a converted inline equation inline. */
   R.mathSolo = (p) => {
     let maths = 0, other = '';
     for (const it of p.runs) {
@@ -32,7 +94,7 @@
       else if (it.t === 'tab' || it.t === 'ptab' || D.ilen(it) === 0 || it.t === 'fb' || it.t === 'fs' || it.t === 'fe') continue;
       else return false;
     }
-    return maths === 1 && other.replace(/[\s()[\]0-9.,:;\-–a-zA-Z]/g, '').length === 0 && other.trim().length <= 14;
+    return maths === 1 && other.replace(/[\s()[\]0-9.,:;\-–a-zA-Z]/g, '').length === 0 && other.trim().length <= 14 && !/^\s+$/.test(other);
   };
   /* a paragraph whose text is only an equation number: Word still centers the display equation on a justified line */
   R.mathLine = (p) => {
@@ -44,6 +106,23 @@
       else return false;
     }
     return text.replace(/[\s()[\]0-9.,:;\-–]/g, '').length === 0;
+  };
+  /* an equation number such as (1), not a lone equation and not ordinary text */
+  R.mathNumbered = (p) => {
+    if (!R.mathLine(p)) return false;
+    let text = '';
+    for (const it of p.runs) if (it.t === 'text' && !(it.rPr && it.rPr.del)) text += it.text || '';
+    return /\d/.test(text);
+  };
+  /**
+   * Where a display equation sits on a justified line.
+   * Left and Right do what they say. Centered and Centered as Group both center the equation
+   * (Centered as Group is what Word uses when m:jc is omitted). A group of equations stays
+   * aligned with each other; an equation number sits on the right margin.
+   */
+  R.mathAlign = function (jc) {
+    if (jc === 'left' || jc === 'right') return jc;
+    return 'center';
   };
   /* equations: MathML built once per source XML */
   const mathCache = new Map();
@@ -283,6 +362,7 @@
       and 14pt text at 1.7 lines takes two pitches, 31.2pt (issue 11; tests/from-issues/11/) */
   R.gridLine = (pitch, mult, sz, font) => L.round(pitch * Math.max(1, mult, Math.ceil(R.px(sz * R.lineFactor(font)) / pitch - 0.02)), 3);
   const ALIGN = { left: 'left', start: 'left', center: 'center', right: 'right', end: 'right', both: 'justify', distribute: 'justify', lowKashida: 'justify', mediumKashida: 'justify', highKashida: 'justify', thaiDistribute: 'justify' };
+  R.isJustified = (jc) => ALIGN[jc] === 'justify';
 
   /**
    * Render a fragment [from,to) of paragraph p.
@@ -342,6 +422,8 @@
     const jc = ALIGN[pPr.jc] || 'left';
     if (jc !== 'left') st.push(`text-align:${jc}`);
     if (jc === 'justify' && (!last || pPr.jc === 'distribute')) st.push('text-align-last:' + (pPr.jc === 'distribute' ? 'justify' : 'justify'));
+    /* CJK has no spaces for the browser to stretch; Word's Distributed puts the extra between every character */
+    if (pPr.jc === 'distribute') st.push('text-justify:inter-character');
     if (jc === 'justify' && !last) outer.classList.add('jl');
     /* document grid (lines): R.gridLine */
     const gridPx = ctx.grid && !pPr.noSnap && !ls.exact && !ls.atLeast ? ctx.grid : 0;
@@ -424,6 +506,14 @@
       }
     }
     R.fillRuns(pc, p, from, to, ctx, pPr, ls, tctx, runLine);
+    /* Justified and distributed lines squeeze fullwidth punctuation (down to half an em)
+       before wrapping, which is why a line left alignment would break still fits here. */
+    if ((pPr.jc === 'distribute' || pPr.jc === 'both') && ctx.contentWidth && R.fitDistribute(pc, ctx.contentWidth - R.px((l || 0) + (r || 0) + (fl > 0 ? fl : 0)), pPr.jc, d)) {
+      pc.style.textAlign = 'left';
+      pc.style.textAlignLast = 'auto';
+      pc.style.whiteSpace = 'nowrap';
+      pc.style.overflowWrap = 'normal';
+    }
     /* empty fragment or a trailing line break needs a filler so the line has height */
     const lastEl = pc.lastChild;
     if (!pc.querySelector('[data-o]:not(.zw)') && !pc.querySelector('.lbl')) {
@@ -464,6 +554,106 @@
     return outer;
   };
 
+  /** Pull one character out of a run span so its advance can change on its own. */
+  function isolateChar(span, i) {
+    const text = span.firstChild.data;
+    if (text.length === 1) return span;
+    const o = +span.dataset.o;
+    const s = span.cloneNode(false);
+    s.appendChild(document.createTextNode(text[i]));
+    s.dataset.o = String(o + i);
+    s.dataset.n = '1';
+    s.style.letterSpacing = '';
+    if (i === 0) {
+      span.firstChild.data = text.slice(1);
+      span.dataset.o = String(o + 1);
+      span.dataset.n = String(text.length - 1);
+      span.before(s);
+    } else if (i === text.length - 1) {
+      span.firstChild.data = text.slice(0, -1);
+      span.dataset.n = String(text.length - 1);
+      span.after(s);
+    } else {
+      const rest = span.cloneNode(false);
+      rest.appendChild(document.createTextNode(text.slice(i + 1)));
+      rest.dataset.o = String(o + i + 1);
+      rest.dataset.n = String(text.length - i - 1);
+      rest.style.letterSpacing = '';
+      span.firstChild.data = text.slice(0, i);
+      span.dataset.n = String(i);
+      span.after(s);
+      s.after(rest);
+    }
+    return s;
+  }
+  /** Apply distributed spacing, or the punctuation squeeze that keeps a justified line together.
+      Returns false when the browser should wrap the line itself. */
+  R.fitDistribute = function (pc, inner, jc, doc) {
+    if (!(inner > 0) || pc.querySelector('.tb, .lbl, .img, .shp, br, .mml')) return false;
+    const spans = [...pc.children].filter((e) => e.nodeType === 1 && e.dataset.o != null && e.firstChild && e.firstChild.nodeType === 3);
+    if (!spans.length) return false;
+    const items = [];
+    for (const sp of spans) {
+      const fs = parseFloat(sp.style.fontSize);
+      if (!(fs > 0)) return false;
+      const text = sp.firstChild.data;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '\n' || ch === '\u200b' || !R.fullWidthChar(ch)) return false;
+        items.push({ sp, i, ch, fs });
+      }
+    }
+    if (!items.length) return false;
+    const fit = R.distributeFit(items.map((it) => it.fs), inner, {
+      chars: items.map((it) => it.ch),
+      mode: jc === 'both' ? 'justify' : 'distribute',
+      compress: R.punctCompress(doc),
+      em: items[0].fs,
+    });
+    if (!fit) return false;
+    const lock = (sp) => { sp.style.whiteSpace = 'nowrap'; };
+    if (fit.gap > 0.01) {
+      let last = spans[spans.length - 1];
+      const data = last.firstChild.data;
+      if (data.length > 1) {
+        const cut = data.length - 1;
+        last.firstChild.data = data.slice(0, cut);
+        last.dataset.n = String(cut);
+        const s2 = last.cloneNode(false);
+        s2.appendChild(document.createTextNode(data.slice(cut)));
+        s2.dataset.o = String(+last.dataset.o + cut);
+        s2.dataset.n = '1';
+        s2.style.letterSpacing = '';
+        last.after(s2);
+        spans.push(s2);
+        last = s2;
+      }
+      for (const sp of spans) {
+        lock(sp);
+        if (sp !== last) sp.style.letterSpacing = L.round(fit.gap, 2) + 'px';
+      }
+      return true;
+    }
+    if (!fit.advances) return false;
+    for (let k = items.length - 1; k >= 0; k--) {
+      const it = items[k];
+      const adv = fit.advances[k];
+      if (adv >= it.fs - 0.05) continue;
+      const el = isolateChar(it.sp, it.i);
+      lock(el);
+      const kind = R.compressPunct(it.ch);
+      el.style.display = 'inline-block';
+      el.style.width = L.round(adv, 2) + 'px';
+      el.style.overflow = 'visible';
+      el.style.verticalAlign = 'baseline';
+      el.style.lineHeight = '1';
+      el.style.letterSpacing = 'normal';
+      el.style.textAlign = kind === 'left' ? 'right' : kind === 'middle' ? 'center' : 'left';
+    }
+    for (const sp of pc.children) if (sp.nodeType === 1 && sp.dataset && sp.dataset.o != null) lock(sp);
+    return true;
+  };
+
   /* the names docx-read gives the objects it keeps without showing them (preserve.js keepObject); alt text is the document's */
   /* a kept object's label (preserve.js keepObject); a SmartArt diagram is shown by its feature's name in the UI */
   const rawLabel = (s) => (s === 'SmartArt' ? L.t('IntelliArt') : [L.N('Embedded object'), L.N('Drawing'), L.N('Form control'), L.N('Embedded content')].includes(s) ? L.t(s) : s);
@@ -479,7 +669,7 @@
     const items = p.runs;
     const controls = (p.pPr.sdts || []).slice();
     const controlSpan = el => { const c = controls.at(-1); if (c && !c.converted && c.type === 'checkbox') { el.dataset.control = c.key; el.style.cursor = 'pointer'; el.title = c.name; } };
-    let lastSpan = null, lastCss = null;
+    let lastSpan = null, lastCss = null, groupNum = false;
     for (let idx = 0; idx < items.length; idx++) {
       const it = items[idx];
       const n = D.ilen(it);
@@ -582,6 +772,7 @@
       if (r.link || rp.link) cls.push('lnk');
       let el;
       if (it.t === 'text') {
+        if (groupNum) cls.push('eqnum');
         // Keep one DOM character per model character for caret/selection offsets.
         // Chromium ignores CR in a Text node; LF produces the intended line break.
         const text = it.text.slice(a - s, b - s).replace(/\r/g, (_, at) => {
@@ -613,7 +804,14 @@
           const ea = piece.ea && !!r.fontEA;
           const rr = ea ? Object.assign({}, r, { font: r.fontEA, eaText: true }) : (distinct ? Object.assign({}, r, { fontEA: undefined }) : r);
           const lang = ea && r.langEA ? r.langEA : !ea && r.lang && !/^en/i.test(r.lang) ? r.lang : '';
-          const css = R.runCSS(rr, mult, ctx.dkPara ? { autoWhite: true, key: 'w' } : null) + extra;
+          /* a run of spaces under Word's "balance single-byte and double-byte characters" is half a fullwidth
+             em each (the underlined blanks on an East Asian cover). Letter-spacing is part of that advance. */
+          let pieceExtra = extra;
+          if (R.balanceSBCS(d) && /^ +$/.test(piece.text)) {
+            const add = 0.5 - R.spaceEm(rr.font);
+            if (add > 0.02) pieceExtra += `;letter-spacing:${L.round(add * R.px(rr.sz || 12), 2)}px`;
+          }
+          const css = R.runCSS(rr, mult, ctx.dkPara ? { autoWhite: true, key: 'w' } : null) + pieceExtra;
           const clsS = cls.join(' ') + (lang ? '|' + lang : '');
           if (lastSpan && lastCss === css + '|' + clsS && +lastSpan.dataset.o + +lastSpan.dataset.n === at) {
             lastSpan.firstChild.appendData(piece.text);
@@ -639,6 +837,7 @@
       lastSpan = null;
       if (it.t === 'tab' || it.t === 'ptab') {
         el = document.createElement('span');
+        if (groupNum) cls.push('eqnum');
         el.className = 'tb' + (cls.length ? ' ' + cls.join(' ') : '');
         el.contentEditable = 'false';
         el.style.cssText = R.runCSS(r, mult) + extra;
@@ -702,24 +901,49 @@
         const mres = it.math && it.xml ? R.mathFor(it) : null;
         if (mres) {
           /* Office Math rendered as MathML */
+          /* a display equation that shares the paragraph with real text is not a display math zone:
+             Word keeps it the size of an inline equation. With no size of its own it takes the text's. */
+          const withText = !!(mres.display && !R.mathLine(p));
+          if (withText && !(it.rPr && it.rPr.sz)) {
+            const host = p.runs.find((t2) => t2 !== it && t2.t === 'text' && /\S/.test(t2.text || ''));
+            const sz = host && D.rProps(d, p, host, tctx).sz;
+            if (sz) r = Object.assign({}, r, { sz });
+          }
           el.style.cssText = R.runCSS(r, mult) + ';font-style:normal;font-weight:normal;text-decoration:none';
           el.classList.add('mml');
           if (mres.display) {
             el.classList.add('mpara');
-            const align = mres.jc === 'left' ? 'left' : mres.jc === 'right' ? 'right' : 'center';
+            const pjc = ALIGN[pPr.jc] || 'left';
+            const justified = pjc === 'justify';
+            const jc = mres.jc || 'centerGroup';
+            /* On Justify, m:jc places the equation. Centered and Centered as Group both center it.
+               Off Justify the menu is grey. */
+            const align = justified ? R.mathAlign(jc) : (jc === 'left' ? 'left' : jc === 'right' ? 'right' : 'center');
+            if (withText) el.classList.add('mbreak');
+            if (justified && !withText && jc === 'centerGroup' && R.mathNumbered(p)) { pc.classList.add('eq-group'); groupNum = true; }
+            if (justified && jc === 'center') el.dataset.each = '1';
             el.style.textAlign = align;
             el.style.textAlignLast = align;
-            /* a justified or left line packs a short inline to the start; Word centers the display equation (centerGroup) */
-            const pjc = ALIGN[pPr.jc] || 'left';
-            if (align === 'center' && pjc !== 'center' && R.mathLine(p)) {
+            if (!withText && align === 'center' && pjc !== 'center') {
               pc.style.textAlign = 'center';
               pc.style.textAlignLast = 'center';
             }
+            if (!withText && justified && align === 'left') { pc.style.textAlign = 'left'; pc.style.textAlignLast = 'left'; }
+            if (!withText && justified && align === 'right') { pc.style.textAlign = 'right'; pc.style.textAlignLast = 'right'; }
           }
           const mm = mres.math.cloneNode(true);
-          /* an equation alone on its line (perhaps with a tab and a number) is laid out in display style, as Word does */
-          if (!mres.display && R.mathSolo(p)) mm.setAttribute('displaystyle', 'true');
+          if (withText) {
+            mm.removeAttribute('display');
+            mm.style.fontSize = R.px(r.sz || 12) + 'px';
+          } else if (!mres.display && R.mathSolo(p)) {
+            /* an equation alone on its line (perhaps with a tab and a number) is laid out in display style, as Word does */
+            mm.setAttribute('displaystyle', 'true');
+          }
           el.appendChild(mm);
+          /* Centered puts each equation of a group on the middle of the line. Centered as Group keeps them
+             aligned with each other and centers the whole group, so a single equation is just centered. */
+          if (el.dataset.each && mm.querySelector('mtable')) el.classList.add('jc-each');
+          delete el.dataset.each;
         } else {
           el.style.cssText = R.runCSS(r, mult) + (it.math ? ';font-family:"Cambria Math",Caladea,serif;font-style:italic' : '');
           el.textContent = it.text || rawLabel(it.label) || '';

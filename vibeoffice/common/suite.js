@@ -9,7 +9,8 @@
  *   into its Recent Files entry as a draft; saving clears it. The Start Center, the apps' File menus and
  *   task panes and the Document Recovery pane all show the one list.
  *
- * An app page is opened as  <app>/?new           a blank document instead of the sample
+ * An app page is opened as  <app>/             a blank document
+ *                           <app>/?new           a blank document
  *                           <app>/?template=<id>  a new document from one of the app's templates
  *                           <app>/?open=<id>      a file handed over by VO.handoff (read once, then deleted)
  *                           <app>/?recent=<key>   a Recent Files entry (&draft: its unsaved version)
@@ -536,7 +537,7 @@
 
   /* ------------------------------------------------------------ the app side */
   const q = new URLSearchParams(location.search);
-  /** how this app page was opened: null (plain: show the sample), { new }, { template: id }, { open: id }, { recent: key }
+  /** how this app page was opened: null (plain: a blank document), { new }, { template: id }, { open: id }, { recent: key }
    *  or { vscode } (the custom editor: a blank document, then the workspace file) */
   VO.launch = inVs ? { vscode: true }
     : q.has('open') ? { open: q.get('open') } : q.has('recent') ? { recent: q.get('recent'), draft: q.has('draft') }

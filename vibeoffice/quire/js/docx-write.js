@@ -655,13 +655,33 @@
       pPr: i > 0 && p.pPr && p.pPr.num ? Object.assign({}, p.pPr, { num: undefined }) : p.pPr,
     }));
   }
+  /**
+   * Word turns an inline equation into a display equation when the paragraph has no text after it,
+   * and the menu then says Change to Inline. A preserved space after the math keeps it inline.
+   * A display equation, or a paragraph that already has text, is left alone.
+   */
+  function loneInlineMath(p) {
+    let maths = 0, after = '', any = '';
+    for (const it of p.runs || []) {
+      if (it.rPr && it.rPr.del) continue;
+      if (it.t === 'raw' && it.math) {
+        if (it.para) return false;
+        maths++;
+        after = '';
+      } else if (it.t === 'text') { after += it.text || ''; any += it.text || ''; }
+      else if (it.t === 'tab' || it.t === 'ptab' || it.t === 'br' || D.ilen(it) === 0) continue;
+      else return false;
+    }
+    return maths > 0 && !any.trim() && after.length === 0;
+  }
+  W.loneInlineMath = loneInlineMath;
   function oneParaXML(p, ctx) {
     const markR = rPrXML(p.rPr || {}, p.mark, ctx);
     const pPr = pPrXML(p.pPr, ctx, { rPr: markR, sect: p.sect && ctx.main ? sectXML(p.sect, ctx) : '' });
-    /* display math paragraphs */
-    const runs = runsXML(p, ctx);
-    return `<w:p>${pPr}${runs}</w:p>`;
+    const anchor = loneInlineMath(p) ? '<w:r><w:t xml:space="preserve"> </w:t></w:r>' : '';
+    return `<w:p>${pPr}${runsXML(p, ctx)}${anchor}</w:p>`;
   }
+  W.oneParaXML = oneParaXML;
   function paraXML(p, ctx) {
     const parts = mathParagraphs(p);
     if (parts) return parts.map((q) => oneParaXML(q, ctx)).join('');
