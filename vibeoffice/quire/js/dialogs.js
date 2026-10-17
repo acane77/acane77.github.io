@@ -163,7 +163,7 @@
     const useLabel = () => L.t('(Use Asian text font)');
     const fontNames = () => {
       const names = FONTS().concat(L.localFonts());
-      for (const v of [st.font, st.fontEA]) if (v && v !== USE_EA && !names.includes(v)) names.push(v);
+      for (const v of [st.font, st.fontEA]) { const face = v && v !== USE_EA ? L.fontFace(v) : ''; if (face && !names.includes(face)) names.push(face); }
       return Array.from(new Set(names.filter(Boolean))).sort((a, b) => a.localeCompare(b));
     };
     /* a font box: type a name, or open the list. allowUse adds "(Use Asian text font)" for the Latin slot */
@@ -173,7 +173,7 @@
       const inp = h('input', { type: 'text', class: 'combo-in', id, autocomplete: 'off', spellcheck: 'false', translate: 'no' });
       const btn = h('button', { class: 'combo-btn', type: 'button', tabindex: '-1', 'aria-label': 'Open list', html: '<span class="dd-arrow"></span>' });
       wrap.append(inp, btn);
-      const labelOf = (v) => (v === USE_EA ? useLabel() : (v || ''));
+      const labelOf = (v) => (v === USE_EA ? useLabel() : L.fontFace(v || ''));
       const applyVal = (v) => set(key, v);
       wrap.show = () => { if (document.activeElement !== inp) inp.value = labelOf(st[key]); };
       ui.bindComplete(inp, {
@@ -191,7 +191,7 @@
         for (const name of fontNames()) items.push({ label: String(name).replace(/&/g, '&&'), value: name, raw: true });
         ui.openMenu(items.map((x) => ({
           label: x.label, value: x.value, raw: !!x.raw,
-          checked: () => String(st[key]) === String(x.value),
+          checked: () => String(st[key]) === String(x.value) || L.fontFace(st[key]) === String(x.value),
           run: () => { inp.value = labelOf(x.value); applyVal(x.value); },
         })), { left: rect.left, bottom: rect.bottom }, { cls: 'combo-list fonts' });
         const menu = document.querySelector('.menu.combo-list');

@@ -180,7 +180,7 @@
   }
   /* the toolbars' boxes and menus, also used by the ribbon (js/ribbon.js): each call makes a new box */
   A.parts = {
-    font: (o) => ui.combo(Object.assign({ id: 'tb-font', width: 136, tip: 'Font', options: () => { const d = E.slide() && L.pres.designs[E.slide().design]; return L.fontSections({ major: d?.fonts?.major, minor: d?.fonts?.minor }); }, complete: L.fontComplete, preview: (v) => `font-family:${L.fontStack(v)};font-size:13px`, note: L.fontNote, listCls: 'fonts', value: () => { const s = textState(); if (!s) return ''; return s.onEA && s.fontEA ? s.fontEA : (s.font || ''); }, enabled: () => !!textState(), onChange: (v) => A.setFontName(v) }, o)),
+    font: (o) => ui.combo(Object.assign({ id: 'tb-font', width: 136, tip: 'Font', options: () => { const d = E.slide() && L.pres.designs[E.slide().design]; return L.fontSections({ major: d?.fonts?.major, minor: d?.fonts?.minor }); }, complete: L.fontComplete, preview: (v) => `font-family:${L.fontStack(v)};font-size:13px`, note: L.fontNote, listCls: 'fonts', value: () => { const s = textState(); if (!s) return ''; return L.fontFace(s.onEA && s.fontEA ? s.fontEA : (s.font || '')); }, enabled: () => !!textState(), onChange: (v) => A.setFontName(v) }, o)),
     size: (o) => ui.combo(Object.assign({ id: 'tb-size', width: 44, tip: 'Font Size', options: () => L.SIZE_LIST, value: () => { const s = textState(); return s && s.sz ? String(L.round(s.sz, 1)) : ''; }, enabled: () => !!textState(), onChange: (v) => A.setFontSize(parseFloat(v)) }, o)),
     zoom: (o) => ui.combo(Object.assign({ id: 'tb-zoom', width: 64, tip: 'Zoom', options: () => [L.t('Fit'), '400%', '200%', '150%', '100%', '75%', '66%', '50%', '33%', '25%'], value: () => (E.zoom === 'fit' ? L.t('Fit') : E.zoomPct() + '%'), onChange: (v) => { if (/fit/i.test(v) || v === L.t('Fit')) E.setZoom('fit'); else { const n = parseFloat(v); if (n > 0) E.setZoom(n / 100); } } }, o)),
   };
@@ -2130,8 +2130,54 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
   }
   A.buildSample = buildSample;
 
+  /* ================= the formatting bar (common/minibar.js) ================= */
+  function mountMinibar() {
+    const row = (...kids) => h('div', { class: 'minibar-row' }, ...kids);
+    L.minibar.mount(() => {
+      const clear = ui.tbButton('resetChar', { icon: 'eraser' });
+      const color = (r, b) => A.menus.color('font')(r, b);
+      return [
+        row(A.parts.font({ width: 132, id: 'mb-font' }), A.parts.size({ width: 48, id: 'mb-size' }), ui.tbButton('growFont'), ui.tbButton('shrinkFont'), clear, ui.tbSplit('fontColor', color)),
+        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbSplit('fontColor', color), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r))),
+      ];
+    });
+    const range = () => {
+      if (!TE.active() || E.cellSel || (L.show && L.show.active)) return false;
+      const s = TE.getSel();
+      return !!(s && !T.collapsed(s));
+    };
+    const selectKey = (e) => (e.key === 'a' && (e.ctrlKey || e.metaKey) && !e.altKey) || (e.shiftKey && /^(Arrow(?:Left|Right|Up|Down)|Home|End|Page(?:Up|Down))$/.test(e.key));
+    let down = false;
+    const offer = (reanchor) => {
+      setTimeout(() => {
+        if (!range()) { L.minibar.hide(); return; }
+        if (!reanchor && L.minibar.visible()) return;
+        L.minibar.show();
+      }, 0);
+    };
+    document.addEventListener('pointerdown', (e) => {
+      const st = TE.state;
+      down = e.button === 0 && !!st && !!st.el && st.el.contains(e.target);
+    }, true);
+    document.addEventListener('pointerup', (e) => {
+      if (!down) return;
+      down = false;
+      if (e.target && e.target.closest && e.target.closest('.minibar, .menu')) return;
+      offer(true);
+    }, true);
+    document.addEventListener('dblclick', () => offer(true));
+    document.addEventListener('keyup', (e) => {
+      if (!TE.active() || (e.target && e.target.closest && e.target.closest('.minibar, .menu'))) return;
+      if (selectKey(e)) { if (!L.minibar.visible() && range()) L.minibar.show(); return; }
+      if (L.minibar.visible() && !range()) L.minibar.hide();
+    });
+    L.bus.on('edit-end', () => L.minibar.hide());
+    L.bus.on('slide-changed', () => L.minibar.hide());
+  }
+
   /* ================= wiring ================= */
   function wire() {
+    mountMinibar();
     L.bus.on('slide-changed', () => {
       A.slideSel = A.view === 'sorter' ? A.slideSel : new Set([E.idx]);
       L.panes.left.markCurrent();

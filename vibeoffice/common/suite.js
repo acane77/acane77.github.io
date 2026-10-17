@@ -72,6 +72,32 @@
   const announced = window.__VO_HOST__ || null;
   const native = announced && window.__TAURI_INTERNALS__ ? announced : null;
   const inVs = !native && announced && announced.kind === 'vscode' ? announced : null;
+  /* The webview host listens on this window for Ctrl+A and answers with document.execCommand('selectAll')
+     (VS Code's webview page, the execCommand message). That selects the whole webview, chrome included.
+     Quire then reads a selection it cannot map and snaps the caret, so the selection shows and vanishes.
+     Edit ▸ Select All never presses the key, which is why the menu works. The browser has no host listener.
+     Stop the key short of the host, and drop a selectAll that still arrives on the heels of that key.
+     A selectAll with no key (the editor's own Edit menu) is the app's command; a text field keeps the
+     browser's. */
+  if (inVs) {
+    let selectAllKeyAt = 0;
+    document.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.altKey || e.shiftKey || !(e.ctrlKey || e.metaKey)) return;
+      if (e.key !== 'a' && e.key !== 'A') return;
+      selectAllKeyAt = Date.now();
+      e.stopPropagation();
+    });
+    const nativeExec = document.execCommand.bind(document);
+    document.execCommand = function (commandId, showUI, value) {
+      if (String(commandId).toLowerCase() !== 'selectall') return nativeExec(commandId, showUI, value);
+      if (Date.now() - selectAllKeyAt < 500) return true;
+      const el = document.activeElement;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return nativeExec(commandId, showUI, value);
+      const ui = window.L && window.L.ui;
+      if (ui && ui.cmds && ui.cmds.selectAll) { ui.exec('selectAll'); return true; }
+      return nativeExec(commandId, showUI, value);
+    };
+  }
   const call = (cmd, args) => window.__TAURI_INTERNALS__.invoke(cmd, args);
   const vsPost = (msg) => { const api = window.__VO_VSCODE__; if (api) api.postMessage(msg); };
   /** one round trip to the extension. The reply arrives as { type: 'reply', id }. Dialogs stay open as long as the user needs. */

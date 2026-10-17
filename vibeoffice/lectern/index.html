@@ -59,7 +59,7 @@
 .ol-line[data-lvl="1"] { margin-left: 18px; } .ol-line[data-lvl="2"] { margin-left: 36px; } .ol-line[data-lvl="3"] { margin-left: 54px; } .ol-line[data-lvl="4"] { margin-left: 72px; }
 .outline.plain .ol-body, .outline.plain .ol-title { font-weight: normal; }
 .center { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.editor-wrap { flex: 1; min-height: 0; position: relative; display: grid; grid-template-columns: 0 1fr; grid-template-rows: 0 1fr; background: var(--work); }
+.editor-wrap { flex: 1; min-height: 0; position: relative; display: grid; grid-template-columns: 0 1fr; grid-template-rows: 0 1fr; background: var(--page-canvas); }
 .editor-wrap.with-rulers { grid-template-columns: 18px 1fr; grid-template-rows: 18px 1fr; }
 .ruler { overflow: hidden; background: var(--surface); border-color: var(--ruler-line); }
 .ruler-h { grid-column: 2; grid-row: 1; border-bottom: 1px solid var(--ruler-line); }
@@ -69,7 +69,7 @@
 .ed-scroll.drawing { cursor: crosshair; }
 .ed-scroll.painting, .ed-scroll.painting .shp { cursor: copy !important; }
 .ed-canvas { position: relative; }
-.ed-host { position: absolute; box-shadow: 3px 3px 0 var(--page-shadow); background: var(--surface); }
+.ed-host { position: absolute; box-shadow: 0 0 0 1px var(--page-line); background: var(--surface); }
 .ed-host > .sl { transform-origin: 0 0; }
 .ed-host.gray > .sl { filter: grayscale(1); }
 .ed-host.bw > .sl { filter: grayscale(1) contrast(30); }
@@ -99,10 +99,10 @@
 .hd-rotline { position: absolute; left: 50%; top: -18px; height: 18px; border-left: 1px solid #1a6b1a; }
 .hd-adj { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 0; background: #ffd400; border-color: #6b5800; transform: rotate(45deg); cursor: default; }
 .hd[class*="crop-"], .hd[data-h^="crop-"] { border-radius: 0; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: #000; border-color: #fff; }
-.marquee { position: absolute; border: 1px dotted #000; background: rgba(49,106,197,.08); }
+.marquee { position: absolute; border: 1px dotted #000; background: var(--text-sel); }
 .draw-ghost { position: absolute; border: 1px dashed #000; }
 .draw-ghost.line { border: 0; }
-.cell-sel { position: absolute; background: rgba(0,0,0,.18); pointer-events: none; }
+.cell-sel { position: absolute; background: var(--text-sel); pointer-events: none; }
 .notes { flex: none; height: 92px; background: var(--surface); overflow: auto; position: relative; border-top: 1px solid var(--chrome-line); }
 .notes-in { min-height: 100%; padding: 6px 10px; font: 12px/1.35 Arial, "Arimo", sans-serif; outline: none; white-space: pre-wrap; }
 .notes-in:empty::before { content: attr(data-ph); color: var(--grid-line); }
@@ -184,16 +184,16 @@
 .so-foot { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); }
 .so-foot .so-num { margin-left: auto; }
 .so-foot .so-num.hid { text-decoration: line-through; }
-.notespage { position: absolute; inset: 0; overflow: auto; background: var(--work); display: none; }
+.notespage { position: absolute; inset: 0; overflow: auto; background: var(--page-canvas); display: none; }
 .notespage.on { display: block; }
-.np-page { margin: 20px auto; background: var(--surface); box-shadow: 3px 3px 0 var(--page-shadow); position: relative; }
-.np-slide { position: absolute; border: 1px solid #000; overflow: hidden; }
+.np-page { margin: 20px auto; background: var(--surface); box-shadow: 0 0 0 1px var(--page-line); position: relative; }
+.np-slide { position: absolute; border: 1px solid var(--page-line); overflow: hidden; }
 .np-notes { position: absolute; font: 12px/1.4 Arial, "Arimo", sans-serif; outline: 1px dashed #bbb; padding: 4px; overflow: auto; white-space: pre-wrap; }
 .preview { position: absolute; inset: 0; z-index: 30; display: none; flex-direction: column; background: var(--preview-canvas-3); }
 .preview.on { display: flex; }
 .pv-bar { flex: none; display: flex; align-items: center; gap: 6px; padding: 3px 6px; background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); border-bottom: 1px solid var(--tb-border); flex-wrap: wrap; }
 .pv-scroll { flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.pv-page { background: #fff; box-shadow: 3px 3px 6px rgba(0,0,0,.4); position: relative; flex: none; }
+.pv-page { background: #fff; box-shadow: 0 0 0 1px var(--page-line); position: relative; flex: none; }
 .pv-page .pv-cell { position: absolute; border: 1px solid #000; overflow: hidden; }
 .pv-page .pv-lines { position: absolute; display: flex; flex-direction: column; justify-content: space-around; }
 .pv-page .pv-lines span { border-bottom: 1px solid #888; height: 1px; }
@@ -341,5 +341,6 @@
 <script src="../common/search.js"></script>
 <script src="../common/ribbon.js"></script>
 <script src="js/ribbon.js"></script>
+<script src="../common/minibar.js"></script>
 <script src="js/app.js"></script>
 </html>

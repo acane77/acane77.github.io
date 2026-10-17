@@ -9,7 +9,7 @@
   const COL = {
     grid: '#C0C0C0', hdrTop: '#FFFFFF', hdrBot: '#E4ECF7', hdrLine: '#9EB6CE', hdrText: '#000000',
     hdrSelTop: '#FFE7A2', hdrSelBot: '#F8C55E', hdrSelLine: '#D7A43C', hdrAllTop: '#FFD58D', hdrAllBot: '#F5B54A',
-    sel: 'rgba(49, 74, 160, 0.20)', selBorder: '#000000', freeze: '#000000', pageBreak: '#0000FF',
+    sel: 'rgba(128, 128, 128, 0.28)', selBorder: '#8a8a8a', freeze: '#000000', pageBreak: '#0000FF',
   };
   RD.COL = COL;
   /* the headers and the selection are chrome and follow the look (common/looks.css); gridlines, frozen
@@ -446,7 +446,8 @@
       if (cf && cf.bar) drawBar(ctx, cf.bar, x, y, w, h, z);
       if (cell && (cell.v != null || cell.dirty)) texts.push(it);
     }
-    /* gridlines over filled cells' neighbours stay hidden; redraw grid lines between unfilled neighbours is unnecessary */
+    /* the range wash sits under the glyphs, so a selected cell keeps its own text colour */
+    shadeSelection(ctx, view, fr, p, state);
     /* pass 2: text */
     const rowsWithText = new Map();
     for (const it of texts) { let l = rowsWithText.get(it.r); if (!l) { l = []; rowsWithText.set(it.r, l); } l.push(it); }
@@ -879,6 +880,37 @@
   }
 
   /* ------------------------------------------------------------ selection */
+  /** translucent gray over a multi-cell range, with a hole for the active cell. Under the glyphs. */
+  function shadeSelection(ctx, view, fr, p, state) {
+    const sel = state.sel;
+    if (!sel || state.hideSel) return;
+    const sh = view.sh;
+    const rectOf = (rg) => {
+      const r1 = Math.max(rg.r1, p.r0), r2 = Math.min(rg.r2, p.rEnd), c1 = Math.max(rg.c1, p.c0), c2 = Math.min(rg.c2, p.cEnd);
+      if (r1 > r2 || c1 > c2) return null;
+      const x1 = rg.c1 < p.c0 ? p.x - 3 : colX(fr, p, rg.c1), y1 = rg.r1 < p.r0 ? p.y - 3 : rowY(fr, p, rg.r1);
+      const x2 = rg.c2 > p.cEnd ? p.x + p.w + 3 : colX(fr, p, rg.c2 + 1), y2 = rg.r2 > p.rEnd ? p.y + p.h + 3 : rowY(fr, p, rg.r2 + 1);
+      return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+    };
+    ctx.fillStyle = COL.sel;
+    const ranges = sel.ranges;
+    const am = LY.mergeAt(sh, sel.r, sel.c);
+    const ac = am || { r1: sel.r, c1: sel.c, r2: sel.r, c2: sel.c };
+    const aq = rectOf(ac);
+    for (let k = 0; k < ranges.length; k++) {
+      const rg = ranges[k];
+      const q = rectOf(rg);
+      if (!q) continue;
+      if (rg.r1 === rg.r2 && rg.c1 === rg.c2) continue;
+      if (aq && M.rangesOverlap(rg, ac)) {
+        const ax1 = Math.max(aq.x, q.x), ay1 = Math.max(aq.y, q.y), ax2 = Math.min(aq.x + aq.w, q.x + q.w), ay2 = Math.min(aq.y + aq.h, q.y + q.h);
+        if (ay1 > q.y) ctx.fillRect(q.x, q.y, q.w - 1, ay1 - q.y);
+        if (q.y + q.h > ay2) ctx.fillRect(q.x, ay2, q.w - 1, q.y + q.h - ay2 - 1);
+        if (ax1 > q.x) ctx.fillRect(q.x, ay1, ax1 - q.x, ay2 - ay1);
+        if (q.x + q.w > ax2) ctx.fillRect(ax2, ay1, q.x + q.w - ax2 - 1, ay2 - ay1);
+      } else ctx.fillRect(q.x, q.y, q.w - 1, q.h - 1);
+    }
+  }
   function drawSelection(ctx, view, fr, state) {
     const sel = state.sel;
     const sh = view.sh;
@@ -906,27 +938,10 @@
         }
       }
       if (!state.hideSel) {
-        /* shaded selection (the active cell stays white) */
-        ctx.fillStyle = COL.sel;
+        /* border of the active range (the wash is drawn under the text, in shadeSelection) */
         const ranges = sel.ranges;
         const am = LY.mergeAt(sh, sel.r, sel.c);
         const ac = am || { r1: sel.r, c1: sel.c, r2: sel.r, c2: sel.c };
-        const aq = rectOf(ac);
-        for (let k = 0; k < ranges.length; k++) {
-          const rg = ranges[k];
-          const q = rectOf(rg);
-          if (!q) continue;
-          if (rg.r1 === rg.r2 && rg.c1 === rg.c2) continue;
-          if (aq && M.rangesOverlap(rg, ac)) {
-            /* tint around the active cell */
-            const ax1 = Math.max(aq.x, q.x), ay1 = Math.max(aq.y, q.y), ax2 = Math.min(aq.x + aq.w, q.x + q.w), ay2 = Math.min(aq.y + aq.h, q.y + q.h);
-            if (ay1 > q.y) ctx.fillRect(q.x, q.y, q.w - 1, ay1 - q.y);
-            if (q.y + q.h > ay2) ctx.fillRect(q.x, ay2, q.w - 1, q.y + q.h - ay2 - 1);
-            if (ax1 > q.x) ctx.fillRect(q.x, ay1, ax1 - q.x, ay2 - ay1);
-            if (q.x + q.w > ax2) ctx.fillRect(ax2, ay1, q.x + q.w - ax2 - 1, ay2 - ay1);
-          } else ctx.fillRect(q.x, q.y, q.w - 1, q.h - 1);
-        }
-        /* border of the active range */
         const act = ranges[sel.active || 0] || ac;
         const big = act.r1 === act.r2 && act.c1 === act.c2 ? ac : act;
         const bq = rectOf(big);

@@ -7,6 +7,12 @@ body { margin: 0; background: var(--dock-b); color: var(--ink); font: var(--ui-s
 * { box-sizing: border-box; }
 button { font: inherit; color: inherit; }
 input, select, textarea { font: inherit; color: var(--ink); }
+/* Selected document text: a translucent gray over the glyphs. The glyphs keep their own colour. */
+:is(.pages, .sl, .outline) ::selection,
+:is(.notes-in, .np-notes, .celledit, .fb-input)::selection {
+  background-color: var(--text-sel);
+  color: inherit;
+}
 :focus-visible { outline: 1px dotted var(--ink); outline-offset: 1px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
@@ -200,6 +206,11 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .sb-zoom-pct:hover { background: var(--menu-hot); }
 .sb-zoom-pct:focus { background: var(--surface); color: var(--ink); border-color: var(--field-border); outline: none; text-align: left; }
 @media (max-width: 640px) { .sb-zoom-range { width: 72px; } }
+
+/* the formatting bar after a text selection (common/minibar.js): above menus' layer is the menu itself */
+.minibar { position: fixed; z-index: 1400; display: flex; flex-direction: column; padding: 2px 3px 1px; border: 1px solid var(--tb-border); border-radius: var(--tray-radius); background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); box-shadow: 2px 3px 6px var(--shadow-c); user-select: none; }
+.minibar-row { display: flex; align-items: center; }
+.minibar .combo-in { user-select: text; }
 
 /* floating toolbars */
 .floatbar { position: absolute; z-index: 60; background: linear-gradient(var(--tb-a), var(--tb-b)); border: 1px solid var(--tb-border); border-radius: 3px; box-shadow: 2px 2px 5px var(--shadow-c); display: flex; flex-direction: column; }

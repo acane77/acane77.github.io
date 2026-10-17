@@ -473,10 +473,45 @@
     ['Source Han Sans SC', 'scOpenSans', '思源黑体'], ['Source Han Serif SC', 'scOpenSerif', '思源宋体'],
     ['Noto Sans CJK SC', 'scOpenSans'], ['Noto Sans SC', 'scOpenSans'], ['Noto Serif CJK SC', 'scOpenSerif'], ['Noto Serif SC', 'scOpenSerif'],
     ['PMingLiU', 'tcSerif', '新細明體'], ['MingLiU', 'tcSerif', '細明體'], ['Microsoft JhengHei', 'tcSans', '微軟正黑體'], ['DFKai-SB', 'tcSerif', '標楷體']];
-  const CJK_BY = new Map(), ALIAS = new Map();
-  for (const [en, stack, ...names] of CJK) { CJK_BY.set(en.toLowerCase(), { en, stack }); for (const n of names) ALIAS.set(n.toLowerCase(), en.toLowerCase()); }
-  /** the key every font table uses for a font: its English name, lower case (ＭＳ 明朝 → ms mincho) */
-  L.fontKey = (name) => { const n = String(name || '').replace(/"/g, '').trim().toLowerCase(); return ALIAS.get(n) || n; };
+  const CJK_BY = new Map(), ALIAS = new Map(), NAMES_BY = new Map();
+  for (const [en, stack, ...names] of CJK) {
+    const key = en.toLowerCase();
+    CJK_BY.set(key, { en, stack });
+    NAMES_BY.set(key, [en, ...names]);
+    for (const n of names) ALIAS.set(n.toLowerCase(), key);
+  }
+  const rawKey = (name) => { const n = String(name || '').replace(/"/g, '').trim().toLowerCase(); return ALIAS.get(n) || n; };
+  /* Word writes several families in one name, "宋体;SimSun" or "楷体_GB2312;楷体". LibreOffice
+     (GetNextFontToken, PhysicalFontCollection::FindFontFamily) splits on ';' and ',' and draws
+     with the first family that is installed, else the first it can stand in for. The file keeps
+     the whole list; only drawing, measuring and the Font boxes use the chosen family. */
+  function probeInstalled(name) {
+    try { return !!(name && L.fontInstalled(name)); } catch (e) { return false; }
+  }
+  function faceOf(token) {
+    if (probeInstalled(token)) return token;
+    const k = rawKey(token);
+    for (const n of NAMES_BY.get(k) || []) if (n !== token && probeInstalled(n)) return n;
+    const listed = L.localFonts().find((f) => rawKey(f) === k);
+    if (listed) return listed;
+    if (CJK_BY.has(k) || FONT_FALLBACK[k]) return token;
+    return '';
+  }
+  /** the family to draw `name` with. One name is itself. A ';' or ',' list is the first family
+      installed here (or the same family's other name, when that one is), else the first family
+      the suite knows a stand-in for, else the first name in the list. */
+  L.fontFace = function (name) {
+    const s = String(name == null ? '' : name).replace(/"/g, '').trim();
+    if (!s || !/[;,]/.test(s)) return s;
+    const tokens = [];
+    for (const part of s.split(/[;,]/)) { const t = part.trim(); if (t) tokens.push(t); }
+    if (tokens.length <= 1) return tokens[0] || s;
+    for (const t of tokens) { const face = faceOf(t); if (face) return face; }
+    return tokens[0];
+  };
+  /** the key every font table uses for a font: its English name, lower case (ＭＳ 明朝 → ms mincho).
+      A list of names uses the family L.fontFace picks. */
+  L.fontKey = (name) => rawKey(L.fontFace(name));
   /* a family named in Chinese, Japanese or Korean is an East Asian font even when it is not one of Office's.
      Full-width Latin (Ａ) does not count. A listed local font with a Latin name is measured below. */
   const EA_NAME = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff]/;
@@ -594,6 +629,8 @@
       from the first and its East Asian characters from the second (as Word draws a run with both fonts) */
   L.fontStack = function (name, ea) {
     if (!name) return ea ? L.fontStack(ea) : 'Arial,"Arimo",sans-serif';
+    name = L.fontFace(name);
+    if (ea) ea = L.fontFace(ea);
     const n = String(name).replace(/"/g, ''), k = L.fontKey(n), cjk = CJK_BY.get(k);
     const stack = cjk ? `"${n}",` + (cjk.en !== n ? `"${cjk.en}",` : '') + CJK_STACKS[cjk.stack] : `"${n}",${FONT_FALLBACK[k] || 'Arial,"Arimo",sans-serif'}`;
     if (!ea || L.fontKey(ea) === k || !L.fontIsEA(ea)) return stack;
@@ -604,7 +641,9 @@
   const installed = new Map();
   L.fontInstalled = function (family) {
     if (installed.has(family)) return installed.get(family);
+    if (typeof document === 'undefined' || !document.createElement) return false;
     if (!probe) probe = document.createElement('canvas').getContext('2d');
+    if (!probe) return false;
     const text = 'mmmmmmmmmmlli1WQ@ ', width = (font) => { probe.font = '72px ' + font; return probe.measureText(text).width; };
     const yes = ['monospace', 'serif', 'sans-serif'].some((g) => width(`"${family}",${g}`) !== width(g));
     installed.set(family, yes);
@@ -623,6 +662,7 @@
   const GENERIC = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy'];
   /** what draws `name` on this computer when it isn't installed: a family, a generic one (serif…), or '' */
   L.fontStandIn = function (name) {
+    name = L.fontFace(name);
     if (L.localFonts().includes(name)) return '';   // listed by the browser as installed here
     const used = L.fontUsed(name);
     return used.toLowerCase() === String(name).toLowerCase() ? '' : used;
@@ -677,16 +717,17 @@
    * fonts once loaded (Chrome and Edge: the first item loads them). Items are strings,
    * { heading } rows or { value, label }. */
   L.fontSections = function ({ major, minor, extra = [] } = {}) {
-    const out = [], recent = L.store.get('recentFonts', []).slice(0, 5), local = L.localFonts();
+    const face = (n) => L.fontFace(n);
+    const out = [], recent = L.store.get('recentFonts', []).slice(0, 5).map(face).filter(Boolean), local = L.localFonts();
     // Chrome and Edge can list the computer's fonts (Local Font Access, after the user allows it)
     if (typeof root.queryLocalFonts === 'function') out.push({ label: local.length ? 'Reload fonts on your computer...' : 'Load all fonts on your computer...', run: L.loadLocalFonts }, { sep: true });
     if (major || minor) {
       out.push({ heading: 'Theme Fonts' });
-      if (major) out.push({ value: major, label: tr('{0} (Headings)', major) });
-      if (minor) out.push({ value: minor, label: tr('{0} (Body)', minor) });
+      if (major) { const f = face(major); out.push({ value: f, label: tr('{0} (Headings)', f) }); }
+      if (minor) { const f = face(minor); out.push({ value: f, label: tr('{0} (Body)', f) }); }
     }
     if (recent.length) out.push({ heading: 'Recently Used Fonts' }, ...recent);
-    const all = Array.from(new Set(L.FONT_LIST.concat(extra.filter(Boolean)))).sort((x, y) => x.localeCompare(y));
+    const all = Array.from(new Set(L.FONT_LIST.concat(extra.filter(Boolean).map(face)))).sort((x, y) => x.localeCompare(y));
     out.push({ heading: 'All Fonts' }, ...all);
     const more = local.filter((f) => !all.includes(f));
     if (more.length) out.push({ heading: 'Fonts on This Computer' }, ...more);

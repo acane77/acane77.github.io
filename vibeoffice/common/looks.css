@@ -31,6 +31,8 @@
   --muted: #4c5a72; --dis-ink: #8d8d8d; --dis-ink-2: #888;
   /* surfaces, selection, grids */
   --surface: #fff; --canvas: #9097A3; --work: #B7C6E2;
+  --page-canvas: #e8eaee; --page-line: #c8ccd2;
+  --text-sel: rgba(128, 128, 128, 0.42);
   --sel: #316AC5; --sel-ink: #fff; --sel-line: #1b3d7a; --sel-soft: #c6d6f3; --sel-pale: #dce6f8; --sel-pale-2: #e8eefc;
   --rule: #c5c5c5; --cell-line: #8a9bb8; --grid-line: #888; --grid-line-2: #e3e3e3; --sample-line: #b5b5b5; --bd-on: #ffe6a8;
   --sheet-grid: #c0c0c0; --sheet-hdr-a: #f4f4f4; --sheet-hdr-b: #dcdcdc;
@@ -60,7 +62,7 @@
   /* Ledger's row and column headers and cell selection (drawn on a canvas) */
   --hdr-a: #FFFFFF; --hdr-b: #E4ECF7; --hdr-line: #9EB6CE; --hdr-ink: #000000;
   --hdr-sel-a: #FFE7A2; --hdr-sel-b: #F8C55E; --hdr-sel-line: #D7A43C; --hdr-all-a: #FFD58D; --hdr-all-b: #F5B54A;
-  --cell-sel: rgba(49, 74, 160, 0.20); --cell-sel-border: #000000;
+  --cell-sel: rgba(128, 128, 128, 0.28); --cell-sel-border: #8a8a8a;
   /* Start Center and the New dialog */
   --card-hot-border: #E3A23B; --card-thumb-bg: #f3f6fb; --card-thumb-line: #b8c7df; --start-on-b: #e6eefc; --start-rule: #a9c1ea;
   --start-line: #c3d3ee; --error-ink: #a3300b; --badge-bg: #fde3c4; --badge-ink: #8a3b00; --rm-bg: rgba(255,255,255,.9);
@@ -101,6 +103,8 @@
   --ink: #24211C; --ink-2: #2E2A24; --ink-3: #3B372F; --ink-4: #4A463F; --ink-5: #5E584E; --ink-key: #24211C;
   --muted: #7A7368; --dis-ink: #B0A99D; --dis-ink-2: #A39C90;
   --surface: #fff; --canvas: #E9E5DE; --work: #E9E5DE;
+  --page-canvas: #F6F4F0; --page-line: #DDD7CE;
+  --text-sel: rgba(128, 128, 128, 0.42);
   --sel: var(--p-accent); --sel-ink: #fff; --sel-line: var(--p-accent-ink); --sel-soft: var(--p-accent-mid);
   --sel-pale: var(--p-accent-soft); --sel-pale-2: var(--p-accent-soft);
   --rule: var(--p-line); --cell-line: var(--p-line-strong); --grid-line: var(--p-line-strong); --grid-line-2: #EFEBE4;
@@ -127,7 +131,7 @@
   --card-line-2: var(--p-line); --sample-line-2: var(--p-line-strong); --ink-7: #8C857A;
   --hdr-a: var(--p-paper); --hdr-b: var(--p-paper); --hdr-line: var(--p-line); --hdr-ink: #5E584E;
   --hdr-sel-a: var(--p-accent-soft); --hdr-sel-b: var(--p-accent-soft); --hdr-sel-line: var(--p-accent); --hdr-all-a: var(--p-accent-mid); --hdr-all-b: var(--p-accent-mid);
-  --cell-sel: rgba(15,111,116,.14); --cell-sel-border: var(--p-accent);
+  --cell-sel: rgba(128, 128, 128, 0.28); --cell-sel-border: #8a8a8a;
   --card-hot-border: var(--p-accent-mid); --card-thumb-bg: var(--p-paper-2); --card-thumb-line: var(--p-line); --start-on-b: var(--p-accent-soft); --start-rule: var(--p-line);
   --start-line: var(--p-line); --error-ink: #A3300B; --badge-bg: #FCE7CF; --badge-ink: #8A3B00; --rm-bg: rgba(255,255,255,.9);
   --notice-bg: #EBF4EE; --notice-hot: #DBEDE1; --notice-line: #B2D5BF; --notice-mark: #2E8650; --notice-ink: #1E5A36;
@@ -243,6 +247,8 @@
   --ink: #000000; --ink-2: #222; --ink-3: #333; --ink-4: #444; --ink-5: #555; --ink-key: #222;
   --muted: #5a5a5a; --dis-ink: #838383; --dis-ink-2: #999;
   --surface: #fff; --canvas: #a6a6a6; --work: #c6c6c6;
+  --page-canvas: #ededed; --page-line: #cfcfcf;
+  --text-sel: rgba(128, 128, 128, 0.42);
   --sel: #3399ff; --sel-ink: #fff; --sel-line: #1a6ca1; --sel-soft: #cce8ff; --sel-pale: #e5f3ff; --sel-pale-2: #f2f9ff;
   --rule: #d0d0d0; --cell-line: #b0b0b0; --grid-line: #b0b0b0; --grid-line-2: #e6e6e6; --sample-line: #c0c0c0; --bd-on: #cce8ff;
   --sheet-grid: #d0d0d0; --sheet-hdr-a: #ffffff; --sheet-hdr-b: #e4e4e4;
@@ -267,7 +273,7 @@
   --card-line-2: #c9c9c9; --sample-line-2: #9a9a9a; --ink-7: #777;
   --hdr-a: #ffffff; --hdr-b: #e8e8e8; --hdr-line: #b4b4b4; --hdr-ink: #000000;
   --hdr-sel-a: #eaf6fd; --hdr-sel-b: #a7d9f5; --hdr-sel-line: #3c7fb1; --hdr-all-a: #c4e5f6; --hdr-all-b: #7ec4ea;
-  --cell-sel: rgba(51, 153, 255, 0.22); --cell-sel-border: #1a6ca1;
+  --cell-sel: rgba(128, 128, 128, 0.28); --cell-sel-border: #8a8a8a;
   --card-hot-border: #3c7fb1; --card-thumb-bg: #f3f3f3; --card-thumb-line: #c8c8c8; --start-on-b: #eaf6fd; --start-rule: #d0d0d0;
   --start-line: #d8d8d8; --error-ink: #a3300b; --badge-bg: #fde3c4; --badge-ink: #8a3b00; --rm-bg: rgba(255,255,255,.9);
   --notice-bg: #eef8f1; --notice-hot: #dcf0e2; --notice-line: #9fcfae; --notice-mark: #1f8a4c; --notice-ink: #14572f;
@@ -346,8 +352,15 @@
 [data-look="win7"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="win7"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="win7"] .floatbar { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="win7"] .floatbar::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="win7"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="win7"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+/* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
+[data-look="win7"] .minibar { padding: 4px 5px 3px; }
+[data-look="win7"] .minibar-row { position: relative; z-index: 1; }
+[data-look="win7"] .minibar .combo { background: transparent; border-color: transparent; box-shadow: none; }
+[data-look="win7"] .minibar .combo-in { background: transparent; color: #000; text-shadow: 0 0 4px #fff, 0 0 1px #fff !important; }
+[data-look="win7"] .minibar .combo-btn, [data-look="win7"] .minibar .combo-btn:hover { background: transparent; border-left-color: transparent; }
+[data-look="win7"] .minibar .combo:hover, [data-look="win7"] .minibar .combo.focus { background: var(--w7-glass); border-color: #888; }
 [data-look="win7"] .floatbar .fb-title, [data-look="win7"] .floatbar .fb-body { position: relative; z-index: 1; }
 [data-look="win7"] .floatbar .fb-title { box-sizing: content-box; height: 21px; padding: 3px 5px 3px 3px; flex-shrink: 0; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-weight: normal; text-shadow: 0 0 12px #fff, 0 0 5px #fff; background: var(--w7-stripes); background-attachment: fixed; border-bottom: 0; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
 

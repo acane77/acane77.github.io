@@ -191,8 +191,9 @@
       ui.group('Orientation', h('div', { class: 'row' }, vert, dial), ui.field('', rotSpin)));
     /* ---------- Font ---------- */
     const f = out.font;
-    const fontName = h('input', { type: 'text', value: LY.fontName(w, f), style: 'width:100%' });
-    const fontList = list(L.FONT_LIST, LY.fontName(w, f), (x) => { fontName.value = x; f.name = x; delete f.scheme; changed.font = true; prev(); }, { class: 'lbox short', translate: 'no' });
+    const shownFont = L.fontFace(LY.fontName(w, f));
+    const fontName = h('input', { type: 'text', value: shownFont, style: 'width:100%' });
+    const fontList = list(L.FONT_LIST, shownFont, (x) => { fontName.value = x; f.name = x; delete f.scheme; changed.font = true; prev(); }, { class: 'lbox short', translate: 'no' });
     fontName.addEventListener('input', () => { f.name = fontName.value; delete f.scheme; changed.font = true; prev(); });
     const styles = [['r', L.N('Regular')], ['i', L.N('Italic')], ['b', L.N('Bold')], ['bi', 'Bold Italic']];
     const curStyle = (f.b ? 'b' : '') + (f.i ? 'i' : '') || 'r';

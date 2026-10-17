@@ -443,10 +443,14 @@
     else st.push(`line-height:${L.round(R.lineFactor(strutR.font) * ls.mult, 4)}`);
     const runLine = gridPx ? { grid: gridPx, mult: ls.mult || 1, line: gridMin } : ls.mult != null && !ls.exact ? ls.mult : null;
     if (gridPx) pc.dataset.grid = runLine.line;   /* the line's box when measured (LY.lines): runs that fit are shorter */
-    /* borders & shading, grouped with identical neighbours */
+    /* borders & shading. Adjacent paragraphs with the same borders and the same left and right
+       indents share one box (Word; LibreOffice SwBorderAttrs::JoinWithCmp): the top rule only on
+       the first, the bottom rule only on the last. A missing indent is zero, so the blank lines
+       pressed in front of a bottom rule stay blank lines rather than each drawing the rule. */
     const bd = pPr.borders;
     const shd = pPr.shd ? R.shadeCSS(pPr.shd) : '';
-    const sameBox = (q) => { if (!q) return false; const qp = D.pProps(d, q, tctx); return JSON.stringify(qp.borders || null) === JSON.stringify(bd || null) && (qp.ind || {}).l === l && (qp.ind || {}).r === r; };
+    const edge = (v) => v || 0;
+    const sameBox = (q) => { if (!q || q.t !== 'p') return false; const qp = D.pProps(d, q, tctx); const qi = qp.ind || {}; return JSON.stringify(qp.borders || null) === JSON.stringify(bd || null) && edge(qi.l) === l && edge(qi.r) === r; };
     if (bd && Object.keys(bd).some((k) => R.hasBorder(bd[k]))) {
       const groupPrev = first && sameBox(ctx.prev), groupNext = last && sameBox(ctx.next);
       const side = (k) => (R.hasBorder(bd[k]) ? R.borderCSS(bd[k]) : 'none');

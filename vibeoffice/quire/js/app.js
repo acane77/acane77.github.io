@@ -336,8 +336,8 @@
       const ch = E.collapsed() ? it.text[Math.max(0, loc.off - 1)] : it.text[loc.off];
       ea = !!(ch && L.hasEAText(ch));
     }
-    if (E.collapsed()) { const r = E.curRun(); return (ea ? (r.fontEA || r.font) : r.font) || ''; }
-    return E.uniformRun(ea ? 'fontEA' : 'font') || '';
+    if (E.collapsed()) { const r = E.curRun(); return L.fontFace((ea ? (r.fontEA || r.font) : r.font) || ''); }
+    return L.fontFace(E.uniformRun(ea ? 'fontEA' : 'font') || '');
   };
   A.setFont = (v) => {
     if (!v || !E.sel) return;
@@ -1267,10 +1267,33 @@
     });
   }
 
+  /* ================= the formatting bar (common/minibar.js) ================= */
+  function mountMinibar() {
+    const row = (...kids) => h('div', { class: 'minibar-row' }, ...kids);
+    L.minibar.mount(() => {
+      const clear = ui.tbButton('clearFormats', { icon: 'eraser' });
+      clear.setAttribute('data-tip', 'Clear Formatting');
+      clear.setAttribute('aria-label', L.t('Clear Formatting'));
+      return [
+        row(A.parts.font({ width: 132, id: 'mb-font' }), A.parts.size({ width: 48, id: 'mb-size' }), ui.tbButton('growFont'), ui.tbButton('shrinkFont'), clear, ui.tbButton('highlightBtn'), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b))),
+        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbSplit('highlightBtn', (r, b) => A.menus.highlight(r, b)), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b)), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r)), h('span', { class: 'tb-sep' }), A.parts.style({ width: 128, id: 'mb-style' })),
+      ];
+    });
+    const selectKey = (e) => (e.key === 'a' && (e.ctrlKey || e.metaKey) && !e.altKey) || (e.shiftKey && /^(Arrow(?:Left|Right|Up|Down)|Home|End|Page(?:Up|Down))$/.test(e.key));
+    L.bus.on('sel', () => { if (!(E.sel && !E.collapsed() && !E.objSel)) L.minibar.hide(); });
+    L.bus.on('objsel', () => L.minibar.hide());
+    document.addEventListener('keyup', (e) => {
+      if (!selectKey(e) || L.minibar.visible()) return;
+      if (e.target && e.target.closest && e.target.closest('.minibar, .menu')) return;
+      if (E.sel && !E.collapsed() && !E.objSel) L.minibar.show();
+    });
+  }
+
   /* ================= wiring ================= */
   function wire() {
+    mountMinibar();
     L.bus.on('sel', () => { A.updateStatus(); ui.refresh(); if (L.rulers) L.rulers.drawSoon(); });
-    L.bus.on('sel-done', () => { A.painter.release(); A.highlighter.release(); });
+    L.bus.on('sel-done', () => { A.painter.release(); A.highlighter.release(); if (E.sel && !E.collapsed() && !E.objSel) L.minibar.show(); else L.minibar.hide(); });
     L.bus.on('objsel', () => { A.updateToolbars(); ui.refresh(); });
     L.bus.on('doc-changed', () => { if (window.VO) VO.changed(doc()); A.updateStatus(); ui.refresh(); if (doc().settings.track || Object.keys(doc().comments).length) A.updateToolbars(); });
     L.bus.on('layout-done', () => { A.updateStatus(); if (L.rulers) L.rulers.drawSoon(); if (L.drawing) L.drawing.placeHandles(); E.placeHandles(); });
