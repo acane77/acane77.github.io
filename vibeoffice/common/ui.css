@@ -240,12 +240,12 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .dlg-foot { display: flex; justify-content: flex-end; gap: 6px; padding: 6px 12px 9px; flex-wrap: wrap; }
 .dlg-foot .btn.left { margin-right: auto; }
 /* inactive: the title and the window's own text fade. Windows 7 replaces this with its own frame (looks.css) */
-html:not([data-look="win7"]) .dlg.inactive .dlg-title,
-html:not([data-look="win7"]) .dlg.inactive .dlg-ttl,
-html:not([data-look="win7"]) .dlg.inactive .dlg-x { color: var(--muted); }
-html:not([data-look="win7"]) .dlg.inactive .dlg-body,
-html:not([data-look="win7"]) .dlg.inactive .dlg-foot { color: var(--muted); }
-html:not([data-look="win7"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-title,
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-ttl,
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-x { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-body,
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-foot { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
 .btn { min-width: 75px; height: 23px; padding: 0 10px; border: 1px solid var(--btn-border); border-radius: 2px; background: linear-gradient(var(--btn-a), var(--btn-b)); cursor: default; }
 .btn:hover:not(:disabled) { border-color: var(--tb-border); background: linear-gradient(var(--btn-a), var(--btn-hot-b)); }
 .btn:active:not(:disabled) { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); }

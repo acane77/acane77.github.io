@@ -544,10 +544,49 @@
     return yes;
   };
   const EA_RE = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]/;
-  /* In a Chinese document Word, WPS and PowerPoint draw U+2026 HORIZONTAL ELLIPSIS with the East Asian
-     font, as a CJK character. An English document keeps it in the Latin font. */
-  const ZH_ELLIPSIS = '\u2026';
-  const eaChar = (ch, zh) => EA_RE.test(ch) || (!!zh && ch === ZH_ELLIPSIS);
+  /* Unicode East Asian Width Ambiguous (UAX #11), letters and marks left out: in a Chinese document
+     Word, WPS and PowerPoint draw every one of these with the East Asian font, beside digits or not.
+     The ellipsis, the middle dot and the multiplication sign are in this set; so are the degree sign,
+     the dashes, the quotation marks, the roman numerals and the other ambiguous symbols. Accented
+     Latin, Greek and Cyrillic stay with their own font. Private use is not included. */
+  const ZH_AMBIG = [0xA1,0xA1,0xA4,0xA4,0xA7,0xA8,0xAD,0xAE,0xB0,0xB4,0xB6,0xB9,0xBC,0xBF,0xD7,0xD7,0xF7,0xF7,0x2C4,0x2C4,0x2D8,0x2DB,0x2DD,0x2DD,0x2DF,0x2DF,0x2010,0x2010,0x2013,0x2016,0x2018,0x2019,0x201C,0x201D,0x2020,0x2022,0x2024,0x2027,0x2030,0x2030,0x2032,0x2033,0x2035,0x2035,0x203B,0x203B,0x203E,0x203E,0x2074,0x2074,0x2081,0x2084,0x20AC,0x20AC,0x2103,0x2103,0x2105,0x2105,0x2109,0x2109,0x2116,0x2116,0x2121,0x2122,0x2153,0x2154,0x215B,0x215E,0x2160,0x216B,0x2170,0x2179,0x2189,0x2189,0x2190,0x2199,0x21B8,0x21B9,0x21D2,0x21D2,0x21D4,0x21D4,0x21E7,0x21E7,0x2200,0x2200,0x2202,0x2203,0x2207,0x2208,0x220B,0x220B,0x220F,0x220F,0x2211,0x2211,0x2215,0x2215,0x221A,0x221A,0x221D,0x2220,0x2223,0x2223,0x2225,0x2225,0x2227,0x222C,0x222E,0x222E,0x2234,0x2237,0x223C,0x223D,0x2248,0x2248,0x224C,0x224C,0x2252,0x2252,0x2260,0x2261,0x2264,0x2267,0x226A,0x226B,0x226E,0x226F,0x2282,0x2283,0x2286,0x2287,0x2295,0x2295,0x2299,0x2299,0x22A5,0x22A5,0x22BF,0x22BF,0x2312,0x2312,0x2460,0x24E9,0x24EB,0x254B,0x2550,0x2573,0x2580,0x258F,0x2592,0x2595,0x25A0,0x25A1,0x25A3,0x25A9,0x25B2,0x25B3,0x25B6,0x25B7,0x25BC,0x25BD,0x25C0,0x25C1,0x25C6,0x25C8,0x25CB,0x25CB,0x25CE,0x25D1,0x25E2,0x25E5,0x25EF,0x25EF,0x2605,0x2606,0x2609,0x2609,0x260E,0x260F,0x261C,0x261C,0x261E,0x261E,0x2640,0x2640,0x2642,0x2642,0x2660,0x2661,0x2663,0x2665,0x2667,0x266A,0x266C,0x266D,0x266F,0x266F,0x269E,0x269F,0x26BF,0x26BF,0x26C6,0x26CD,0x26CF,0x26D3,0x26D5,0x26E1,0x26E3,0x26E3,0x26E8,0x26E9,0x26EB,0x26F1,0x26F4,0x26F4,0x26F6,0x26F9,0x26FB,0x26FC,0x26FE,0x26FF,0x273D,0x273D,0x2776,0x277F,0x2B56,0x2B59,0x3248,0x324F,0x1F100,0x1F10A,0x1F110,0x1F12D,0x1F130,0x1F169,0x1F170,0x1F18D,0x1F18F,0x1F190,0x1F19B,0x1F1AC];
+  const zhAmbig = (cp) => {
+    let lo = 0, hi = ZH_AMBIG.length / 2 - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1, a = ZH_AMBIG[mid * 2], b = ZH_AMBIG[mid * 2 + 1];
+      if (cp < a) hi = mid - 1;
+      else if (cp > b) lo = mid + 1;
+      else return true;
+    }
+    return false;
+  };
+  /* Common-script symbols with no width of their own take the script of the characters beside them.
+     A Chinese document draws a run of only those symbols with the East Asian font. LibreOffice calls
+     this class weak (i18nutil script class). */
+  const weakSymbol = (cp) => (cp >= 0x2000 && cp <= 0x27FF) || (cp >= 0x2900 && cp <= 0x2BFF) || (cp >= 0x2E00 && cp <= 0x2E7F);
+  const charClass = (ch, zh) => {
+    if (EA_RE.test(ch)) return 'ea';
+    const cp = ch.codePointAt(0);
+    if (zh && zhAmbig(cp)) return 'ea';
+    if (weakSymbol(cp)) return 'weak';
+    return 'other';
+  };
+  /** true where each character of s is drawn with the East Asian font. A weak symbol uses the strong
+      character before it, or the first strong character when it leads the text. */
+  function eaMask(s, zh) {
+    const chars = [...String(s || '')];
+    const kinds = chars.map((ch) => charClass(ch, zh));
+    let first = null;
+    for (const k of kinds) if (k !== 'weak') { first = k; break; }
+    /* no Han or Latin letter to follow: a Chinese document uses the East Asian font */
+    if (first == null) first = zh && kinds.some((k) => k === 'weak') ? 'ea' : 'other';
+    let prev = first;
+    return kinds.map((k) => {
+      if (k === 'weak') return prev === 'ea';
+      prev = k;
+      return k === 'ea';
+    });
+  }
   /** zh, zh-CN, zh-Hans, zh-Hant, zh-TW and the other Chinese tags */
   L.chineseLang = (lang) => /^zh(?:-|$)/i.test(String(lang || ''));
   /** a Chinese document: Word's East Asian language (theme or the default run), or a presentation's text language */
@@ -559,13 +598,9 @@
     if (def && L.chineseLang(def.langEA)) return true;
     return L.chineseLang(doc.lang);
   };
-  /** whether text has East Asian characters (Han, kana, Hangul, full-width forms), which Word draws with a run's
-      East Asian font. Pass true for a Chinese document: the horizontal ellipsis is one of those characters. */
-  L.hasEAText = (s, zh) => {
-    s = s || '';
-    if (EA_RE.test(s)) return true;
-    return !!(zh && s.includes(ZH_ELLIPSIS));
-  };
+  /** whether text has characters Word draws with a run's East Asian font. Pass true for a Chinese document:
+      every East Asian Width Ambiguous symbol is one of them, as is punctuation that sits with East Asian characters. */
+  L.hasEAText = (s, zh) => eaMask(s, zh).some(Boolean);
   /** the Latin slot names the same East Asian family as the East Asian slot: Word's Font box shows
       "(Use Asian text font)" rather than that family again */
   L.fontUsesEA = (font, ea) => !!(font && ea && L.fontIsEA(ea) && L.fontKey(font) === L.fontKey(ea));
@@ -632,50 +667,19 @@
     if (out.every((r) => L.fontKey(r.font.name) === L.fontKey(latin))) return null;
     return out;
   };
-  let glyphProbe;
-  /** the advance of one character in a CSS font shorthand, in px; 0 where there is no canvas */
-  L.glyphWidth = function (font, ch) {
-    if (!font || ch == null || ch === '') return 0;
-    if (typeof document === 'undefined' || !document.createElement) return 0;
-    try {
-      if (!glyphProbe) glyphProbe = document.createElement('canvas').getContext('2d');
-      if (!glyphProbe) return 0;
-      glyphProbe.font = font;
-      return glyphProbe.measureText(ch).width;
-    } catch (e) { return 0; }
-  };
-  /**
-   * Tighten one justified line so it stays one line. advances are natural widths, inner is the measure,
-   * both in the same unit. A line that already fits is left alone (null): a justified paragraph does not
-   * stretch its last line here. Overflow is taken out of the gaps between characters, at most maxEm of
-   * an em from each gap (a fifth). More than that, and the line wraps (null).
-   */
-  L.justifyTrack = function (advances, inner, opts) {
-    opts = opts || {};
-    const maxEm = opts.maxEm == null ? 0.2 : opts.maxEm;
-    const n = advances.length;
-    if (n < 2 || !(inner > 0)) return null;
-    let sum = 0;
-    for (const w of advances) {
-      if (!(w > 0)) return null;
-      sum += w;
-    }
-    const over = sum - inner;
-    if (over <= 0.05) return null;
-    const em = opts.em || sum / n;
-    if (!(em > 0) || over > (n - 1) * maxEm * em + 0.5) return null;
-    return { track: -over / (n - 1) };
-  };
   /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font.
-      zh: a Chinese document, where the horizontal ellipsis is an East Asian character. */
+      zh: a Chinese document, where every East Asian Width Ambiguous symbol is East Asian. Other
+      general punctuation takes the script of the characters beside it. */
   L.splitEA = function (s, zh) {
+    const chars = [...String(s || '')];
+    const mask = eaMask(chars.join(''), zh);
     const out = [];
     let buf = '', ea = false, on = false;
-    for (const ch of String(s || '')) {
-      const e = eaChar(ch, zh);
-      if (!on) { on = true; ea = e; buf = ch; }
-      else if (e === ea) buf += ch;
-      else { out.push({ ea, text: buf }); ea = e; buf = ch; }
+    for (let i = 0; i < chars.length; i++) {
+      const e = mask[i];
+      if (!on) { on = true; ea = e; buf = chars[i]; }
+      else if (e === ea) buf += chars[i];
+      else { out.push({ ea, text: buf }); ea = e; buf = chars[i]; }
     }
     if (on) out.push({ ea, text: buf });
     return out;

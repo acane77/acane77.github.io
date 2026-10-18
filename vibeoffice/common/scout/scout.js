@@ -2927,7 +2927,7 @@
         if (host.left + left < 8) left = 8 - host.left;
         if (host.left + left + bw > vw - 8) left = vw - 8 - host.left - bw;
       }
-      const win7 = document.documentElement.dataset.look === 'win7';
+      const win7 = document.documentElement.dataset.look === 'win7' || document.documentElement.dataset.look === 'xp';
       const gap = win7 ? 18 : 12;
       const top = headTop - bh - gap;
       const absTop = this.o.mode === 'desktop' ? this._pos[1] + top : this.el.getBoundingClientRect().top + top;

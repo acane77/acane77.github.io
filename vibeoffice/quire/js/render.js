@@ -425,8 +425,12 @@
     /* CJK has no spaces for the browser to stretch; Word's Distributed puts the extra between every character */
     if (pPr.jc === 'distribute') st.push('text-justify:inter-character');
     if (jc === 'justify' && !last) outer.classList.add('jl');
-    /* document grid (lines): R.gridLine */
-    const gridPx = ctx.grid && !pPr.noSnap && !ls.exact && !ls.atLeast ? ctx.grid : 0;
+    /* document grid (lines): R.gridLine. A table cell keeps the paragraph's own line spacing unless the
+       document asks to adjust line height to the grid inside tables. Otherwise a line taller than one
+       pitch jumps to the next whole pitch, and the cell grows an empty band above and below the glyphs.
+       LibreOffice sw/source/core/text/itrform2.cxx SwTextFormatter::CalcRealHeight (tdf#88752, tdf#167583);
+       the flag defaults off when a DOCX omits w:adjustLineHeightInTable. */
+    const gridPx = ctx.grid && !pPr.noSnap && !ls.exact && !ls.atLeast && (!ctx.inCell || R.adjustLineHeightInTable(d)) ? ctx.grid : 0;
     const gridLine = (rr) => R.gridLine(gridPx, ls.mult || 1, rr.sz || 12, rr.font);
     /* line height strut from the first text run (Word sizes lines by their content, not the mark) */
     const firstText = p.runs.find((it) => it.t === 'text' && it.text && !(it.rPr && it.rPr.hidden && !ctx.showHidden) && !(it.rPr && it.rPr.del && ctx.markup === 'final'));
@@ -590,31 +594,33 @@
     }
     return s;
   }
-  /** Apply distributed spacing, the punctuation squeeze, or, in a Chinese document, the tighter
-      spacing that keeps a justified line of digits and symbols on one line.
+  /** Apply distributed spacing, or the punctuation squeeze that keeps a justified line together.
       Returns false when the browser should wrap the line itself. */
   R.fitDistribute = function (pc, inner, jc, doc) {
     if (!(inner > 0) || pc.querySelector('.tb, .lbl, .img, .shp, br, .mml')) return false;
     const spans = [...pc.children].filter((e) => e.nodeType === 1 && e.dataset.o != null && e.firstChild && e.firstChild.nodeType === 3);
     if (!spans.length) return false;
-    const zh = L.chineseDoc(doc);
     const items = [];
-    let mixed = false;
     for (const sp of spans) {
       const fs = parseFloat(sp.style.fontSize);
       if (!(fs > 0)) return false;
       const text = sp.firstChild.data;
       for (let i = 0; i < text.length; i++) {
         const ch = text[i];
-        if (ch === '\n' || ch === '\u200b') return false;
-        const fw = R.fullWidthChar(ch) || (zh && ch === '\u2026');
-        if (!fw) mixed = true;
-        items.push({ sp, i, ch, fs, fw });
+        if (ch === '\n' || ch === '\u200b' || !R.fullWidthChar(ch)) return false;
+        items.push({ sp, i, ch, fs });
       }
     }
     if (!items.length) return false;
+    const fit = R.distributeFit(items.map((it) => it.fs), inner, {
+      chars: items.map((it) => it.ch),
+      mode: jc === 'both' ? 'justify' : 'distribute',
+      compress: R.punctCompress(doc),
+      em: items[0].fs,
+    });
+    if (!fit) return false;
     const lock = (sp) => { sp.style.whiteSpace = 'nowrap'; };
-    const applyTrack = (track, add) => {
+    if (fit.gap > 0.01) {
       let last = spans[spans.length - 1];
       const data = last.firstChild.data;
       if (data.length > 1) {
@@ -632,35 +638,10 @@
       }
       for (const sp of spans) {
         lock(sp);
-        if (sp === last) continue;
-        const prev = add ? parseFloat(sp.style.letterSpacing) : NaN;
-        sp.style.letterSpacing = L.round((Number.isFinite(prev) ? prev : 0) + track, 2) + 'px';
+        if (sp !== last) sp.style.letterSpacing = L.round(fit.gap, 2) + 'px';
       }
       return true;
-    };
-    /* a Chinese justified line that is only a little wider than the measure: tighten the gaps */
-    const trackFit = () => {
-      if (!zh || jc !== 'both') return false;
-      const em = items[0].fs;
-      if (items.length > inner / (em * 0.5) + 2) return false;
-      const widths = [];
-      for (const it of items) {
-        const w = it.fw ? it.fs : L.glyphWidth(`${it.sp.style.fontStyle || 'normal'} ${it.sp.style.fontWeight || 'normal'} ${it.sp.style.fontSize} ${it.sp.style.fontFamily}`, it.ch);
-        if (!(w > 0)) return false;
-        widths.push(w);
-      }
-      const tracked = L.justifyTrack(widths, inner, { em });
-      return tracked ? applyTrack(tracked.track, true) : false;
-    };
-    if (mixed) return trackFit();
-    const fit = R.distributeFit(items.map((it) => it.fs), inner, {
-      chars: items.map((it) => it.ch),
-      mode: jc === 'both' ? 'justify' : 'distribute',
-      compress: R.punctCompress(doc),
-      em: items[0].fs,
-    });
-    if (!fit) return trackFit();
-    if (fit.gap > 0.01) return applyTrack(fit.gap, false);
+    }
     if (!fit.advances) return false;
     for (let k = items.length - 1; k >= 0; k--) {
       const it = items[k];
@@ -1135,6 +1116,8 @@
    */
   /** documents saved with Word 97 spacing rules add space after and space before together */
   R.cumulativeSpacing = (d) => { const c = d.settings && d.settings.compatXML; return !!c && /doNotUseHTMLParagraphAutoSpacing(?![^>]*w:val="(0|false)")/.test(c); };
+  /** snap lines inside tables to the document grid. Omitted, or val 0/false/off, means the cell uses its own spacing. */
+  R.adjustLineHeightInTable = (d) => { const c = d && d.settings && d.settings.compatXML; return !!c && /<w:adjustLineHeightInTable\b(?![^>]*\bw:val="(?:0|false|off)")/.test(c); };
   R.layoutTabs = function (outer, p, ctx, colLeftClient, scale, colWidthPx) {
     const tabs = outer.querySelectorAll('.tb');
     if (!tabs.length) return;

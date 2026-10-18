@@ -41,6 +41,19 @@
 
   const ui = () => L.ui;
   const onBar = (node) => !!(node && node.closest && (node.closest('.minibar') || (ui() && ui().menuOpen() && node.closest('.menu'))));
+  /* a menu the bar itself opened (its font list, a colour grid). A right-click menu is not one of these,
+     so the bar fading out must leave it open. */
+  let pressOnBar = false, barMenu = false;
+  root.addEventListener('pointerdown', (e) => {
+    pressOnBar = !!(e.target && e.target.closest && e.target.closest('.minibar'));
+  }, true);
+  if (ui() && ui().openMenu) {
+    const openMenu = ui().openMenu;
+    ui().openMenu = function (items, at, opts) {
+      if (!opts || !opts.depth) barMenu = pressOnBar;
+      return openMenu.apply(this, arguments);
+    };
+  }
 
   L.minibar.mount = (fn) => { build = fn; };
   L.minibar.pointer = () => ({ x: pointer.x, y: pointer.y });
@@ -87,7 +100,8 @@
   function latch() {
     latched = true;
     conceal();
-    if (ui() && ui().menuOpen()) ui().closeMenus();
+    if (barMenu && ui() && ui().menuOpen()) ui().closeMenus();
+    barMenu = false;
   }
 
   function paint(node) {

@@ -4505,7 +4505,7 @@
  },
  "3-D model": {
   "where": [
-   "lectern/js/render.js:580"
+   "lectern/js/render.js:581"
   ]
  },
  "3. Start enforcement": {
@@ -5412,7 +5412,7 @@
  },
  "All Fonts": {
   "where": [
-   "common/core.js:732"
+   "common/core.js:790"
   ]
  },
  "All Quire commands. Double-click one to run it.": {
@@ -5818,12 +5818,12 @@
  },
  "Aptos Display": {
   "where": [
-   "common/core.js:709"
+   "common/core.js:767"
   ]
  },
  "Aptos Narrow": {
   "where": [
-   "common/core.js:709"
+   "common/core.js:767"
   ]
  },
  "Aqua": {
@@ -5838,13 +5838,13 @@
  },
  "Arch Down": {
   "where": [
-   "lectern/js/render.js:512",
+   "lectern/js/render.js:513",
    "quire/js/drawing.js:142"
   ]
  },
  "Arch Up": {
   "where": [
-   "lectern/js/render.js:512",
+   "lectern/js/render.js:513",
    "quire/js/drawing.js:142"
   ]
  },
@@ -5861,10 +5861,10 @@
  },
  "Arial Black": {
   "where": [
-   "common/core.js:709",
+   "common/core.js:767",
    "lectern/js/dialogs.js:1015",
    "lectern/js/dialogs.js:1034",
-   "lectern/js/render.js:545"
+   "lectern/js/render.js:546"
   ]
  },
  "Aro&und": {
@@ -7459,7 +7459,7 @@
  },
  "Calibri Light": {
   "where": [
-   "common/core.js:709"
+   "common/core.js:767"
   ]
  },
  "Calibri, Carlito, sans-serif": {
@@ -7485,7 +7485,7 @@
  },
  "Can Up": {
   "where": [
-   "lectern/js/render.js:513",
+   "lectern/js/render.js:514",
    "quire/js/drawing.js:142"
   ]
  },
@@ -7502,7 +7502,7 @@
  "Cancel": {
   "where": [
    "common/charts.js:438",
-   "common/suite.js:755",
+   "common/suite.js:756",
    "common/ui.js:686",
    "common/ui.js:710"
   ]
@@ -7796,7 +7796,7 @@
  },
  "Century Gothic": {
   "where": [
-   "common/core.js:709",
+   "common/core.js:767",
    "lectern/js/model.js:110"
   ]
  },
@@ -8258,7 +8258,7 @@
  },
  "Chevron Up": {
   "where": [
-   "lectern/js/render.js:513",
+   "lectern/js/render.js:514",
    "quire/js/drawing.js:142"
   ]
  },
@@ -8284,7 +8284,7 @@
  },
  "Choose Blank or a template:": {
   "where": [
-   "common/suite.js:753"
+   "common/suite.js:754"
   ]
  },
  "Choose a Theme:": {
@@ -8329,7 +8329,7 @@
  },
  "Circle": {
   "where": [
-   "lectern/js/render.js:512",
+   "lectern/js/render.js:513",
    "lectern/js/slideshow.js:17",
    "lectern/js/slideshow.js:24",
    "lectern/js/slideshow.js:29"
@@ -8357,7 +8357,7 @@
  },
  "Classic": {
   "where": [
-   "common/suite.js:449",
+   "common/suite.js:450",
    "quire/js/dialogs2.js:311"
   ]
  },
@@ -8537,7 +8537,7 @@
  "Click to add text": {
   "where": [
    "lectern/js/model.js:482",
-   "lectern/js/render.js:644"
+   "lectern/js/render.js:645"
   ]
  },
  "Click to add title": {
@@ -8889,7 +8889,7 @@
    "quire/js/editor.js:460",
    "quire/js/find.js:391",
    "quire/js/find.js:393",
-   "quire/js/render.js:854"
+   "quire/js/render.js:859"
   ]
  },
  "Column Width": {
@@ -8982,7 +8982,7 @@
  },
  "Comic Sans MS": {
   "where": [
-   "common/core.js:709"
+   "common/core.js:767"
   ]
  },
  "Comma Style": {
@@ -9662,7 +9662,7 @@
  },
  "Courier New": {
   "where": [
-   "common/core.js:710",
+   "common/core.js:768",
    "lectern/js/model.js:152",
    "quire/js/autocorrect.js:233",
    "quire/js/dialogs.js:563"
@@ -11256,7 +11256,7 @@
  },
  "Discard the changes": {
   "where": [
-   "common/suite.js:914"
+   "common/suite.js:915"
   ]
  },
  "Discard the unsaved changes": {
@@ -12225,14 +12225,14 @@
  },
  "Embedded content": {
   "where": [
-   "quire/js/render.js:663"
+   "quire/js/render.js:667"
   ]
  },
  "Embedded object": {
   "where": [
    "lectern/js/frames.js:15",
-   "lectern/js/render.js:580",
-   "quire/js/render.js:663"
+   "lectern/js/render.js:581",
+   "quire/js/render.js:667"
   ]
  },
  "Ember": {
@@ -13921,7 +13921,7 @@
  },
  "Fonts on This Computer": {
   "where": [
-   "common/core.js:734"
+   "common/core.js:792"
   ]
  },
  "Fonts on this computer": {
@@ -14009,7 +14009,7 @@
  },
  "Form control": {
   "where": [
-   "quire/js/render.js:663"
+   "quire/js/render.js:667"
   ]
  },
  "Forma&ts": {
@@ -14205,7 +14205,7 @@
  },
  "Formatting": {
   "where": [
-   "common/minibar.js:61",
+   "common/minibar.js:74",
    "lectern/js/app.js:199",
    "ledger/js/app.js:561",
    "ledger/js/dialogs.js:986"
@@ -15781,7 +15781,7 @@
  },
  "Ink": {
   "where": [
-   "lectern/js/render.js:580"
+   "lectern/js/render.js:581"
   ]
  },
  "Ink &Color": {
@@ -15861,14 +15861,14 @@
   "where": [
    "lectern/js/app.js:1498",
    "lectern/js/commands.js:88",
-   "lectern/js/render.js:582",
+   "lectern/js/render.js:583",
    "ledger/js/xchart.js:408"
   ]
  },
  "Insert Clip Art": {
   "where": [
    "lectern/js/commands.js:81",
-   "lectern/js/render.js:582",
+   "lectern/js/render.js:583",
    "quire/js/commands.js:292",
    "quire/js/panes.js:192"
   ]
@@ -15936,7 +15936,7 @@
  },
  "Insert Diagram or Organization Chart": {
   "where": [
-   "lectern/js/render.js:582",
+   "lectern/js/render.js:583",
    "quire/js/commands.js:298"
   ]
  },
@@ -16028,7 +16028,7 @@
  },
  "Insert Media Clip": {
   "where": [
-   "lectern/js/render.js:582"
+   "lectern/js/render.js:583"
   ]
  },
  "Insert Merge Field": {
@@ -16072,7 +16072,7 @@
   "where": [
    "lectern/js/app.js:1284",
    "lectern/js/commands.js:82",
-   "lectern/js/render.js:582",
+   "lectern/js/render.js:583",
    "ledger/js/app.js:1284"
   ]
  },
@@ -16141,7 +16141,7 @@
    "lectern/js/app.js:1356",
    "lectern/js/commands.js:89",
    "lectern/js/dialogs.js:755",
-   "lectern/js/render.js:582"
+   "lectern/js/render.js:583"
   ]
  },
  "Insert Table of Contents": {
@@ -16376,9 +16376,9 @@
  "IntelliArt": {
   "where": [
    "lectern/js/diagram.js:589",
-   "lectern/js/render.js:580",
+   "lectern/js/render.js:581",
    "lectern/js/ribbon.js:40",
-   "quire/js/render.js:663"
+   "quire/js/render.js:667"
   ]
  },
  "IntelliArt SmartArt organization chart org": {
@@ -17194,7 +17194,7 @@
   "where": [
    "lectern/js/app.js:209",
    "lectern/js/dialogs.js:1024",
-   "lectern/js/render.js:537",
+   "lectern/js/render.js:538",
    "lectern/js/ribbon.js:42"
   ]
  },
@@ -17324,7 +17324,7 @@
  },
  "Light and calm: warm paper tones, one teal accent, rounded shapes.": {
   "where": [
-   "common/suite.js:450"
+   "common/suite.js:451"
   ]
  },
  "Light bulb": {
@@ -17515,7 +17515,7 @@
  },
  "Linked picture: {0}": {
   "where": [
-   "lectern/js/render.js:581"
+   "lectern/js/render.js:582"
   ]
  },
  "Links": {
@@ -17595,7 +17595,7 @@
  },
  "Load all fonts on your computer...": {
   "where": [
-   "common/core.js:724"
+   "common/core.js:782"
   ]
  },
  "Load fonts on this computer": {
@@ -17740,6 +17740,11 @@
  "Lt Vertical": {
   "where": [
    "quire/js/dialogs.js:433"
+  ]
+ },
+ "Luna windows and menus, on the classic blue toolbars.": {
+  "where": [
+   "common/suite.js:449"
   ]
  },
  "M&in": {
@@ -18803,7 +18808,7 @@
  },
  "New Document": {
   "where": [
-   "common/suite.js:755",
+   "common/suite.js:756",
    "quire/js/panes.js:81"
   ]
  },
@@ -18814,7 +18819,7 @@
  },
  "New Presentation": {
   "where": [
-   "common/suite.js:755",
+   "common/suite.js:756",
    "lectern/js/panes.js:544"
   ]
  },
@@ -18838,7 +18843,7 @@
  },
  "New Spreadsheet": {
   "where": [
-   "common/suite.js:755"
+   "common/suite.js:756"
   ]
  },
  "New Style": {
@@ -18882,7 +18887,7 @@
  "New chart": {
   "where": [
    "lectern/js/frames.js:18",
-   "lectern/js/render.js:580"
+   "lectern/js/render.js:581"
   ]
  },
  "New column": {
@@ -19223,7 +19228,7 @@
  },
  "No unsaved versions are waiting.": {
   "where": [
-   "common/suite.js:918"
+   "common/suite.js:919"
   ]
  },
  "No-Width Non Break": {
@@ -19328,12 +19333,12 @@
  },
  "Not installed": {
   "where": [
-   "common/core.js:678"
+   "common/core.js:736"
   ]
  },
  "Not installed; uses {0}": {
   "where": [
-   "common/core.js:678"
+   "common/core.js:736"
   ]
  },
  "Not {0}": {
@@ -19404,25 +19409,25 @@
  "Noto Sans CJK SC": {
   "where": [
    "common/core.js:475",
-   "common/core.js:714"
+   "common/core.js:772"
   ]
  },
  "Noto Sans SC": {
   "where": [
    "common/core.js:475",
-   "common/core.js:714"
+   "common/core.js:772"
   ]
  },
  "Noto Serif CJK SC": {
   "where": [
    "common/core.js:475",
-   "common/core.js:714"
+   "common/core.js:772"
   ]
  },
  "Noto Serif SC": {
   "where": [
    "common/core.js:475",
-   "common/core.js:714"
+   "common/core.js:772"
   ]
  },
  "Nud&ge": {
@@ -19842,7 +19847,7 @@
  },
  "Open the unsaved version": {
   "where": [
-   "common/suite.js:911"
+   "common/suite.js:912"
   ]
  },
  "Open the version saved before the changes": {
@@ -19862,7 +19867,7 @@
  },
  "Open “{0}” from the Explorer.": {
   "where": [
-   "common/suite.js:577"
+   "common/suite.js:578"
   ]
  },
  "Opened a template. Save keeps its template format.": {
@@ -20318,7 +20323,7 @@
  "Page Break": {
   "where": [
    "quire/js/editor.js:459",
-   "quire/js/render.js:854"
+   "quire/js/render.js:859"
   ]
  },
  "Page Break Pre&view": {
@@ -20498,7 +20503,7 @@
  },
  "Palatino Linotype": {
   "where": [
-   "common/core.js:710",
+   "common/core.js:768",
    "quire/js/dialogs.js:980"
   ]
  },
@@ -20514,12 +20519,12 @@
  },
  "Paper": {
   "where": [
-   "common/suite.js:450"
+   "common/suite.js:451"
   ]
  },
  "Paper 2016": {
   "where": [
-   "common/suite.js:451"
+   "common/suite.js:452"
   ]
  },
  "Paper bag": {
@@ -20539,7 +20544,7 @@
  },
  "Paper with tabs of commands, grouped by task, instead of menus and toolbars.": {
   "where": [
-   "common/suite.js:451"
+   "common/suite.js:452"
   ]
  },
  "Paper:": {
@@ -20627,7 +20632,7 @@
  },
  "Part of this file couldn't be read. Anything in it that VibeOffice can't edit itself, such as macros or embedded objects, won't be saved.": {
   "where": [
-   "lectern/js/pptx-read.js:848"
+   "lectern/js/pptx-read.js:849"
   ]
  },
  "Part of this file is damaged. Whatever couldn't be read from it won't be saved.": {
@@ -20948,8 +20953,8 @@
   "where": [
    "lectern/js/app.js:201",
    "lectern/js/dialogs.js:530",
-   "lectern/js/render.js:458",
-   "lectern/js/render.js:580"
+   "lectern/js/render.js:459",
+   "lectern/js/render.js:581"
   ]
  },
  "Picture &Position": {
@@ -20959,7 +20964,7 @@
  },
  "Picture (.{0})": {
   "where": [
-   "lectern/js/render.js:458"
+   "lectern/js/render.js:459"
   ]
  },
  "Picture Border": {
@@ -21089,7 +21094,7 @@
  },
  "Plain Text": {
   "where": [
-   "lectern/js/render.js:512",
+   "lectern/js/render.js:513",
    "quire/js/drawing.js:142"
   ]
  },
@@ -22049,7 +22054,7 @@
  },
  "Recently Used Fonts": {
   "where": [
-   "common/core.js:730"
+   "common/core.js:788"
   ]
  },
  "Recently used": {
@@ -22316,7 +22321,7 @@
  },
  "Reload fonts on your computer...": {
   "where": [
-   "common/core.js:724"
+   "common/core.js:782"
   ]
  },
  "Remember dime&nsions for new tables": {
@@ -24931,7 +24936,7 @@
  },
  "Save was cancelled.": {
   "where": [
-   "common/suite.js:612"
+   "common/suite.js:613"
   ]
  },
  "Saved .docx files are encrypted with AES-256, as Word 2010 and later do. Passwords are case-sensitive; if you forget it, the document cannot be recovered.": {
@@ -24941,7 +24946,7 @@
  },
  "Saved a copy next to this file. This file still has unsaved changes.": {
   "where": [
-   "common/suite.js:612"
+   "common/suite.js:613"
   ]
  },
  "Saved a copy to attach to your e-mail message.": {
@@ -25215,28 +25220,28 @@
  },
  "Section Break (Continuous)": {
   "where": [
-   "quire/js/render.js:555"
+   "quire/js/render.js:559"
   ]
  },
  "Section Break (Even Page)": {
   "where": [
-   "quire/js/render.js:555"
+   "quire/js/render.js:559"
   ]
  },
  "Section Break (Next Column)": {
   "where": [
-   "quire/js/render.js:555"
+   "quire/js/render.js:559"
   ]
  },
  "Section Break (Next Page)": {
   "where": [
    "quire/js/app.js:1387",
-   "quire/js/render.js:555"
+   "quire/js/render.js:559"
   ]
  },
  "Section Break (Odd Page)": {
   "where": [
-   "quire/js/render.js:555"
+   "quire/js/render.js:559"
   ]
  },
  "Section break types": {
@@ -25278,7 +25283,7 @@
  },
  "Segoe UI": {
   "where": [
-   "common/core.js:710"
+   "common/core.js:768"
   ]
  },
  "Segoe UI Symbol": {
@@ -26335,13 +26340,13 @@
  },
  "Slant Down": {
   "where": [
-   "lectern/js/render.js:513",
+   "lectern/js/render.js:514",
    "quire/js/drawing.js:142"
   ]
  },
  "Slant Up": {
   "where": [
-   "lectern/js/render.js:513",
+   "lectern/js/render.js:514",
    "quire/js/drawing.js:142"
   ]
  },
@@ -28423,13 +28428,13 @@
  },
  "That file is no longer available here. Open it again from the Explorer.": {
   "where": [
-   "common/suite.js:663"
+   "common/suite.js:664"
   ]
  },
  "That file is no longer available here. Open it again from your computer.": {
   "where": [
-   "common/suite.js:679",
-   "common/suite.js:696"
+   "common/suite.js:680",
+   "common/suite.js:697"
   ]
  },
  "The Find What text contains a Pattern Match expression which is not valid.": {
@@ -28517,7 +28522,7 @@
  },
  "The classic blue toolbars and menus.": {
   "where": [
-   "common/suite.js:449"
+   "common/suite.js:450"
   ]
  },
  "The comments from Document Properties": {
@@ -28637,7 +28642,7 @@
  },
  "The editor did not build a document.": {
   "where": [
-   "common/suite.js:651"
+   "common/suite.js:652"
   ]
  },
  "The editor did not send the file.": {
@@ -28691,7 +28696,7 @@
  "The file is not open in the editor yet.": {
   "where": [
    "common/suite.js:244",
-   "common/suite.js:606"
+   "common/suite.js:607"
   ]
  },
  "The file is saved to your browser's downloads.": {
@@ -28706,12 +28711,12 @@
  },
  "The fonts on this computer could not be listed: permission was not given. You can allow it in the site settings of your browser.": {
   "where": [
-   "common/core.js:744"
+   "common/core.js:802"
   ]
  },
  "The fonts on this computer could not be listed: {0}": {
   "where": [
-   "common/core.js:744",
+   "common/core.js:802",
    "index.html:539"
   ]
  },
@@ -29029,7 +29034,7 @@
  },
  "Theme Fonts": {
   "where": [
-   "common/core.js:726"
+   "common/core.js:784"
   ]
  },
  "Theme:": {
@@ -29361,7 +29366,7 @@
  },
  "This file does not contain a PowerPoint presentation.": {
   "where": [
-   "lectern/js/pptx-read.js:839"
+   "lectern/js/pptx-read.js:840"
   ]
  },
  "This file is not an Excel workbook.": {
@@ -29401,7 +29406,7 @@
  },
  "This is an older binary PowerPoint 97–2003 file (.ppt) with a .pptx name. Save it as .pptx in PowerPoint, Keynote, Google Slides or LibreOffice first.": {
   "where": [
-   "lectern/js/pptx-read.js:748"
+   "lectern/js/pptx-read.js:749"
   ]
  },
  "This modification is not allowed because the selection is locked.": {
@@ -29444,7 +29449,7 @@
  },
  "This presentation is encrypted with a method that is not supported (only the AES encryption of PowerPoint 2007 and later is).": {
   "where": [
-   "lectern/js/pptx-read.js:755"
+   "lectern/js/pptx-read.js:756"
   ]
  },
  "This punctuation mark is repeated.": {
@@ -29554,7 +29559,7 @@
  },
  "Times New Roman": {
   "where": [
-   "common/core.js:710",
+   "common/core.js:768",
    "lectern/js/dialogs.js:845",
    "lectern/js/dialogs.js:1015",
    "quire/js/dialogs.js:235"
@@ -30009,7 +30014,7 @@
  },
  "Trebuchet MS": {
   "where": [
-   "common/core.js:710",
+   "common/core.js:768",
    "lectern/js/dialogs.js:1015",
    "lectern/js/model.js:86",
    "lectern/js/model.js:163"
@@ -30027,7 +30032,7 @@
  },
  "Triangle Up": {
   "where": [
-   "lectern/js/render.js:513",
+   "lectern/js/render.js:514",
    "quire/js/drawing.js:142"
   ]
  },
@@ -30376,12 +30381,12 @@
  },
  "Unsaved changes from {0}": {
   "where": [
-   "common/suite.js:908"
+   "common/suite.js:909"
   ]
  },
  "Unsaved changes from {0} (never saved)": {
   "where": [
-   "common/suite.js:908"
+   "common/suite.js:909"
   ]
  },
  "Untitled": {
@@ -30936,7 +30941,7 @@
   "where": [
    "common/geometry.js:256",
    "common/geometry.js:660",
-   "lectern/js/render.js:512",
+   "lectern/js/render.js:513",
    "quire/js/dialogs.js:147"
   ]
  },
@@ -31229,6 +31234,11 @@
  "Windows 7": {
   "where": [
    "common/suite.js:448"
+  ]
+ },
+ "Windows XP": {
+  "where": [
+   "common/suite.js:449"
   ]
  },
  "Wingdings": {
@@ -31611,7 +31621,7 @@
  "[Text]": {
   "where": [
    "lectern/js/diagram.js:540",
-   "lectern/js/render.js:644"
+   "lectern/js/render.js:645"
   ]
  },
  "[cells]": {
@@ -32068,12 +32078,12 @@
  },
  "{0} (unsaved changes)": {
   "where": [
-   "common/suite.js:871"
+   "common/suite.js:872"
   ]
  },
  "{0} (unsaved)": {
   "where": [
-   "common/suite.js:887"
+   "common/suite.js:888"
   ]
  },
  "{0} ({1} seconds)": {
@@ -32220,12 +32230,12 @@
  },
  "{0} is not installed on this computer, so its text is shown in a default font. The document keeps the font name {0} and shows in that font on computers that have it.": {
   "where": [
-   "common/core.js:679"
+   "common/core.js:737"
   ]
  },
  "{0} is not installed on this computer, so its text is shown in {1}. The document keeps the font name {0} and shows in that font on computers that have it.": {
   "where": [
-   "common/core.js:680"
+   "common/core.js:738"
   ]
  },
  "{0} is not installed on this computer; a default font is used on screen and in print.": {
@@ -32240,7 +32250,7 @@
  },
  "{0} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.": {
   "where": [
-   "common/suite.js:922"
+   "common/suite.js:923"
   ]
  },
  "{0} key sentence highlighted. Undo to restore.": {
@@ -32365,12 +32375,12 @@
  },
  "{0} — open in this window": {
   "where": [
-   "common/suite.js:909"
+   "common/suite.js:910"
   ]
  },
  "{0} — unsaved changes from {1}": {
   "where": [
-   "common/suite.js:883"
+   "common/suite.js:884"
   ]
  },
  "{0}% normal size": {

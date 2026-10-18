@@ -279,7 +279,7 @@
       let left = W * 0.5 - bw * 0.5;
       if (this._pos[0] + left < 8) left += 8 - (this._pos[0] + left);
       if (this._pos[0] + left + bw > innerWidth - 8) left -= this._pos[0] + left + bw - (innerWidth - 8);
-      const win7 = document.documentElement.dataset.look === 'win7';
+      const win7 = document.documentElement.dataset.look === 'win7' || document.documentElement.dataset.look === 'xp';
       const above = this._pos[1] + 4 - bh >= 8;
       b.style.left = left + 'px';
       if (above) { b.style.top = 'auto'; b.style.bottom = (H + (win7 ? 16 : 10)) + 'px'; }

@@ -426,7 +426,7 @@
       };
       ui.bindComplete(inp, { values: names, order: typeof o.complete === 'function' ? o.complete : null });
     }
-    wrap._refresh = () => { if (document.activeElement !== inp) inp.value = o.value(); const en = o.enabled ? o.enabled() : true; inp.disabled = !en; wrap.classList.toggle('dis', !en); };
+    wrap._refresh = () => { if (document.activeElement !== inp) inp.value = o.value(); const en = o.enabled ? o.enabled() : true; inp.disabled = btn.disabled = !en; wrap.classList.toggle('dis', !en); };
     tbButtons.push(wrap);
     return wrap;
   };

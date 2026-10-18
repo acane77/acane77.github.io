@@ -446,6 +446,7 @@
   const N = (s) => s;   // UI text, translated where it is shown (VO.N, common/i18n.js)
   N('Blank Document'); N('Blank Workbook'); N('Blank Presentation');   // templates.json's Blank entries (tools/templates.mjs)
   const LOOKS = [{ id: 'win7', name: N('Windows 7'), note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
+    { id: 'xp', name: N('Windows XP'), note: 'Luna windows and menus, on the classic blue toolbars.' },
     { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' },
     { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
     { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' }];

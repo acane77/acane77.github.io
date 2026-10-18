@@ -238,54 +238,9 @@
     const parts = String(text).split('\n');
     parts.forEach((t, i) => { if (i) el.appendChild(h('br')); if (t) el.appendChild(document.createTextNode(t)); });
   }
-  /** A Chinese justified paragraph only a little wider than inner (px) tightens the gaps and stays one line. */
-  R.fitChineseJustify = function (el, inner, zh) {
-    if (!zh || !(inner > 0)) return;
-    const spans = [...el.children].filter((e) => e.classList && e.classList.contains('r') && e.firstChild && e.firstChild.nodeType === 3);
-    if (!spans.length) return;
-    const items = [];
-    for (const sp of spans) {
-      const fs = parseFloat(sp.style.fontSize);
-      if (!(fs > 0)) return;
-      for (const ch of sp.firstChild.data) {
-        if (ch === '\n') return;
-        items.push({ sp, fs, ch, fw: L.hasEAText(ch, true) });
-      }
-    }
-    if (items.length < 2 || items.length > inner / (items[0].fs * 0.5) + 2) return;
-    const widths = [];
-    for (const it of items) {
-      const st = it.sp.style;
-      const w = it.fw ? it.fs : L.glyphWidth(`${st.fontStyle || 'normal'} ${st.fontWeight || 'normal'} ${st.fontSize} ${st.fontFamily}`, it.ch);
-      if (!(w > 0)) return;
-      widths.push(w);
-    }
-    const tracked = L.justifyTrack(widths, inner, { em: items[0].fs });
-    if (!tracked) return;
-    let last = spans[spans.length - 1];
-    const data = last.firstChild.data;
-    if (data.length > 1) {
-      const cut = data.length - 1;
-      last.firstChild.data = data.slice(0, cut);
-      const s2 = last.cloneNode(false);
-      s2.appendChild(document.createTextNode(data.slice(cut)));
-      s2.style.letterSpacing = '';
-      last.after(s2);
-      spans.push(s2);
-      last = s2;
-    }
-    for (const sp of spans) {
-      sp.style.whiteSpace = 'nowrap';
-      if (sp === last) continue;
-      const prev = parseFloat(sp.style.letterSpacing);
-      sp.style.letterSpacing = L.round((Number.isFinite(prev) ? prev : 0) + tracked.track, 2) + 'px';
-    }
-    el.style.whiteSpace = 'nowrap';
-    el.style.textAlign = 'left';
-  };
   /**
    * Render paragraphs into a container. Returns the container.
-   * opts: {scale, prompt(string), editMode, lineW}
+   * opts: {scale, prompt(string), editMode}
    */
   R.paragraphs = function (sh, tx, design, ctx, container, opts) {
     opts = opts || {};
@@ -363,12 +318,6 @@
         }
         if (/\n$/.test(L.txt.paraText(p))) el.appendChild(h('br'));
       }
-      /* a Chinese justified line only a little wider than the box tightens the gaps and stays one line */
-      if ((ps.algn === 'just' || ps.algn === 'justLow') && opts.lineW && !el.querySelector('br')) {
-        const zh = L.chineseDoc(ctx && ctx.pres) || p.rs.some((r) => L.chineseLang(r.lang));
-        const pad = ((ps.marL || 0) + (ps.marR || 0) + Math.max(0, ps.indent || 0)) * scale;
-        R.fitChineseJustify(el, opts.lineW - pad, zh);
-      }
       container.appendChild(el);
     });
     return container;
@@ -400,8 +349,7 @@
     if (tx.wrap === false) inner.classList.add('nowrap');
     if (tx.anchorCtr) inner.style.alignSelf = 'center';
     if (tx.cols > 1) { inner.style.columnCount = tx.cols; inner.style.columnGap = L.round(tx.colGap || 0, 2) + 'px'; }
-    const turned = tx.vert === 'vert' || tx.vert === 'vert270' || tx.vert === 'eaVert';
-    R.paragraphs(sh, tx, design, ctx, inner, Object.assign({}, opts, turned ? {} : { lineW: bw }));
+    R.paragraphs(sh, tx, design, ctx, inner, opts);
     outer.appendChild(inner);
     return outer;
   };
@@ -550,9 +498,7 @@
         const bd = cell.bd || {};
         td.style.borderLeft = bdCSS(bd.l); td.style.borderRight = bdCSS(bd.r); td.style.borderTop = bdCSS(bd.t); td.style.borderBottom = bdCSS(bd.b);
         const inner = h('div', { class: 'txi' });
-        let cw = 0;
-        for (let k = 0; k < (cell.gs || 1); k++) cw += t.cols[ci + k] || 0;
-        R.paragraphs(sh, cell.tx || L.txt.body(), design, ctx, inner, { lineW: Math.max(0, cw - ins[0] - ins[2]) });
+        R.paragraphs(sh, cell.tx || L.txt.body(), design, ctx, inner, {});
         td.appendChild(inner);
         tr.appendChild(td);
       });
