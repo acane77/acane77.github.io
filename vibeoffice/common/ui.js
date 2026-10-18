@@ -796,6 +796,39 @@
     const id = ctl.id || (ctl.input && ctl.input.id) || (ctl.querySelector && ctl.querySelector('input,select') && ctl.querySelector('input,select').id);
     return h('div', { class: 'field' + (o && o.cls ? ' ' + o.cls : '') }, h('label', { for: id || null, html: ampHTML(label) }), ctl);
   };
+  /** File ▸ Save As in the VS Code editor: a Location row under the file name. It starts as the open file's
+   *  folder; Browse opens the editor's folder dialog. null in the browser and the desktop app, which keep
+   *  their own note about where a download goes. { el, uri() }. */
+  ui.saveLocation = function () {
+    const host = root.VO && root.VO.host;
+    if (!host || host.kind !== 'vscode' || !host.pickFolder) return null;
+    let uri = '';
+    let chosen = false;
+    const input = h('input', { type: 'text', id: 'sa-location', readOnly: true, spellcheck: 'false', autocomplete: 'off', translate: 'no' });
+    const show = (f) => {
+      if (!f || chosen) return;
+      uri = f.uri || '';
+      input.value = f.label || '';
+      input.title = input.value;
+    };
+    show(host.documentFolder && host.documentFolder());
+    if (host.askFolder) host.askFolder().then(show).catch((e) => console.error('folder:', e));
+    let busy = false;
+    const browse = ui.button('&Browse...', () => {
+      if (busy) return;
+      busy = true;
+      browse.disabled = true;
+      host.pickFolder(uri).then((f) => {
+        if (!f) return;
+        chosen = true;
+        uri = f.uri || '';
+        input.value = f.label || '';
+        input.title = input.value;
+      }).catch((e) => console.error('folder:', e)).finally(() => { busy = false; browse.disabled = false; });
+    });
+    const row = h('div', { class: 'sa-loc' }, input, browse);
+    return { el: ui.field('&Location:', row, { cls: 'wide' }), uri: () => uri };
+  };
   ui.group = (title, ...kids) => h('fieldset', { class: 'grp' }, h('legend', { html: ampHTML(title) }), ...kids);
   /** Tools ▸ Options ▸ General ▸ Theme: the suite's look (common/looks.css). { el, apply() }; apply on OK
    *  changes every open window of the suite. null outside the suite (no common/suite.js). */

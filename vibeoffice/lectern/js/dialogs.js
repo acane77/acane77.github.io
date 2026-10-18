@@ -975,7 +975,9 @@
     const types = [['pptx', L.N('PowerPoint Presentation (*.pptx)')], ['pptm', L.N('Macro-Enabled Presentation (*.pptm)')], ['ppsx', L.N('PowerPoint Show (*.ppsx)')], ['ppsm', L.N('Macro-Enabled Show (*.ppsm)')], ['potx', L.N('Design Template (*.potx)')], ['potm', L.N('Macro-Enabled Template (*.potm)')], ['pdf', L.N('PDF, one slide per page (*.pdf)')], ['html', L.N('Single File Web Page (*.html)')], ['png', L.N('PNG Graphics Format, current slide (*.png)')], ['txt', L.N('Outline (*.txt)')]];
     const cur = types.some(([k]) => k === L.app.fileType) ? L.app.fileType : 'pptx';
     const type = ui.select(types, cur);
-    return ui.dialog({ title: 'Save As', body: h('div', { class: 'col' }, ui.field('File &name:', name, { cls: 'wide' }), ui.field('Save as &type:', type, { cls: 'wide' }), h('div', { class: 'tp-note', text: 'Your browser decides where downloaded files go.' })), width: 470, buttons: [{ label: '&Save', primary: true, onClick: () => cb((name.value.trim() || base).replace(/\.(pptx|pptm|ppsx|ppsm|potx|potm)$/i, ''), type.value) }, { label: 'Cancel' }] });
+    const loc = ui.saveLocation();
+    const note = loc ? null : h('div', { class: 'tp-note', text: 'Your browser decides where downloaded files go.' });
+    return ui.dialog({ title: 'Save As', body: h('div', { class: 'col' }, ui.field('File &name:', name, { cls: 'wide' }), loc && loc.el, ui.field('Save as &type:', type, { cls: 'wide' }), note), width: loc ? 520 : 470, buttons: [{ label: '&Save', primary: true, onClick: () => cb((name.value.trim() || base).replace(/\.(pptx|pptm|ppsx|ppsm|potx|potm)$/i, ''), type.value, loc && loc.uri()) }, { label: 'Cancel' }] });
   };
 
   /* ---------- Zoom ---------- */

@@ -262,6 +262,8 @@ html:not([data-look="win7"]):not([data-look="paper"]):not([data-look="paper2016"
 .field > label:first-child { min-width: 78px; }
 .field.wide > label:first-child { min-width: 110px; }
 .field.narrow > label:first-child { min-width: 50px; }
+.field > .sa-loc { flex: 1; display: flex; gap: 6px; min-width: 0; align-items: center; }
+.sa-loc > input { flex: 1; min-width: 0; }
 .row { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
 .row > * { min-width: 0; }
 .col { display: flex; flex-direction: column; gap: 4px; }

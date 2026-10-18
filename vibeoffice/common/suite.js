@@ -119,11 +119,13 @@
   const stampFile = (file, m) => {
     if (!file || !m) return file;
     if (m.uri) { file.voUri = m.uri; documentUri = m.uri; }
+    if (m.dir) openFolder = { uri: m.dir, label: m.dirLabel || '' };
     if (m.draft && m.draftKey) file.voDraft = m.draftKey;
     return file;
   };
   let hostLive = false;   // vscode: the workspace file finished opening, so Save may write it
   let documentUri = '';   // vscode: the workspace file this editor tab is bound to
+  let openFolder = null;  // vscode: { uri, label } of that file's folder, for Save As
   const b64 = (bytes) => {
     let s = '';
     for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(bytes.length, i + 0x8000)));
@@ -221,16 +223,22 @@
               for (let i = 0; i < expect; i++) if (parts[i]) { out.set(parts[i], o); o += parts[i].length; }
               finish(null, stampFile(new File([out], m.name), m));
             }
+          } else if (m.type === 'blank') {
+            /* New File…: keep the blank document this page already started, and write it into the new file */
+            const file = stampFile(new File([], m.name || ''), m);
+            if (file) file.voBlank = true;
+            finish(null, file);
           } else if (m.type === 'open-error') finish(new Error(m.error || 'The file could not be read.'));
         }
         window.addEventListener('message', on);
         api.postMessage({ type: 'ready' });
       });
     },
-    /** write bytes back through the editor (vscode). 'saved' is the open file; 'exported' is another file
-     *  written beside it. purpose 'backup' answers a hot-exit request and does not touch the open file.
-     *  'create' writes a new file from File ▸ New (or a Recent Files copy with no path) and opens it.
-     *  'reopen' carries unsaved bytes into a new tab for a file this editor already knows. */
+    /** write bytes back through the editor (vscode). 'saved' is the open file; 'exported' is another file,
+     *  written in the folder Save As chose or beside the open file. purpose 'backup' answers a hot-exit
+     *  request and does not touch the open file. 'create' writes a new file from File ▸ New (or a Recent
+     *  Files copy with no path) and opens it. 'reopen' carries unsaved bytes into a new tab for a file
+     *  this editor already knows. opts.folder is a directory URI the extension already offered or the user picked. */
     writeFile(name, blob, opts) {
       const purpose = (opts && opts.purpose) || 'save';
       if (purpose === 'save' && !hostLive) return Promise.reject(new Error('The file is not open in the editor yet.'));
@@ -238,6 +246,7 @@
       if (!api) return Promise.reject(new Error('This page is not inside the editor.'));
       const id = (opts && opts.id) || Math.random().toString(36).slice(2);
       const uri = (opts && opts.uri) || '';
+      const folder = (opts && opts.folder) || '';
       const draftKey = (opts && opts.draftKey) || '';
       return blob.arrayBuffer().then((buf) => new Promise((resolve, reject) => {
         const bytes = new Uint8Array(buf);
@@ -255,7 +264,7 @@
         }
         window.addEventListener('message', on);
         for (let i = 0; i < n; i++) {
-          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, draftKey, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
+          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, folder, draftKey, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
         }
       }));
     },
@@ -266,6 +275,25 @@
     /** open a workspace file this editor remembers, in its own tab */
     openUri(uri) {
       return vsRequest({ type: 'open-uri', uri: String(uri || '') });
+    },
+    /** the folder of the file this editor tab has open: { uri, label }, or null before that file arrives */
+    documentFolder() {
+      return openFolder ? { uri: openFolder.uri, label: openFolder.label } : null;
+    },
+    /** ask the extension again for that folder. The label is the path the editor shows. */
+    async askFolder() {
+      if (!inVs) return null;
+      const r = await vsRequest({ type: 'document-folder' });
+      if (!r || !r.ok) return openFolder ? { uri: openFolder.uri, label: openFolder.label } : null;
+      openFolder = { uri: r.uri || '', label: r.label || '' };
+      return { uri: openFolder.uri, label: openFolder.label };
+    },
+    /** File ▸ Save As ▸ Browse: VS Code's folder dialog. { uri, label }, or null if the user cancels. */
+    async pickFolder(uri) {
+      if (!inVs) return null;
+      const r = await vsRequest({ type: 'pick-folder', uri: String(uri || '') });
+      if (!r || !r.ok || r.cancelled) return null;
+      return { uri: r.uri || '', label: r.label || '' };
     },
     /** File ▸ New in VS Code: ask for a path, then let makeBlob build the document, then open it in a new tab.
      *  The document in this tab stays as it is. ext, when set, is the suffix the saved name must end with. */
@@ -598,7 +626,8 @@
   });
   /** an app is ready: open the file it was launched with, if any, then show the Document Recovery pane when
    *  other documents of this app have unsaved changes.
-   *  hooks: open(file, { draft, name, saved }), thumb() -> a canvas (or image) of the first page, message(text),
+   *  hooks: open(file, { draft, name, saved }), adoptBlank(name) keeps the page's own blank document as that
+   *  new file (VS Code's New File…), thumb() -> a canvas (or image) of the first page, message(text),
    *  templates() -> [{ id, name }] (read by tools/templates.mjs); for autosave: snapshot(doc) -> Blob in the
    *  app's format, docInfo(doc) -> { name, draftName }, isDirty(doc), current() -> doc, autosave() -> false
    *  when turned off; showRecovery() opens the Document Recovery pane */
@@ -611,17 +640,31 @@
       if (l.vscode) {
         try {
           const file = await VO.host.takeDocument();
-          const draft = !!(file && file.voDraft);
-          let lossState;
-          if (draft) {
-            try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
-            catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
+          if (file && file.voBlank) {
+            /* the page already built a blank document; name it as this file and write that document in.
+               A failed write is reported by the extension; the document stays on screen so Save can try again. */
+            try {
+              if (current.hooks.adoptBlank) current.hooks.adoptBlank(file.name);
+              hostLive = true;
+              const doc = current.hooks.current && current.hooks.current();
+              const blob = doc && current.hooks.snapshot ? await current.hooks.snapshot(doc) : null;
+              if (!blob) throw new Error('The editor did not build a document.');
+              await VO.host.writeFile(file.name, blob);
+              VO.saved(file.name, blob, doc);
+            } catch (e) { console.error(e); }
+          } else {
+            const draft = !!(file && file.voDraft);
+            let lossState;
+            if (draft) {
+              try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
+              catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
+            }
+            if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
+            else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
+            if (file) hostLive = true;
+            /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
+            if (draft) vsPost({ type: 'dirty', dirty: true });
           }
-          if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
-          else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
-          if (file) hostLive = true;
-          /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
-          if (draft) vsPost({ type: 'dirty', dirty: true });
         } catch (e) {
           console.error(e);
           (current.hooks.message || alert)('That file could not be opened. ' + (e.message || e));

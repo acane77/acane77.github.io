@@ -192,6 +192,7 @@
     if (at(rPr, 'cap') && at(rPr, 'cap') !== 'none') r.cap = at(rPr, 'cap');
     if (at(rPr, 'spc')) r.spc = +at(rPr, 'spc') / 100;
     if (at(rPr, 'baseline') && +at(rPr, 'baseline')) r.base = +at(rPr, 'baseline');
+    if (at(rPr, 'lang')) r.lang = at(rPr, 'lang');
     for (const c of rPr.children) {
       switch (c.localName) {
         case 'solidFill': { const v = colorOf(c, ctx); if (v) { r.color = v.c; if (v.a < 1) r.fill = { t: 'solid', c: v.c, a: v.a }; } break; }

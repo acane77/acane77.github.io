@@ -41,13 +41,8 @@
     { id: 'todo', name: 'To-Do Checklist', cat: 'Other Documents' },
     { id: 'flyer', name: 'Event Flyer', cat: 'Other Documents' },
     { id: 'recipe', name: 'Recipe', cat: 'Other Documents' },
-    { id: 'neu-thesis', name: 'Thesis (NEU, China)', cat: 'Reports' },
   ];
-  /* Thesis (NEU, China) is the .docx itself (builtin/neu-thesis.docx), not built here.
-     That file is not under the Apache License: builtin/neu-thesis.txt. */
-  const FILES = { 'neu-thesis': 'builtin/neu-thesis.docx' };
   T.list = () => LIST;
-  T.file = (id) => FILES[id] || '';
   T.categories = () => ['General', 'Letters & Faxes', 'Memos', 'Reports', 'Other Documents'];
   const B = {
     letter(d) {
@@ -249,7 +244,6 @@
     },
   };
   T.build = function (id) {
-    if (FILES[id]) return null;
     const d = D.newDoc();
     const prev = D.doc;
     D.doc = d;
@@ -258,31 +252,9 @@
     d.props.template = (LIST.find((x) => x.id === id) || {}).name || 'Normal';
     return d;
   };
-  /** read a file template into a new document; the bytes are the template, not a script */
-  T.load = async function (id) {
-    const path = FILES[id];
-    if (!path) return T.build(id);
-    const res = await fetch(path);
-    if (!res.ok) throw new Error(res.status + ' ' + path);
-    const read = await L.docx.read(await res.arrayBuffer());
-    const d = read.doc;
-    d.props.template = (LIST.find((x) => x.id === id) || {}).name || 'Normal';
-    return d;
-  };
-  const templateName = (id) => (LIST.find((x) => x.id === id) || {}).name || '';
   T.create = function (id) {
-    if (!FILES[id]) {
-      const d = T.build(id);
-      if (d) L.app.newDocument({ build: (nd) => Object.assign(nd, d) });
-      return;
-    }
-    const name = templateName(id);
-    L.ui.busy(true, L.t('Opening {0}...', L.t(name)));
-    T.load(id).then((d) => { L.ui.busy(false); L.app.newDocument({ doc: d }); }, (e) => {
-      L.ui.busy(false);
-      console.error(e);
-      L.ui.msg(L.t("{0} can't open {1}. {2}", L.APP, L.t(name), e && e.message ? e.message : ''), { icon: 'error' });
-    });
+    const d = T.build(id);
+    L.app.newDocument({ build: (nd) => Object.assign(nd, d) });
   };
   /* a click on a MACROBUTTON placeholder (or the caret moved into it) selects the whole field, so typing replaces it;
      after the mouse is let go: selecting it while the button is down makes the drag that follows move it */

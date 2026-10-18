@@ -681,12 +681,13 @@
         } }, { label: 'Cancel' }] });
       } }], { left: r.left, bottom: r.bottom });
     };
-    return ui.dialog({ title: 'Save As', width: 460, body: h('div', { class: 'col' }, ui.field('File &name:', name), ui.field('Save as &type:', ui.select(types, type, (v) => { type = v; })), h('div', { class: 'hint', text: 'The file is saved to your browser\'s downloads.' })),
+    const loc = ui.saveLocation();
+    return ui.dialog({ title: 'Save As', width: loc ? 520 : 460, body: h('div', { class: 'col' }, ui.field('File &name:', name), loc && loc.el, ui.field('Save as &type:', ui.select(types, type, (v) => { type = v; })), loc ? null : h('div', { class: 'hint', text: 'The file is saved to your browser\'s downloads.' })),
       buttons: [{ label: 'Tools', onClick: (close, button) => { tools(button); return false; } }, { label: '&Save', primary: true, onClick: () => {
         const ext = { xmlss: 'xml', html: 'htm' }[type] || type;
         const n = (name.value.trim() || base).replace(/\.(xlsx|xlsm|xltx|xltm|xml|csv|txt|htm|html|pdf)$/i, '') + '.' + ext;
         b.password = pw.open || undefined;
-        A().saveAs(type, n);
+        A().saveAs(type, n, loc && loc.uri());
       } }, { label: 'Cancel' }] }).done;
   };
 

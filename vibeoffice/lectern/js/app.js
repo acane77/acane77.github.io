@@ -445,11 +445,11 @@
   A.saveAs = function () {
     return new Promise(resolve => {
       let writing = false;
-      const dialog = L.dlg.saveAs(async (name, type) => { writing = true; resolve(await A.exportAs(type, name)); });
+      const dialog = L.dlg.saveAs(async (name, type, folder) => { writing = true; resolve(await A.exportAs(type, name, folder)); });
       dialog.done.then(() => { if (!writing) resolve('declined'); });
     });
   };
-  A.exportAs = async function (type, name) {
+  A.exportAs = async function (type, name, folder) {
     name = name || A.fileName;
     if (TE.active()) TE.sync();
     if (L.panes.left.tab === 'outline') L.panes.left.commitOutline();
@@ -464,7 +464,7 @@
       if (!blob) return;
       const losses = L.opc.formats[type] ? await ui.compatibility(L.pres, blob.dropped) : [];
       if (losses === null) return 'declined';
-      const r = await L.saveFile(`${name}.${ext}`, blob);
+      const r = await L.saveFile(`${name}.${ext}`, blob, folder ? { folder } : undefined);
       if (r === 'saved') L.opc.acknowledge(L.pres, losses);
       if (r === 'saved' && /^(pptx|pptm|ppsx|ppsm|potx|potm)$/.test(type)) { A.fileName = name; A.fileType = type; A.saved = true; A.updateTitle(); L.hist.dirty = false; A.status(L.t('Saved {0}', `${name}.${ext}`)); if (window.VO) VO.saved(`${name}.${ext}`, blob, L.pres); }
       return r;
@@ -2250,6 +2250,13 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     void prompt;
     ui.refresh();
     if (window.VO) VO.attach('lectern', {
+      adoptBlank(name) {
+        A.fileName = String(name || 'Presentation.pptx').replace(/\.pptx$/i, '');
+        A.fileType = 'pptx';
+        A.saved = true;
+        L.hist.dirty = false;
+        A.updateTitle();
+      },
       async open(f, o) {
         await A.openFile(f);
         if (o?.draft) L.opc.recoverLosses(L.pres, o.lossState);

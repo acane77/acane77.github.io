@@ -334,7 +334,7 @@
     if (it && it.t === 'text' && it.text) {
       const loc = D.locate(a.p, a.o, E.collapsed() ? 'before' : undefined);
       const ch = E.collapsed() ? it.text[Math.max(0, loc.off - 1)] : it.text[loc.off];
-      ea = !!(ch && L.hasEAText(ch));
+      ea = !!(ch && L.hasEAText(ch, L.chineseDoc(doc())));
     }
     if (E.collapsed()) { const r = E.curRun(); return L.fontFace((ea ? (r.fontEA || r.font) : r.font) || ''); }
     return L.fontFace(E.uniformRun(ea ? 'fontEA' : 'font') || '');
@@ -748,17 +748,16 @@
   const blank = () => D.applyLocale(D.newDoc(), L.locale && L.locale.get());
   A.newDocument = async function (opts) {
     /* VS Code: ask for a file, then open that new document in its own tab. Web pages, e-mail and the welcome document stay in this tab. */
-    const fresh = () => (opts && opts.doc ? opts.doc : (opts && opts.modern ? D.newDoc({ modern: true }) : blank()));
     if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument && !(opts && opts.inplace)) {
       await VO.host.createDocument(async () => {
-        const d = fresh();
+        const d = opts && opts.modern ? D.newDoc({ modern: true }) : blank();
         if (opts && opts.build) opts.build(d);
         return L.docx.write(d, { format: 'docx' });
       });
       return;
     }
     A.untitled++;
-    const d = fresh();
+    const d = opts && opts.modern ? D.newDoc({ modern: true }) : blank();
     if (opts && opts.build) opts.build(d);
     /* a new document opens in its own window, as in Word; an untouched blank one is simply replaced */
     A.loadDoc(d, 'Document' + A.untitled, { newWindow: !pristine() });
@@ -863,7 +862,7 @@
     if (!L.dlg?.saveAs) return A.exportAs('docx', A.fileName);
     return new Promise(resolve => {
       let writing = false;
-      const dialog = L.dlg.saveAs(async (name, type) => { writing = true; resolve(await A.exportAs(type, name)); });
+      const dialog = L.dlg.saveAs(async (name, type, folder) => { writing = true; resolve(await A.exportAs(type, name, folder)); });
       dialog.done.then(() => { if (!writing) resolve('declined'); });
     });
   };
@@ -872,7 +871,7 @@
     const st = D.stats(D.allParas(d));
     return { pages: LY.pages.length || 1, words: st.words, chars: st.chars, charsNoSp: st.charsNoSp, paras: st.paras, lines: Math.max(st.paras, Math.round(st.chars / 70)) };
   };
-  A.exportAs = async function (type, name) {
+  A.exportAs = async function (type, name, folder) {
     name = name || A.fileName;
     const d = doc();
     try {
@@ -908,7 +907,7 @@
       if (!blob) return;
       const losses = L.opc.formats[type] ? await ui.compatibility(d, blob.dropped) : [];
       if (losses === null) return 'declined';
-      const r = await L.saveFile(`${name}.${ext}`, blob);
+      const r = await L.saveFile(`${name}.${ext}`, blob, folder ? { folder } : undefined);
       if (r === 'saved') L.opc.acknowledge(d, losses);
       if (r === 'saved' && ['docx', 'docm', 'dotx', 'dotm', 'md', 'mdzip'].includes(type)) { A.fileName = name; A.fileType = type; A.saved = true; A.updateTitle(); d.dirty = false; A.status(L.t('Saved {0}', `${name}.${ext}`)); ui.refresh(); if (window.VO) VO.saved(`${name}.${ext}`, blob, d); }
       return r;
@@ -1404,13 +1403,9 @@
     if (narrow) A.opts.taskOpen = false;
     L.$('#taskpane').hidden = !A.opts.taskOpen;
     LY.zoom = narrow ? Math.max(0.4, (window.innerWidth - 40) / 816) : A.opts.zoom || 1;
-    /* a template from the Start Center, otherwise a blank document.
-       Thesis (NEU, China) is a .docx fetched after the page is up; L.templates.ready stays false until it replaces this blank. */
+    /* a template from the Start Center, otherwise a blank document */
     const launch = window.VO && VO.launch;
-    const fileTpl = launch && launch.template && L.templates && L.templates.file(launch.template);
-    if (fileTpl) L.templates.ready = false;
-    const untitledAt = A.untitled;
-    A.loadDoc(fileTpl ? blank() : (launch && launch.template && L.templates ? L.templates.build(launch.template) : blank()), 'Document1');
+    A.loadDoc(launch && launch.template && L.templates ? L.templates.build(launch.template) : blank(), 'Document1');
     A.view = 'x';
     A.setView(A.opts.view && ['print', 'normal', 'web', 'outline'].includes(A.opts.view) ? A.opts.view : 'print');
     if (L.panes && A.opts.taskOpen) L.panes.task.show('getting-started');
@@ -1418,6 +1413,13 @@
     if (A.opts.docMap) A.toggleDocMap(true);
     ui.refresh();
     if (window.VO) VO.attach('quire', {
+      adoptBlank(name) {
+        A.fileName = String(name || 'Document.docx').replace(/\.docx$/i, '');
+        A.saved = true;
+        A.fileType = 'docx';
+        if (doc()) doc().dirty = false;
+        A.updateTitle();
+      },
       async open(f, o) {
         await A.openFile(f);
         if (o?.draft && doc()) L.opc.recoverLosses(doc(), o.lossState);
@@ -1442,19 +1444,6 @@
       message: (t) => ui.msg(t, { icon: 'warn' }),
       templates: () => (L.templates ? L.templates.list().map(({ id, name }) => ({ id, name })) : []),
     });
-    if (fileTpl) {
-      const name = (L.templates.list().find((t) => t.id === launch.template) || {}).name || '';
-      ui.busy(true, L.t('Opening {0}...', L.t(name)));
-      L.templates.load(launch.template).then((d) => {
-        ui.busy(false);
-        /* still the untouched Document1 this page started with */
-        if (A.docs.length === 1 && A.untitled === untitledAt && A.fileName === 'Document1' && !A.saved && doc() && !doc().dirty) A.loadDoc(d, 'Document1');
-      }, (e) => {
-        ui.busy(false);
-        console.error(e);
-        ui.msg(L.t("{0} can't open {1}. {2}", L.APP, L.t(name), e && e.message ? e.message : ''), { icon: 'error' });
-      }).finally(() => { L.templates.ready = true; });
-    }
   };
   const winOf = (d) => (d === doc() ? A : A.docs.find((x) => x && x.doc === d) || A);
   /** Recent Files picture: the first page, drawn as for PDF (print layout only) */

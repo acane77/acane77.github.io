@@ -638,7 +638,7 @@
     /* Latin and East Asian characters take their own font when the run names both */
     if (r.fontEA && L.fontKey(r.fontEA) !== L.fontKey(r.font || '')) {
       let w = 0;
-      for (const p of L.splitEA(text)) { face(p.ea ? r.fontEA : r.font); w += measureCtx.measureText(p.text).width; }
+      for (const p of L.splitEA(text, L.chineseDoc(doc()) || L.chineseLang(r.langEA))) { face(p.ea ? r.fontEA : r.font); w += measureCtx.measureText(p.text).width; }
       return w;
     }
     face(r.font);

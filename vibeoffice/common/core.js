@@ -258,10 +258,11 @@
   /** Offer a generated file to the user as a download. Returns 'saved', and tells vo-saved { name } on window once
    *  the file is handed over (the assistant acts out Save and Save As then, common/scout/assistant.js).
    *  In the VS Code editor the bytes go to the workspace file instead (VO.host.writeFile): 'saved' when that
-   *  file was written, 'exported' when a different name was written beside it. */
-  L.saveFile = async function (name, blob) {
+   *  file was written, 'exported' when a different name or folder was written. opts.folder is the directory
+   *  Save As chose. */
+  L.saveFile = async function (name, blob, opts) {
     if (window.VO && VO.host && VO.host.kind === 'vscode' && VO.host.writeFile) {
-      const r = await VO.host.writeFile(name, blob);
+      const r = await VO.host.writeFile(name, blob, opts);
       if (r === 'saved' || r === 'exported') window.dispatchEvent(new CustomEvent('vo-saved', { detail: { name } }));
       return r;
     }
@@ -543,9 +544,28 @@
     return yes;
   };
   const EA_RE = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]/;
+  /* In a Chinese document Word, WPS and PowerPoint draw U+2026 HORIZONTAL ELLIPSIS with the East Asian
+     font, as a CJK character. An English document keeps it in the Latin font. */
+  const ZH_ELLIPSIS = '\u2026';
+  const eaChar = (ch, zh) => EA_RE.test(ch) || (!!zh && ch === ZH_ELLIPSIS);
+  /** zh, zh-CN, zh-Hans, zh-Hant, zh-TW and the other Chinese tags */
+  L.chineseLang = (lang) => /^zh(?:-|$)/i.test(String(lang || ''));
+  /** a Chinese document: Word's East Asian language (theme or the default run), or a presentation's text language */
+  L.chineseDoc = function (doc) {
+    if (!doc) return false;
+    const theme = doc.settings && doc.settings.themeLang;
+    if (theme && L.chineseLang(theme.eastAsia)) return true;
+    const def = doc.defaults && doc.defaults.rPr;
+    if (def && L.chineseLang(def.langEA)) return true;
+    return L.chineseLang(doc.lang);
+  };
   /** whether text has East Asian characters (Han, kana, Hangul, full-width forms), which Word draws with a run's
-      East Asian font */
-  L.hasEAText = (s) => EA_RE.test(s || '');
+      East Asian font. Pass true for a Chinese document: the horizontal ellipsis is one of those characters. */
+  L.hasEAText = (s, zh) => {
+    s = s || '';
+    if (EA_RE.test(s)) return true;
+    return !!(zh && s.includes(ZH_ELLIPSIS));
+  };
   /** the Latin slot names the same East Asian family as the East Asian slot: Word's Font box shows
       "(Use Asian text font)" rather than that family again */
   L.fontUsesEA = (font, ea) => !!(font && ea && L.fontIsEA(ea) && L.fontKey(font) === L.fontKey(ea));
@@ -612,12 +632,47 @@
     if (out.every((r) => L.fontKey(r.font.name) === L.fontKey(latin))) return null;
     return out;
   };
-  /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font */
-  L.splitEA = function (s) {
+  let glyphProbe;
+  /** the advance of one character in a CSS font shorthand, in px; 0 where there is no canvas */
+  L.glyphWidth = function (font, ch) {
+    if (!font || ch == null || ch === '') return 0;
+    if (typeof document === 'undefined' || !document.createElement) return 0;
+    try {
+      if (!glyphProbe) glyphProbe = document.createElement('canvas').getContext('2d');
+      if (!glyphProbe) return 0;
+      glyphProbe.font = font;
+      return glyphProbe.measureText(ch).width;
+    } catch (e) { return 0; }
+  };
+  /**
+   * Tighten one justified line so it stays one line. advances are natural widths, inner is the measure,
+   * both in the same unit. A line that already fits is left alone (null): a justified paragraph does not
+   * stretch its last line here. Overflow is taken out of the gaps between characters, at most maxEm of
+   * an em from each gap (a fifth). More than that, and the line wraps (null).
+   */
+  L.justifyTrack = function (advances, inner, opts) {
+    opts = opts || {};
+    const maxEm = opts.maxEm == null ? 0.2 : opts.maxEm;
+    const n = advances.length;
+    if (n < 2 || !(inner > 0)) return null;
+    let sum = 0;
+    for (const w of advances) {
+      if (!(w > 0)) return null;
+      sum += w;
+    }
+    const over = sum - inner;
+    if (over <= 0.05) return null;
+    const em = opts.em || sum / n;
+    if (!(em > 0) || over > (n - 1) * maxEm * em + 0.5) return null;
+    return { track: -over / (n - 1) };
+  };
+  /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font.
+      zh: a Chinese document, where the horizontal ellipsis is an East Asian character. */
+  L.splitEA = function (s, zh) {
     const out = [];
     let buf = '', ea = false, on = false;
     for (const ch of String(s || '')) {
-      const e = EA_RE.test(ch);
+      const e = eaChar(ch, zh);
       if (!on) { on = true; ea = e; buf = ch; }
       else if (e === ea) buf += ch;
       else { out.push({ ea, text: buf }); ea = e; buf = ch; }
