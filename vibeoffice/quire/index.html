@@ -14,6 +14,7 @@
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="../fonts/brand.css">
 <style>
 /* text boxes in a field stretch to the dialog's width (as in Ledger; Lectern's dialogs set their own widths) */
 .field > input[type=text], .field > input:not([type]), .field > textarea { flex: 1 1 140px; min-width: 0; width: auto !important; }
@@ -39,7 +40,7 @@
 .rmark.tabstop { width: 8px; height: 8px; margin-left: -1px; top: 11px; }
 .rmark.colmark { width: 6px; height: 14px; margin-left: -3px; top: 3px; background: repeating-linear-gradient(var(--ruler-line) 0 1px, var(--ruler-mark-bg) 1px 3px); border: 1px solid var(--ruler-mark-line); cursor: col-resize; }
 .r-guide { position: absolute; top: 0; bottom: 0; border-left: 1px dotted #000; pointer-events: none; z-index: 50; }
-.scroller { grid-column: 2; grid-row: 2; position: relative; overflow: auto; outline: none; min-width: 0; min-height: 0; background: var(--page-canvas); }
+.scroller { grid-column: 2; grid-row: 2; position: relative; overflow: auto; overflow-anchor: none; outline: none; min-width: 0; min-height: 0; background: var(--page-canvas); }
 .scroller.flowview { background: #fff; }
 .scroller.webview { background: #fff; }
 .sizer { position: relative; min-height: 100%; }
@@ -50,7 +51,16 @@
 /* ---------- pages ---------- */
 .pages { position: absolute; top: 14px; left: 10px; transform-origin: 0 0; outline: none; color: #000; font-size: 16px; line-height: normal; caret-color: #000; -webkit-user-modify: read-write-plaintext-only; }
 .pages { -webkit-user-modify: read-write; }
-.pg { position: relative; margin: 0 auto 14px; background: #fff; box-shadow: 0 0 0 1px var(--page-line); contain: layout paint; overflow: hidden; }
+.pg { position: relative; margin: 0 auto 14px; background: #fff; box-shadow: 0 0 0 1px var(--page-line); contain: layout paint; overflow: clip; }
+/* white space hidden: each page keeps a sliver of its top and bottom margin (--ws-pad), and the rest
+   (header, footer, and the gap between sheets) drops out. A black line marks the join. */
+.pages.nospace { display: flex; flex-direction: column; align-items: center; }
+.pages.nospace .pg { box-shadow: none; margin-left: 0; margin-right: 0; margin-top: calc(-1 * max(0px, var(--mt) - var(--ws-pad, 8px))); margin-bottom: calc(-1 * max(0px, var(--mb) - var(--ws-pad, 8px))); clip-path: inset(max(0px, calc(var(--mt) - var(--ws-pad, 8px))) 0 max(0px, calc(var(--mb) - var(--ws-pad, 8px))) 0); }
+.pages.nospace .pg::before { content: ""; position: absolute; z-index: 6; left: 0; right: 0; top: max(0px, calc(var(--mt) - var(--ws-pad, 8px))); bottom: max(0px, calc(var(--mb) - var(--ws-pad, 8px))); border-left: 1px solid var(--page-line); border-right: 1px solid var(--page-line); pointer-events: none; }
+.pages.nospace .pg:first-child::before { border-top: 1px solid var(--page-line); }
+.pages.nospace .pg:last-child::before { border-bottom: 1px solid var(--page-line); }
+.pages.nospace .pg:not(:last-child)::before { border-bottom: 1px solid #000; }
+.scroller.ws-gap, .scroller.ws-gap * { cursor: row-resize !important; }
 .pages.multi { display: flex; flex-wrap: wrap; gap: 14px 16px; align-items: flex-start; }
 .pages.multi .pg { margin: 0; }
 .pg.blank::after { content: var(--t-blank, "(This page intentionally left blank by a section break)"); position: absolute; left: 0; right: 0; top: 45%; text-align: center; color: #999; font: 12px Arial, Arimo, sans-serif; }
@@ -288,7 +298,8 @@ td.csel { background-image: linear-gradient(var(--text-sel), var(--text-sel)) !i
   .scroller { overflow: visible; background: #fff; }
   .sizer { width: auto !important; height: auto !important; }
   .pages { position: static; transform: none !important; }
-  .pg { box-shadow: none !important; margin: 0 !important; break-after: page; }
+  .pg { box-shadow: none !important; margin: 0 !important; break-after: page; clip-path: none !important; }
+  .pages.nospace .pg::before { content: none !important; }
   .crop, .obj-handles, .balloons, .format-marks, .sectmark, .hbrk { display: none !important; }
   .tb::before { content: none !important; }
   .pg-hdr, .pg-ftr { opacity: 1 !important; }

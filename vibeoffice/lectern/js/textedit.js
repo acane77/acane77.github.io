@@ -904,7 +904,7 @@
     }
     return {
       font: L.style.font(r.font, design), fontEA: L.style.fontEA(r.fontEA, design) || '', onEA: L.hasEAText(ch, L.chineseDoc(L.pres)),
-      sz: r.sz ? L.round(r.sz * (tx.fontScale || 1), 1) : 18, b: !!r.b, i: !!r.i, u: !!(r.u && r.u !== 'none'),
+      sz: r.sz ? L.round(r.sz * (tx.fontScale || 1), 1) : 18, b: !!r.b, i: !!r.i, u: !!(r.u && r.u !== 'none'), strike: !!(r.strike && r.strike !== 'noStrike'),
       shd: !!r.shd, algn: ps.algn || 'l', bu: ps.bu ? ps.bu.t : 'none', color: r.color, lvl: p.lvl || 0, ps, r,
     };
   };

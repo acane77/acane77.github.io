@@ -157,16 +157,19 @@
       } else {
         try { w = await L.xlsxRead.read(bytes, { password }); }
         catch (e) {
-          if (e.code === 'badpassword') {
+          /* this tab was opened on the file: a refused password closes it instead of leaving Book1 */
+          const giveUp = () => { if (file.voLaunch && window.VO && VO.abandonEditor) VO.abandonEditor(); };
+          if (e.code === 'badpassword' || e.code === 'unsupported') {
             /* as Excel: say so and cancel the open; File ▸ Open again to retry */
             ui.busy(false);
             await ui.msg(e.message, { icon: 'warn' });
+            giveUp();
             return;
           }
           if (e.code === 'password') {
             ui.busy(false);
             const pw = ui.password ? await ui.password(name) : await ui.prompt(L.t("'{0}' is protected.\n\nPassword:", name), '', 'Password');
-            if (pw == null) return;
+            if (pw == null) { giveUp(); return; }
             return A.openFile(file, pw, opts);
           }
           if (e.code === 'xls') { ui.busy(false); if (L.xls && L.xls.read) { w = await L.xls.read(bytes); type = 'xls'; } else throw Object.assign(new Error(L.t("'{0}' is a binary Excel 97–2003 workbook (.xls). Ledger opens .xlsx, .xlsm, .csv and XML Spreadsheet 2003 files. Open it in Excel or LibreOffice and save it as .xlsx first.", name)), { code: 'xls' }); }
@@ -558,7 +561,7 @@
     const fontSplit = ui.tbSplit('fontColorApply', A.menus.fontColor);
     const borderSplit = ui.tbSplit('bordersApply', A.menus.borders);
     TB.standard = ui.toolbar('standard', 'Standard', ['newBook', 'open', 'save', '|', 'printQuick', 'printPreview', 'spelling', '|', 'cut', 'copy', 'paste', 'formatPainter', '|', 'undo', 'redo', '|', 'hyperlink', sumSplit, 'sortAsc', 'sortDesc', '|', 'chartWizard', ui.tbButton('tb_drawing', { icon: 'drawing' }), zoomCombo, '|', 'help']);
-    TB.formatting = ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, '|', 'bold', 'italic', 'underline', '|', 'alignLeft', 'alignCenter', 'alignRight', 'mergeCenter', '|', 'currencyStyle', 'percentStyle', 'commaStyle', 'incDecimal', 'decDecimal', '|', 'decIndent', 'incIndent', '|', borderSplit, fillSplit, fontSplit]);
+    TB.formatting = ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, '|', 'bold', 'italic', 'underline', 'strike', '|', 'alignLeft', 'alignCenter', 'alignRight', 'mergeCenter', '|', 'currencyStyle', 'percentStyle', 'commaStyle', 'incDecimal', 'decDecimal', '|', 'decIndent', 'incIndent', '|', borderSplit, fillSplit, fontSplit]);
     TB.borders = ui.toolbar('borders', 'Borders', [ui.tbSplit('bordersApply', A.menus.borders), ui.tbButton('borderNone', { icon: 'bordersNone' }), ui.tbButton('borderOutline', { icon: 'bordersOut' })]);
     TB.auditing = ui.toolbar('auditing', 'Formula Auditing', ['traceError', '|', 'tracePrecedents', 'traceDependents', 'removeArrows', '|', 'insertComment', 'validation', 'circleInvalid', 'clearCircles', '|', 'watchWindow', 'evaluateFormula']);
     TB.reviewing = ui.toolbar('reviewing', 'Reviewing', ['insertComment', 'showHideComment', 'deleteComment', '|', 'showComments']);
@@ -591,11 +594,17 @@
     if (k === 'list') return !!A.tableAt();
     return !!o && (k === 'chart' ? o.kind === 'chart' : k === 'picture' ? o.kind === 'image' : k === 'shape' ? o.kind === 'shape' : false);
   };
-  A.toggleToolbar = (id, force) => { const cur = A.toolbarVisible(id); A.opts.toolbars[id] = force != null ? force : !cur; A.updateToolbars(); A.saveOpts(); };
+  A.toggleToolbar = (id, force) => {
+    const cur = A.toolbarVisible(id);
+    A.opts.toolbars[id] = force != null ? force : !cur;
+    if (cur && !A.toolbarVisible(id) && ui.tbDock) ui.tbDock.reset(id);
+    A.updateToolbars(); A.saveOpts();
+  };
   A.updateToolbars = function () {
     for (const id in TB) { const v = A.toolbarVisible(id); TB[id].hidden = !v; }
     const r2 = TB.borders && TB.borders.parentElement;
     if (r2) r2.hidden = !Array.from(r2.children).some((x) => !x.hidden);
+    if (ui.tbDock) ui.tbDock.sync();
     ui.refresh();
   };
   const curStyle = () => { const s = G().sel(); return LY.styleOf(sh(), s.r, s.c, sh().get(s.r, s.c)); };

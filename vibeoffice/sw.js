@@ -71,7 +71,7 @@ const UTF8 = 'charset=utf-8';
 const TYPES = { html: 'text/html; ' + UTF8, js: 'text/javascript; ' + UTF8, css: 'text/css; ' + UTF8, json: 'application/json',
   webmanifest: 'application/manifest+json', txt: 'text/plain; ' + UTF8, words: 'text/plain; ' + UTF8, thes: 'text/plain; ' + UTF8,
   md: 'text/markdown; ' + UTF8, xml: 'application/xml', svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
-  gif: 'image/gif', webp: 'image/webp', ico: 'image/x-icon', woff2: 'font/woff2', woff: 'font/woff', wasm: 'application/wasm' };
+  gif: 'image/gif', webp: 'image/webp', ico: 'image/x-icon', woff2: 'font/woff2', woff: 'font/woff', ttf: 'font/ttf', wasm: 'application/wasm' };
 const typeOf = (path) => TYPES[(/\.([^./]+)$/.exec(path) || [])[1]] || 'application/octet-stream';
 
 /** the whole zip, telling progress(received, total) as it comes (total 0 if the server didn't say); a short

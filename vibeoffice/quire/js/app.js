@@ -19,7 +19,7 @@
   };
 
   const DEFAULT_OPTS = {
-    statusBar: true, ruler: true, vruler: true, taskOpen: true, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
+    statusBar: true, ruler: true, vruler: true, whiteSpace: true, taskOpen: true, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
     toolbars: { standard: true, formatting: true, drawing: true, tables: false, reviewing: 'auto', picture: 'auto', outlining: 'auto', headerFooter: 'auto', mailMerge: false, wordart: 'auto' },
     showMarks: false, marks: { tabs: false, spaces: false, para: false, hidden: false, all: false }, textBoundaries: true, fieldShading: 'selected', bookmarks: false,
     smartQuotes: true, autocorrect: true, autoFormat: true, capSentence: true, autoBullets: true, autoNumbers: true, autoBorders: true, autoHeadings: false, autoUrl: true, ordinals: true, fractions: true, dashes: true,
@@ -48,6 +48,7 @@
     LY.root.spellcheck = false; /* Quire draws its own spelling and grammar underlines */
     if (L.spell) L.spell.refreshSoon(0);
     LY.root.classList.toggle('fshade', A.opts.fieldShading === 'always');
+    if (LY.syncWhiteSpace && LY.scroller) { const r = LY.scroller.getBoundingClientRect(); LY.syncWhiteSpace(r.top + LY.scroller.clientHeight / 2); }
     A.updateRulers();
     A.updateToolbars();
   };
@@ -280,11 +281,14 @@
   function buildToolbars() {
     const host = L.$('#toolbars');
     const styleCombo = A.parts.style(), fontCombo = A.parts.font(), sizeCombo = A.parts.size(), zoomCombo = A.parts.zoom();
+    const clearBtn = ui.tbButton('clearFormats', { icon: 'eraser' });
+    clearBtn.setAttribute('data-tip', 'Clear Formatting');
+    clearBtn.setAttribute('aria-label', L.t('Clear Formatting'));
     A.toolbarsEl = {
       standard: ui.toolbar('standard', 'Standard', ['new', 'open', 'save', 'permission', 'sendMail', 'print', 'printPreview', 'spelling', 'research', '|', 'cut', 'copy', 'paste', 'painter', '|',
         ui.tbSplit('undo', (r) => A.historyMenu(r, 'undo')), ui.tbSplit('redo', (r) => A.historyMenu(r, 'redo')), '|', 'hyperlink', ui.tbButton('tb_tables', { icon: 'tablesBorders' }),
         ui.tbDrop('', 'table', (r) => tableGridPicker(r), 'Insert Table'), 'insertExcel', ui.tbDrop('', 'columns', (r) => columnsPicker(r), 'Columns'), ui.tbButton('tb_drawing', { icon: 'drawing' }), 'docMap', 'showMarks', zoomCombo, 'help', ui.tbButton('viewReading', { label: 'Read', icon: 'read' })]),
-      formatting: ui.toolbar('formatting', 'Formatting', ['stylesPane', styleCombo, fontCombo, sizeCombo, 'bold', 'italic', 'underline', '|', 'alignLeft', 'alignCenter', 'alignRight', 'justify', '|',
+      formatting: ui.toolbar('formatting', 'Formatting', ['stylesPane', styleCombo, fontCombo, sizeCombo, 'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'growFont', 'shrinkFont', 'changeCase', clearBtn, '|', 'alignLeft', 'alignCenter', 'alignRight', 'justify', '|',
         ui.tbDrop('', 'lineSpacing', lineSpacingMenu, 'Line Spacing'), '|', 'numbering', 'bullets', 'decIndent', 'incIndent', '|', ui.tbSplit('borderBtn', bordersDD), ui.tbSplit('highlightBtn', highlightDD), ui.tbSplit('fontColorBtn', fontColorDD)]),
       tables: ui.toolbar('tables', 'Tables and Borders', ['drawTable', 'eraser', '|', ui.tbDrop('', 'dashStyle', (r) => A.borderStyleMenu(r), 'Line Style'), ui.tbDrop('', 'lineStyle', (r) => A.borderWeightMenu(r), 'Line Weight'), ui.tbDrop('', 'lineColor', (r, b) => ui.colorMenu(b, { mode: 'plain', automatic: true }, (v) => { A.borderPen.color = v && v.auto ? 'auto' : typeof v === 'string' ? v.replace('#', '') : A.borderPen.color; }), 'Border Color'),
         ui.tbSplit('borderBtn', bordersDD), ui.tbDrop('', 'fillColor', (r, b) => ui.colorMenu(b, { mode: 'fill' }, (v) => { if (L.tables) L.tables.shade(v && v.none ? null : typeof v === 'string' ? v.replace('#', '') : null); }), 'Shading Color'), '|',
@@ -641,13 +645,21 @@
     if (k === 'shape') return !!(it && (it.t === 'shape' || it.t === 'group' || it.t === 'text' || it.tb || it.wordart));
     return ctxToolbar(k);
   };
-  A.toggleToolbar = (id) => { const v = A.opts.toolbars[id]; A.opts.toolbars[id] = A.tbShown(id) ? (v === 'auto' || v === true ? false : false) : true; if (A.opts.toolbars[id] === false && ['reviewing', 'picture', 'outlining', 'headerFooter', 'wordart'].includes(id) && v === true) A.opts.toolbars[id] = 'auto'; A.saveOpts(); A.updateToolbars(); };
+  A.toggleToolbar = (id) => {
+    const v = A.opts.toolbars[id], was = A.tbShown(id);
+    A.opts.toolbars[id] = was ? false : true;
+    if (A.opts.toolbars[id] === false && ['reviewing', 'picture', 'outlining', 'headerFooter', 'wordart'].includes(id) && v === true) A.opts.toolbars[id] = 'auto';
+    if (was && ui.tbDock) ui.tbDock.reset(id);
+    A.saveOpts(); A.updateToolbars();
+  };
   A.updateToolbars = function () {
     if (!A.toolbarsEl) return;
     for (const id of Object.keys(A.toolbarsEl)) if (id !== 'drawing') A.toolbarsEl[id].hidden = !A.tbShown(id) || A.view === 'preview';
     if (A.view === 'reading') for (const id of Object.keys(A.toolbarsEl)) if (id !== 'drawing') A.toolbarsEl[id].hidden = id !== 'standard';
+    A.toolbarsEl.drawing.hidden = !A.tbShown('drawing') || A.view === 'preview' || A.view === 'reading' || A.view === 'outline';
     A.tbRows.forEach((r) => { r.hidden = Array.from(r.children).every((c) => c.hidden); });
-    L.$('#drawrow').hidden = !A.tbShown('drawing') || A.view === 'preview' || A.view === 'reading' || A.view === 'outline';
+    L.$('#drawrow').hidden = A.toolbarsEl.drawing.hidden;
+    if (ui.tbDock) ui.tbDock.sync();
     ui.refresh();
   };
 
@@ -808,8 +820,13 @@
     } catch (e) {
       ui.busy(false);
       console.error(e);
-      if (e && e.code === 'cancel') return;
-      if (e && e.code === 'ole') ui.msg(e.message, { icon: 'warn' });
+      /* this tab was opened on the file: leave it only when the file is actually open */
+      const giveUp = () => { if (file.voLaunch && window.VO && VO.abandonEditor) VO.abandonEditor(); };
+      if (e && e.code === 'cancel') { giveUp(); return; }
+      if (e && e.code === 'ole') {
+        await ui.msg(e.message, { icon: 'warn' });
+        if (e.badPassword || e.unsupported) giveUp();
+      }
       else ui.msg(L.t("{0} can't open {1}. {2}", L.APP, file.name, e && e.message ? e.message : ''), { icon: 'error' });
     }
   };
@@ -828,6 +845,7 @@
         const b = new Error(err && err.code === 'badpass' ? L.t('The password is incorrect. {0} cannot open the document.', L.APP) : err && err.message === 'unsupported' ? L.t('This document is encrypted in a way {0} cannot read.', L.APP) : String(err && err.message || err));
         b.code = 'ole';
         b.badPassword = !!(err && err.code === 'badpass');
+        b.unsupported = !!(err && err.message === 'unsupported');
         throw b;
       }
       const res = await L.docx.read(plain.buffer.slice(plain.byteOffset, plain.byteOffset + plain.byteLength));
@@ -1276,7 +1294,7 @@
       clear.setAttribute('aria-label', L.t('Clear Formatting'));
       return [
         row(A.parts.font({ width: 132, id: 'mb-font' }), A.parts.size({ width: 48, id: 'mb-size' }), ui.tbButton('growFont'), ui.tbButton('shrinkFont'), clear, ui.tbButton('highlightBtn'), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b))),
-        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbSplit('highlightBtn', (r, b) => A.menus.highlight(r, b)), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b)), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r)), h('span', { class: 'tb-sep' }), A.parts.style({ width: 128, id: 'mb-style' })),
+        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbButton('strike'), ui.tbButton('subscript'), ui.tbButton('superscript'), ui.tbSplit('highlightBtn', (r, b) => A.menus.highlight(r, b)), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b)), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r)), h('span', { class: 'tb-sep' }), A.parts.style({ width: 128, id: 'mb-style' })),
       ];
     });
     const selectKey = (e) => (e.key === 'a' && (e.ctrlKey || e.metaKey) && !e.altKey) || (e.shiftKey && /^(Arrow(?:Left|Right|Up|Down)|Home|End|Page(?:Up|Down))$/.test(e.key));

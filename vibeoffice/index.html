@@ -12,6 +12,7 @@
 <script>try{var d=document.documentElement,l=localStorage.getItem('vibeoffice.look')||'win7';d.dataset.look=l;d.dataset.layout=l==='paper2016'?'ribbon':'bars'}catch(e){}</script>
 <script src="common/lang.js"></script>
 <link rel="stylesheet" href="common/looks.css">
+<link rel="stylesheet" href="fonts/brand.css">
 <style>
   /* colours come from the look settings (common/looks.css); the app colours are the apps' own */
   :root { --quire: #2a64c8; --ledger: #1f8a4c; --lectern: #e0682d; }
@@ -30,7 +31,7 @@
     background: linear-gradient(var(--pane-a), var(--pane-b)); border-right: 1px solid var(--chrome-line); overflow: auto; }
   .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 6px; }
   .brand img { width: 44px; height: 44px; }
-  .brand b { font: bold 19px/1.1 "Trebuchet MS", var(--ui-font); color: var(--pane-ink); }
+  .brand b { font-family: "Google Sans Flex", sans-serif; font-size: 19px; font-weight: 400; font-synthesis: none; line-height: 1.1; color: var(--pane-ink); }
   .brand small { display: block; color: var(--muted); font-size: 11px; }
   .big { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 3px;
     background: none; text-align: left; cursor: pointer; color: var(--pane-ink); font-weight: bold; }
@@ -40,7 +41,7 @@
   .sec h2 { margin: 0 0 4px; padding: 0 8px 3px; font-size: 12px; color: var(--pane-ink); border-bottom: 1px solid var(--start-rule); }
   .new { display: flex; align-items: center; gap: 10px; padding: 5px 8px; border: 1px solid transparent; border-radius: 3px; color: var(--pane-link); }
   .new:hover, .new:focus-visible { background: var(--menu-hot); border-color: var(--card-hot-border); }
-  .new span b { display: block; }
+  .new span b { display: block; font-family: "Google Sans Flex", sans-serif; font-weight: 400; font-synthesis: none; }
   .new span small { color: var(--muted); }
   .new:hover b { text-decoration: underline; }
   .side .grow { flex: 1; }

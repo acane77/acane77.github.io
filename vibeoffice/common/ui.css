@@ -221,6 +221,33 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .floatbar .fb-body .toolbar { border: 0; background: none; height: auto; flex-wrap: wrap; }
 .floatbar .fb-body .tb-grip { display: none; }
 
+/* toolbars that dock and float (ui.tbDock): Classic, Windows 7, Windows XP. A float is the ordinary modeless window. */
+html.tb-dock .tb-dockable > .tb-grip { cursor: move; touch-action: none; }
+html.tb-dock .tb-dock-side { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 2px; min-height: 0; max-height: 100%; overflow: auto; background: linear-gradient(var(--dock-a), var(--dock-b)); }
+html.tb-dock .tb-dock-left { border-right: 1px solid var(--chrome-line); }
+html.tb-dock .tb-dock-right { border-left: 1px solid var(--chrome-line); }
+html.tb-dock .tb-dock-side .tb-band { display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-height: 0; }
+html.tb-dock .tb-dock-side .toolbar { flex-direction: row; flex-wrap: wrap; align-content: flex-start; align-items: center; width: 164px; height: auto; max-height: 100%; overflow: auto; }
+html.tb-dock .tb-dock-side .tb-grip { width: 100%; height: 8px; margin: 1px 0 2px; }
+html.tb-dock .tb-dock-side .tb-sep { width: 22px; height: 2px; margin: 2px 3px; border-left: 0; border-right: 0; border-top: 1px solid var(--sep-dark); border-bottom: 1px solid var(--sep-light); }
+html.tb-dock .tb-dock-side .combo { width: 152px !important; }
+html.tb-dock .tb-dock-side .tb-btn { max-width: 100%; }
+html.tb-dock .tb-dock-side .tb-lbl { overflow: hidden; text-overflow: ellipsis; }
+html.tb-dock #drawrow:not([hidden]) { display: flex; flex-direction: column; overflow: visible; }
+.tb-ghost { position: fixed; z-index: 8000; pointer-events: none; box-sizing: border-box; border: 1px dotted var(--ink); outline: 1px dotted var(--surface); background: transparent; }
+.tb-ghost.dock { border: 1px solid var(--hot-border); outline: 1px solid var(--surface); background: var(--drop-veil); }
+.app.fullscreen .tb-dock-side { display: none !important; }
+@media print { .dlg-overlay.toolbox, .tb-ghost, .tb-dock-side { display: none !important; } }
+/* a toolbox is the same window. Its close button is square, and the title's padding is the margin above and below it. */
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) { width: 20px; min-width: 20px; height: 20px; min-height: 20px; margin-top: 0; margin-bottom: 0; align-self: center; }
+.dlg.toolbox > .dlg-foot { padding: 0; gap: 0; min-height: 0; }
+.dlg.toolbox .dlg-body {
+    padding: 0;
+}
+.dlg.toolbox .dlg-title {
+    height: 17px;
+}
+
 /* ---------- dialogs ---------- */
 /* a dialog's overlay only hosts the window: it does not paint over the windows already open.
    the veil, when a modal dialog is up, is a separate layer behind every window */
@@ -290,6 +317,25 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not(
 .about p { margin: 6px 0; line-height: 1.4; }
 .about .about-marks { color: var(--ink-5); font-size: 11px; line-height: 1.35; }
 .about .about-oss { color: var(--pane-link); }
+/* opening and about: colour of the content only. The window frame is unchanged. */
+.dlg.brand[data-brand="quire"] { --brand-bg: var(--brand-quire); }
+.dlg.brand[data-brand="ledger"] { --brand-bg: var(--brand-ledger); }
+.dlg.brand[data-brand="lectern"] { --brand-bg: var(--brand-lectern); }
+.dlg.brand .dlg-body,
+.dlg.brand .dlg-foot { background-color: var(--brand-bg); }
+.brand-splash { height: 200px; }
+.brand-about { height: 400px; display: flex; flex-direction: column; }
+.brand-name { margin: 0; color: var(--brand-ink); font-family: "Google Sans Flex", sans-serif; font-size: 40pt; font-weight: 400; font-synthesis: none; line-height: 150px; text-align: center; }
+.brand-version { margin: 0; color: var(--brand-credits); font-size: 9px; line-height: 14px; text-align: center; }
+.brand-wait { margin: 0; color: var(--brand-ink); font-size: 9pt; line-height: 50px; text-align: center; }
+.brand-credits-view { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.brand-credits-view.is-done { overflow: auto; }
+.brand-fade { position: absolute; left: 0; right: 0; height: 48px; z-index: 1; pointer-events: none; }
+.brand-fade-top { top: 0; background: linear-gradient(to bottom, var(--brand-bg), transparent); }
+.brand-fade-bottom { bottom: 0; background: linear-gradient(to top, var(--brand-bg), transparent); }
+.brand-marquee { margin: 0; padding: 0 28px 40px; color: var(--brand-credits); font-size: 9px; line-height: 1.45; text-align: center; }
+.brand-marquee p { margin: 0 0 12px; }
+.dlg.brand .brand-marquee a { color: var(--brand-credits); text-decoration: underline; }
 .preview-box { border: 1px solid var(--field-border); background: var(--surface); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .font-preview { height: 60px; font-size: 22px; padding: 0 8px; white-space: nowrap; }
 .prev-cap { color: var(--ink-5); text-align: center; font-size: 10px; margin-top: 3px; }

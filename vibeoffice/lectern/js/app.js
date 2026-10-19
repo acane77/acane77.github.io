@@ -196,7 +196,7 @@
     const fontCombo = A.parts.font(), sizeCombo = A.parts.size(), zoomCombo = A.parts.zoom();
     A.toolbarsEl = {
       standard: ui.toolbar('standard', 'Standard', ['new', 'open', 'save', '|', 'print', 'printPreview', 'spelling', '|', 'cut', 'copy', 'paste', 'painter', '|', 'undo', 'redo', '|', 'insertChart', 'insertTable', ui.tbButton('tb_tables', { icon: 'tablesBorders' }), 'hyperlink', '|', 'expandAll', 'showFormatting', 'showGrid', ui.tbSplit('viewGray', (r) => ui.openMenu(['viewColor', 'viewGray', 'viewBW'], r)), zoomCombo, 'help']),
-      formatting: ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, 'bold', 'italic', 'underline', 'shadowText', '|', 'alignLeft', 'alignCenter', 'alignRight', '|', 'numbering', 'bullets', '|', 'growFont', 'shrinkFont', '|', 'promote', 'demote', '|', ui.tbSplit('fontColor', colorDD('font')), '|', ui.tbButton('slideDesign', { label: 'Design' }), ui.tbButton('newSlide', { label: 'New Slide' })]),
+      formatting: ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, 'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'changeCase', 'shadowText', '|', 'alignLeft', 'alignCenter', 'alignRight', '|', 'numbering', 'bullets', '|', 'growFont', 'shrinkFont', '|', 'promote', 'demote', '|', ui.tbSplit('fontColor', colorDD('font')), '|', ui.tbButton('slideDesign', { label: 'Design' }), ui.tbButton('newSlide', { label: 'New Slide' })]),
       outlining: ui.toolbar('outlining', 'Outlining', ['promote', 'demote', 'moveParaUp', 'moveParaDown', '|', 'summarySlide', 'showFormatting']),
       picture: ui.toolbar('picture', 'Picture', ['insertPicture', ui.tbDrop('', 'colorPic', A.menus.picColor, 'Color'), 'picMoreContrast', 'picLessContrast', 'picMoreBright', 'picLessBright', '|', 'picCrop', 'rotateLeft', ui.tbDrop('', 'lineStyle', lineStyleMenu, 'Line Style'), '|', ui.tbButton('formatObject', { icon: 'formatPicture' }), 'picTransparent', 'picReset']),
       tables: ui.toolbar('tables', 'Tables and Borders', [ui.tbDrop('', 'dashStyle', (r) => ui.openMenu([{ custom: (close) => listPanel(L.dlg.DASHES.map(([k, n]) => ({ html: lineSVG(2, (L.render.dashArray(k, 2) || '').replace(/,/g, ' ')), label: n, run: () => { A.tblBorder.dash = k; } })), close) }], r), 'Border Style'),
@@ -258,7 +258,12 @@
     if (k === 'shape') { const p = E.primary && E.primary(); return !!(p && !p.wa && ['shape', 'line', 'group', 'text'].includes(p.type) && !(L.diagram && L.diagram.of(p))); }
     return ctxToolbar(k === 'table' ? 'tables' : k);
   };
-  A.toggleToolbar = (id) => { const v = A.opts.toolbars[id]; A.opts.toolbars[id] = v === true ? (['picture', 'tables', 'wordart', 'diagram'].includes(id) ? false : false) : true; A.saveOpts(); A.updateToolbars(); };
+  A.toggleToolbar = (id) => {
+    const hiding = A.opts.toolbars[id] === true;
+    A.opts.toolbars[id] = hiding ? false : true;
+    if (hiding && ui.tbDock) ui.tbDock.reset(id);
+    A.saveOpts(); A.updateToolbars();
+  };
   A.updateToolbars = function () {
     if (!A.toolbarsEl) return;
     if (E.holdLayout && E.holdLayout(A.updateToolbars)) return;   /* not under a press on the slide (editor.js) */
@@ -266,8 +271,10 @@
     A.toolbarsEl.outlining.hidden = !(A.opts.toolbars.outlining === true || (L.panes.left.tab === 'outline' && A.view === 'normal' && A.opts.toolbars.outlining !== false && false));
     A.toolbarsEl.master.hidden = A.view !== 'master';
     A.toolbarsEl.sorter.hidden = A.view !== 'sorter';
+    if (A.view === 'sorter') A.toolbarsEl.drawing.hidden = true;
     A.tbRows.forEach((r) => { r.hidden = Array.from(r.children).every((c) => c.hidden); });
-    L.$('#drawrow').hidden = !A.tbShown('drawing') || A.view === 'sorter' || A.view === 'preview';
+    L.$('#drawrow').hidden = !!A.toolbarsEl.drawing.hidden;
+    if (ui.tbDock) ui.tbDock.sync();
     E.layout();
   };
 
@@ -411,14 +418,28 @@
       const buf = await L.readAsArrayBuffer(file);
       const progress = (i, n) => ui.busy(true, L.t('Opening {0}... (slide {1} of {2})', file.name, i, n));
       let pres = null, password, wrong = false;
+      /* this tab was opened on the file: a refused password closes it instead of leaving Presentation1.
+         Elsewhere a wrong password is asked again, as PowerPoint does. */
+      const giveUp = () => { if (file.voLaunch && window.VO && VO.abandonEditor) VO.abandonEditor(); };
       for (;;) {
         try { pres = await L.pptx.read(buf, { progress, password }); break; } catch (e) {
+          if (e && e.code === 'unsupported') {
+            ui.busy(false);
+            await ui.msg(L.t(e.message), { icon: 'warn' });
+            giveUp();
+            return;
+          }
           if (!(e && (e.code === 'password' || e.code === 'badpassword'))) throw e;
-          /* a password to open: ask for it, as PowerPoint does */
           ui.busy(false);
+          if (file.voLaunch && e.code === 'badpassword') {
+            await ui.msg(L.t(e.message), { icon: 'warn' });
+            giveUp();
+            return;
+          }
+          /* a password to open: ask for it, as PowerPoint does */
           wrong = e.code === 'badpassword';
           password = await ui.password(file.name, wrong);
-          if (password == null) return;
+          if (password == null) { giveUp(); return; }
           ui.busy(true, L.t('Opening {0}...', file.name));
         }
       }
@@ -1184,8 +1205,8 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     const st = L.fmt.state();
     if (!st) return;
     const on = !st[key];
-    const label = { b: L.N('Bold'), i: L.N('Italic'), u: L.N('Underline'), shd: L.N('Shadow') }[key];
-    L.fmt.run((r) => { const n = Object.assign({}, r); if (key === 'u') { if (on) n.u = 'sng'; else n.u = 'none'; } else n[key] = on ? true : false; return n; }, label, (wa) => { if (key === 'b' || key === 'i') wa[key] = on; if (key === 'shd') wa.shadow = on ? { c: '#000000', a: 0.4, dx: 3, dy: 3, blur: 0 } : null; });
+    const label = { b: L.N('Bold'), i: L.N('Italic'), u: L.N('Underline'), shd: L.N('Shadow'), strike: L.N('Strikethrough') }[key];
+    L.fmt.run((r) => { const n = Object.assign({}, r); if (key === 'u') { if (on) n.u = 'sng'; else n.u = 'none'; } else if (key === 'strike') n.strike = on ? 'sngStrike' : 'noStrike'; else n[key] = on ? true : false; return n; }, label, (wa) => { if (key === 'b' || key === 'i') wa[key] = on; if (key === 'shd') wa.shadow = on ? { c: '#000000', a: 0.4, dx: 3, dy: 3, blur: 0 } : null; });
   };
   A.toggleBaseline = function (v) {
     const st = L.fmt.state();
@@ -2138,7 +2159,7 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
       const color = (r, b) => A.menus.color('font')(r, b);
       return [
         row(A.parts.font({ width: 132, id: 'mb-font' }), A.parts.size({ width: 48, id: 'mb-size' }), ui.tbButton('growFont'), ui.tbButton('shrinkFont'), clear, ui.tbSplit('fontColor', color)),
-        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbSplit('fontColor', color), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r))),
+        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbButton('strike'), ui.tbButton('subscript'), ui.tbButton('superscript'), ui.tbSplit('fontColor', color), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r))),
       ];
     });
     const range = () => {

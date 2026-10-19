@@ -951,6 +951,8 @@
     page.bodyTop = top;
     page.bodyBottomGap = bottomGap;
     page.bodyH = H - top - bottomGap;
+    pg.style.setProperty('--mt', top + 'px');
+    pg.style.setProperty('--mb', bottomGap + 'px');
     const body = el('div', 'pg-body');
     body.style.cssText = `left:${ml}px;top:${top}px;width:${page.bodyW}px;height:${page.bodyH}px`;
     if (LY.hfEdit) body.contentEditable = 'false';
@@ -1222,7 +1224,7 @@
     for (const p of LY.pages) p.el.classList.toggle('vcenter', false);
     applyVAlign();
     LY.layoutMs = performance.now() - t0;
-    LY.fitSizer();
+    LY.syncWhiteSpace();
     R.layoutMarks(LY.root, LY.opts.showMarks);
     L.bus.emit('layout-done', { pages: LY.pages.length });
   };
@@ -1300,7 +1302,7 @@
     if (LY.view === 'outline' && L.outline) { L.outline.render(box, ctx); }
     else LY.flow(frame, blocks, { bi: 0, sub: null }, blocks.length, ctx);
     /* section / page break markers are rendered via CSS on .has-sect and .pbrk */
-    LY.fitSizer();
+    LY.syncWhiteSpace();
     R.layoutMarks(LY.root, LY.opts.showMarks);
     L.bus.emit('layout-done', { pages: 0 });
   };
@@ -1384,6 +1386,77 @@
   };
 
   /* ================= sizing & zoom ================= */
+  /** px of the top and bottom margin kept when the gap between pages is hidden, so that edge can be double-clicked */
+  LY.WS_PAD = 8;
+  const wsSliver = (marginPx) => Math.min(LY.WS_PAD, Math.max(0, marginPx || 0));
+  LY.whiteSpaceHidden = function () {
+    return !!(L.app && L.app.view === 'print' && !LY.multi && !LY.hfEdit && L.app.opts && L.app.opts.whiteSpace === false);
+  };
+  function visibleSpan(pg) {
+    const r = pg.el.getBoundingClientRect();
+    const z = LY.zoom || 1;
+    const body = r.top + pg.bodyTop * z;
+    if (!LY.root.classList.contains('nospace')) return { top: r.top, bot: r.bottom, body };
+    const sT = wsSliver(pg.bodyTop) * z, sB = wsSliver(pg.bodyBottomGap) * z;
+    return { top: body - sT, bot: r.bottom - pg.bodyBottomGap * z + sB, body };
+  }
+  /** the gray gap between two sheets, or, with the margins hidden, the sliver left along a page's top or bottom edge */
+  LY.pageGapAt = function (x, y) {
+    if (!LY.root || !L.app || L.app.view !== 'print' || LY.multi || LY.hfEdit || !LY.pages || !LY.pages.length) return null;
+    const hidden = L.app.opts.whiteSpace === false;
+    const z = LY.zoom || 1;
+    for (let i = 0; i < LY.pages.length; i++) {
+      const a = LY.pages[i];
+      if (!a.el || !a.el.isConnected) continue;
+      const ra = a.el.getBoundingClientRect();
+      if (hidden) {
+        if (x < ra.left || x > ra.right) continue;
+        const bodyTop = ra.top + a.bodyTop * z, bodyBot = ra.bottom - a.bodyBottomGap * z;
+        const sT = wsSliver(a.bodyTop) * z, sB = wsSliver(a.bodyBottomGap) * z;
+        if (y >= bodyTop - sT - 2 && y < bodyTop) return true;
+        if (y > bodyBot && y <= bodyBot + sB + 2) return true;
+      } else if (i + 1 < LY.pages.length) {
+        const b = LY.pages[i + 1];
+        if (!b.el || !b.el.isConnected) continue;
+        const rb = b.el.getBoundingClientRect();
+        const left = Math.min(ra.left, rb.left), right = Math.max(ra.right, rb.right);
+        if (x >= left && x <= right && y >= ra.bottom - 1 && y <= rb.top + 1) return true;
+      }
+    }
+    return null;
+  };
+  function anchorAt(y) {
+    const pages = (LY.pages || []).filter((p) => p.el && p.el.isConnected);
+    if (!pages.length || y == null) return null;
+    for (let i = 0; i < pages.length; i++) {
+      const s = visibleSpan(pages[i]);
+      if (y >= s.top && (i === pages.length - 1 ? y <= s.bot + 1 : y < s.bot)) return { pg: pages[i], dy: y - s.body };
+    }
+    for (const pg of pages) { const s = visibleSpan(pg); if (y < s.top) return { pg, dy: y - s.body }; }
+    const last = pages[pages.length - 1];
+    return { pg: last, dy: y - visibleSpan(last).body };
+  }
+  /** apply the white-space switch. A pointer y passed in stays over the same text. */
+  LY.syncWhiteSpace = function (anchorClientY) {
+    if (!LY.root) return;
+    const ref = anchorAt(anchorClientY);
+    const hide = LY.whiteSpaceHidden();
+    const was = LY.root.classList.contains('nospace');
+    LY.root.classList.toggle('nospace', hide);
+    LY.root.style.setProperty('--ws-pad', LY.WS_PAD + 'px');
+    LY.fitSizer();
+    if (ref && was !== hide && ref.pg.el.isConnected && LY.scroller) {
+      const body = ref.pg.el.getBoundingClientRect().top + ref.pg.bodyTop * (LY.zoom || 1);
+      LY.scroller.scrollTop += body + ref.dy - anchorClientY;
+    }
+    if (L.rulers && L.rulers.drawSoon) L.rulers.drawSoon();
+  };
+  LY.toggleWhiteSpace = function (anchorClientY) {
+    if (!L.app) return;
+    L.app.opts.whiteSpace = L.app.opts.whiteSpace === false;
+    if (L.app.saveOpts) L.app.saveOpts();
+    LY.syncWhiteSpace(anchorClientY);
+  };
   LY.fitSizer = function () {
     if (!LY.root) return;
     const z = LY.zoom;
@@ -1418,7 +1491,7 @@
     LY.multi = n || 0;
     LY.root.classList.toggle('multi', !!n);
     LY.root.style.width = n ? (px(doc().sect.pgW) + 16) * n + 'px' : '';
-    LY.fitSizer();
+    LY.syncWhiteSpace();
   };
 
   /* ================= DOM ↔ model mapping ================= */

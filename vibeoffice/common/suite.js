@@ -119,12 +119,14 @@
   const stampFile = (file, m) => {
     if (!file || !m) return file;
     if (m.uri) { file.voUri = m.uri; documentUri = m.uri; }
+    if (m.name || file.name) documentName = m.name || file.name;
     if (m.dir) openFolder = { uri: m.dir, label: m.dirLabel || '' };
     if (m.draft && m.draftKey) file.voDraft = m.draftKey;
     return file;
   };
   let hostLive = false;   // vscode: the workspace file finished opening, so Save may write it
   let documentUri = '';   // vscode: the workspace file this editor tab is bound to
+  let documentName = '';  // vscode: that file's name, for telling an in-place save from a copy
   let openFolder = null;  // vscode: { uri, label } of that file's folder, for Save As
   const b64 = (bytes) => {
     let s = '';
@@ -599,6 +601,94 @@
     : q.has('template') ? { template: q.get('template') } : q.has('new') ? { new: true } : null;
 
   let current = null;   // { app, hooks }
+  /* VS Code has two ways to press Ctrl+S: the page's command, and the workbench. Both must be one
+     write. The page asks the extension to save (request-save). saveCustomDocument answers do-save,
+     which is the only call that runs the app's save or sends a blob the app already built. */
+  let inHostSave = false;
+  let hostSavePromise = null;
+  let hostSaveRun = null;
+  let pendingWrite = null;
+  let heldDirty = false;
+  let origExec = null;
+  const fileTitle = (name) => {
+    const s = String(name || '').replace(/\\/g, '/');
+    const i = s.lastIndexOf('/');
+    return i >= 0 ? s.slice(i + 1) : s;
+  };
+  const isThisFile = (name, opts) => {
+    if (!hostLive || !documentName) return false;
+    const folder = opts && opts.folder;
+    if (folder && (!openFolder || folder !== openFolder.uri)) return false;
+    const a = fileTitle(name), b = fileTitle(documentName);
+    return !!a && a.toLowerCase() === b.toLowerCase();
+  };
+  const requestHostSave = () => {
+    if (!hostSavePromise) {
+      hostSavePromise = vsRequest({ type: 'request-save' }).then((r) => {
+        if (!r || !r.ok) return false;
+        return 'saved';
+      }).finally(() => { hostSavePromise = null; });
+    }
+    return hostSavePromise;
+  };
+  const stillDirty = () => {
+    const H = current && current.hooks;
+    if (!H || !H.isDirty) return true;
+    let d = null;
+    try { d = H.current && H.current(); } catch (e) { return true; }
+    if (!d) return false;
+    try { return !!H.isDirty(d); } catch (e) { return true; }
+  };
+  const installSaveHook = () => {
+    if (!inVs) return;
+    const ui = window.L && L.ui;
+    if (!ui || ui.exec._voHostSave) return;
+    origExec = ui.exec;
+    function wrapped(id, arg, ev) {
+      if (id === 'save') return requestHostSave();
+      return origExec.call(ui, id, arg, ev);
+    }
+    wrapped._voHostSave = true;
+    ui.exec = wrapped;
+  };
+  if (inVs) VO.host.saveThroughEditor = (name, blob, opts) => {
+    if (inHostSave || !isThisFile(name, opts)) return undefined;
+    const ticket = { name, blob, opts: opts || null };
+    pendingWrite = ticket;
+    return requestHostSave().then((r) => {
+      if (pendingWrite !== ticket) return r;
+      pendingWrite = null;
+      if (r !== 'saved') return r;
+      return VO.host.saveThroughEditor(name, blob, opts);
+    });
+  };
+  async function performHostSave() {
+    inHostSave = true;
+    heldDirty = false;
+    let stagedSave = false;
+    try {
+      installSaveHook();
+      let r;
+      const staged = pendingWrite;
+      pendingWrite = null;
+      if (staged) {
+        /* the app already built this blob and is waiting above saveFile; do not build it again */
+        stagedSave = true;
+        r = await VO.host.writeFile(staged.name, staged.blob, staged.opts || undefined);
+      } else if (origExec) r = await origExec.call(window.L.ui, 'save');
+      else r = await window.L.ui.exec('save');
+      const ok = r === 'saved' || r === true;
+      return { ok, error: ok ? '' : (r === 'exported' ? 'Saved a copy next to this file. This file still has unsaved changes.' : 'Save was cancelled.') };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message || e) };
+    } finally {
+      inHostSave = false;
+      /* staged: the app clears its dirty flag after this returns. exec: it already did,
+         so a change that is still dirty happened during the save and the tab must keep it */
+      if (heldDirty && !stagedSave && stillDirty()) vsPost({ type: 'dirty', dirty: true });
+      heldDirty = false;
+    }
+  }
   if (inVs) window.addEventListener('message', async (ev) => {
     const m = ev.data;
     if (!m || typeof m !== 'object') return;
@@ -607,13 +697,9 @@
         vsPost({ type: 'save-result', id: m.id, ok: false, error: 'The file is not open in the editor yet.' });
         return;
       }
-      try {
-        const r = await L.ui.exec('save');
-        const ok = r === 'saved' || r === true;
-        vsPost({ type: 'save-result', id: m.id, ok, error: ok ? '' : (r === 'exported' ? 'Saved a copy next to this file. This file still has unsaved changes.' : 'Save was cancelled.') });
-      } catch (e) {
-        vsPost({ type: 'save-result', id: m.id, ok: false, error: String(e && e.message || e) });
-      }
+      if (!hostSaveRun) hostSaveRun = performHostSave().finally(() => { hostSaveRun = null; });
+      const result = await hostSaveRun;
+      vsPost({ type: 'save-result', id: m.id, ok: result.ok, error: result.error || '' });
     } else if (m.type === 'backup') {
       try {
         const H = current && current.hooks;
@@ -625,6 +711,39 @@
       }
     }
   });
+  /* VS Code: this dialog is up from the moment dialogs exist until the workspace file is open, so the blank
+     document the page builds first is covered. Cancel closes the editor tab. The title has no close button,
+     and Escape does not dismiss it (ui.dialog, canClose: false). */
+  let openingDlg = null;
+  let openingCancelled = false;
+  const endOpening = () => {
+    const d = openingDlg;
+    openingDlg = null;
+    if (d) d.close(null);
+  };
+  /** this editor was opened on a file that will not be shown: the password was cancelled, it was wrong,
+   *  or the encryption cannot be read. Leave the opening dialog up and close the tab, so the blank
+   *  document underneath never appears. No effect outside VS Code. */
+  VO.abandonEditor = () => {
+    if (!inVs) return;
+    openingCancelled = true;
+    vsPost({ type: 'close' });
+  };
+  if (inVs) VO.openingDialog = () => {
+    if (openingDlg || openingCancelled || !window.L || !L.ui || !L.ui.dialog || !L.h) return;
+    const body = L.h('div', { class: 'brand-splash' },
+      L.h('p', { class: 'brand-name', translate: 'no', text: L.APP || '' }),
+      L.h('p', { class: 'brand-wait', text: 'Opening the file. Please wait...' }));
+    openingDlg = L.ui.dialog({
+      title: VO.t('Starting {0}', L.APP || ''),
+      width: 500,
+      brand: true,
+      canClose: false,
+      body,
+      focus: body,
+      buttons: [{ label: 'Cancel', cancel: true, onClick() { openingCancelled = true; vsPost({ type: 'close' }); return false; } }],
+    });
+  };
   /** an app is ready: open the file it was launched with, if any, then show the Document Recovery pane when
    *  other documents of this app have unsaved changes.
    *  hooks: open(file, { draft, name, saved }), adoptBlank(name) keeps the page's own blank document as that
@@ -633,6 +752,7 @@
    *  app's format, docInfo(doc) -> { name, draftName }, isDirty(doc), current() -> doc, autosave() -> false
    *  when turned off; showRecovery() opens the Document Recovery pane */
   VO.attach = async (app, hooks) => {
+    installSaveHook();
     current = { app, hooks: hooks || {} };
     VO.recent.refresh();
     const l = VO.launch;
@@ -641,6 +761,7 @@
       if (l.vscode) {
         try {
           const file = await VO.host.takeDocument();
+          if (openingCancelled) return;
           if (file && file.voBlank) {
             /* the page already built a blank document; name it as this file and write that document in.
                A failed write is reported by the extension; the document stays on screen so Save can try again. */
@@ -649,8 +770,10 @@
               hostLive = true;
               const doc = current.hooks.current && current.hooks.current();
               const blob = doc && current.hooks.snapshot ? await current.hooks.snapshot(doc) : null;
+              if (openingCancelled) return;
               if (!blob) throw new Error('The editor did not build a document.');
               await VO.host.writeFile(file.name, blob);
+              if (openingCancelled) return;
               VO.saved(file.name, blob, doc);
             } catch (e) { console.error(e); }
           } else {
@@ -660,15 +783,21 @@
               try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
               catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
             }
+            /* voLaunch: this open is the file the tab was opened on. A refused password closes the tab. */
+            if (file) file.voLaunch = true;
             if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
-            else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
+            if (openingCancelled) return;
+            if (!(file && current.hooks.open)) (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
             if (file) hostLive = true;
             /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
             if (draft) vsPost({ type: 'dirty', dirty: true });
           }
         } catch (e) {
+          if (openingCancelled) return;
           console.error(e);
           (current.hooks.message || alert)('That file could not be opened. ' + (e.message || e));
+        } finally {
+          if (!openingCancelled) endOpening();
         }
       } else if (l.open) {
         let rec = null;
@@ -812,7 +941,9 @@
   /** the app saved doc in its own format as name: that is its entry now, without unsaved changes */
   VO.saved = (name, blob, doc) => {
     if (doc) unsavedDocs.delete(doc);
-    if (inVs && hostLive) vsPost({ type: 'dirty', dirty: false });
+    /* The tab dot is cleared by the editor save that wrote the file, not by this notice.
+       Posting it in the middle of that save used to start a second save and leave the dot on. */
+    if (inVs && hostLive && !inHostSave) vsPost({ type: 'dirty', dirty: false });
     if (!current) return;
     const old = doc && docKeys.get(doc);
     if (doc) clearTimeout(timers.get(doc));
@@ -827,7 +958,10 @@
   VO.changed = (doc) => {
     const H = current && current.hooks;
     if (doc && H && H.isDirty && H.isDirty(doc)) unsavedDocs.add(doc);
-    if (inVs && hostLive && H && H.isDirty && H.isDirty(doc)) vsPost({ type: 'dirty', dirty: true });
+    if (inVs && hostLive && H && H.isDirty && H.isDirty(doc)) {
+      if (inHostSave) heldDirty = true;
+      else vsPost({ type: 'dirty', dirty: true });
+    }
     if (!current || !doc || !current.hooks.snapshot) return;
     clearTimeout(timers.get(doc));
     timers.set(doc, setTimeout(() => saveDraft(doc), Math.max(DRAFT_DELAY, slow.get(doc) || 0)));

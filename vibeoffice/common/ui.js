@@ -459,6 +459,403 @@
     L.bus.emit('ui-refresh');
   });
 
+  /* ---------- dragging toolbars (Classic, Windows 7, Windows XP) ---------- */
+  /* A grip (or a floating window's title) pulls a toolbar off its row. Near an edge it docks; anywhere else it
+   * floats in the ordinary modeless window (isToolBoxWindow). The place is kept per app. Closing the window, or
+   * turning the toolbar off, forgets it, so the next time it is shown it is back where the app first built it. */
+  ui.tbDock = (function () {
+    const DOCKS = { classic: 1, win7: 1, xp: 1 };
+    const home = new Map();
+    const defaults = {};
+    const bars = new Map();
+    let captured = false, dragOn = false, chromeSig = '';
+
+    function on() {
+      const html = document.documentElement;
+      const look = html.dataset.look || 'classic';
+      return html.dataset.layout !== 'ribbon' && !!DOCKS[look];
+    }
+    function idOf(tb) { return tb && tb.id && tb.id.indexOf('tb-') === 0 ? tb.id.slice(3) : ''; }
+    function load() {
+      const v = L.store.get('tbDock', {});
+      return v && typeof v === 'object' ? v : {};
+    }
+    function save(map) { L.store.set('tbDock', map); }
+    function spotOf(id) {
+      const raw = load()[id];
+      const d = defaults[id];
+      if (!raw || !raw.dock) return Object.assign({}, d);
+      if (raw.dock === 'float') return { dock: 'float', x: Number.isFinite(+raw.x) ? +raw.x : 8, y: Number.isFinite(+raw.y) ? +raw.y : 8, back: raw.back || { dock: d.dock, row: d.row, order: d.order } };
+      const dock = raw.dock === 'bottom' || raw.dock === 'left' || raw.dock === 'right' ? raw.dock : 'top';
+      return { dock, row: Math.max(0, +raw.row || 0), order: Math.max(0, +raw.order || 0) };
+    }
+    function commit(id, spot) {
+      const map = load();
+      map[id] = spot;
+      save(map);
+      sync();
+    }
+    /** forget a toolbar's place. The next sync puts it back on the row it was built on. */
+    function reset(id) {
+      const map = load();
+      if (!map[id]) return;
+      delete map[id];
+      save(map);
+    }
+    function capture() {
+      const top = document.getElementById('toolbars');
+      if (!top) return;
+      top.querySelectorAll(':scope > .tb-row').forEach((row, ri) => {
+        [...row.children].forEach((tb, oi) => {
+          if (!tb.classList || !tb.classList.contains('toolbar')) return;
+          const id = idOf(tb);
+          if (!id || defaults[id]) return;
+          home.set(tb, { parent: row, index: oi });
+          defaults[id] = { dock: 'top', row: ri, order: oi };
+          bars.set(id, tb);
+          tb.classList.add('tb-dockable');
+        });
+      });
+      const draw = document.getElementById('drawrow');
+      if (draw) [...draw.children].forEach((tb, oi) => {
+        if (!tb.classList || !tb.classList.contains('toolbar')) return;
+        const id = idOf(tb);
+        if (!id || defaults[id]) return;
+        home.set(tb, { parent: draw, index: oi });
+        defaults[id] = { dock: 'bottom', row: 0, order: oi };
+        bars.set(id, tb);
+        tb.classList.add('tb-dockable');
+      });
+      captured = bars.size > 0;
+    }
+    function hostOf(dock) {
+      if (dock === 'top') return document.getElementById('toolbars');
+      if (dock === 'bottom') return document.getElementById('drawrow');
+      return document.getElementById(dock === 'left' ? 'tb-dock-left' : 'tb-dock-right');
+    }
+    function ensureSides() {
+      const main = document.querySelector('.app > .main');
+      if (!main) return;
+      if (!document.getElementById('tb-dock-left')) {
+        const left = h('div', { id: 'tb-dock-left', class: 'tb-dock tb-dock-side tb-dock-left', hidden: true });
+        main.insertBefore(left, main.firstChild);
+      }
+      if (!document.getElementById('tb-dock-right')) main.appendChild(h('div', { id: 'tb-dock-right', class: 'tb-dock tb-dock-side tb-dock-right', hidden: true }));
+    }
+    function bandsOf(host) {
+      return [...host.children].filter((c) => c.classList.contains('tb-row') || c.classList.contains('tb-band'));
+    }
+    function bandAt(host, row) {
+      let bands = bandsOf(host);
+      while (bands.length <= row) {
+        const b = h('div', { class: host.id === 'tb-dock-left' || host.id === 'tb-dock-right' ? 'tb-band' : 'tb-row tb-band', dataset: { extra: '1' } });
+        host.appendChild(b);
+        bands = bandsOf(host);
+      }
+      return bands[row];
+    }
+    function unwrap(tb) {
+      const w = tb._toolwin;
+      if (!w) return;
+      tb._floatClosing = 1;
+      tb._toolwin = null;
+      if (w.el && w.el.isConnected) w.close();
+      tb._floatClosing = 0;
+    }
+    function hideBar(id) {
+      reset(id);
+      const app = L.app;
+      if (!app || !app.opts || !app.opts.toolbars) return;
+      app.opts.toolbars[id] = false;
+      if (app.saveOpts) app.saveOpts();
+      if (app.updateToolbars) app.updateToolbars();
+    }
+    function quietApp() {
+      const app = document.querySelector('.app');
+      return !!(app && (app.classList.contains('reading') || app.classList.contains('preview') || app.classList.contains('fullscreen')));
+    }
+    function floatWin(tb) {
+      const cur = tb._toolwin;
+      if (cur && cur.el && cur.el.isConnected) return cur;
+      const id = idOf(tb);
+      const dlg = ui.dialog({
+        title: tb.getAttribute('aria-label') || id,
+        body: tb,
+        modeless: true,
+        isToolBoxWindow: 1,
+        width: Math.min(Math.max((tb.offsetWidth || 240) + 28, 160), window.innerWidth - 16),
+        onClose() {
+          tb._toolwin = null;
+          if (tb._floatClosing) return;
+          hideBar(id);
+        },
+      });
+      tb._toolwin = dlg;
+      return dlg;
+    }
+    function placeFloat(tb, spot) {
+      if (tb.hidden || quietApp()) {
+        if (tb._toolwin && tb._toolwin.overlay) tb._toolwin.overlay.hidden = true;
+        return;
+      }
+      const win = floatWin(tb);
+      if (tb.parentNode !== win.body) win.body.appendChild(tb);
+      const dlg = win.el;
+      const x = Math.max(0, Math.min(spot.x, Math.max(0, window.innerWidth - 80)));
+      const y = Math.max(0, Math.min(spot.y, Math.max(0, window.innerHeight - 40)));
+      if (dlg.style.left !== x + 'px') dlg.style.left = x + 'px';
+      if (dlg.style.top !== y + 'px') dlg.style.top = y + 'px';
+      const w = Math.min(Math.max((tb.scrollWidth || tb.offsetWidth || 160) + 28, 160), window.innerWidth - 16);
+      if (dlg.style.width !== w + 'px') dlg.style.width = w + 'px';
+      win.overlay.hidden = false;
+    }
+    function restore() {
+      const groups = new Map();
+      home.forEach((h0, tb) => {
+        unwrap(tb);
+        if (!groups.has(h0.parent)) groups.set(h0.parent, []);
+        groups.get(h0.parent).push({ tb, index: h0.index });
+      });
+      groups.forEach((list, parent) => {
+        if (!parent.isConnected) return;
+        list.sort((a, b) => a.index - b.index);
+        if (list.some((it, i) => parent.children[i] !== it.tb)) list.forEach((it) => parent.appendChild(it.tb));
+      });
+      document.querySelectorAll('.tb-band[data-extra]').forEach((b) => b.remove());
+      for (const id of ['tb-dock-left', 'tb-dock-right']) {
+        const el = document.getElementById(id);
+        if (el) el.hidden = true;
+      }
+    }
+    function layout() {
+      ensureSides();
+      const groups = new Map();
+      bars.forEach((tb, id) => {
+        const spot = spotOf(id);
+        if (spot.dock === 'float') { placeFloat(tb, spot); return; }
+        if (tb._toolwin) unwrap(tb);
+        const dock = spot.dock === 'left' || spot.dock === 'right' ? spot.dock : spot.dock === 'bottom' ? 'bottom' : 'top';
+        const row = dock === 'left' || dock === 'right' ? 0 : spot.row;
+        const key = dock + ':' + row;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push({ tb, order: spot.order });
+      });
+      groups.forEach((list, key) => {
+        const dock = key.slice(0, key.indexOf(':'));
+        const row = +key.slice(key.indexOf(':') + 1);
+        const host = hostOf(dock);
+        if (!host) return;
+        list.sort((a, b) => a.order - b.order);
+        const band = bandAt(host, row);
+        const same = band.children.length === list.length && list.every((it, i) => band.children[i] === it.tb);
+        if (!same) list.forEach((it) => band.appendChild(it.tb));
+      });
+      ['top', 'bottom', 'left', 'right'].forEach((dock) => {
+        const host = hostOf(dock);
+        if (!host) return;
+        let any = false;
+        bandsOf(host).forEach((b) => {
+          const vis = [...b.children].some((c) => c.classList.contains('toolbar') && !c.hidden);
+          b.hidden = !vis;
+          if (vis) any = true;
+          if (!b.children.length && b.dataset.extra) b.remove();
+        });
+        if (dock !== 'top') host.hidden = !any;
+      });
+      bars.forEach((tb) => {
+        const w = tb._toolwin;
+        if (w && w.overlay) w.overlay.hidden = !!tb.hidden || quietApp();
+      });
+      const sig = ['top', 'bottom', 'left', 'right'].map((dock) => {
+        const host = hostOf(dock);
+        if (!host || host.hidden) return '0';
+        return String(bandsOf(host).filter((b) => !b.hidden).length);
+      }).join('');
+      if (sig !== chromeSig) {
+        chromeSig = sig;
+        if (L.layout && L.layout.fitSizer) L.layout.fitSizer();
+        else if (L.ed && L.ed.layout) L.ed.layout();
+      }
+    }
+    function sync() {
+      if (dragOn || !document.getElementById('toolbars')) return;
+      if (!captured) capture();
+      if (!captured) return;
+      const use = on();
+      document.documentElement.classList.toggle('tb-dock', use);
+      if (!use) { restore(); return; }
+      layout();
+    }
+    function zoneAt(x, y) {
+      const pad = 18;
+      const box = (el) => {
+        if (!el || el.hidden) return null;
+        const r = el.getBoundingClientRect();
+        return r.width > 2 && r.height > 2 ? r : null;
+      };
+      const inside = (r, q) => r && x >= r.left - q && x <= r.right + q && y >= r.top - q && y <= r.bottom + q;
+      const top = box(document.getElementById('toolbars'));
+      if (inside(top, 8) && y <= top.bottom + 8) return 'top';
+      const bot = box(document.getElementById('drawrow'));
+      if (inside(bot, 8)) return 'bottom';
+      const left = box(document.getElementById('tb-dock-left'));
+      if (left && x <= left.right + 8 && y >= left.top && y <= left.bottom) return 'left';
+      const right = box(document.getElementById('tb-dock-right'));
+      if (right && x >= right.left - 8 && y >= right.top && y <= right.bottom) return 'right';
+      const main = document.querySelector('.main');
+      if (!main) return null;
+      const m = main.getBoundingClientRect();
+      const cmd = document.querySelector('.cmdbars');
+      if (cmd) {
+        const c = cmd.getBoundingClientRect();
+        if (y >= c.top && y <= c.bottom + pad && x >= c.left && x <= c.right) return 'top';
+      }
+      const sb = document.getElementById('statusbar');
+      const edge = sb && !sb.hidden ? sb.getBoundingClientRect().top : m.bottom;
+      if (y >= edge - pad && y <= edge + 6 && x >= m.left && x <= m.right) return 'bottom';
+      if (x <= m.left + pad && y >= m.top && y <= m.bottom) return 'left';
+      if (x >= m.right - pad && y >= m.top && y <= m.bottom) return 'right';
+      return null;
+    }
+    function slotAt(dock, x, y, tb) {
+      const host = hostOf(dock);
+      const side = dock === 'left' || dock === 'right';
+      const all = host ? bandsOf(host) : [];
+      const vis = all.map((b, i) => ({ b, i })).filter((x) => !x.b.hidden && x.b.offsetWidth);
+      let row = 0, order = 0;
+      if (!side && vis.length) {
+        row = vis[vis.length - 1].i + 1;
+        for (const x of vis) {
+          const r = x.b.getBoundingClientRect();
+          if (y < r.top + r.height * 0.75) { row = x.i; break; }
+        }
+      }
+      const band = all[row];
+      if (band) {
+        const kids = [...band.children].filter((c) => c.classList.contains('toolbar') && c !== tb && !c.hidden);
+        order = kids.length;
+        for (let i = 0; i < kids.length; i++) {
+          const r = kids[i].getBoundingClientRect();
+          const mid = side ? r.top + r.height / 2 : r.left + r.width / 2;
+          if ((side ? y : x) < mid) { order = i; break; }
+        }
+      }
+      return { dock: side ? dock : dock, row: side ? 0 : row, order };
+    }
+    function toggleFloat(tb) {
+      const id = idOf(tb);
+      const cur = spotOf(id);
+      if (cur.dock === 'float') commit(id, { dock: (cur.back && cur.back.dock) || defaults[id].dock, row: cur.back ? cur.back.row || 0 : defaults[id].row, order: cur.back ? cur.back.order || 0 : defaults[id].order });
+      else {
+        const r = tb.getBoundingClientRect();
+        commit(id, { dock: 'float', x: Math.max(8, r.left), y: Math.max(8, r.bottom + 2), back: { dock: cur.dock, row: cur.row || 0, order: cur.order || 0 } });
+      }
+    }
+    let ghost = null;
+    function clearGhost() { if (ghost) { ghost.remove(); ghost = null; } }
+    function ghostBox(left, top, w, ht, dock) {
+      if (!ghost) { ghost = h('div', { class: 'tb-ghost' }); document.body.appendChild(ghost); }
+      ghost.classList.toggle('dock', !!dock);
+      ghost.style.left = left + 'px';
+      ghost.style.top = top + 'px';
+      ghost.style.width = Math.max(11, Math.round(w)) + 'px';
+      ghost.style.height = Math.max(11, Math.round(ht)) + 'px';
+    }
+    /* the dotted frame sits on the window. Near an edge it becomes the solid dock frame; the window stays on screen. */
+    function showGhost(tb, x, y) {
+      const dock = zoneAt(x, y);
+      const win = tb._toolwin && tb._toolwin.el && tb._toolwin.el.isConnected ? tb._toolwin.el : null;
+      if (!dock) {
+        if (!win) return;
+        const r = win.getBoundingClientRect();
+        ghostBox(r.left, r.top, r.width, r.height, false);
+        return;
+      }
+      const horizontal = dock === 'top' || dock === 'bottom';
+      const wr = win ? win.getBoundingClientRect() : null;
+      const w = horizontal ? (wr ? wr.width : Math.min(tb.offsetWidth || 160, 520)) : 168;
+      const ht = horizontal ? 30 : Math.min(200, Math.max(88, Math.round((tb.offsetWidth || 240) / 4)));
+      const host = hostOf(dock);
+      const r = host && !host.hidden ? host.getBoundingClientRect() : null;
+      const main = document.querySelector('.main');
+      const mr = main ? main.getBoundingClientRect() : { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
+      let left = x, top = y;
+      if (dock === 'top') {
+        const cmd = document.querySelector('.cmdbars').getBoundingClientRect();
+        top = r ? r.top : cmd.bottom;
+        left = Math.max(4, Math.min(x - w / 2, (r ? r.right : cmd.right) - w));
+      } else if (dock === 'bottom') {
+        const sb = document.getElementById('statusbar');
+        const edge = sb ? sb.getBoundingClientRect().top : mr.bottom;
+        top = r ? r.top : edge - ht;
+        left = Math.max(mr.left, Math.min(x - w / 2, mr.right - w));
+      } else if (dock === 'left') {
+        left = r ? r.left : mr.left;
+        top = Math.max(mr.top, Math.min(y - 12, mr.bottom - ht));
+      } else {
+        left = r ? r.right - w : mr.right - w;
+        top = Math.max(mr.top, Math.min(y - 12, mr.bottom - ht));
+      }
+      ghostBox(left, top, w, ht, true);
+    }
+    function drop(tb, x, y, ox, oy) {
+      const id = idOf(tb);
+      const dock = zoneAt(x, y);
+      if (!dock) {
+        const cur = spotOf(id);
+        const back = cur.dock === 'float' ? cur.back : { dock: cur.dock, row: cur.row || 0, order: cur.order || 0 };
+        commit(id, { dock: 'float', x: x + ox, y: y + oy, back });
+        return;
+      }
+      commit(id, slotAt(dock, x, y, tb));
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('pointerdown', (e) => {
+        if (!on() || e.button !== 0 || dragOn) return;
+        const grip = e.target.closest && e.target.closest('.tb-grip');
+        const title = !grip && e.target.closest && e.target.closest('.dlg.toolbox > .dlg-title');
+        if (title && e.target.closest('button')) return;
+        const tb = grip ? grip.closest('.toolbar') : title ? title.parentNode.querySelector('.toolbar') : null;
+        if (!tb || !defaults[idOf(tb)] && !captured) return;
+        if (!defaults[idOf(tb)]) return;
+        if (e.detail >= 2) { e.preventDefault(); toggleFloat(tb); return; }
+        const shell = title ? title.parentNode : tb;
+        const rect = shell.getBoundingClientRect();
+        let ox = rect.left - e.clientX, oy = rect.top - e.clientY;
+        e.preventDefault();
+        const follow = (x, y) => {
+          let win = tb._toolwin;
+          if (!win || !win.el || !win.el.isConnected) {
+            placeFloat(tb, { x: x + ox, y: y + oy });
+            win = tb._toolwin;
+            if (!win || !win.el) return;
+            if (!title) {
+              const th = win.el.querySelector('.dlg-title');
+              if (th) win.el.style.top = (parseFloat(win.el.style.top) - th.offsetHeight) + 'px';
+            }
+            const r = win.el.getBoundingClientRect();
+            ox = r.left - x;
+            oy = r.top - y;
+            return;
+          }
+          win.el.style.left = (x + ox) + 'px';
+          win.el.style.top = (y + oy) + 'px';
+          if (win.overlay) win.overlay.hidden = false;
+        };
+        ui.drag(e, {
+          cursor: 'default',
+          capture: document.documentElement,
+          move(ev) { dragOn = true; follow(ev.clientX, ev.clientY); showGhost(tb, ev.clientX, ev.clientY); },
+          up(ev, d) { dragOn = false; clearGhost(); if (d.moved) drop(tb, ev.clientX, ev.clientY, ox, oy); else sync(); },
+          cancel() { dragOn = false; clearGhost(); sync(); },
+        });
+      }, true);
+      window.addEventListener('resize', () => { if (on() && captured) layout(); });
+      if (L.onLook) L.onLook(() => sync());
+    }
+    return { sync, reset };
+  })();
+
   /* ---------- dialogs ---------- */
   /* dlgStack: modal dialogs only, topmost last (keyboard). winStack: every open window, frontmost last. */
   const dlgStack = [];
@@ -533,28 +930,34 @@
     layoutWindows();
   }
   /**
-   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless}
-   * a new window opens in front of the ones already open and leaves them where they are
+   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose, brand, isToolBoxWindow}
+   * a new window opens in front of the ones already open and leaves them where they are.
+   * canClose false hides the title's close button, and Escape does not close the window (it does not press Cancel either).
+   * brand sets data-brand to the app, so the body and foot use that app's --brand-bg. The frame is not restyled.
+   * isToolBoxWindow defaults to 0. 1 is a modeless window whose close button is square; the frame is otherwise the same window, inactive the same way.
    */
   ui.dialog = function (opts) {
+    opts.isToolBoxWindow = opts.isToolBoxWindow ? 1 : 0;
+    if (opts.isToolBoxWindow) opts.modeless = true;
     ui.closeMenus();
     hideTip();
     const prevFocus = document.activeElement;
     /* the selection in text being edited, for text the app doesn't give back itself (Lectern's speaker notes) */
     const s0 = window.getSelection();
     const prevRange = prevFocus && prevFocus.isContentEditable && s0.rangeCount && prevFocus.contains(s0.anchorNode) ? s0.getRangeAt(0).cloneRange() : null;
-    const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') });
-    const dlg = h('div', { class: 'dlg', role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title });
-    dlg.style.width = Math.min(opts.width || 380, window.innerWidth - 16) + 'px';
+    const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') + (opts.isToolBoxWindow ? ' toolbox' : '') });
+    const dlg = h('div', { class: 'dlg' + (opts.brand ? ' brand' : '') + (opts.isToolBoxWindow ? ' toolbox' : ''), role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title, dataset: opts.brand && L.APP_ID ? { brand: L.APP_ID } : null });
+    dlg.style.width = (opts.isToolBoxWindow ? Math.min(opts.width || 420, window.innerWidth - 16) : Math.min(opts.width || 380, window.innerWidth - 16)) + 'px';
     const titleBar = h('div', { class: 'dlg-title' }, h('span', { class: 'dlg-ttl', text: opts.title }),
       opts.help ? h('button', { class: 'dlg-x dlg-help', type: 'button', 'aria-label': 'Help', text: '?', onclick: opts.help }) : null,
-      h('button', { class: 'dlg-x', type: 'button', 'aria-label': 'Close', html: '<svg width="9" height="9" viewBox="0 0 9 9"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.5"/></svg>', onclick: () => close(null) }));
+      opts.canClose === false ? null : h('button', { class: 'dlg-x', type: 'button', 'aria-label': 'Close', html: '<svg width="9" height="9" viewBox="0 0 9 9"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.5"/></svg>', onclick: () => close(null) }));
     const body = h('div', { class: 'dlg-body' });
     if (opts.body) body.appendChild(opts.body);
     const foot = h('div', { class: 'dlg-foot' });
     let result;
     const done = new Promise((res) => { result = res; });
-    const btns = (opts.buttons || [{ label: 'OK', primary: true }]).map((b, i) => {
+    const buttonList = opts.isToolBoxWindow ? [] : (opts.buttons || [{ label: 'OK', primary: true }]);
+    const btns = buttonList.map((b, i) => {
       const el = h('button', { class: 'btn' + (b.primary ? ' primary' : ''), type: 'button', html: ampHTML(b.label) });
       el.addEventListener('click', () => {
         if (b.onClick) { const r = b.onClick(close, el); if (r === false) return; }
@@ -571,7 +974,7 @@
     const step = Math.min(winStack.length, 8) * 28;
     dlg.style.left = L.clamp((window.innerWidth - r.width) / 2 + step, 4, Math.max(4, window.innerWidth - r.width - 4)) + 'px';
     dlg.style.top = L.clamp((window.innerHeight - r.height) / 2.4 + step, 4, Math.max(4, window.innerHeight - 40)) + 'px';
-    const entry = { overlay, dlg, modeless: !!opts.modeless, keys: null };
+    const entry = { overlay, dlg, modeless: !!opts.modeless, isToolBoxWindow: opts.isToolBoxWindow, keys: null };
     dlg.addEventListener('pointerdown', (e) => {
       raiseWindow(entry);
       /* a press on the frame, not a control, still counts as the window taking the keyboard */
@@ -580,7 +983,7 @@
     });
     /* drag */
     titleBar.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('button')) return;
+      if (e.target.closest('button') || opts.isToolBoxWindow) return;
       const sx = e.clientX, sy = e.clientY, ox = dlg.offsetLeft, oy = dlg.offsetTop;
       titleBar.setPointerCapture(e.pointerId);
       const mv = (ev) => { dlg.style.left = L.clamp(ox + ev.clientX - sx, -r.width + 60, window.innerWidth - 60) + 'px'; dlg.style.top = L.clamp(oy + ev.clientY - sy, 0, window.innerHeight - 30) + 'px'; };
@@ -592,11 +995,18 @@
     if (opts.modeless) dlg.addEventListener('keydown', (e) => { entry.keys(e); e.stopPropagation(); });   // keys stay in a modeless dialog
     else dlgStack.push(entry);
     layoutWindows();
-    syncActive(entry);
+    syncActive(opts.isToolBoxWindow ? null : entry);
     entry.keys = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); const ci = (opts.buttons || []).findIndex((b) => b.cancel || /^cancel$|^close$/i.test(plainAmp(b.label))); if (ci >= 0) btns[ci].click(); else close(null); return true; }
-      if (e.key === 'Enter' && !e.shiftKey && !(e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || e.target.isContentEditable || e.target.tagName === 'SELECT'))) {
-        const pi = (opts.buttons || []).findIndex((b) => b.primary);
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        /* canClose false: stay open. Escape must not press Cancel, which would close the window too. */
+        if (opts.canClose === false) return true;
+        const ci = buttonList.findIndex((b) => b.cancel || /^cancel$|^close$/i.test(plainAmp(b.label)));
+        if (ci >= 0) btns[ci].click(); else close(null);
+        return true;
+      }
+        if (e.key === 'Enter' && !e.shiftKey && !(e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || e.target.isContentEditable || e.target.tagName === 'SELECT'))) {
+        const pi = buttonList.findIndex((b) => b.primary);
         if (pi >= 0) { e.preventDefault(); btns[pi].click(); return true; }
       }
       if (e.key === 'Tab') {
@@ -628,11 +1038,12 @@
       syncActive();
     }
     setTimeout(() => {
-      const first = opts.focus ? (typeof opts.focus === 'string' ? L.$(opts.focus, dlg) : opts.focus) : L.$('input:not([type=checkbox]):not([type=radio]),select,textarea', body) || btns.find((b, i) => opts.buttons && opts.buttons[i] && opts.buttons[i].primary) || btns[0];
+      if (opts.isToolBoxWindow) return;
+      const first = opts.focus ? (typeof opts.focus === 'string' ? L.$(opts.focus, dlg) : opts.focus) : L.$('input:not([type=checkbox]):not([type=radio]),select,textarea', body) || btns.find((b, i) => buttonList[i] && buttonList[i].primary) || btns[0];
       if (first) { first.focus(); if (first.select && first.tagName === 'INPUT') first.select(); }
     }, 0);
     if (opts.onOpen) opts.onOpen(dlg);
-    return { el: dlg, body, close, done, buttons: btns };
+    return { el: dlg, body, overlay, close, done, buttons: btns };
   };
   ui.dialogKey = (e) => { const top = dlgStack[dlgStack.length - 1]; return top ? top.keys(e) || true : false; };
   if (typeof document !== 'undefined') {
@@ -664,21 +1075,84 @@
     const d = ui.dialog({ title: o.title || L.APP, body, width: o.width || 380, buttons: labels.map((l, i) => ({ label: l, primary: i === (o.def || 0), cancel: /cancel|^no$/i.test(plainAmp(l)) })) });
     return d.done;
   };
-  /** Help ▸ About, the same in every app: icon, name and version, the app's own paragraphs, the link to the open
-   *  source licenses, the suite's license and font notes (as in the Start Center's About), then the trademark note
-   *  naming the Office program it follows (o: { name, text: [paragraphs], office }) */
+  /** The about copyright rolls up once, from below the area until it has left the top. Reduced motion shows it in place. */
+  function rollCredits(view, track) {
+    let anim = null;
+    let done = false;
+    const stopAnim = () => { if (anim) { anim.cancel(); anim = null; } view.removeEventListener('wheel', onWheel); };
+    const hold = (ty) => {
+      if (done) return;
+      done = true;
+      stopAnim();
+      track.style.transform = 'translateY(' + ty + 'px)';
+    };
+    const onWheel = (e) => {
+      let ty = 0;
+      try {
+        const m = getComputedStyle(track).transform;
+        if (m && m !== 'none') ty = new DOMMatrix(m).m42;
+      } catch (err) { /* stop where it is */ }
+      if (done) return;
+      done = true;
+      stopAnim();
+      track.style.transform = '';
+      view.classList.add('is-done');
+      view.scrollTop = Math.max(0, Math.round(-ty + (e.deltaY || 0)));
+    };
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const viewH = view.clientHeight;
+    const trackH = track.scrollHeight;
+    if (reduce || !viewH || !trackH || typeof track.animate !== 'function') {
+      done = true;
+      view.classList.add('is-done');
+      return { stop() {} };
+    }
+    const start = viewH;
+    const end = -trackH;
+    const duration = Math.max(6000, Math.round((start - end) / 40 * 1000));
+    anim = track.animate(
+      [{ transform: 'translateY(' + start + 'px)' }, { transform: 'translateY(' + end + 'px)' }],
+      { duration, easing: 'linear', fill: 'forwards' });
+    anim.onfinish = () => hold(end);
+    view.addEventListener('wheel', onWheel, { passive: true });
+    return { stop() { if (!done) hold(end); } };
+  }
+  /** Help ▸ About, the same in every app. The frame stays. Inside: the name, then the version, the app's
+   *  paragraphs, the open-source licenses, the license and font notes, and the trademark note, rolling up once.
+   *  The button is OK. o: { name, text: [paragraphs], office } */
   ui.about = function (o) {
-    const body = h('div', { class: 'col about' },
-      h('div', { class: 'about-head' }, h('span', { html: L.icons.app ? L.icons.app(48) : '' }),
-        h('div', null, h('div', { class: 'about-name', text: t('{0} Web Edition', o.name) }), h('div', { text: t('Version {0}', L.VERSION) }))),
-      ...o.text.map((t) => h('p', { text: t })),
+    const credits = h('div', { class: 'brand-marquee' },
+      ...o.text.map((para) => h('p', { text: para })),
       h('p', null, ...t('Made possible by open source software: {0}.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: root.VO ? root.VO.LICENSES : '../oss-licenses.html', target: '_blank', rel: 'noopener',
         class: 'about-oss', text: 'Open source licenses', onclick: (e) => { if (root.VO) { e.preventDefault(); root.VO.showLicenses(); } } }), part] : [part]))),
       h('p', { text: 'Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.' }),
       h('p', null, ...t('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: 'https://codex-pets.net/#/pets/nikki-bloom-poetry', target: '_blank', rel: 'noopener', class: 'about-oss', text: 'a sprite published at codex-pets.net' }), part] : [part]))),
-      h('p', { class: 'about-marks', text: 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.' }),
-      h('p', { class: 'about-marks', text: t('Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.', o.office, o.name) }));
-    return ui.dialog({ title: t('About {0}', o.name), width: 420, body, buttons: [{ label: 'OK', primary: true }] });
+      h('p', { text: 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.' }),
+      h('p', { text: t('Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.', o.office, o.name) }));
+    const view = h('div', { class: 'brand-credits-view' },
+      h('div', { class: 'brand-fade brand-fade-top' }),
+      h('div', { class: 'brand-fade brand-fade-bottom' }),
+      credits);
+    /* Not translated, half-width colons. public/version.json is written by tools/package_vsix.sh. */
+    const versionLine = h('p', { class: 'brand-version', translate: 'no', text: ['Version', ': ', L.VERSION || 'dev'].join('') });
+    try {
+      const url = new URL('../version.json', document.baseURI);
+      fetch(url.href).then((r) => (r.ok ? r.json() : null)).then((info) => {
+        if (!info || !versionLine.isConnected || info.version == null) return;
+        versionLine.textContent = 'Version: v' + info.version + ' (' + (info.commit_id || '') + '), Build Date: ' + (info.build_time || '');
+      }).catch(() => {});
+    } catch (e) { /* opened without a base URL */ }
+    const body = h('div', { class: 'brand-about' },
+      h('p', { class: 'brand-name', translate: 'no', text: o.name }),
+      versionLine,
+      view);
+    let roll = null;
+    return ui.dialog({
+      title: t('About {0}', o.name), width: 500, brand: true, body,
+      buttons: [{ label: 'OK', primary: true }],
+      onOpen() { requestAnimationFrame(() => { if (view.isConnected) roll = rollCredits(view, credits); }); },
+      onClose() { if (roll) roll.stop(); },
+    });
   };
   ui.prompt = function (label, value, title) {
     const inp = h('input', { type: 'text', id: 'prompt-in', value: value || '', style: 'width:100%' });
@@ -1311,4 +1785,9 @@
     if (on) { if (!b) { b = h('div', { class: 'busy' }, h('div', { class: 'busy-box' }, h('span', { class: 'busy-spin' }), h('span', { class: 'busy-t' }))); document.body.appendChild(b); } b.querySelector('.busy-t').textContent = t(text || 'Working...'); b.hidden = false; }
     else if (b) b.hidden = true;
   };
+  /* a host that set VO.openingDialog (the VS Code editor) shows it once dialogs exist, before the app paints */
+  if (typeof window !== 'undefined' && window.VO && typeof VO.openingDialog === 'function') {
+    const run = () => VO.openingDialog();
+    if (VO.i18n) VO.i18n.whenReady(run); else run();
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

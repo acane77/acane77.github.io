@@ -170,10 +170,17 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, vr.width, vr.height);
     const z = g.z, pxPt = D.PX * z;
-    const top = g.pr.top - vr.top, bottom = g.pr.bottom - vr.top;
+    const pageTop = g.pr.top - vr.top, pageBot = g.pr.bottom - vr.top;
     const pg = g.pg;
-    c.fillStyle = L.lookColor('ruler-off', '#c9d6ee'); c.fillRect(4, top, vr.width - 8, bottom - top);
-    const tT = top + pg.bodyTop * z, tB = bottom - pg.bodyBottomGap * z;
+    /* margins hidden: the ruler follows the sliver that is still on screen, not the clipped header and footer */
+    let top = pageTop, bottom = pageBot;
+    if (LY.whiteSpaceHidden && LY.whiteSpaceHidden()) {
+      const sT = Math.min(LY.WS_PAD, pg.bodyTop), sB = Math.min(LY.WS_PAD, pg.bodyBottomGap);
+      top = pageTop + (pg.bodyTop - sT) * z;
+      bottom = pageBot - (pg.bodyBottomGap - sB) * z;
+    }
+    c.fillStyle = L.lookColor('ruler-off', '#c9d6ee'); c.fillRect(4, top, vr.width - 8, Math.max(0, bottom - top));
+    const tT = pageTop + pg.bodyTop * z, tB = pageBot - pg.bodyBottomGap * z;
     c.fillStyle = L.lookColor('ruler', '#fff'); c.fillRect(4, tT, vr.width - 8, Math.max(0, tB - tT));
     const unit = D.unit === 'cm' || D.unit === 'mm' ? 28.3465 : 72;
     const sub = unit === 72 ? 8 : 4;

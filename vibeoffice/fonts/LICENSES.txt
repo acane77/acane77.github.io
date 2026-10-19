@@ -97,3 +97,8 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
+
+Google Sans Flex 9pt: Copyright 2015 Google LLC. All Rights Reserved. Google Sans is a trademark of Google.
+The Regular face (GoogleSansFlex_9pt-Regular.ttf) is kept unmodified beside the WOFF2 files and is not
+rebuilt by tools/fonts.py. It draws the product names on About and the opening screen, and VibeOffice.work
+on the Start Center. Licensed under the SIL Open Font License 1.1 (the text above).

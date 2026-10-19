@@ -76,6 +76,9 @@
   --ruler-mark-bg: #dfe8f7; --ruler-mark-line: #6a82ad;
   --ruler-tick: #444; --ruler-ink: #222; --ruler-deftab: #777; --ruler-row: #7f95bd; --indent-fill: #e8eef9; --indent-line: #3b5a8c;
   --ruler-off-2: #c5d6f3; --ruler-tick-2: #4b5d7e; --ruler-ink-2: #334;
+  /* opening and about content: each app's colour, the same in every look */
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
 /* Paper (and Paper 2016, the same with the ribbon): VibeOffice's own light look — warm paper chrome, one ink-teal accent, soft rounded shapes.
@@ -142,6 +145,8 @@
   --ruler-mark-bg: var(--p-paper-2); --ruler-mark-line: var(--p-line-strong);
   --ruler-tick: #8C857A; --ruler-ink: #4A463F; --ruler-deftab: #B0A99D; --ruler-row: var(--p-line-strong); --indent-fill: #fff; --indent-line: #7A7368;
   --ruler-off-2: var(--p-paper-2); --ruler-tick-2: #8C857A; --ruler-ink-2: #4A463F;
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 /* Paper's shapes */
 :is([data-look="paper"], [data-look="paper2016"]) .menubar::before, :is([data-look="paper"], [data-look="paper2016"]) .tb-grip { display: none; }
@@ -314,6 +319,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -383,6 +390,33 @@
 [data-look="win7"] .dlg-title > .dlg-x:last-of-type::after { border-bottom-right-radius: 4px; border-right: 1px solid #fffe; margin-left: 0; }
 [data-look="win7"] .dlg-title > .dlg-x:not(.dlg-help)::after { width: 47px; }
 [data-look="win7"] .dlg-title > .dlg-x:not(.dlg-help):first-of-type::after { width: 48px; margin-left: -2px; }
+/* toolbox: the same caption button, square and inset in the title, so all four corners are rounded (a normal caption button is flush with the top and only rounds the bottom) */
+[data-look="win7"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin-top: 0;
+    margin-bottom: 0;
+    align-self: center;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    scale: 75%;
+    margin-right: -2px;
+}
+[data-look="win7"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help)::after, [data-look="win7"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help):first-of-type::after {
+    width: 21px;
+    height: 21px;
+    margin-top: -2px;
+    margin-left: -2px;
+    border-top: 1px solid #fffe;
+    border-left: 1px solid #fffe;
+    border-right: 1px solid #fffe;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
 [data-look="win7"] .dlg-body, [data-look="win7"] .dlg-foot { position: relative; z-index: 1; margin-left: 6px; margin-right: 6px; background: #f0f0f0; border-left: 1px solid #000000b3; border-right: 1px solid #000000b3; }
 [data-look="win7"] .dlg-body { margin-top: 0; border-top: 1px solid #000000b3; box-shadow: 0 -1px 0 #fff9; }
 [data-look="win7"] .dlg-foot { margin-bottom: 4px; border-bottom: 1px solid #000000b3; box-shadow: 0 1px 0 #fff9; }
@@ -414,7 +448,7 @@
 [data-look="win7"] .btn:active:not(:disabled), [data-look="win7"] dialog form button:active, [data-look="win7"] dialog .btn:active { border-color: #6d91ab; background: var(--w7-btn-down); box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
 [data-look="win7"] .btn:disabled { color: #999; background: #f2f2f1; border-color: #cdcac3; box-shadow: none; }
 /* default button: the blue edge and the blue lower half stay on while another control has the focus */
-[data-look="win7"] .btn.primary:not(:disabled), [data-look="win7"] dialog form button { border-color: var(--w7-btn-default-line); background: var(--w7-btn-default); box-shadow: inset 0 0 0 1px #fffc; }
+[data-look="win7"] .btn.primary:not(:disabled), [data-look="win7"] dialog form button { border-color: var(--w7-btn-default-line); background: var(--w7-btn-default); box-shadow: inset 0 0 1.3px 1px rgba(52, 222, 255, .867), inset 0 0 0 1px #fffc; }
 [data-look="win7"] .btn.primary:hover:not(:disabled), [data-look="win7"] dialog form button:hover { border-color: #3c7fb1; background: var(--w7-btn-hot); }
 [data-look="win7"] .btn.primary:active:not(:disabled), [data-look="win7"] dialog form button:active { border-color: #6d91ab; background: var(--w7-btn-down); }
 [data-look="win7"] .btn.primary:focus:not(:disabled), [data-look="win7"] dialog form button:focus { animation: win7-pulse 1s ease-in-out infinite alternate; outline: 1px dotted #000; outline-offset: -4px; }
@@ -616,6 +650,8 @@
   --xp-blt: 18px;
   --xp-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --xp-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
 [data-look="xp"] .menurow { height: 20px; min-height: 20px; background: #e8e6d6; }
@@ -644,7 +680,21 @@
 [data-look="xp"] .dlg.inactive { box-shadow: var(--xp-frame-off); }
 [data-look="xp"] .dlg.inactive::after { box-shadow: var(--xp-frame-off); }
 [data-look="xp"] .dlg.inactive .dlg-title { background: var(--xp-title-off); color: #eee; }
-[data-look="xp"] .dlg-title > .dlg-x:not(.dlg-help) { width: 21px; min-width: 21px; height: 21px; min-height: 21px; margin: 0 0 0 2px; padding: 0; border: 0; border-radius: 0; color: transparent; background: var(--xp-close) center / 21px 21px no-repeat; box-shadow: none; }
+[data-look="xp"] .dlg-title > .dlg-x:not(.dlg-help) {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin: 0 0 0 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: transparent;
+    background: var(--xp-close) center / 21px 21px no-repeat;
+    box-shadow: none;
+    scale: 0.75;
+    margin-right: -3px;
+}
 [data-look="xp"] .dlg-x:not(.dlg-help) svg { display: none; }
 [data-look="xp"] .dlg-x:not(.dlg-help):hover { background: var(--xp-close-hot) center / 21px 21px no-repeat; border-color: transparent; }
 [data-look="xp"] .dlg-x:not(.dlg-help):active { background: var(--xp-close-down) center / 21px 21px no-repeat; }
@@ -684,9 +734,9 @@
 [data-look="xp"] .spin-b:hover { box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a; }
 [data-look="xp"] .spin-b:active { background: var(--xp-btn-down); box-shadow: none; }
 
-[data-look="xp"] .tab { background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 249, 1) 26%, rgba(240, 240, 234, 1) 95%, rgba(236, 235, 229, 1) 100%); border-color: #91a7b4; border-top-left-radius: 3px; border-top-right-radius: 3px; padding: 2px 12px 2px; }
+[data-look="xp"] .tab { background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 249, 1) 26%, rgba(240, 240, 234, 1) 95%, rgba(236, 235, 229, 1) 100%); border-color: #91a7b4; border-top-left-radius: 3px; border-top-right-radius: 3px; padding: 2px 12px 2px; top: 3px; height: 20px; }
 [data-look="xp"] .tab:hover:not(.on):not(:disabled) { border-top-color: #e68b2c; box-shadow: inset 0 2px #ffc73c; }
-[data-look="xp"] .tab.on { background: #fcfcfe; border-color: #919b9c; border-top: 1px solid #e68b2c; box-shadow: inset 0 2px #ffc73c; }
+[data-look="xp"] .tab.on { background: #fcfcfe; border-color: #919b9c; border-top: 1px solid #e68b2c; box-shadow: inset 0 2px #ffc73c; height: 23px; top: 1px; }
 [data-look="xp"] .tabs-body { border: 1px solid #919b9c; box-shadow: inset 1px 1px #fcfcfe, inset -1px -1px #fcfcfe, 1px 2px 2px 0 rgba(208, 206, 191, 0.75); }
 
 [data-look="xp"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=checkbox],

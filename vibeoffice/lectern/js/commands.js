@@ -108,8 +108,9 @@
   C('italic', { label: 'Italic', icon: 'italic', key: 'Ctrl+I', enabled: textCtx, checked: () => { const s = fmtState(); return !!s && s.i; }, run: () => A().toggleRun('i') });
   C('underline', { label: 'Underline', icon: 'underline', key: 'Ctrl+U', enabled: textCtx, checked: () => { const s = fmtState(); return !!s && s.u; }, run: () => A().toggleRun('u') });
   C('shadowText', { label: 'Shadow', icon: 'shadowText', enabled: textCtx, checked: () => { const s = fmtState(); return !!s && s.shd; }, run: () => A().toggleRun('shd') });
-  C('superscript', { label: 'Superscript', key: 'Ctrl+Shift+=', enabled: textCtx, run: () => A().toggleBaseline(30000) });
-  C('subscript', { label: 'Subscript', key: 'Ctrl+=', enabled: textCtx, run: () => A().toggleBaseline(-25000) });
+  C('strike', { label: 'Strikethrough', icon: 'strike', enabled: textCtx, checked: () => { const s = fmtState(); return !!s && s.strike; }, run: () => A().toggleRun('strike') });
+  C('superscript', { label: 'Superscript', icon: 'superscript', key: 'Ctrl+Shift+=', enabled: textCtx, checked: () => { const s = fmtState(); return !!(s && s.r && s.r.base > 0); }, run: () => A().toggleBaseline(30000) });
+  C('subscript', { label: 'Subscript', icon: 'subscript', key: 'Ctrl+=', enabled: textCtx, checked: () => { const s = fmtState(); return !!(s && s.r && s.r.base < 0); }, run: () => A().toggleBaseline(-25000) });
   C('resetChar', { label: 'Reset Character Formatting', key: 'Ctrl+Space', enabled: textCtx, run: () => L.fmt.run((r) => ({ t: r.t, fld: r.fld, link: r.link }), 'Reset Formatting') });
   C('growFont', { label: 'Increase Font Size', icon: 'growFont', key: 'Ctrl+Shift+>', enabled: textCtx, run: () => A().stepFont(1) });
   C('shrinkFont', { label: 'Decrease Font Size', icon: 'shrinkFont', key: 'Ctrl+Shift+<', enabled: textCtx, run: () => A().stepFont(-1) });

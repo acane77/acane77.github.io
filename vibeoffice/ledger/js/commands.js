@@ -14,7 +14,8 @@
   const act = () => { const s = sel(); return LY.styleOf(sh(), s.r, s.c, sh().get(s.r, s.c)); };
   const notEditing = () => !E().active;
   const guard = (key) => G().guardProtect(key, !key);
-  const run = (fn) => () => { if (E().active && !E().commit()) return; try { fn(); } catch (e) { A().error(e); } G().paint(); };
+  /* Hand the promise back. VS Code awaits this command; dropping it reported "Save was cancelled." after the file was written. */
+  const run = (fn) => () => { if (E().active && !E().commit()) return; let r; try { r = fn(); } catch (e) { A().error(e); } G().paint(); return r; };
   /** apply a style change to the selection */
   const fmt = (delta, label) => run(() => { if (guard('formatCells')) return; O.format(sh(), rgs(), delta, label); });
   const hasMulti = () => rgs().length > 1;

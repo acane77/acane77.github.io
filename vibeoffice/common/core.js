@@ -262,7 +262,10 @@
    *  Save As chose. */
   L.saveFile = async function (name, blob, opts) {
     if (window.VO && VO.host && VO.host.kind === 'vscode' && VO.host.writeFile) {
-      const r = await VO.host.writeFile(name, blob, opts);
+      /* an in-place save of the open file is one editor save (suite.js); a copy is written here */
+      let r;
+      if (VO.host.saveThroughEditor) r = await VO.host.saveThroughEditor(name, blob, opts);
+      if (r === undefined) r = await VO.host.writeFile(name, blob, opts);
       if (r === 'saved' || r === 'exported') window.dispatchEvent(new CustomEvent('vo-saved', { detail: { name } }));
       return r;
     }

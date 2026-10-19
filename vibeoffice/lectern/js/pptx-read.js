@@ -188,7 +188,7 @@
     if (at(rPr, 'b') != null) r.b = bool(at(rPr, 'b'));
     if (at(rPr, 'i') != null) r.i = bool(at(rPr, 'i'));
     if (at(rPr, 'u') && at(rPr, 'u') !== 'none') r.u = at(rPr, 'u');
-    if (at(rPr, 'strike') && at(rPr, 'strike') !== 'noStrike') r.strike = at(rPr, 'strike');
+    if (at(rPr, 'strike')) r.strike = at(rPr, 'strike');
     if (at(rPr, 'cap') && at(rPr, 'cap') !== 'none') r.cap = at(rPr, 'cap');
     if (at(rPr, 'spc')) r.spc = +at(rPr, 'spc') / 100;
     if (at(rPr, 'baseline') && +at(rPr, 'baseline')) r.base = +at(rPr, 'baseline');

@@ -1,0 +1,9 @@
+/* Google Sans Flex 9pt Regular, for the product names. The file in this folder only
+   (SIL OFL 1.1; LICENSES.txt). Not loaded from a font service. */
+@font-face {
+  font-family: "Google Sans Flex";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("GoogleSansFlex_9pt-Regular.ttf") format("truetype");
+}
