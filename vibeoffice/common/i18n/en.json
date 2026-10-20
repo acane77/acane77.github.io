@@ -4367,6 +4367,11 @@
    "quire/js/panes.js:540"
   ]
  },
+ "1. If the right-click menu cannot paste, use the Paste button.": {
+  "where": [
+   "quire/js/dom-console.js:545"
+  ]
+ },
  "1.5 Line Spacing": {
   "where": [
    "quire/js/commands.js:356"
@@ -4471,6 +4476,11 @@
  "2. Editing restrictions": {
   "where": [
    "quire/js/panes.js:540"
+  ]
+ },
+ "2. Outside a function, do not declare variables with let, var, or const. Each entry runs on its own, so those declarations do not carry to the next line. Assign directly, as in x = 1. The name is then on the global object, and later entries can use it.": {
+  "where": [
+   "quire/js/dom-console.js:546"
   ]
  },
  "20 sentences": {
@@ -9546,6 +9556,11 @@
    "quire/js/dialogs3.js:699"
   ]
  },
+ "Copy": {
+  "where": [
+   "quire/js/dom-console.js:535"
+  ]
+ },
  "Copy &to:": {
   "where": [
    "ledger/js/dialogs2.js:298"
@@ -10436,6 +10451,11 @@
  "DL (110 x 220 mm)": {
   "where": [
    "quire/js/dialogs3.js:408"
+  ]
+ },
+ "DOM API References": {
+  "where": [
+   "quire/js/dom-console.js:539"
   ]
  },
  "DRAFT": {
@@ -20821,6 +20841,11 @@
    "quire/js/dialogs2.js:803"
   ]
  },
+ "Paste the text here, then choose OK.": {
+  "where": [
+   "quire/js/dom-console.js:495"
+  ]
+ },
  "Pastel": {
   "where": [
    "lectern/js/diagram.js:32"
@@ -21801,7 +21826,7 @@
  "Quire": {
   "where": [
    "index.html:186",
-   "quire/index.html:17"
+   "quire/index.html:21"
   ]
  },
  "Quire &Help": {
@@ -21816,7 +21841,7 @@
  },
  "Quire DOM Console": {
   "where": [
-   "quire/js/dom-console.js:488"
+   "quire/js/dom-console.js:568"
   ]
  },
  "Quire Help": {
@@ -21907,7 +21932,7 @@
  },
  "Quire word processor": {
   "where": [
-   "quire/index.html:367"
+   "quire/index.html:371"
   ]
  },
  "R&eading Layout": {
@@ -29055,7 +29080,7 @@
  },
  "The terminal library did not load.": {
   "where": [
-   "quire/js/dom-console.js:477"
+   "quire/js/dom-console.js:556"
   ]
  },
  "The text is not marked as English, so it was not checked. Use Tools ▸ Language ▸ Set Language to mark it.": {
@@ -29677,6 +29702,11 @@
  "Tinted Outline": {
   "where": [
    "lectern/js/diagram.js:67"
+  ]
+ },
+ "Tips:": {
+  "where": [
+   "quire/js/dom-console.js:544"
   ]
  },
  "Title": {
@@ -31127,6 +31157,11 @@
  "Welcome to VibeOffice.work.": {
   "where": [
    "index.html:216"
+  ]
+ },
+ "Welcome to the DOM Console.": {
+  "where": [
+   "quire/js/dom-console.js:543"
   ]
  },
  "WenQuanYi Micro Hei": {

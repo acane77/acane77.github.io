@@ -226,7 +226,7 @@
     setTimeout(back, 0);
   }
 
-  function attach(host, dlg) {
+  function attach(host, dlg, bar) {
     const term = new window.Terminal({
       cursorBlink: true,
       fontFamily: 'monospace',
@@ -466,6 +466,85 @@
         pending = cut < 0 ? '' : pending.slice(cut);
       }
     });
+    function writeClipboard(text) {
+      const value = String(text);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(value).catch(() => writeClipboardFallback(value));
+      }
+      writeClipboardFallback(value);
+      return Promise.resolve();
+    }
+    function writeClipboardFallback(value) {
+      const ta = document.createElement('textarea');
+      ta.value = value;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) { /* the browser refused */ }
+      ta.remove();
+    }
+    function copyOut() {
+      let text = '';
+      try { if (term.hasSelection()) text = term.getSelection() || ''; } catch (e) { /* no selection */ }
+      if (!text) text = lines.join('\n');
+      writeClipboard(text).then(() => { if (term.element && term.element.isConnected) term.focus(); });
+    }
+    function askPaste() {
+      const note = L.h('div', { class: 'dom-console-paste-note', text: 'Paste the text here, then choose OK.' });
+      const area = L.h('textarea', { class: 'dom-console-paste', rows: '12' });
+      L.ui.dialog({
+        title: 'Paste',
+        body: L.h('div', {}, note, area),
+        width: 520,
+        buttons: [
+          { label: 'OK', primary: true, onClick: () => { if (area.value) insert(area.value); } },
+          { label: 'Cancel' },
+        ],
+        onClose: () => setTimeout(() => { if (term.element && term.element.isConnected) term.focus(); }, 0),
+      });
+    }
+    function pasteIn() {
+      if (busy) return;
+      const read = navigator.clipboard && navigator.clipboard.readText
+        ? navigator.clipboard.readText()
+        : Promise.reject(new Error('clipboard'));
+      read.then((text) => {
+        if (text) { insert(text); if (term.element && term.element.isConnected) term.focus(); return; }
+        askPaste();
+      }).catch(() => askPaste());
+    }
+    function clearScreen() {
+      if (busy) return;
+      lines = ['']; row = 0; col = 0; hist = -1; draft = null; pending = '';
+      term.write('\x1b[2J\x1b[3J\x1b[H> ');
+      term.focus();
+    }
+    if (bar) {
+      const toolButton = (o, fn) => {
+        const b = L.h('button', { class: 'tb-btn with-label', type: 'button', 'aria-label': o.label, 'data-tip': o.label });
+        const icon = o.icon && L.icons ? L.icons.get(o.icon) : '';
+        const text = L.ui.ampHTML ? L.ui.ampHTML(o.label) : o.label;
+        b.innerHTML = icon + '<span class="tb-lbl">' + text + '</span>';
+        b.addEventListener('pointerdown', (e) => e.preventDefault());
+        b.addEventListener('click', (e) => { e.preventDefault(); fn(); });
+        return b;
+      };
+      bar.append(
+        toolButton({ label: 'Copy', icon: 'copy' }, copyOut),
+        toolButton({ label: 'Paste', icon: 'paste' }, pasteIn),
+        toolButton({ label: 'Clear', icon: 'eraser' }, clearScreen),
+        L.h('span', { class: 'tb-sep' }),
+        toolButton({ label: 'DOM API References', icon: 'read' }, () => { /* the reference is not written yet */ }),
+      );
+    }
+    term.write([
+      L.t('Welcome to the DOM Console.'),
+      L.t('Tips:'),
+      L.t('1. If the right-click menu cannot paste, use the Paste button.'),
+      L.t('2. Outside a function, do not declare variables with let, var, or const. Each entry runs on its own, so those declarations do not carry to the next line. Assign directly, as in x = 1. The name is then on the global object, and later entries can use it.'),
+    ].join('\r\n') + '\r\n');
     term.write('> ');
     term.focus();
     return box;
@@ -482,11 +561,12 @@
       session.term.focus();
       return;
     }
+    const bar = L.h('div', { class: 'dom-console-bar' });
     const host = L.h('div', { class: 'dom-console-host' });
     host.addEventListener('keydown', (e) => e.stopPropagation());
     L.ui.dialog({
       title: 'Quire DOM Console',
-      body: host,
+      body: L.h('div', {}, bar, host),
       width: 720,
       buttons: [],
       modeless: true,
@@ -495,7 +575,7 @@
         el.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); }
         }, true);
-        session = attach(host, el);
+        session = attach(host, el, bar);
       },
       onClose: () => {
         if (session) { try { session.term.dispose(); } catch (e) { /* already gone */ } session = null; }

@@ -9,9 +9,12 @@
 <link rel="stylesheet" href="../common/ui.css">
 <link rel="stylesheet" href="../common/vendor/xterm/xterm.css">
 <style>
-.dom-console-host { height: 100%; background: #0c0c0c; box-sizing: border-box; overflow: hidden; }
-.dlg.dom-console > .dlg-body { padding: 0; background: #0c0c0c; overflow: hidden; }
+.dlg.dom-console > .dlg-body { padding: 0; background: var(--dlg); overflow: hidden; display: flex; flex-direction: column; }
 .dlg.dom-console > .dlg-foot { padding: 0; }
+.dom-console-bar { display: flex; align-items: center; flex: 0 0 auto; height: 26px; padding: 0 2px; color: var(--dlg-ink); border-bottom: 1px solid var(--tb-border); overflow-x: auto; }
+.dom-console-host { background: #0c0c0c; box-sizing: border-box; overflow: hidden; }
+.dom-console-paste-note { margin: 0 0 6px; }
+.dom-console-paste { width: 100%; min-height: 160px; box-sizing: border-box; font-family: monospace; }
 </style>
 <link rel="stylesheet" href="../common/scout/scout.css">
 <style>[hidden]{display:none!important}img{max-width:100%}</style>
