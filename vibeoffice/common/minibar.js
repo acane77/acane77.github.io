@@ -1,6 +1,6 @@
 /* The formatting bar that appears after a text selection (Office's mini toolbar).
    Quire and Lectern call mount() once with the buttons, then show() when a range is made.
-   It sits above and to the right of the pointer, inside the window. Opacity starts at 0.7.
+   It sits above and to the right of the pointer, inside the window, drawn above every window and under every menu. Opacity starts at 0.7.
    On the bar, or on a menu it opened, it is fully opaque. Elsewhere it follows the distance
    from the point where it opened: 0.7 at that point, 0 at 50px, and once it reaches 0 it
    stays gone until the next show(). fade() and place() are pure (tests/minibar.test.mjs). */
@@ -81,6 +81,7 @@
     over = false;
     quietUntil = Date.now() + 120;
     bar.hidden = false;
+    if (ui() && ui().placeMinibar) ui().placeMinibar();
     const rect = bar.getBoundingClientRect();
     const p = place(anchor, { w: rect.width, h: rect.height }, { w: root.innerWidth, h: root.innerHeight });
     bar.style.left = p.x + 'px';

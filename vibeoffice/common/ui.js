@@ -134,9 +134,12 @@
     const depth = opts.depth || 0;
     ui.closeMenus(depth);
     const list = (typeof items === 'function' ? items() : items).map(resolveItem).filter((x) => x && !(typeof x.hidden === 'function' ? x.hidden() : x.hidden));
-    /* popup menus and right-click menus stay above every window, modal or not */
+    /* popup menus and right-click menus stay above every window, modal or not, and above the formatting bar */
     let menuZ = 6000;
-    for (const w of winStack) { const n = parseInt(w.overlay.style.zIndex, 10); if (n >= menuZ) menuZ = n + 20; }
+    const above = (n) => { if (n >= menuZ) menuZ = n + 20; };
+    for (const w of winStack) above(parseInt(w.overlay.style.zIndex, 10));
+    const bar = document.querySelector('.minibar');
+    if (bar && !bar.hidden) above(parseInt(bar.style.zIndex, 10));
     const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (winStack.length ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
     el.style.zIndex = String(menuZ);
     const rows = [];
@@ -862,6 +865,12 @@
   const winStack = [];
   let dlgBackdrop = null;
   ui.dialogOpen = () => dlgStack.length > 0;
+  /** Windows 7, Paper and Paper 2016 window show and close. Other looks, and reduced motion, stay instant. */
+  function win7WindowMotion() {
+    const look = document.documentElement && document.documentElement.dataset.look;
+    if (look !== 'win7' && look !== 'paper' && look !== 'paper2016') return false;
+    try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
+  }
   /** drop windows a test removed from the page, then stack the rest and show the veil behind them when a modal is open */
   function layoutWindows() {
     for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].overlay.isConnected) {
@@ -883,7 +892,21 @@
     });
     if (flashing && flashing !== (topModal >= 0 ? winStack[topModal] : null)) stopFlash();
     syncActive();
+    ui.placeMinibar();
   }
+  /** the formatting bar sits one above the front window. With no window open that is 2000, under the menu floor.
+   *  A modal hides the bar (it is not a layer above the dialog). */
+  ui.placeMinibar = function () {
+    const bar = document.querySelector('.minibar');
+    if (!bar || bar.hidden) return;
+    if (dlgStack.length) { if (L.minibar) L.minibar.hide(); return; }
+    let z = 1999;
+    for (const w of winStack) {
+      const n = parseInt(w.overlay.style.zIndex, 10);
+      if (n > z) z = n;
+    }
+    bar.style.zIndex = String(z + 1);
+  };
   /** the front modal is active; otherwise the modeless window that holds the keyboard. prefer: a window just clicked or opened.
    *  a modal that is flashing owns its own active/inactive class until the flash ends */
   function syncActive(prefer) {
@@ -974,6 +997,13 @@
     const step = Math.min(winStack.length, 8) * 28;
     dlg.style.left = L.clamp((window.innerWidth - r.width) / 2 + step, 4, Math.max(4, window.innerWidth - r.width - 4)) + 'px';
     dlg.style.top = L.clamp((window.innerHeight - r.height) / 2.4 + step, 4, Math.max(4, window.innerHeight - 40)) + 'px';
+    /* measured before the class, so the opening scale does not shift the centred box */
+    if (win7WindowMotion()) {
+      dlg.classList.add('is-opening');
+      const endOpen = (e) => { if (e.target !== dlg || e.animationName !== 'win7-open') return; dlg.classList.remove('is-opening'); dlg.removeEventListener('animationend', endOpen); };
+      dlg.addEventListener('animationend', endOpen);
+      setTimeout(() => dlg.classList.remove('is-opening'), 400);
+    }
     const entry = { overlay, dlg, modeless: !!opts.modeless, isToolBoxWindow: opts.isToolBoxWindow, keys: null };
     dlg.addEventListener('pointerdown', (e) => {
       raiseWindow(entry);
@@ -1019,11 +1049,21 @@
       return false;
     };
     function close(i) {
+      if (entry.closed) return;
+      entry.closed = true;
       const k = dlgStack.indexOf(entry);
       if (k >= 0) dlgStack.splice(k, 1);
       const w = winStack.indexOf(entry);
       if (w >= 0) winStack.splice(w, 1);
-      overlay.remove();
+      const drop = () => { if (overlay.isConnected) overlay.remove(); };
+      if (win7WindowMotion()) {
+        dlg.classList.remove('is-opening');
+        dlg.classList.add('is-closing');
+        let dropped = false;
+        const finish = () => { if (dropped) return; dropped = true; drop(); };
+        dlg.addEventListener('animationend', (e) => { if (e.target === dlg && e.animationName === 'win7-close') finish(); });
+        setTimeout(finish, 400);
+      } else drop();
       layoutWindows();
       if (opts.onClose) opts.onClose(i);
       result(i);
@@ -1779,11 +1819,28 @@
     clearTimeout(t._t);
     t._t = setTimeout(() => { t.hidden = true; }, ms || 2600);
   };
+  /* a modal while work keeps the user waiting. The title is the app's name. No close button and no buttons, so
+     Escape does not dismiss it. A window already open stays where it is and this one covers it. Another call
+     while it is up only changes the message. */
+  let busyDlg = null;
   ui.busy = (on, text) => {
-    let b = L.$('.busy');
-    if (!!on !== !!(b && !b.hidden)) tell('vo-busy', { on: !!on, text: on ? text || 'Working...' : '' });
-    if (on) { if (!b) { b = h('div', { class: 'busy' }, h('div', { class: 'busy-box' }, h('span', { class: 'busy-spin' }), h('span', { class: 'busy-t' }))); document.body.appendChild(b); } b.querySelector('.busy-t').textContent = t(text || 'Working...'); b.hidden = false; }
-    else if (b) b.hidden = true;
+    const open = !!(busyDlg && busyDlg.el.isConnected);
+    if (!!on !== open) tell('vo-busy', { on: !!on, text: on ? text || 'Working...' : '' });
+    if (!on) { if (open) { const d = busyDlg; busyDlg = null; d.close(null); } return; }
+    const msg = t(text || 'Working...');
+    if (open) { busyDlg.text.textContent = msg; return; }
+    const label = h('span', { class: 'busy-t' });
+    label.textContent = msg;
+    busyDlg = ui.dialog({
+      title: L.APP || L.APP_NAME || 'VibeOffice',
+      width: 360,
+      canClose: false,
+      buttons: [],
+      body: h('div', { class: 'busy-box' }, h('span', { class: 'busy-spin' }), label),
+      focus: label,
+    });
+    busyDlg.text = label;
+    busyDlg.el.classList.add('busy');
   };
   /* a host that set VO.openingDialog (the VS Code editor) shows it once dialogs exist, before the app paints */
   if (typeof window !== 'undefined' && window.VO && typeof VO.openingDialog === 'function') {

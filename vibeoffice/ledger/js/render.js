@@ -232,6 +232,24 @@
   const colX = (fr, p, c) => p.x + Math.round((fr.g.cols.pos(c) - fr.g.cols.pos(p.c0)) * fr.z);
   const rowY = (fr, p, r) => p.y + Math.round((fr.g.rows.pos(r) - fr.g.rows.pos(p.r0)) * fr.z);
   RD.colX = colX; RD.rowY = rowY;
+  /** index whose painted edge contains pixel px. edge(i) is the same rounded edge the grid draws, and it does not
+      go backwards. limit is the last legal index; paneEnd is the pane's far side. A run of indexes that share one
+      pixel (hidden rows, or a zero-height tail out to the end of the sheet) stays on the last index that actually
+      occupies a pixel, so a click in the blank area cannot land on the last row of the sheet. */
+  function indexAt(edge, origin, limit, px, paneEnd) {
+    if (limit < origin) return origin;
+    let lo = origin, hi = limit;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (edge(m) < paneEnd) lo = m; else hi = m - 1; }
+    const last = lo;
+    const y = Math.min(Math.max(px, edge(origin)), paneEnd - 1);
+    lo = origin; hi = last;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (edge(m) <= y) lo = m; else hi = m - 1; }
+    const flat = lo > origin && edge(lo) === (lo < limit ? edge(lo + 1) : edge(lo - 1));
+    if (!flat) return lo;
+    let a = origin, b = lo;
+    while (a < b) { const m = (a + b + 1) >> 1; if (edge(m) < edge(lo)) a = m; else b = m - 1; }
+    return edge(a) < edge(lo) ? a : origin;
+  }
   /** pane that shows cell (r, c), or null */
   RD.paneOf = function (fr, r, c) {
     for (const p of fr.panes) if (r >= p.r0 && r < p.rMax && c >= p.c0 && c < p.cMax) return p;
@@ -245,25 +263,23 @@
   };
   /** hit test canvas point → {area: 'cell'|'colhdr'|'rowhdr'|'corner'|'none', r, c, pane} */
   RD.hit = function (fr, x, y) {
-    const g = fr.g, z = fr.z;
     if (x < fr.hdrW && y < fr.hdrH) return { area: 'corner' };
     const findPane = (px, py) => fr.panes.find((p) => px >= p.x && px < p.x + p.w && py >= p.y && py < p.y + p.h);
+    const colAt = (p, px) => indexAt((c) => colX(fr, p, c), p.c0, p.cMax - 1, px, p.x + p.w);
+    const rowAt = (p, py) => indexAt((r) => rowY(fr, p, r), p.r0, p.rMax - 1, py, p.y + p.h);
     if (y < fr.hdrH) {
       const p = findPane(Math.max(x, fr.hdrW), fr.hdrH + 1) || fr.panes.find((q) => x >= q.x && x < q.x + q.w);
       if (!p) return { area: 'none' };
-      const c = g.cols.at(g.cols.pos(p.c0) + (x - p.x) / z);
-      return { area: 'colhdr', c, pane: p };
+      return { area: 'colhdr', c: colAt(p, x), pane: p };
     }
     if (x < fr.hdrW) {
       const p = findPane(fr.hdrW + 1, y) || fr.panes.find((q) => y >= q.y && y < q.y + q.h);
       if (!p) return { area: 'none' };
-      const r = g.rows.at(g.rows.pos(p.r0) + (y - p.y) / z);
-      return { area: 'rowhdr', r, pane: p };
+      return { area: 'rowhdr', r: rowAt(p, y), pane: p };
     }
     const p = findPane(x, y);
     if (!p) return { area: 'none' };
-    const c = g.cols.at(g.cols.pos(p.c0) + (x - p.x) / z), r = g.rows.at(g.rows.pos(p.r0) + (y - p.y) / z);
-    return { area: 'cell', r: Math.min(r, p.rMax - 1), c: Math.min(c, p.cMax - 1), pane: p };
+    return { area: 'cell', r: rowAt(p, y), c: colAt(p, x), pane: p };
   };
 
   /* ------------------------------------------------------------ text */

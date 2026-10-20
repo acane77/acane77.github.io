@@ -69,7 +69,7 @@
 .ed-scroll { grid-column: 2; grid-row: 2; position: relative; overflow: auto; outline: none; min-width: 0; min-height: 0; }
 .ed-scroll.drawing { cursor: crosshair; }
 .ed-scroll.painting, .ed-scroll.painting .shp { cursor: copy !important; }
-.ed-canvas { position: relative; }
+.ed-canvas { position: relative; overflow: hidden; }
 .ed-host { position: absolute; box-shadow: 0 0 0 1px var(--page-line); background: var(--surface); }
 .ed-host > .sl { transform-origin: 0 0; }
 .ed-host.gray > .sl { filter: grayscale(1); }
@@ -142,6 +142,8 @@
 .sb-cell.fit { flex: none; }
 /* ---------- slide rendering ---------- */
 .sl { position: relative; overflow: hidden; background: #fff; transform-origin: 0 0; font-kerning: normal; -webkit-font-smoothing: antialiased; }
+/* the editing slide paints shapes that sit off the slide; thumbnails, notes, the show and export keep the clip */
+.sl.sl-edit { overflow: visible; }
 .sl .shp { position: absolute; pointer-events: none; transform-origin: 50% 50%; }
 .sl .shp > svg.geo, .sl .shp > svg.wa, .sl .shp > svg.chart { position: absolute; left: 0; top: 0; overflow: visible; }
 .sl .shp > svg.geo { pointer-events: none; }

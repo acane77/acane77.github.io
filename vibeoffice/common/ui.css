@@ -207,8 +207,9 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .sb-zoom-pct:focus { background: var(--surface); color: var(--ink); border-color: var(--field-border); outline: none; text-align: left; }
 @media (max-width: 640px) { .sb-zoom-range { width: 72px; } }
 
-/* the formatting bar after a text selection (common/minibar.js): above menus' layer is the menu itself */
-.minibar { position: fixed; z-index: 1400; display: flex; flex-direction: column; padding: 2px 3px 1px; border: 1px solid var(--tb-border); border-radius: var(--tray-radius); background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); box-shadow: 2px 3px 6px var(--shadow-c); user-select: none; }
+/* the formatting bar after a text selection (common/minibar.js): above the front window, under every menu.
+   ui.placeMinibar sets the z-index; 2000 is the place when no window is open. */
+.minibar { position: fixed; z-index: 2000; display: flex; flex-direction: column; padding: 2px 3px 1px; border: 1px solid var(--tb-border); border-radius: var(--tray-radius); background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); box-shadow: 2px 3px 6px var(--shadow-c); user-select: none; }
 .minibar-row { display: flex; align-items: center; }
 .minibar .combo-in { user-select: text; }
 
@@ -390,9 +391,10 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not(
 .tooltip { position: fixed; z-index: 3000; background: var(--tip-bg); border: 1px solid var(--tip-line); padding: 1px 4px; pointer-events: none; font-size: 11px; white-space: nowrap; box-shadow: 1px 1px 2px var(--tip-shadow-c); }
 .toast { position: fixed; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 2500; background: var(--tip-bg); border: 1px solid var(--tip-line); padding: 6px 12px; box-shadow: 2px 2px 4px var(--toast-shadow-c); }
 .toast .toast-act { margin-left: 8px; padding: 0; border: 0; background: none; color: var(--tip-link); text-decoration: underline; cursor: pointer; font: inherit; }
-.busy { position: fixed; inset: 0; z-index: 2600; background: var(--busy-veil); display: flex; align-items: center; justify-content: center; cursor: progress; }
-.busy-box { background: var(--dlg); border: 1px solid var(--tb-border); padding: 14px 20px; display: flex; gap: 10px; align-items: center; box-shadow: 3px 3px 8px var(--shadow-c); }
-.busy-spin { width: 16px; height: 16px; border: 2px solid var(--pane-line); border-top-color: var(--pane-link); border-radius: 50%; animation: spin .8s linear infinite; }
+/* work that keeps the user waiting (ui.busy): the ordinary modal window, with no button row */
+.dlg.busy > .dlg-foot { padding: 0; min-height: 0; gap: 0; }
+.busy-box { display: flex; gap: 10px; align-items: center; }
+.busy-spin { flex: none; width: 16px; height: 16px; border: 2px solid var(--pane-line); border-top-color: var(--pane-link); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .drop-hint { position: fixed; inset: 0; z-index: 2400; background: var(--drop-veil); border: 3px dashed var(--sel); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--pane-ink); pointer-events: none; }
 .smarttag { position: absolute; z-index: 35; width: 20px; height: 16px; border: 1px solid var(--combo-border); background: linear-gradient(var(--tb-a), var(--tb-b)); display: flex; align-items: center; justify-content: center; padding: 0; }

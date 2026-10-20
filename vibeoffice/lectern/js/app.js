@@ -358,6 +358,7 @@
     A.fileType = pres.ooxmlFormat || 'pptx';
     A.saved = !!(opts && opts.saved);
     A.view = 'x';
+    E._scrollTo = 'center';
     A.setView('normal');
     A.updateTitle();
     L.bus.emit('slides-changed');

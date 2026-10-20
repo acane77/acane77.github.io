@@ -44,16 +44,15 @@
       zoom: () => E.scale / L.PX_PER_PT,
       setZoom: (z) => E.setZoom(z),
       min: 0.1, max: 4,
-      /* in fit mode, a vertical swipe pages through slides like PowerPoint; otherwise the scroller pans */
-      wheelScroll(e) {
-        if (E.zoom === 'fit' && E.view === 'normal' && !E.editing() && Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 20) {
-          const now = Date.now();
-          if (now - (E._wheelT || 0) < 350) return;
-          E._wheelT = now;
-          E.goto(E.idx + (e.deltaY > 0 ? 1 : -1));
-        }
+      /* zoom stays under the pointer; the default scroll adjust assumes the page origin does not move */
+      about(oldZ, newZ, x0, y0, x1, y1) {
+        const hr = E.host.getBoundingClientRect();
+        E.setZoom(newZ, { point: { x: (x0 - hr.left) / E.scale, y: (y0 - hr.top) / E.scale, clientX: x1, clientY: y1 } });
       },
+      /* normal view: scroll the part of this slide still outside the window, then change slides */
+      wheelScroll(e) { E.onWheel(e); },
     });
+    E.scroller.addEventListener('scroll', () => E.onScroll(), { passive: true });
     if (window.ResizeObserver) new ResizeObserver(() => { if (E.zoom === 'fit') E.layout(); else E.layout(); }).observe(E.scroller);
     else window.addEventListener('resize', () => E.layout());
   };
@@ -64,35 +63,203 @@
     try { E.scroller.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
   };
 
-  E.layout = function () {
-    if (!E.scroller || !E.scroller.isConnected) return;
+  /* slide-space box of one shape, including rotation; a group's box encloses its children */
+  function shapeBounds(sh) {
+    if (sh.type === 'group' && sh.kids && !sh.rot) return M.groupBounds(sh);
+    return L.rotBounds(sh);
+  }
+  /* union of the slide and every visible shape, in slide pixels. The canvas is derived from this; it is not stored. */
+  E.contentBounds = function () {
     const W = L.pres.W, H = L.pres.H;
-    const cw = E.scroller.clientWidth, ch = E.scroller.clientHeight;
-    if (!cw || !ch) return;
+    let x0 = 0, y0 = 0, x1 = W, y1 = H;
+    const sl = E.slide();
+    if (sl) for (const sh of sl.shapes) {
+      if (sh.hidden) continue;
+      const b = shapeBounds(sh);
+      if (!isFinite(b.x) || !isFinite(b.y) || !isFinite(b.w) || !isFinite(b.h)) continue;
+      x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y);
+      x1 = Math.max(x1, b.x + b.w); y1 = Math.max(y1, b.y + b.h);
+    }
+    return { x0, y0, x1, y1 };
+  };
+  /* slide point currently at the centre of the editing area */
+  function viewAnchor() {
+    const W = L.pres.W, H = L.pres.H;
+    if (!E.scale || !E.host) return { x: W / 2, y: H / 2 };
+    const vr = E.scroller.getBoundingClientRect();
+    const hr = E.host.getBoundingClientRect();
+    if (!hr.width || !hr.height) return { x: W / 2, y: H / 2 };
+    /* client size excludes the scroll bar; the border box is taller by that bar and would walk the view on every layout */
+    const left = vr.left + E.scroller.clientLeft;
+    const top = vr.top + E.scroller.clientTop;
+    return {
+      x: (left + E.scroller.clientWidth / 2 - hr.left) / E.scale,
+      y: (top + E.scroller.clientHeight / 2 - hr.top) / E.scale,
+    };
+  }
+  function assignScroll(left, top) {
+    const sc = E.scroller;
+    E._scrollLock = true;
+    if (left != null) sc.scrollLeft = Math.min(Math.max(0, sc.scrollWidth - sc.clientWidth), Math.max(0, Math.round(left)));
+    if (top != null) sc.scrollTop = Math.min(Math.max(0, sc.scrollHeight - sc.clientHeight), Math.max(0, Math.round(top)));
+    E._scrollLock = false;
+  }
+  /* blank past the content, so the scroll bar can travel after the last of this slide before the page changes */
+  const RUNWAY = 72, RUNWAY_FLIP = 36, WHEEL_PAGE = 20, WHEEL_GAP = 350;
+
+  /* thickness of a classic scroll bar; overlay bars measure 0 */
+  function scrollbarSize() {
+    if (E._sb != null) return E._sb;
+    const o = h('div', { style: 'position:absolute;left:-9999px;top:0;width:100px;height:100px;overflow:scroll' });
+    document.body.appendChild(o);
+    E._sb = o.offsetWidth - o.clientWidth;
+    o.remove();
+    return E._sb || 0;
+  }
+  /* the editing area's own box, which does not change when a scroll bar appears */
+  function paneBox() {
+    const s = E.scroller;
+    const cs = getComputedStyle(s);
+    const bl = parseFloat(cs.borderLeftWidth) || 0, br = parseFloat(cs.borderRightWidth) || 0;
+    const bt = parseFloat(cs.borderTopWidth) || 0, bb = parseFloat(cs.borderBottomWidth) || 0;
+    return { w: Math.max(0, s.offsetWidth - bl - br), h: Math.max(0, s.offsetHeight - bt - bb) };
+  }
+  /* fit and content size for one assumption about which scroll bars are showing */
+  function fitMetrics(cw, ch, W, H) {
     const margin = Math.max(16, Math.min(40, cw * 0.04));
-    if (E.zoom === 'fit') E.scale = Math.max(0.05, Math.min((cw - margin * 2) / W, (ch - margin * 2) / H));
-    else E.scale = E.zoom * L.PX_PER_PT;
-    const sw = W * E.scale, sh = H * E.scale;
-    const canW = Math.max(cw, sw + margin * 2), canH = Math.max(ch, sh + margin * 2);
+    const scale = E.zoom === 'fit' ? Math.max(0.05, Math.min((cw - margin * 2) / W, (ch - margin * 2) / H)) : E.zoom * L.PX_PER_PT;
+    const sw = W * scale, sh = H * scale;
+    const b = E.contentBounds();
+    const extL = Math.max(0, -b.x0) * scale, extR = Math.max(0, b.x1 - W) * scale;
+    const extT = Math.max(0, -b.y0) * scale, extB = Math.max(0, b.y1 - H) * scale;
+    const contentW = extL + sw + extR + margin * 2;
+    const contentH = extT + sh + extB + margin * 2;
+    return { margin, scale, sw, sh, extL, extR, extT, extB, contentW, contentH, cw, ch, needV: contentH > ch + 1, needH: contentW > cw + 1 };
+  }
+
+  E.layout = function (opts) {
+    if (!E.scroller || !E.scroller.isConnected) return;
+    if (opts && opts.scroll) E._scrollTo = opts.scroll;
+    if (opts && opts.point) E._scrollPoint = opts.point;
+    const W = L.pres.W, H = L.pres.H;
+    const box = paneBox();
+    if (!box.w || !box.h) return;
+    const mode = E._scrollTo || 'keep';
+    const anchor = mode === 'keep' ? viewAnchor() : null;
+    const point = mode === 'point' ? E._scrollPoint : null;
+    /* Decide the bars from the pane itself, then again with those bars taking their space. A bar that
+       appears and disappears as the fit changes would keep resizing the slide; keep that bar. */
+    const sb = scrollbarSize();
+    const sized = (v, horiz) => fitMetrics(Math.max(1, box.w - (v ? sb : 0)), Math.max(1, box.h - (horiz ? sb : 0)), W, H);
+    let m = sized(false, false);
+    let forceV = false, forceH = false;
+    if (m.needV || m.needH) {
+      const m2 = sized(m.needV, m.needH);
+      if (m2.needV === m.needV && m2.needH === m.needH) m = m2;
+      else {
+        const v = m.needV || m2.needV, horiz = m.needH || m2.needH;
+        m = sized(v, horiz);
+        forceV = v && !m.needV;
+        forceH = horiz && !m.needH;
+      }
+    }
+    const { margin, sw, sh, extL, extR, extT, extB, contentW, contentH, cw, ch } = m;
+    E.scale = m.scale;
+    const vert = contentH > ch + 1;
+    const runway = E.view === 'normal' && vert ? RUNWAY : 0;
+    let canW = Math.max(cw, contentW), canH = Math.max(ch, contentH + runway * 2);
+    if (forceV) canH = Math.max(canH, box.h + 1);
+    if (forceH) canW = Math.max(canW, box.w + 1);
+    canW = Math.ceil(canW); canH = Math.ceil(canH);
     E.canvas.style.width = canW + 'px';
     E.canvas.style.height = canH + 'px';
-    E.ox = Math.round((canW - sw) / 2); E.oy = Math.round((canH - sh) / 2);
+    const minOx = margin + extL, maxOx = canW - margin - extR - sw;
+    const minOy = runway + margin + extT, maxOy = canH - runway - margin - extB - sh;
+    let ox = (canW - sw) / 2, oy = (canH - sh) / 2;
+    if (maxOx >= minOx) ox = Math.min(maxOx, Math.max(minOx, ox)); else ox = minOx;
+    if (maxOy >= minOy) oy = Math.min(maxOy, Math.max(minOy, oy)); else oy = minOy;
+    E.ox = Math.round(ox); E.oy = Math.round(oy);
     for (const el of [E.host, E.overlay, E.gridEl]) {
       el.style.left = E.ox + 'px'; el.style.top = E.oy + 'px';
       el.style.width = sw + 'px'; el.style.height = sh + 'px';
     }
-    const sl = E.host.firstChild;
-    if (sl) sl.style.transform = `scale(${E.scale})`;
+    const slEl = E.host.firstChild;
+    if (slEl) slEl.style.transform = `scale(${E.scale})`;
+    const top = Math.round(E.oy - extT - margin);
+    E.pageScroll = { runway, top, bottom: Math.round(top + contentH - ch), vert };
+    let place = mode;
+    if ((place === 'top' || place === 'bottom') && !vert) place = 'center';
+    if (place === 'point' && point) {
+      const vr = E.scroller.getBoundingClientRect();
+      assignScroll(E.ox + point.x * E.scale - (point.clientX - vr.left - E.scroller.clientLeft), E.oy + point.y * E.scale - (point.clientY - vr.top - E.scroller.clientTop));
+    } else if (place === 'top') assignScroll(E.ox + sw / 2 - cw / 2, E.pageScroll.top);
+    else if (place === 'bottom') assignScroll(E.ox + sw / 2 - cw / 2, E.pageScroll.bottom);
+    else if (place === 'center') assignScroll(E.ox + sw / 2 - cw / 2, E.oy + sh / 2 - ch / 2);
+    else assignScroll(E.ox + anchor.x * E.scale - cw / 2, E.oy + anchor.y * E.scale - ch / 2);
+    E._scrollTo = null; E._scrollPoint = null;
     drawGrid();
     E.drawRulers();
     E.drawOverlay();
     L.bus.emit('zoom');
   };
-  E.setZoom = function (z) {
+  E.setZoom = function (z, how) {
     if (z === 'fit') E.zoom = 'fit';
     else E.zoom = L.clamp(z, 0.1, 4);
-    E.layout();
+    if (how && how.point) E.layout({ scroll: 'point', point: how.point });
+    else E.layout({ scroll: z === 'fit' ? 'center' : 'keep' });
     L.ui.refresh();
+  };
+  /* change slides from a scroll that has already shown the rest of this one. At either end, stay and sit on the content. */
+  function turnSlide(dir) {
+    const n = L.pres.slides.length;
+    const i = E.idx + dir;
+    if (i < 0 || i >= n) {
+      const p = E.pageScroll;
+      if (p && p.vert) assignScroll(null, dir < 0 ? p.top : p.bottom);
+      return false;
+    }
+    E.goto(i, { scroll: dir > 0 ? 'top' : 'bottom' });
+    return true;
+  }
+  E.onWheel = function (e) {
+    if (E.view !== 'normal' || E.editing() || pressing) return;
+    let dy = e.deltaY, dx = e.deltaX;
+    if (e.deltaMode === 1) { dy *= 16; dx *= 16; }
+    else if (e.deltaMode === 2) { dy *= E.scroller.clientHeight || 1; dx *= E.scroller.clientWidth || 1; }
+    if (!dy || Math.abs(dx) > Math.abs(dy)) return;
+    const p = E.pageScroll;
+    if (!p) return;
+    e.preventDefault();
+    const st = E.scroller.scrollTop;
+    if (p.vert && dy > 0 && st < p.bottom - 1) { E._wheelAcc = 0; assignScroll(null, Math.min(p.bottom, st + dy)); return; }
+    if (p.vert && dy < 0 && st > p.top + 1) { E._wheelAcc = 0; assignScroll(null, Math.max(p.top, st + dy)); return; }
+    E._wheelAcc = Math.sign(E._wheelAcc || 0) === Math.sign(dy) ? (E._wheelAcc || 0) + dy : dy;
+    if (Math.abs(E._wheelAcc) < WHEEL_PAGE) return;
+    const now = Date.now();
+    if (now - (E._wheelT || 0) < WHEEL_GAP) return;
+    E._wheelAcc = 0; E._wheelT = now;
+    turnSlide(dy > 0 ? 1 : -1);
+  };
+  E.onScroll = function () {
+    if (E._scrollLock || pressing || E._turning) return;
+    if (E.view !== 'normal' || E.editing()) return;
+    const p = E.pageScroll;
+    if (!p || !p.vert || !p.runway) return;
+    const st = E.scroller.scrollTop;
+    const thresh = Math.min(RUNWAY_FLIP, p.runway / 2);
+    if (st > p.bottom + thresh) {
+      if (E._scrollLatch === 1) return;
+      E._turning = true;
+      const moved = turnSlide(1);
+      E._turning = false;
+      if (moved) E._scrollLatch = 1;
+    } else if (st < p.top - thresh) {
+      if (E._scrollLatch === -1) return;
+      E._turning = true;
+      const moved = turnSlide(-1);
+      E._turning = false;
+      if (moved) E._scrollLatch = -1;
+    } else if (st >= p.top - 1 && st <= p.bottom + 1) E._scrollLatch = 0;
   };
   E.zoomPct = () => Math.round((E.scale / L.PX_PER_PT) * 100);
 
@@ -261,6 +428,9 @@
     const changed = i !== E.idx;
     E.idx = i;
     E.sel = [];
+    E._scrollTo = (opts && opts.scroll) || 'center';
+    E._wheelAcc = 0;
+    E._scrollLatch = 0;
     E.render();
     if (changed || (opts && opts.force)) L.bus.emit('slide-changed');
     L.ui.refresh();

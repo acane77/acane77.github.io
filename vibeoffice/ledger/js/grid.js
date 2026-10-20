@@ -187,39 +187,88 @@
 
   /* ------------------------------------------------------------ scrollbars */
   /** The browser's own scrollbar, as in Quire and Lectern: el scrolls a spacer sized so the thumb shows
-   *  page out of total rows (or columns); the scroll position maps back to the first row or column shown. */
+   *  page out of total rows (or columns); the scroll position maps back to the first row or column shown.
+   *  A click on the grid repaints and rewrites this spacer. That rewrite fires scroll on its own (the style
+   *  change, then scroll anchoring, then assigning scrollTop — more than one event). Those are not the user.
+   *  Only a press on the bar itself moves the sheet, and a scroll that arrives while we are writing the bar
+   *  is ignored through the following frame. The offset ratio stays inside 0..1, so a thumb clamped to the
+   *  end of a shorter track cannot become the last row of the sheet. */
   class Scrollbar {
     constructor(el, orient, onScroll) {
       this.el = el; this.v = orient === 'v'; this.onScroll = onScroll;
       this.pos = 0; this.page = 10; this.total = 100; this.min = 0;
+      this.holding = false; this.quiet = false; this.quietGen = 0; this._held = false;
       this.spacer = h('i');
       el.appendChild(this.spacer);
+      const press = (e) => { if (e.button === 0) this.hold(); };
+      el.addEventListener('pointerdown', press);
+      el.addEventListener('mousedown', press);
       el.addEventListener('scroll', () => {
-        if (this.quiet) { this.quiet = false; return; }        // our own set(), not the user
+        if (this.quiet || !this.holding) return;
         const p = Math.round(this.fromScroll());
-        if (p !== this.pos) this.onScroll(p, p < this.pos ? 'up' : 'down');
+        if (p !== Math.round(this.pos)) this.onScroll(p, p < this.pos ? 'up' : 'down');
       });
       el.addEventListener('pointerup', () => G.focus());
     }
+    /** the pointer is on the bar; the scroll from a track click can follow the release by a frame */
+    hold() {
+      this.holding = true;
+      if (this._held) return;
+      this._held = true;
+      const end = () => {
+        if (!this._held) return;
+        this._held = false;
+        window.removeEventListener('pointerup', end, true);
+        window.removeEventListener('mouseup', end, true);
+        window.removeEventListener('pointercancel', end, true);
+        requestAnimationFrame(() => requestAnimationFrame(() => { this.holding = false; }));
+      };
+      window.addEventListener('pointerup', end, true);
+      window.addEventListener('mouseup', end, true);
+      window.addEventListener('pointercancel', end, true);
+    }
+    /** ignore scroll events caused by the write below. While the user is dragging the thumb, only the
+        synchronous ones: the next movement of the thumb must still count. */
+    mute() {
+      this.quiet = true;
+      if (this.holding) return;
+      const n = ++this.quietGen;
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (this.quietGen === n) this.quiet = false; }));
+    }
     len() { return this.v ? this.el.clientHeight : this.el.clientWidth; }
+    at() { return this.v ? this.el.scrollTop : this.el.scrollLeft; }
+    room() { return (this.v ? this.el.scrollHeight : this.el.scrollWidth) - this.len(); }
     /** the row (column) the current scroll offset stands for */
     fromScroll() {
-      const room = (this.v ? this.el.scrollHeight : this.el.scrollWidth) - this.len();
-      const at = this.v ? this.el.scrollTop : this.el.scrollLeft;
-      return this.min + (room > 0 ? at / room : 0) * Math.max(0, this.total - this.min - this.page);
+      const room = this.room(), span = Math.max(0, this.total - this.min - this.page);
+      if (!(room > 0) || !span) return this.min;
+      const ratio = Math.min(1, Math.max(0, this.at() / room));
+      return this.min + ratio * span;
     }
     set(pos, page, total, min) {
       this.pos = pos; this.page = page; this.total = Math.max(total, pos + page); this.min = min || 0;
+      const len = this.len();
+      if (len <= 0) return;
       const span = Math.max(1, this.total - this.min);
-      const size = Math.min(1e7, Math.max(this.len() + 1, Math.round(this.len() * span / Math.max(1, page))));
-      this.spacer.style.cssText = this.v ? `display:block;width:1px;height:${size}px` : `display:block;height:1px;width:${size}px`;
-      /* leave the offset alone while it already shows this row, so dragging the thumb stays smooth */
-      if (Math.round(this.fromScroll()) === Math.round(pos)) return;
-      const room = size - this.len();
-      const off = Math.round(room * Math.min(1, Math.max(0, (pos - this.min) / Math.max(1, this.total - this.min - this.page))));
-      if (off === (this.v ? this.el.scrollTop : this.el.scrollLeft)) return;
+      const size = Math.min(1e7, Math.max(len + 1, Math.round(len * span / Math.max(1, page))));
+      const sizeSame = this._size === size;
+      /* leave the offset alone while it already shows this row, so dragging the thumb stays smooth,
+         and skip rewriting the spacer when nothing changed — that rewrite is what made a cell click scroll */
+      if (sizeSame && Math.round(this.fromScroll()) === Math.round(pos)) return;
+      const denom = Math.max(1, this.total - this.min - this.page);
       this.quiet = true;
-      if (this.v) this.el.scrollTop = off; else this.el.scrollLeft = off;
+      try {
+        if (!sizeSame) {
+          this._size = size;
+          this.spacer.style.cssText = this.v ? `display:block;width:1px;height:${size}px` : `display:block;height:1px;width:${size}px`;
+        }
+        const room = Math.max(0, this.room());
+        const off = Math.round(room * Math.min(1, Math.max(0, (pos - this.min) / denom)));
+        if (off !== this.at()) { if (this.v) this.el.scrollTop = off; else this.el.scrollLeft = off; }
+      } finally {
+        if (this.holding) this.quiet = false;
+        else this.mute();
+      }
     }
   }
 
@@ -381,6 +430,10 @@
 
   /* ------------------------------------------------------------ mouse */
   let drag = null;
+  /* true only when a press began on a selection border that was already there (the move cursor). The second
+     press of a double-click lands on the border of the cell the first press just selected — a few pixels in
+     from the edge, the cursor still the cross — and must not count. */
+  let borderArmed = false, lastPressAt = 0;
   const pt = (e) => { const r = wrap.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   /** what is under the pointer (adds resize / fill / border zones) */
   function zone(p) {
@@ -465,8 +518,14 @@
     L.ui.closeMenus();
     G.deselectObject();
     const p = pt(e);
-    if (e.pointerType === 'touch') { if (touchN > 1) return; startTouch(e, p); return; }
-    const z = zone(p);
+    if (e.pointerType === 'touch') { borderArmed = false; if (touchN > 1) return; startTouch(e, p); return; }
+    let z = zone(p);
+    const now = e.timeStamp;
+    const follow = lastPressAt && now - lastPressAt < 500;
+    if (!follow) borderArmed = z.kind === 'border';
+    lastPressAt = now;
+    /* the border under this press is the one the previous press just drew; keep it a cell click */
+    if (follow && z.kind === 'border' && !borderArmed) z = Object.assign({}, z, { kind: 'cell' });
     const ed = L.editor;
     /* formula point mode: clicking a cell inserts a reference */
     if (ed && ed.active && ed.canPoint() && (z.kind === 'cell' || z.kind === 'colhdr' || z.kind === 'rowhdr' || z.kind === 'border' || z.kind === 'fill')) {
@@ -797,8 +856,8 @@
       if (z.kind === 'colres') { if (G.guardProtect('formatColumns')) return; const s = G.sel(); O.autofitCols(sh, colsForResize(s, z.c)); return; }
       if (z.kind === 'rowres') { if (G.guardProtect('formatRows')) return; const s = G.sel(); O.autofitRows(sh, rowsForResize(s, z.r)); return; }
       if (z.kind === 'fill') { L.app.fillDownToData(); return; }
-      if (z.kind === 'border') {
-        /* jump to the edge of the data in that direction */
+      if (z.kind === 'border' && borderArmed && curCls === 'cur-move') {
+        /* the pointer was already on the selection border (the move cursor) when the double-click began */
         const s = G.sel(), rg = s.ranges[0];
         const q = G.cellRect(rg.r1, rg.c1);
         const p = pt(e);
@@ -806,7 +865,7 @@
         G.move(dir[0], dir[1], { ctrl: true });
         return;
       }
-      if (z.kind === 'cell') {
+      if (z.kind === 'cell' || z.kind === 'border') {
         if (sh.comments.get(M.key(z.r, z.c)) && L.app.editComment && e.altKey) { L.app.editComment(z.r, z.c); return; }
         L.editor.begin('edit', null, { caretFromPoint: pt(e) });
       }
