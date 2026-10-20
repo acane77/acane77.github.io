@@ -325,7 +325,7 @@
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
 [data-look="win7"] .cmdbars { background: #f0f0f0; border-bottom-color: #c8c8c8; }
-[data-look="win7"] .menurow { height: 20px; min-height: 20px; background: linear-gradient(#fff 20%, #f1f4fa 25%, #f1f4fa 43%, #d4dbee 48%, #e6eaf6); border-bottom: 1px solid #d0d0d0; }
+[data-look="win7"] .menurow { height: 20px; min-height: 20px; background: linear-gradient(#fff 20%, #f1f4fa 25%, #f1f4fa 43%, #d4dbee 48%, #e6eaf6); border-bottom: 1px solid #d0d0d0; overflow-y: hidden; }
 [data-look="win7"] .mb-item { border-radius: 0; }
 [data-look="win7"] .mb-item:hover, [data-look="win7"] .mb-item.open { background: #3399ff; color: #fff; border-color: #3399ff; }
 [data-look="win7"] .menu { font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); }
@@ -654,7 +654,7 @@
   --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
-[data-look="xp"] .menurow { height: 20px; min-height: 20px; background: #e8e6d6; }
+[data-look="xp"] .menurow { height: 20px; min-height: 20px; background: #e8e6d6; overflow-y: hidden; }
 [data-look="xp"] .mb-item { border-radius: 0; }
 [data-look="xp"] .mb-item:hover, [data-look="xp"] .mb-item.open { background: rgb(64, 102, 196); color: #fff; border-color: rgb(64, 102, 196); }
 [data-look="xp"] .menu { font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); }
