@@ -459,6 +459,7 @@
   C('help', { label: 'Quire &Help', menuLabel: 'Quire &Help', icon: 'help', key: 'F1', tip: 'Help', run: pane('help') });
   C('gettingStarted', { label: '&Getting Started', run: pane('getting-started') });
   C('keyboardHelp', { label: '&Keyboard Shortcuts', run: () => { if (L.panes) { L.panes.helpTopic = 'keys'; pane('help')(); } } });
+  C('domConsole', { label: 'Quire DOM &Console', run: () => L.domConsole && L.domConsole.open() });
   C('about', { label: '&About Quire', run: dlg('about') });
 
   /* ================= Reviewing ================= */

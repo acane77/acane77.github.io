@@ -14,7 +14,7 @@
       setLanguage: 'language', deleteAllComments: 'delete', showComments: 'comment', compareDocs: 'compare', newWindow: 'newWindow', arrangeAll: 'arrangeAll', splitWindow: 'split',
       macros: 'macros', headingRows: 'headingRows', splitTable: 'splitTable', tableToText: 'tableToText', formulaDlg: 'fx', wordartEdit: 'editText', hfClose: 'close' },
     qat: ['save', { split: 'undo', menu: (r) => A().historyMenu(r, 'undo') }, { split: 'redo', menu: (r) => A().historyMenu(r, 'redo') }],
-    file: () => ['new', 'open', 'close', 'templates', 'fileSearch', '-', 'save', 'saveAs', 'saveWeb', 'webPreview', '-', 'properties', 'permission', 'links', '-', 'pageSetup', 'printPreview', 'print', '-', 'exportPDF', 'sendMail', '-', 'optionsDlg', 'help', ui.themeMenu(), ui.languageMenu(), 'about', '-', 'exitApp'],
+    file: () => ['new', 'open', 'close', 'templates', 'fileSearch', '-', 'save', 'saveAs', 'saveWeb', 'webPreview', '-', 'properties', 'permission', 'links', '-', 'pageSetup', 'printPreview', 'print', '-', 'exportPDF', 'sendMail', '-', 'optionsDlg', 'help', 'domConsole', ui.themeMenu(), ui.languageMenu(), 'about', '-', 'exitApp'],
     tabs: [
       { id: 'home', label: '&Home', groups: [
         { label: 'Clipboard', launcher: 'officeClipboard', items: [{ split: 'paste', size: 'large', menu: open(['paste', 'pasteSpecial', 'pasteHyperlink']) }, 'cut', 'copy', 'painter'] },

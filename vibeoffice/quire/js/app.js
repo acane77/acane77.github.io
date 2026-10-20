@@ -89,7 +89,7 @@
           'headingRows', { label: 'Con&vert', sub: ['textToTable', 'tableToText'] }, 'sortDlg', 'formulaDlg', 'gridlines', '-', 'tableProps'],
       },
       { label: '&Window', items: () => ['newWindow', 'arrangeAll', 'splitWindow', '-', ...A.windowItems()] },
-      { label: '&Help|menu bar', items: ['help', 'showAssistant', '-', 'gettingStarted', 'keyboardHelp', '-', ui.themeMenu(), ui.languageMenu(), 'about'] },
+      { label: '&Help|menu bar', items: ['help', 'showAssistant', '-', 'gettingStarted', 'keyboardHelp', 'domConsole', '-', ui.themeMenu(), ui.languageMenu(), 'about'] },
     ];
     const row = L.$('#menurow');
     A.menuBar = ui.menuBar(row, menus);
