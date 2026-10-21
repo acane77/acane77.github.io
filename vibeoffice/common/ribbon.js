@@ -129,8 +129,14 @@
     }
     return panels.get(id);
   }
+  /* the tab shows its name only. An access letter written as (&F) or &File stays off the button; Alt still shows it as a KeyTip. */
+  function tabFace(label) {
+    const shown = L.t ? L.t(label) : String(label || '');
+    const bare = shown.replace(/[（(]\s*&([^&\s])\s*[）)]/g, '').replace(/&&/g, '\0').replace(/&(\S)/g, '$1').replace(/\0/g, '&').trim();
+    return L.esc(bare || (L.t ? L.t(label) : String(label || '')));
+  }
   function tabButton(t, cls) {
-    const b = h('button', { class: 'rb-tab' + (cls ? ' ' + cls : ''), type: 'button', role: 'tab', 'data-tab': t.id, html: ui.ampHTML(t.label) });
+    const b = h('button', { class: 'rb-tab' + (cls ? ' ' + cls : ''), type: 'button', role: 'tab', 'data-tab': t.id, html: tabFace(t.label) });
     b.addEventListener('pointerdown', (e) => e.preventDefault());
     b.addEventListener('click', () => (t.id === 'file' ? openFile(b) : RB.select(t.id)));
     if (t.id !== 'file') b.addEventListener('dblclick', () => RB.collapse());

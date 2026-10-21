@@ -313,6 +313,7 @@
       settings: { defTab: 36, evenOdd: false, track: false, protect: null, fnPr: { fmt: 'decimal', pos: 'pageBottom', start: 1, restart: 'continuous' }, enPr: { fmt: 'lowerRoman', pos: 'docEnd', start: 1 }, mirror: false, fieldShade: 'selected', autoHyphen: false },
       props: { title: '', subject: '', creator: L.store.get('userName', 'Quire User'), keywords: '', description: '', lastModifiedBy: '', category: '', company: '', manager: '', created: new Date().toISOString(), modified: new Date().toISOString(), revision: 1 },
       custom: {},
+      macros: [],
       theme: { major: 'Cambria', minor: 'Calibri' },
       bg: null, watermark: null, rsid: L.uid('r'),
     };
@@ -939,7 +940,7 @@
     t.full = { snap: D.snapshot(D.doc) };
     t.global = true;
   };
-  const DOC_KEYS = ['main', 'sect', 'styles', 'defaults', 'numbering', 'hf', 'fn', 'en', 'comments', 'settings', 'props', 'custom', 'theme', 'bg', 'watermark', 'keep', 'losses', 'ooxmlFormat'];
+  const DOC_KEYS = ['main', 'sect', 'styles', 'defaults', 'numbering', 'hf', 'fn', 'en', 'comments', 'settings', 'props', 'custom', 'macros', 'theme', 'bg', 'watermark', 'keep', 'losses', 'ooxmlFormat'];
   D.snapshot = (doc) => { const o = {}; for (const k of DOC_KEYS) o[k] = doc[k]; return L.clone(o); };
   D.restoreSnapshot = (doc, s) => { const c = L.clone(s); for (const k of DOC_KEYS) doc[k] = c[k]; doc._idxDirty = true; D.stylesChanged(); };
 

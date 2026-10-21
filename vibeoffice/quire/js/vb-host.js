@@ -1,4 +1,5 @@
-/* Quire VB host. Immediate VM for evalVB6, a second VM for runVB6.
+/* Quire VB host. Immediate VM for evalVB6, a second VM for runVB6,
+   and a document-macro VM that stays loaded so macros can call each other.
    Form slots stay empty until a form project is loaded.
    Build the engine first: make */
 (function () {
@@ -176,6 +177,44 @@
     return { value: result.kind === 'empty' ? undefined : result.value };
   };
 
+  function procedure(machine, name) {
+    const key = String(name).toLowerCase();
+    let found = null;
+    for (const instance of machine.instances.values()) {
+      const mod = instance.module;
+      if (!mod || !mod.procedures) continue;
+      const proc = mod.procedures.get(key);
+      if (!proc || proc.kind !== 'sub' || proc.scope === 'private') continue;
+      const modName = String(mod.name || '').toLowerCase();
+      if (modName === key) return { instance: instance, proc: proc };
+      if (!found && modName !== 'quiredom') found = { instance: instance, proc: proc };
+    }
+    return found;
+  }
+
+  function procedureMissing(engine, name) {
+    const msg = L.t ? L.t('Procedure not found: {0}', name) : String(name);
+    return new engine.VBError(msg, 35);
+  }
+
+  /* The engine treats a standard module's name as an object, and that object hides a procedure of the
+     same name. The module is therefore not named after the macro, so another macro can call the public Sub. */
+  function macroModules(macros) {
+    const modules = [{ id: 'quire-dom', name: 'QuireDOM', kind: 'module', code: moduleCode() }];
+    const used = new Set(['quiredom']);
+    for (const macro of macros) {
+      const called = String((macro && macro.name) || '').toLowerCase();
+      if (called) used.add(called);
+    }
+    for (let i = 0; i < macros.length; i++) {
+      let name = 'VibeMacro' + (i + 1);
+      while (used.has(name.toLowerCase())) name += 'X';
+      used.add(name.toLowerCase());
+      modules.push({ id: 'm' + (i + 1), name: name, kind: 'module', code: String((macros[i] && macros[i].source) || '') });
+    }
+    return modules;
+  }
+
   function projectOf(id, modules) {
     return {
       schema: 1,
@@ -292,7 +331,7 @@
       const inst = machine.instances.get('script');
       const key = String(entry).toLowerCase();
       const proc = inst && (inst.module.procedures.get(key) || inst.module.procedures.get(key + ':get'));
-      if (!proc || proc.scope === 'private') throw new this.engine.VBError('Procedure not found: ' + entry, 35);
+      if (!proc || proc.scope === 'private') throw procedureMissing(this.engine, entry);
       const list = args || [];
       if (proc.kind === 'sub') {
         await machine.callProcedure(inst, proc, list);
@@ -310,6 +349,103 @@
     }
   };
 
+  /* Document macros. One project, one module each, kept after the call so they can call each other. */
+  QuireVbHost.prototype.unloadMacros = function () {
+    const machine = this.macroMachine;
+    this.macroMachine = null;
+    this.macroMaps = null;
+    if (this.script === machine) this.script = null;
+    if (machine && machine.stop && machine.state !== 'stopped') {
+      try { machine.stop(); } catch (e) { /* already stopped */ }
+    }
+  };
+
+  QuireVbHost.prototype.loadMacros = async function (macros) {
+    if (this.script || (this.vm && this.vm.debugEvaluation)) {
+      const err = new Error(this.script ? 'A VB script is running' : 'A VB statement is running');
+      err.code = 'vb-busy';
+      throw err;
+    }
+    if (!this.vm || this.vm.state === 'stopped' || !this.ir || !this.engine) {
+      throw new Error('The VB runtime is not running');
+    }
+    this.unloadMacros();
+    const saved = { byHandle: this.byHandle, byObject: this.byObject, auto: this.auto };
+    this.byHandle = new Map();
+    this.byObject = new WeakMap();
+    this.auto = null;
+    let machine = null;
+    try {
+      machine = new this.engine.VirtualMachine(projectOf('quire-vb-macros', macroModules(macros)), this.machineHost(this.registry()), { debuggerEnabled: false });
+      await machine.initialize();
+      await this.bindQuire(machine);
+      machine.setState('running');
+      this.macroMachine = machine;
+      this.macroMaps = { byHandle: this.byHandle, byObject: this.byObject, auto: this.auto };
+    } catch (e) {
+      if (machine && machine.stop) { try { machine.stop(); } catch (err) { /* already stopped */ } }
+      throw e;
+    } finally {
+      this.byHandle = saved.byHandle;
+      this.byObject = saved.byObject;
+      this.auto = saved.auto;
+    }
+  };
+
+  QuireVbHost.prototype.runSaved = async function (name) {
+    if (this.script) throw new Error('A VB script is running');
+    if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
+    if (!this.macroMachine || !this.macroMaps) throw new Error('The document macros are not loaded');
+    const saved = { byHandle: this.byHandle, byObject: this.byObject, auto: this.auto };
+    this.byHandle = this.macroMaps.byHandle;
+    this.byObject = this.macroMaps.byObject;
+    this.auto = this.macroMaps.auto;
+    this.script = this.macroMachine;
+    try {
+      if (this.macroMachine.state !== 'running') this.macroMachine.setState('running');
+      const found = procedure(this.macroMachine, name);
+      if (!found) throw procedureMissing(this.engine, name);
+      await this.macroMachine.callProcedure(found.instance, found.proc, []);
+    } finally {
+      this.macroMaps = { byHandle: this.byHandle, byObject: this.byObject, auto: this.auto };
+      this.script = null;
+      this.byHandle = saved.byHandle;
+      this.byObject = saved.byObject;
+      this.auto = saved.auto;
+    }
+  };
+
+  /* The editor buffer plus the other saved macros, on a machine that is thrown away. */
+  QuireVbHost.prototype.runDraft = async function (macros, entry) {
+    if (this.script) throw new Error('A VB script is running');
+    if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
+    if (!this.vm || this.vm.state === 'stopped' || !this.ir || !this.engine) {
+      throw new Error('The VB runtime is not running');
+    }
+    const saved = { byHandle: this.byHandle, byObject: this.byObject, auto: this.auto };
+    this.byHandle = new Map();
+    this.byObject = new WeakMap();
+    this.auto = null;
+    let machine = null;
+    this.script = true;
+    try {
+      machine = new this.engine.VirtualMachine(projectOf('quire-vb-draft', macroModules(macros)), this.machineHost(this.registry()), { debuggerEnabled: false });
+      this.script = machine;
+      await machine.initialize();
+      await this.bindQuire(machine);
+      machine.setState('running');
+      const found = procedure(machine, entry);
+      if (!found) throw procedureMissing(this.engine, entry);
+      await machine.callProcedure(found.instance, found.proc, []);
+    } finally {
+      try { if (machine && machine.state !== 'stopped') machine.stop(); } catch (e) { /* already stopped */ }
+      this.script = null;
+      this.byHandle = saved.byHandle;
+      this.byObject = saved.byObject;
+      this.auto = saved.auto;
+    }
+  };
+
   QuireVbHost.prototype.eval = function (text) {
     if (this.script) return Promise.reject(new Error('A VB script is running'));
     if (!this.vm || this.vm.state === 'stopped') return Promise.reject(new Error('The VB runtime is not running'));
@@ -317,6 +453,7 @@
   };
 
   QuireVbHost.prototype.close = function () {
+    this.unloadMacros();
     const script = this.script;
     this.script = null;
     if (script && script.stop && script.state !== 'stopped') {
@@ -340,6 +477,8 @@
   function alive(host) {
     return !!(host && host.vm && host.vm.state !== 'stopped');
   }
+
+  function current() { return alive(shared) ? shared : null; }
 
   function session() {
     if (alive(shared)) return Promise.resolve(shared);
@@ -371,6 +510,21 @@
     return host.run(source, entry, args);
   }
 
+  async function loadMacros(macros) {
+    const host = await session();
+    return host.loadMacros(macros);
+  }
+
+  async function runSaved(name) {
+    const host = await session();
+    return host.runSaved(name);
+  }
+
+  async function runDraft(macros, entry) {
+    const host = await session();
+    return host.runDraft(macros, entry);
+  }
+
   async function open() {
     const host = new QuireVbHost();
     await host.start();
@@ -385,5 +539,9 @@
     QuireVbHost: QuireVbHost,
     open: open,
     session: session,
+    current: current,
+    loadMacros: loadMacros,
+    runSaved: runSaved,
+    runDraft: runDraft,
   };
 })();

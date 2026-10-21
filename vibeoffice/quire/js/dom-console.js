@@ -1,5 +1,8 @@
 /* Quire DOM Console. Help opens a modeless window; the script runs in this page.
    Visual Basic 6 uses evalVB6. Run Script uses runVB6.
+   An empty Run Script buffer opens on a sample Sub Main that types one sentence at the cursor.
+   Opened from Macros, the same window edits that macro: the name is read-only, Save writes it back, and Run tries the buffer with the other saved macros.
+   A macro name that is not one Visual Basic identifier is refused as soon as that window opens, and dismissing the message closes it.
    The object model is js/dom.js. xterm is public/common/vendor/xterm/.
    The script editor is public/common/vendor/codemirror/. */
 (function (window) {
@@ -310,6 +313,26 @@
   const LANG_KEY = 'vibeoffice.quire.domConsole.lang';
   const SCRIPT_KEY = 'vibeoffice.quire.vbScript';
   const SCRIPT_LOG_KEY = 'vibeoffice.quire.vbScriptLog';
+  /* Shown when Run Script has never been edited, or the buffer was empty when it last closed.
+     A macro keeps its own source. The sample types at the caret and does not open a document. */
+  const DEFAULT_SCRIPT =
+    "' Welcome to Visual Basic Playground\n" +
+    "' Write your own Visual Basic code in this editor,\n" +
+    "' then click Run to run and test it.\n" +
+    "'\n" +
+    "' See also: Office VBA Documentation:\n" +
+    "'    https://learn.microsoft.com/en-us/office/vba/api/overview/Word/object-model\n" +
+    "\n" +
+    "' Your code should contain a Main procedure\n" +
+    'Sub Main()\n' +
+    "  ' Write a line of text to document.\n" +
+    '  Selection.TypeText "Hello World from Visual Basic"\n' +
+    'End Sub\n';
+
+  function scriptSource(src) {
+    const text = src == null ? '' : String(src);
+    return text.trim() ? text : DEFAULT_SCRIPT;
+  }
 
   function storedLang() {
     try {
@@ -707,28 +730,45 @@
     } catch (e) { /* private mode */ }
   }
 
-  function openScript() {
+  function openScript(opts) {
+    opts = opts || {};
     if (typeof document === 'undefined' || !L.ui || typeof L.ui.dialog !== 'function') return;
     if (scriptBox && scriptBox.dlg.isConnected) {
       try { scriptBox.dlg.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); } catch (e) { /* focus is enough */ }
-      if (scriptBox.editor) scriptBox.editor.focus();
+      if (scriptBox.show) scriptBox.show(opts.macro || null);
+      else if (scriptBox.editor) scriptBox.editor.focus();
       return;
     }
     if (typeof window.CodeMirror !== 'function') {
       if (L.ui.msg) L.ui.msg('The script editor did not load.');
       return;
     }
+    const nameInput = L.h('input', { type: 'text', id: 'vb-script-macro-name', class: 'vb-script-name-input', spellcheck: 'false', autocomplete: 'off', translate: 'no' });
+    nameInput.readOnly = true;
+    const nameRow = L.h('div', { class: 'vb-script-name', hidden: true },
+      L.h('label', { for: 'vb-script-macro-name', html: L.ui.ampHTML('Macro na&me:') }),
+      nameInput);
     const area = L.h('textarea', { class: 'vb-script-src' });
     const log = L.h('textarea', { class: 'vb-script-out', rows: '6', readonly: 'readonly', spellcheck: 'false' });
-    try {
-      area.value = localStorage.getItem(SCRIPT_KEY) || '';
-      log.value = localStorage.getItem(SCRIPT_LOG_KEY) || '';
-    } catch (e) { /* private mode */ }
     const editorHost = L.h('div', { class: 'vb-script-editor' });
     let editor = null;
+    let saveBtn = null;
+    let box = null;
+    let macro = null;
+    let savedSource = '';
     let running = false;
+    let asking = false;
+    let rejecting = false;
     function text() { return editor ? editor.getValue() : area.value; }
-    function persist() { rememberScript(text(), log.value); }
+    function setText(value) {
+      if (editor) editor.setValue(value);
+      else area.value = value;
+    }
+    function scratchText() {
+      try { return { src: localStorage.getItem(SCRIPT_KEY) || '', log: localStorage.getItem(SCRIPT_LOG_KEY) || '' }; }
+      catch (e) { return { src: '', log: '' }; }
+    }
+    function persist() { if (macro) return; rememberScript(text(), log.value); }
     function append(line) {
       const chunk = String(line);
       if (!chunk) return;
@@ -736,11 +776,82 @@
       log.scrollTop = log.scrollHeight;
       persist();
     }
+    function save() {
+      if (!macro || !L.macros || !L.macros.commit) return false;
+      const ok = L.macros.commit(macro.name, text(), { created: macro.created, author: macro.author, store: macro.store });
+      if (ok) { savedSource = text(); macro.source = savedSource; }
+      else if (macro.store === 'all' && L.ui && L.ui.msg) L.ui.msg('The macros stored on this computer could not be saved.', { icon: 'error', title: 'Macros' });
+      return !!ok;
+    }
+    function apply(next) {
+      macro = next || null;
+      nameRow.hidden = !macro;
+      if (saveBtn) saveBtn.hidden = !macro;
+      if (macro) {
+        nameInput.value = macro.name || '';
+        nameInput.readOnly = true;
+        savedSource = macro.source || '';
+        log.value = '';
+        setText(savedSource);
+      } else {
+        const stored = scratchText();
+        savedSource = '';
+        log.value = stored.log;
+        setText(scriptSource(stored.src));
+      }
+      if (editor) editor.focus();
+    }
+    async function askClose() {
+      if (!macro || text() === savedSource) { if (box) box.close(); return; }
+      if (asking) return;
+      asking = true;
+      try {
+        const i = await L.ui.msg('Save the changes to this macro?', { icon: 'question', title: 'Run Visual Basic Script', buttons: [L.t('Save'), L.t("Don't Save"), L.t('Cancel')] });
+        if (i === 0) { if (save() && box) box.close(); }
+        else if (i === 1 && box) box.close();
+      } finally { asking = false; }
+    }
+    function legalName(next) {
+      return !next || !!(L.macros && L.macros.vbIdentifier && L.macros.vbIdentifier(next.name));
+    }
+    async function rejectName(next) {
+      if (legalName(next) || rejecting) return false;
+      rejecting = true;
+      try {
+        if (L.ui && L.ui.msg) await L.ui.msg('The procedure name is not a legal Visual Basic identifier.', { icon: 'warn', title: 'Run Visual Basic Script' });
+      } finally {
+        rejecting = false;
+        if (box && !legalName(macro)) box.close();
+      }
+      return true;
+    }
+    async function show(next) {
+      const home = (m) => (m && m.store === 'all' ? 'all' : 'document');
+      const same = !!(macro && next && next.name === macro.name && home(next) === home(macro) && text() === (next.source || ''));
+      if (same) { if (editor) editor.focus(); }
+      else {
+        if (macro && text() !== savedSource) {
+          if (asking) return;
+          asking = true;
+          let i;
+          try {
+            i = await L.ui.msg('Save the changes to this macro?', { icon: 'question', title: 'Run Visual Basic Script', buttons: [L.t('Save'), L.t("Don't Save"), L.t('Cancel')] });
+          } finally { asking = false; }
+          if (i === 0) { if (!save()) return; }
+          else if (i !== 1) return;
+        }
+        apply(next);
+      }
+      await rejectName(next);
+    }
     async function run() {
       if (running) return;
       running = true;
       const code = text();
-      persist();
+      const editing = macro;
+      /* One run, one result. The saved log is the last run, not a transcript of every earlier one. */
+      log.value = '';
+      if (!editing) persist();
       const seq = L.D && L.D.hist ? L.D.hist.seq : null;
       const doc = L.D ? L.D.doc : null;
       let host = null;
@@ -748,12 +859,12 @@
       try {
         host = await L.vb.session();
         mark = host.output.length;
-        const value = await L.runVB6(code);
+        const value = editing && L.macros ? await L.macros.runDraft(editing.name, code, editing.store) : await L.runVB6(code);
         host.output.slice(mark).forEach(append);
-        if (value !== undefined) append(formatValue(value));
+        if (value !== undefined) append(editing ? String(value) : formatValue(value));
       } catch (e) {
         if (host) host.output.slice(mark).forEach(append);
-        append(formatValue(e));
+        append(editing && e && e.message ? e.message : formatValue(e));
       } finally {
         running = false;
         if (L.D && (L.D.doc !== doc || (seq !== null && L.D.hist && L.D.hist.seq !== seq))) {
@@ -761,20 +872,30 @@
         }
       }
     }
-    L.ui.dialog({
+    box = L.ui.dialog({
       title: 'Run Visual Basic Script',
       body: L.h('div', { class: 'vb-script-body' },
         editorHost,
+        nameRow,
         L.h('div', { class: 'vb-script-out-label', text: 'Output' }),
         log),
       width: 720,
       buttons: [
+        { label: 'Save', onClick: () => { save(); return false; } },
         { label: 'Run', primary: true, onClick: () => { run(); return false; } },
-        { label: 'Close' },
+        { label: 'Close', onClick: () => { askClose(); return false; } },
       ],
       modeless: true,
       onOpen: (el) => {
         el.classList.add('vb-script');
+        el.addEventListener('click', (e) => {
+          if (!e.target.closest || !e.target.closest('.dlg-x') || e.target.closest('.dlg-help')) return;
+          if (!macro || text() === savedSource) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          askClose();
+        }, true);
+        saveBtn = el.querySelector('.dlg-foot .btn');
         editorHost.appendChild(area);
         editor = window.CodeMirror.fromTextArea(area, {
           mode: 'text/x-vb',
@@ -782,13 +903,14 @@
           indentUnit: 2,
           tabSize: 2,
         });
-        editor.on('change', persist);
-        editor.focus();
-        scriptBox = { dlg: el, editor: editor };
+        editor.on('change', () => { if (!macro) persist(); });
+        scriptBox = { dlg: el, editor: editor, show: show };
+        apply(opts.macro || null);
         setTimeout(() => { if (editor) editor.refresh(); }, 0);
       },
-      onClose: () => { persist(); scriptBox = null; },
+      onClose: () => { if (!macro) persist(); scriptBox = null; },
     });
+    rejectName(opts.macro || null);
   }
 
   function open() {
@@ -832,5 +954,6 @@
     vbNeedsMore: vbNeedsMore,
     joinVb: joinVb,
     hoistFunctions: hoistFunctions,
+    scriptSource: scriptSource,
   };
 })(window);

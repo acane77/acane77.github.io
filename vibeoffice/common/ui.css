@@ -266,14 +266,23 @@ html:not([data-look="win7"]):not([data-look="xp"]) .dlg.toolbox > .dlg-title > .
 .dlg-help { font-size: 12px; font-weight: bold; }
 .dlg-body { padding: 8px 12px 6px; overflow: auto; min-height: 0; }
 .dlg-foot { display: flex; justify-content: flex-end; gap: 6px; padding: 6px 12px 9px; flex-wrap: wrap; }
+/* no buttons: keep the foot, with no padding, so the window's bottom edge stays (the glass under a Windows 7 client area) */
+.dlg > .dlg-foot:empty { padding: 0; gap: 0; min-height: 0; }
+.macro-dlg-body { display: flex; gap: 12px; align-items: stretch; }
+.macro-dlg-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.macro-dlg-side { display: flex; flex-direction: column; gap: 6px; width: 112px; flex: 0 0 auto; }
+.macro-dlg-side .btn { width: 100%; }
+.macro-dlg-list { height: 148px; }
+.macro-dlg-main select { width: 100%; box-sizing: border-box; }
+.macro-dlg-desc { width: 100%; height: 52px; box-sizing: border-box; resize: none; }
 .dlg-foot .btn.left { margin-right: auto; }
 /* inactive: the title and the window's own text fade. Windows 7 replaces this with its own frame (looks.css) */
-html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-title,
-html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-ttl,
-html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-x { color: var(--muted); }
-html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-body,
-html:not([data-look="win7"]):not([data-look="xp"]) .dlg.inactive .dlg-foot { color: var(--muted); }
-html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]) .dlg.inactive .dlg-title,
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]) .dlg.inactive .dlg-ttl,
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]) .dlg.inactive .dlg-x { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]) .dlg.inactive .dlg-body,
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]) .dlg.inactive .dlg-foot { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
 .btn { min-width: 75px; height: 23px; padding: 0 10px; border: 1px solid var(--btn-border); border-radius: 2px; background: linear-gradient(var(--btn-a), var(--btn-b)); cursor: default; }
 .btn:hover:not(:disabled) { border-color: var(--tb-border); background: linear-gradient(var(--btn-a), var(--btn-hot-b)); }
 .btn:active:not(:disabled) { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); }
@@ -282,6 +291,11 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not(
 .btn.small { min-width: 0; height: 21px; padding: 0 6px; }
 .dlg input[type=text], .dlg input[type=number], .dlg input[type=password], .dlg select, .dlg textarea, .tp-body input[type=text], .tp-body select { border: 1px solid var(--field-border); background: var(--surface); height: 21px; padding: 1px 3px; }
 .dlg textarea { height: auto; padding: 3px; resize: vertical; }
+/* Disabled and read-only text fields take the dialog's control colour. Disabled text is grey and cannot be clicked or selected; a read-only field keeps ordinary text and a selection. A disabled field is :read-only too, so the grey rule follows. Combo fields keep their own face. */
+.dlg input[type=text]:read-only:not(.combo-in), .dlg textarea:read-only,
+.tp-body input[type=text]:read-only:not(.combo-in), .tp-body textarea:read-only { background: var(--dlg); color: var(--dlg-ink); -webkit-text-fill-color: var(--dlg-ink); user-select: text; }
+.dlg input[type=text]:disabled:not(.combo-in), .dlg textarea:disabled,
+.tp-body input[type=text]:disabled:not(.combo-in), .tp-body textarea:disabled { background: var(--dlg); color: var(--dis-ink); -webkit-text-fill-color: var(--dis-ink); opacity: 1; user-select: none; pointer-events: none; cursor: default; }
 .dlg select, .tp-body select { padding: 0 1px; }
 .dlg select[size] { height: auto; }
 .dlg fieldset, .grp { border: 1px solid var(--grp-line); padding: 6px 8px 8px; margin: 0 0 8px; min-width: 0; }

@@ -201,7 +201,7 @@
   cmd('calcSheet', { label: 'Calculate Sheet', key: 'Shift+F9', run: run(() => A().calculateNow()) });
   cmd('autoCorrectDlg', { label: '&AutoCorrect Options...', run: run(() => D().autoCorrect()) });
   cmd('options', { label: '&Options...', run: run(() => D().options()) });
-  cmd('macros', { label: '&Macros...', key: 'Alt+F8', run: () => ui.msg(wb().macroEnabled ? 'This workbook contains macros. Ledger keeps them when you save as .xlsm, but cannot run them.' : 'Ledger does not run macros. Workbooks with macros (.xlsm) open and save with their macros intact.', { icon: 'info' }) });
+  cmd('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => ui.msg('Ledger does not run macros. Workbooks with macros (.xlsm) open and save with their macros intact.', { icon: 'info', title: 'Macros' }) });
   cmd('addIns', { label: 'Add-&Ins...', run: () => ui.msg('Analysis ToolPak functions (engineering, financial, date) are built in.', { icon: 'info' }) });
 
   /* ------------------------------------------------------------ Data */

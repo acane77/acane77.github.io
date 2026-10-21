@@ -509,9 +509,27 @@
   };
 
   /* ================= Macros, Templates & Organizer ================= */
-  G.macros = function () {
-    const lb = G.listBox([], null, { height: 140 });
-    ui.dialog({ title: 'Macros', width: 360, body: h('div', { class: 'col' }, h('label', { text: 'Macro name:' }), h('input', { type: 'text', style: 'width:100%', disabled: true }), lb, h('div', { class: 'tp-note', text: 'Macros are not run in Quire. VBA projects in .docm files are kept when the document is saved as .docm by Word, but Quire saves the document text only.' })), buttons: [{ label: 'Close', primary: true }] });
+  /* The notice comes first. OK opens the Macros window. The title's close button does not.
+     Never show this message again is unchecked until the user checks it and clicks OK. */
+  G.macros = async function () {
+    if (!L.store.get('macroNotice', false)) {
+      let hide = false;
+      const check = ui.check('Never show this message again', false, (v) => { hide = v; });
+      check.style.marginTop = '8px';
+      const i = await ui.dialog({
+        title: 'Notice on Macros in Quire',
+        width: 480,
+        body: h('div', {},
+          h('p', { text: 'Macros created by Microsoft Word are not executed in Quire. While VBA projects in .docm files are preserved when saved via Microsoft Word, Quire saves only the document text.' }),
+          h('p', { text: 'Additionally, macros created in Quire cannot be loaded or executed by Microsoft Word, nor can macros created in Word be loaded or executed by Quire.' }),
+          h('p', { text: 'The purpose of introducing Visual Basic-based macros in Quire is to automate document editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Word\'s .docm format or VBA projects.' }),
+          check),
+        buttons: [{ label: 'OK', primary: true }],
+      }).done;
+      if (i !== 0) return;
+      if (hide) L.store.set('macroNotice', true);
+    }
+    L.openMacroDialog();
   };
   G.templates = function () {
     const d = doc();

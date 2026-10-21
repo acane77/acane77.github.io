@@ -506,7 +506,9 @@
 [data-look="win7"] :is(.sb-zoom-btn, .tp-nav, .dlg-x.dlg-help):active { transition-duration: 250ms; }
 
 [data-look="win7"] .dlg input[type=text], [data-look="win7"] .dlg input[type=number], [data-look="win7"] .dlg input[type=password], [data-look="win7"] .dlg textarea,
-[data-look="win7"] .tp-body input[type=text] { background: #fff; border: 1px solid #ccc; border-top-color: #8e8f8f; border-radius: 2px; transition: border-color 1s var(--w7-ease), background-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="win7"] .tp-body input[type=text] { border: 1px solid #ccc; border-top-color: #8e8f8f; border-radius: 2px; transition: border-color 1s var(--w7-ease), background-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="win7"] .dlg input[type=text]:not(:read-only), [data-look="win7"] .dlg input[type=number]:not(:read-only), [data-look="win7"] .dlg input[type=password]:not(:read-only), [data-look="win7"] .dlg textarea:not(:read-only),
+[data-look="win7"] .tp-body input[type=text]:not(:read-only) { background: #fff; }
 [data-look="win7"] .dlg input[type=text]:focus, [data-look="win7"] .dlg input[type=number]:focus, [data-look="win7"] .dlg input[type=password]:focus, [data-look="win7"] .dlg textarea:focus,
 [data-look="win7"] .tp-body input[type=text]:focus { border-color: #bee6fd; border-top-color: #98d1ef; outline: none; }
 [data-look="win7"] .dlg select:not([size]), [data-look="win7"] .tp-body select:not([size]) { appearance: none; height: 21px; border: 1px solid #8e8f8f; border-radius: 3px; padding: 1px 18px 1px 4px; --w7-sel-1: #f2f2f2; --w7-sel-2: #ebebeb; --w7-sel-3: #cfcfcf; transition: --w7-sel-1 1s var(--w7-ease), --w7-sel-2 1s var(--w7-ease), --w7-sel-3 1s var(--w7-ease), border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease);
@@ -605,6 +607,415 @@
 [data-look="win7"] .scout-balloon.is-tip-right::before { left: auto; right: calc(100% - var(--scout-tip, 1em)); transform: scaleX(-1); }
 [data-look="win7"] .scout-balloon:not(.is-below).is-tip-right::before { transform: scale(-1); }
 [data-look="win7"] .scout-balloon::after { content: none; }
+
+/* Ribbon 2010. A copy of the Windows 7 window, buttons, scroll bars and type. The Windows 7 rules above are left as they are. The ribbon is restated after this copy. */
+[data-look="ribbon2010"] {
+  color-scheme: light;
+  --theme-color: #4580c4;
+  --tray-radius: 3px; --ctl-radius: 3px;
+  --ui-font: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-size: 11px;
+  /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
+  --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
+  --tb-border: #3B619C; --grip: #274176; --grip-hi: #fff;
+  --hot-a: #FFF4CC; --hot-b: #FFD091; --hot-border: #000080;
+  --press-a: #FE803E; --press-b: #FFDF9A;
+  --chk-a: #FFDF9A; --chk-b: #FFA64C;
+  --combo-border: #7B9EBD; --combo-sep: #c0d0ea; --hint-ink: #6b6b6b;
+  --menu-border: #002D96; --menu-hot: #FFEEC2; --menu-open: #93B5E7; --menu-face: #FCFCF9;
+  --sep-dark: #6A8CCB; --sep-light: #F1F9FF;
+  --head-ink: #1b3f7c; --head-bg: #e3e9f3; --head-line: #c6d2e6; --key-ink: #6d6d6d;
+  --shadow-c: rgba(0,0,0,.35);
+  /* the rest of the chrome: Aero glass on #f0f0f0 */
+  --dock-a: #f7f7f7; --dock-b: #f0f0f0; --chrome-line: #c8c8c8;
+  --pane-a: #f7f7f7; --pane-b: #f0f0f0; --pane-ink: #1a1a1a; --pane-link: #0046d5; --pane-line: #d0d0d0;
+  --box-line: #d0d0d0; --card-line: #d0d0d0; --row-line: #e8e8e8; --group-bg: #f3f3f3;
+  --find-hit: #fff3a0;
+  --ink: #000000; --ink-2: #222; --ink-3: #333; --ink-4: #444; --ink-5: #555; --ink-key: #222;
+  --muted: #5a5a5a; --dis-ink: #838383; --dis-ink-2: #999;
+  --surface: #fff; --canvas: #a6a6a6; --work: #c6c6c6;
+  --page-canvas: #ededed; --page-line: #cfcfcf;
+  --text-sel: rgba(128, 128, 128, 0.42);
+  --sel: #3399ff; --sel-ink: #fff; --sel-line: #1a6ca1; --sel-soft: #cce8ff; --sel-pale: #e5f3ff; --sel-pale-2: #f2f9ff;
+  --rule: #d0d0d0; --cell-line: #b0b0b0; --grid-line: #b0b0b0; --grid-line-2: #e6e6e6; --sample-line: #c0c0c0; --bd-on: #cce8ff;
+  --sheet-grid: #d0d0d0; --sheet-hdr-a: #ffffff; --sheet-hdr-b: #e4e4e4;
+  --sb-sep: #d0cebf; --sb-sep-hi: #ffffff; --flag-off: #8d8d8d;
+  --dlg: #f0f0f0; --dlg-ink: #000; --field-border: #8e8f8f; --btn-border: #8e8f8f;
+  --btn-a: #f2f2f2; --btn-b: #cfcfcf; --btn-hot-b: #a7d9f5; --btn-press-a: #c4e5f6; --btn-press-b: #68b3db; --btn-ring: #c3dcea;
+  --btn-dis-ink: #999999; --btn-dis-line: #cdcac3; --btn-dis-bg: #f2f2f1;
+  --tab-a: #fafafa; --tab-b: #e6e6e6; --grp-line: #d0d0bf;
+  --spin-line: #cfcfcf; --spin-a: #f8f8f8; --spin-b: #e2e2e2; --spin-ink: #333;
+  --overlay: rgba(0,0,0,.12); --drop-veil: rgba(60,127,177,.16);
+  --dlg-shadow-c: rgba(0,0,0,.45);
+  --tip-bg: #ffffe1; --tip-line: #000; --tip-shadow-c: rgba(0,0,0,.25); --toast-shadow-c: rgba(0,0,0,.3);
+  --face-2: #f0f0f0; --face-2-line: #b0b0b0; --sheet-tab-edge: #6b6b6b; --scroll-bg: #f0f0f0;
+  --split-hi: #fff; --split-mid: #d4d4d4; --split-lo: #b0b0b0; --split-lo-2: #8e8f8f;
+  --preview-canvas: #8c8c8c; --preview-canvas-2: #808080; --preview-line: #919b9c;
+  --grp-line-2: #d0d0bf; --ctl-line: #8e8f8f; --th-bg: #f3f3f3; --th-line: #b0b0b0; --col-line: #c8c8c8;
+  --rule-2: #d0d0d0; --cell-line-2: #e0e0e0; --row-line-2: #eee; --swatch-line: #808080;
+  --sel-soft-2: #cce8ff; --inverse: #000; --ink-6: #666; --ink-9: #999; --brand-ink: #0046d5;
+  --tip-link: #0046d5; --tip-shadow-2: rgba(0,0,0,.2);
+  --tab-line-2: #8e8f8f; --tab2-a: #fdfdfd; --tab2-b: #ececec; --ol-ico-bar: #d6e8f5; --dd-line: #8e8f8f; --sel-ink-2: #e5f3ff;
+  --thumb-line: #a3a3a3; --thumb-on: #3c7fb1; --thumb-sel: #a7d9f5; --page-shadow: #6a6a6a; --preview-canvas-3: #8b8b8b;
+  --card-line-2: #c9c9c9; --sample-line-2: #9a9a9a; --ink-7: #777;
+  --hdr-a: #ffffff; --hdr-b: #e8e8e8; --hdr-line: #b4b4b4; --hdr-ink: #000000;
+  --hdr-sel-a: #eaf6fd; --hdr-sel-b: #a7d9f5; --hdr-sel-line: #3c7fb1; --hdr-all-a: #c4e5f6; --hdr-all-b: #7ec4ea;
+  --cell-sel: rgba(128, 128, 128, 0.28); --cell-sel-border: #8a8a8a;
+  --card-hot-border: #3c7fb1; --card-thumb-bg: #f3f3f3; --card-thumb-line: #c8c8c8; --start-on-b: #eaf6fd; --start-rule: #d0d0d0;
+  --start-line: #d8d8d8; --error-ink: #a3300b; --badge-bg: #fde3c4; --badge-ink: #8a3b00; --rm-bg: rgba(255,255,255,.9);
+  --notice-bg: #eef8f1; --notice-hot: #dcf0e2; --notice-line: #9fcfae; --notice-mark: #1f8a4c; --notice-ink: #14572f;
+  --drop-bg: rgba(234,246,253,.9);
+  --rb-bg: #f0f0f0; --rb-panel: #f7f7f7; --rb-line: #d0d0d0; --rb-tab-ink: #1a1a1a; --rb-tab-on-ink: #0046d5; --rb-tab-hot: #eaf6fd;
+  --rb-label-ink: #5a5a5a; --rb-ctx: #A0620A; --rb-ctx-bg: #FFF4D6; --rb-file-ink: #0046d5;
+  --white: #FFFFFF; --ruler: #f7f7f7; --ruler-off: #e4e4e4; --ruler-line: #b0b0b0; --tabsel-line: #8e8f8f;
+  --ruler-mark-bg: #eaf6fd; --ruler-mark-line: #3c7fb1;
+  --ruler-tick: #444; --ruler-ink: #222; --ruler-deftab: #888; --ruler-row: #c8c8c8; --indent-fill: #f0f0f0; --indent-line: #3c7fb1;
+  --ruler-off-2: #e4e4e4; --ruler-tick-2: #555; --ruler-ink-2: #333;
+  /* the reference theme's glass streaks, fixed to the viewport the way that file draws them */
+  --w7-stripes: linear-gradient(135deg, #fff5 70px, transparent 100px), linear-gradient(225deg, #fff5 70px, transparent 100px), linear-gradient(54deg, #0002 0 4%, #6661 6% 6%, #0002 8% 10%, #0002 15% 16%, #aaa1 17% 18%, #0002 23% 24%, #bbb2 25% 26%, #0002 31% 33%, #0002 34% 34.5%, #bbb2 36% 40%, #0002 41% 41.5%, #bbb2 44% 45%, #bbb2 46% 47%, #0002 48% 49%, #0002 50% 50.5%, #0002 56% 56.5%, #bbb2 57% 63%, #0002 67% 69%, #bbb2 69.5% 70%, #0002 73.5% 74%, #bbb2 74.5% 79%, #0002 80% 84%, #aaa2 85% 86%, #0002 87%, #bbb1 90%);
+  --w7-glass: linear-gradient(#ffffff80, #ffffff4d 45%, #0000001a 50%, #0000001a 75%, #ffffff80);
+  --w7-glass-down: linear-gradient(#ffffff80, #0000001a 1%, #0000001a 5%, #ffffff4d 10%, #ffffff80);
+  --w7-btn: linear-gradient(#f2f2f2 45%, #ebebeb 45%, #cfcfcf);
+  --w7-btn-hot: linear-gradient(#eaf6fd 45%, #bee6fd 45%, #a7d9f5);
+  --w7-btn-down: linear-gradient(#e5f4fc, #c4e5f6 30%, #c4e5f6 50%, #98d1ef 50%, #68b3db);
+  /* scrollbars, copied from 7.css: track, grip, and the four arrow buttons */
+  --w7-sb-y: linear-gradient(to right, #e5e5e5, #f0f0f0 20%);
+  --w7-sb-x: linear-gradient(to bottom, #e5e5e5, #f0f0f0 20%);
+  --w7-sb-grip-y: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAKCAIAAADpZ+PpAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAADrSURBVChTTc5LboJQGAXguyoCu4ERCzAGlRk7UOwGWIDh0s4M4kxb06RSq/jAB6AxJkJ4lTDrue3AnvyzP+fLId+/yfM8juP7PQmCCOf7B3e+ZD+O40RRVFW12VQUpd3r9U3T2m4OpKoqWZYNwzBZLEqfh0N7NnvfrPcEWlEUWZb9mWF4Ph6D0ylcLbfM5HkeJrhGA2hb15/QXnv+w7RYXsDatjOdvnmrHSnLEizMNE2v11sUXQBCnn98kbquBUGQJAlmq9WB2e3qg4HJdqKkaRql1HGc0WgMcDJ5dd0F24kediZJ8t/ELT69H+8py0CYSIO5AAAAAElFTkSuQmCC");
+  --w7-sb-grip-x: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAJCAYAAAALpr0TAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAADcSURBVChTNZBLqoUwEEQrURQUxZGCvy24ACfiityJi7tv8GauQoPxk5tquA2RQ9vVVYk6z9NZaxFFEe77htYazjk8z4MwDIVZ+rourOuKaZrwvi+WZcE8z1BKCbPPCjk4DAO2bRP1OI7wLiL6Mbd7J408z1GWpQwWRYGqqiQG+03TgMu0MacfUN4qANmn8UOv9MjW3sKaSm7iIdOSlziOQ3LScd93aPonSYK6riVLlmVo21aYfVqzND9pmqLrOlGT+76XbcxLZkb19/l3fEP+oF0cx8KMEASBsDEGX2/CgZCHkg+8AAAAAElFTkSuQmCC");
+  --w7-sb-up: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHZpZXdCb3g9IjAgMCAxNiAxNyIgZmlsbD0ibm9uZSIKICAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZGVmcz4KICAgICAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjAlIj4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzMzMztzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojYWFhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8L2RlZnM+CiAgICA8cGF0aCBkPSJNOCA2SDdWN0g2VjhINVY5SDRWMTBIMTFWOUgxMFY4SDlWN0g4VjZaIiBmaWxsPSJ1cmwoI2dyYWQpIi8+Cjwvc3ZnPgo=");
+  --w7-sb-down: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHZpZXdCb3g9IjAgMCAxNiAxNyIgZmlsbD0ibm9uZSIKICAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZGVmcz4KICAgICAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjAlIj4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzMzMztzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojYWFhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8L2RlZnM+CiAgICA8cGF0aCBkPSJNMTEgNkg0VjdINVY4SDZWOUg3VjEwSDhWOUg5VjhIMTBWN0gxMVY2WiIgZmlsbD0idXJsKCNncmFkKSIvPgo8L3N2Zz4K");
+  --w7-sb-left: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHZpZXdCb3g9IjAgMCAxNiAxNyIgZmlsbD0ibm9uZSIKICAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZGVmcz4KICAgICAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjEwMCUiIHgyPSIwJSIgeTI9IjAlIj4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzMzMztzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojYWFhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8L2RlZnM+CiAgICA8cGF0aCBkPSJNOSA0SDhWNUg3VjZINlY3SDVWOEg2VjlIN1YxMEg4VjExSDlWNFoiIGZpbGw9InVybCgjZ3JhZCkiLz4KPC9zdmc+Cg==");
+  --w7-sb-right: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHZpZXdCb3g9IjAgMCAxNiAxNyIgZmlsbD0ibm9uZSIKICAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZGVmcz4KICAgICAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjEwMCUiIHgyPSIwJSIgeTI9IjAlIj4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzMzMztzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojYWFhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8L2RlZnM+CiAgICA8cGF0aCBkPSJNNyA0SDZWMTFIN1YxMEg4VjlIOVY4SDEwVjdIOVY2SDhWNUg3VjRaIiBmaWxsPSJ1cmwoI2dyYWQpIi8+Cjwvc3ZnPgo=");
+  /* default button: blue edge and a blue lower half. The reference defined these and then never used them. */
+  --w7-btn-default: linear-gradient(#f2f2f2 45%, #c3dcea 45%, #cfcfcf);
+  --w7-btn-default-line: #5586a3;
+  /* hover eases for 1s; a press eases for 250ms. The face is an overlay, so the gradient crossfades. */
+  --w7-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --w7-sel-1: #f2f2f2; --w7-sel-2: #ebebeb; --w7-sel-3: #cfcfcf;
+  --w7-close: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACUSURBVHgBlZFNCoQwDIVbmRvOMHOAAd0K/uDGlYKiCG4VPICi9yu0oCSQoFUXFtKEl6+voZXvr7sKay1TL690FOexY+Hz87i2decOuDKQsNGVe8AGYTRJIh0Y+orBvxszCPllOymlxN06jNE26Qnwg4zdHQLrMhFaawwAqAadDPE1ijwUxhiMKCmxCZk06OMYTz5lAx3xWDeXkLNAAAAAAElFTkSuQmCC");
+  /* the first radial is invisible at rest, so hover and press can fade the same four layers */
+  --w7-close-face: radial-gradient(circle at 50% 170%, #0000 10% 20%, #0000 60%), radial-gradient(circle at -60% 50%, #0007 5% 10%, #0000 50%), radial-gradient(circle at 160% 50%, #0007 5% 10%, #0000 50%), linear-gradient(#e0a197e5, #cf796a 25% 50%, #d54f36 50%);
+  --w7-close-face-hot: radial-gradient(circle at 50% 170%, #f4e676 10% 20%, #0000 60%), radial-gradient(circle at -60% 50%, #000a 5% 10%, #0000 50%), radial-gradient(circle at 160% 50%, #000a 5% 10%, #0000 50%), linear-gradient(#fb9d8b, #ee6d56 25% 50%, #d42809 50%);
+  --w7-close-face-down: radial-gradient(circle at 50% 170%, #dcc03f 10% 20%, #0000 60%), radial-gradient(circle at -60% 50%, #000 5% 10%, #0000 50%), radial-gradient(circle at 160% 50%, #000 5% 10%, #0000 50%), linear-gradient(#d1a894, #b67562 25% 50%, #7d0d01 50%);
+  /* balloon (7.css): face, shadow and the two tails. The pale tail sits on the gray end of the gradient. */
+  --w7-bl-bd: #0006;
+  --w7-bl-bg: linear-gradient(to bottom, #fff, #ebebeb);
+  --w7-bl-sd: 5px 5px 3px -3px #0006;
+  --w7-blt: 18px;
+  --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+}
+
+/* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
+[data-look="ribbon2010"] .cmdbars { background: #f0f0f0; border-bottom-color: #c8c8c8; }
+[data-look="ribbon2010"] .menurow { height: 20px; min-height: 20px; background: linear-gradient(#fff 20%, #f1f4fa 25%, #f1f4fa 43%, #d4dbee 48%, #e6eaf6); border-bottom: 1px solid #d0d0d0; overflow-y: hidden; }
+[data-look="ribbon2010"] .mb-item { border-radius: 0; }
+[data-look="ribbon2010"] .mb-item:hover, [data-look="ribbon2010"] .mb-item.open { background: #3399ff; color: #fff; border-color: #3399ff; }
+[data-look="ribbon2010"] .menu { font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); }
+[data-look="ribbon2010"] :is(.tooltip, .rf-tree, .rf-tree h5, .help-topic h4, .about .about-marks, .rb-label, .rb-ctx-name, .stab, .namebox input, .ftip, .acl, .af-panel, .lbox-i, .af-list, .pp-status, .pp-empty, .swatch-btn, .fr-table, .hl-kind, .afmt-item, .fc-preset, .revpane) { font-family: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-size: 11px; }
+/* 7.css menus: gray face, gutter line, blue hover. The File menu and right-click menus. Lists on the ribbon are restyled with the ribbon chrome. */
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) { background: #f0f0f0; color: #000; border: 1px solid #0006; box-shadow: 4px 4px 3px -2px #00000080; padding: 2px; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: ""; pointer-events: none; position: absolute; left: 28px; top: 2px; width: 2px; height: calc(100% - 4px); box-shadow: inset 1px 0 #00000026, inset -1px 0 #fff; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item { border-radius: 3px; min-height: 22px; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.act:not(.dis) { background: linear-gradient(#fff9, #e6ecf5cc 90%, #fffc); border-color: #aaddfa; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.dis { opacity: .5; color: #000; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-sep { height: 2px; margin: 3px 0 2px 28px; background: none; box-shadow: inset 0 1px #00000026, inset 0 -1px #fff; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-head { color: #000; background: transparent; border: 0; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-ico.on,
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.chk .m-ico { background: linear-gradient(#fff9, #e6ecf5cc 90%, #fffc); box-shadow: 0 0 0 1px #b3d3f9; border: 0; border-radius: 3px; width: 22px; height: 22px; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-check { color: #0c12a1; }
+[data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-sub:not(:empty) { font-size: 0; width: 0; height: 0; border: 4px solid transparent; border-left-color: currentColor; margin-right: 4px; justify-self: end; }
+[data-look="ribbon2010"] .toolbars { background: #f0f0f0; padding: 1px 2px 2px; }
+[data-look="ribbon2010"] .toolbar { background: transparent; border: 0; border-radius: 0; height: 28px; }
+[data-look="ribbon2010"] .tb-sep { border-left-color: #b5b5b5; border-right-color: #fff; }
+[data-look="ribbon2010"] .tb-btn, [data-look="ribbon2010"] .tb-dd { border-radius: 3px; transition: background 1s var(--w7-ease), border-color 1s var(--w7-ease); }
+[data-look="ribbon2010"] .tb-btn:not(.dis):hover, [data-look="ribbon2010"] .tb-dd:hover, [data-look="ribbon2010"] .tb-split:hover > .tb-btn:not(.dis), [data-look="ribbon2010"] .tb-split:hover > .tb-dd { background: var(--w7-glass); border-color: #888; }
+[data-look="ribbon2010"] .tb-btn:not(.dis):active { background: var(--w7-glass-down); border-color: #888; transition-duration: 250ms; }
+[data-look="ribbon2010"] .tb-btn.on, [data-look="ribbon2010"] .tb-btn.on:hover { background: var(--w7-glass-down); border-color: #888; }
+[data-look="ribbon2010"] .combo { height: 21px; border-radius: 2px; border-color: #8e8f8f; }
+[data-look="ribbon2010"] .combo-in { height: 19px; }
+/* editable combo: the drop button is its own button, so the left edge stays (7.css .combobox button) */
+[data-look="ribbon2010"] .combo-btn, [data-look="ribbon2010"] .combo-btn:hover { width: 15px; border-left-color: #8e8f8f; background: var(--w7-btn); }
+[data-look="ribbon2010"] .readbar, [data-look="ribbon2010"] .preview-bar { background: #f0f0f0; border-bottom-color: #c8c8c8; border-radius: 0; }
+
+[data-look="ribbon2010"] .taskpane { background: #f0f0f0; }
+[data-look="ribbon2010"] .tp-head { background: var(--w7-btn); border-bottom-color: #cfcfcf; }
+[data-look="ribbon2010"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
+[data-look="ribbon2010"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
+
+[data-look="ribbon2010"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="ribbon2010"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+/* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
+[data-look="ribbon2010"] .minibar { padding: 4px 5px 3px; }
+[data-look="ribbon2010"] .minibar-row { position: relative; z-index: 1; }
+[data-look="ribbon2010"] .minibar .combo { background: transparent; border-color: transparent; box-shadow: none; }
+[data-look="ribbon2010"] .minibar .combo-in { background: transparent; color: #000; text-shadow: 0 0 4px #fff, 0 0 1px #fff !important; }
+[data-look="ribbon2010"] .minibar .combo-btn, [data-look="ribbon2010"] .minibar .combo-btn:hover { background: transparent; border-left-color: transparent; }
+[data-look="ribbon2010"] .minibar .combo:not(.dis):hover, [data-look="ribbon2010"] .minibar .combo.focus:not(.dis) { background: var(--w7-glass); border-color: #888; }
+[data-look="ribbon2010"] .floatbar .fb-title, [data-look="ribbon2010"] .floatbar .fb-body { position: relative; z-index: 1; }
+[data-look="ribbon2010"] .floatbar .fb-title { box-sizing: content-box; height: 21px; padding: 3px 5px 3px 3px; flex-shrink: 0; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-weight: normal; text-shadow: 0 0 12px #fff, 0 0 5px #fff; background: var(--w7-stripes); background-attachment: fixed; border-bottom: 0; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
+
+/* dialogs: the reference window — transparent, blurred, glass tint on ::before, opaque client area */
+[data-look="ribbon2010"] .dlg-overlay:not(.modeless) { background: transparent; }
+[data-look="ribbon2010"] .dlg { border: 1px solid #000000b3; border-radius: 6px; padding: 0 0 3px; color: #000; background: transparent; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; -webkit-font-smoothing: antialiased; }
+/* show: fade in, grow from 94% and tilt 8° flat over 250ms. Close tips the other way over 300ms. */
+[data-look="ribbon2010"] .dlg.is-opening, [data-look="ribbon2010"] .dlg.is-closing { transform-origin: 50% 45%; }
+[data-look="ribbon2010"] .dlg.is-opening { animation: win7-open 250ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+[data-look="ribbon2010"] .dlg.is-closing { animation: win7-close 300ms cubic-bezier(0.16, 1, 0.3, 1) both; pointer-events: none; }
+[data-look="ribbon2010"] .dlg::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="ribbon2010"] .dlg-title { position: relative; z-index: 1; box-sizing: content-box; height: 21px; flex-shrink: 0; margin: 0; padding: 3px 5px 3px 10px; background: var(--w7-stripes); background-attachment: fixed; border: 0; border-top-left-radius: 8px; border-top-right-radius: 7px; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
+[data-look="ribbon2010"] .dlg-ttl { overflow: visible; text-shadow: 0 0 12px #fff, 0 0 5px #fff !important; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x { margin-right: 2px; height: 21px; min-height: 19px; min-width: 29px; margin-top: -8px; padding: 0; position: relative; border: 1px solid #000000b3; border-radius: 0; box-shadow: inset 0 0 0 1px #fffa; background: none; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x:first-of-type { border-bottom-left-radius: 4px; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x:last-of-type { border-bottom-right-radius: 4px; }
+[data-look="ribbon2010"] .dlg-x:not(.dlg-help) { display: block; flex: none; width: 48px; min-width: 48px; margin-left: -1px; color: transparent; background: var(--w7-close) no-repeat 50%, var(--w7-glass), var(--w7-close-face); transition: background 1s var(--w7-ease), box-shadow 1s var(--w7-ease), border-color 1s var(--w7-ease); }
+[data-look="ribbon2010"] .dlg-x:not(.dlg-help):active { transition-duration: 250ms; }
+[data-look="ribbon2010"] .dlg-x:not(.dlg-help) svg { display: none; }
+[data-look="ribbon2010"] .dlg-x:not(.dlg-help):hover { background: var(--w7-close) no-repeat 50%, var(--w7-glass), var(--w7-close-face-hot); box-shadow: 0 0 7px 3px #e68e75, inset 0 0 0 1px #fffa; }
+[data-look="ribbon2010"] .dlg-x:not(.dlg-help):active { background: var(--w7-close) no-repeat 50%, var(--w7-glass), var(--w7-close-face-down); box-shadow: 0 0 7px 3px #e68e75, inset 0 0 0 1px #fffa; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x::after { content: ""; display: block; margin-top: 1px; border-bottom: 1px solid #fffe; height: 19px; pointer-events: none; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x:first-of-type::after { border-bottom-left-radius: 4px; border-left: 1px solid #fffe; margin-left: -2px; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x:last-of-type::after { border-bottom-right-radius: 4px; border-right: 1px solid #fffe; margin-left: 0; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x:not(.dlg-help)::after { width: 47px; }
+[data-look="ribbon2010"] .dlg-title > .dlg-x:not(.dlg-help):first-of-type::after { width: 48px; margin-left: -2px; }
+/* toolbox: the same caption button, square and inset in the title, so all four corners are rounded (a normal caption button is flush with the top and only rounds the bottom) */
+[data-look="ribbon2010"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin-top: 0;
+    margin-bottom: 0;
+    align-self: center;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    scale: 75%;
+    margin-right: -2px;
+}
+[data-look="ribbon2010"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help)::after, [data-look="ribbon2010"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help):first-of-type::after {
+    width: 21px;
+    height: 21px;
+    margin-top: -2px;
+    margin-left: -2px;
+    border-top: 1px solid #fffe;
+    border-left: 1px solid #fffe;
+    border-right: 1px solid #fffe;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+[data-look="ribbon2010"] .dlg-body, [data-look="ribbon2010"] .dlg-foot { position: relative; z-index: 1; margin-left: 6px; margin-right: 6px; background: #f0f0f0; border-left: 1px solid #000000b3; border-right: 1px solid #000000b3; }
+[data-look="ribbon2010"] .dlg-body { margin-top: 0; border-top: 1px solid #000000b3; box-shadow: 0 -1px 0 #fff9; }
+[data-look="ribbon2010"] .dlg-foot { margin-bottom: 4px; border-bottom: 1px solid #000000b3; box-shadow: 0 1px 0 #fff9; }
+/* inactive window, from .references/paint/xp.css: softer frame, less blur, glass tint almost gone, close button is only the glyph */
+[data-look="ribbon2010"] .dlg.inactive { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-color: #0f0f0f69; box-shadow: 0 0 5px 0 #000000b3, inset 0 0 0 1px #fffa; }
+[data-look="ribbon2010"] .dlg.inactive::before { opacity: .1; }
+[data-look="ribbon2010"] .dlg.inactive .dlg-x:not(.dlg-help) { background: var(--w7-close) no-repeat 50%, transparent; border-color: #0f0f0f69; box-shadow: none; }
+[data-look="ribbon2010"] .dlg.inactive .dlg-x:not(.dlg-help):hover { background: var(--w7-close) no-repeat 50%, var(--w7-glass), var(--w7-close-face-hot); border-color: #000000b3; box-shadow: 0 0 7px 3px #e68e75, inset 0 0 0 1px #fffa; }
+[data-look="ribbon2010"] .dlg.inactive .dlg-x:not(.dlg-help):active { background: var(--w7-close) no-repeat 50%, var(--w7-glass), var(--w7-close-face-down); }
+[data-look="ribbon2010"] dialog { border: 1px solid #000000b3; border-radius: 6px; background: transparent; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; }
+[data-look="ribbon2010"] dialog::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; }
+[data-look="ribbon2010"] dialog .dt, [data-look="ribbon2010"] dialog .db { position: relative; z-index: 1; }
+[data-look="ribbon2010"] dialog .dt { box-sizing: content-box; height: 21px; flex-shrink: 0; margin: 0; padding: 3px 5px 3px 3px; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); text-shadow: 0 0 12px #fff, 0 0 5px #fff; border: 0; border-top-left-radius: 8px; border-top-right-radius: 7px; background: var(--w7-stripes); background-attachment: fixed; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
+[data-look="ribbon2010"] dialog .db { margin: 0 6px 4px; background: #f0f0f0; border: 1px solid #000000b3; box-shadow: 0 0 0 1px #fff9; }
+
+/* tabs: 7.css — square gradient tabs, the selected one white and joined to the page */
+[data-look="ribbon2010"] .tabs-head { position: relative; z-index: 3; margin: 0 0 -2px; padding-left: 3px; }
+[data-look="ribbon2010"] .tab { top: 0; margin: 0; min-width: 0; padding: 2px 6px; border: 1px solid #8e8f8f; border-radius: 0; background: var(--w7-btn); box-shadow: inset 0 0 0 1px #fffc; color: #222; z-index: 1; }
+[data-look="ribbon2010"] .tab:hover:not(.on):not(:disabled) { border-color: #3c7fb1; }
+[data-look="ribbon2010"] .tab:active:not(.on):not(:disabled) { border-color: #6d91ab; box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
+[data-look="ribbon2010"] .tab:disabled { opacity: .6; }
+[data-look="ribbon2010"] .tab.on { padding: 2px 6px 4px; margin: -2px 0 1px -3px; background: #fff; box-shadow: none; border: 1px solid #8e8f8f; border-bottom: 0; z-index: 8; }
+[data-look="ribbon2010"] .tab.on:hover, [data-look="ribbon2010"] .tab.on:focus, [data-look="ribbon2010"] .tab.on:active { border-color: #8e8f8f; border-bottom-color: transparent; background: #fff; animation: none; }
+[data-look="ribbon2010"] .tab.on:focus-visible { outline: 1px dotted #222; outline-offset: -4px; }
+[data-look="ribbon2010"] .tabs-body { margin-top: 1px; padding: 14px; background: #fff; border: 1px solid #8e8f8f; position: relative; z-index: 2; margin-bottom: 9px; }
+
+[data-look="ribbon2010"] .btn, [data-look="ribbon2010"] dialog form button, [data-look="ribbon2010"] dialog .btn { min-height: 23px; border: 1px solid #8e8f8f; border-radius: 3px; background: var(--w7-btn); box-shadow: inset 0 0 0 1px #fffc; color: #222; }
+[data-look="ribbon2010"] .btn:hover:not(:disabled), [data-look="ribbon2010"] dialog form button:hover, [data-look="ribbon2010"] dialog .btn:hover { border-color: #3c7fb1; }
+[data-look="ribbon2010"] .btn:active:not(:disabled), [data-look="ribbon2010"] dialog form button:active, [data-look="ribbon2010"] dialog .btn:active { border-color: #6d91ab; box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
+[data-look="ribbon2010"] .btn:disabled { color: #999; background: #f2f2f1; border-color: #cdcac3; box-shadow: none; }
+/* default button: the blue edge and the blue lower half stay on while another control has the focus */
+[data-look="ribbon2010"] .btn.primary:not(:disabled), [data-look="ribbon2010"] dialog form button { border-color: var(--w7-btn-default-line); background: var(--w7-btn-default); box-shadow: inset 0 0 1.3px 1px rgba(52, 222, 255, .867), inset 0 0 0 1px #fffc; }
+[data-look="ribbon2010"] .btn.primary:hover:not(:disabled), [data-look="ribbon2010"] dialog form button:hover { border-color: #3c7fb1; }
+[data-look="ribbon2010"] .btn.primary:active:not(:disabled), [data-look="ribbon2010"] dialog form button:active { border-color: #6d91ab; }
+[data-look="ribbon2010"] .btn.primary:focus:not(:disabled), [data-look="ribbon2010"] dialog form button:focus { animation: win7-pulse 1s ease-in-out infinite alternate; outline: 1px dotted #000; outline-offset: -4px; }
+/* faces crossfade: hover 1s, press 250ms. The resting gradient stays; the hot and pressed looks are overlays. */
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on)) { position: relative; z-index: 0; transition: border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease), color 1s var(--w7-ease); }
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on))::before,
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on))::after { content: ""; position: absolute; z-index: -1; inset: 1px; border-radius: inherit; pointer-events: none; opacity: 0; }
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on))::before { background: var(--w7-btn-hot); transition: opacity 1s var(--w7-ease); }
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on))::after { background: var(--w7-btn-down); transition: opacity 250ms var(--w7-ease); }
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on)):hover:not(:disabled)::before { opacity: 1; }
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on)):active:not(:disabled) { transition-duration: 250ms; }
+[data-look="ribbon2010"] :is(.btn, dialog form button, dialog .btn, .tab:not(.on)):active:not(:disabled)::after { opacity: 1; }
+[data-look="ribbon2010"] :is(.shape-grid button, .style-list button, .cp-wide, .border-grid button, .dm-item, .tp-nav, .tp-title, .sf-item, .clip-it, .cb-item, .search-hit, .sb-cell, .sb-zoom-btn, .sb-zoom-pct, .floatbar .fb-title button, .rb-tab, .rb-launch, .rb-pin, .dlg-x.dlg-help, .combo) { transition: background-color 1s var(--w7-ease), border-color 1s var(--w7-ease), color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="ribbon2010"] :is(.sb-zoom-btn, .tp-nav, .dlg-x.dlg-help):active { transition-duration: 250ms; }
+
+[data-look="ribbon2010"] .dlg input[type=text], [data-look="ribbon2010"] .dlg input[type=number], [data-look="ribbon2010"] .dlg input[type=password], [data-look="ribbon2010"] .dlg textarea,
+[data-look="ribbon2010"] .tp-body input[type=text] { border: 1px solid #ccc; border-top-color: #8e8f8f; border-radius: 2px; transition: border-color 1s var(--w7-ease), background-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="ribbon2010"] .dlg input[type=text]:not(:read-only), [data-look="ribbon2010"] .dlg input[type=number]:not(:read-only), [data-look="ribbon2010"] .dlg input[type=password]:not(:read-only), [data-look="ribbon2010"] .dlg textarea:not(:read-only),
+[data-look="ribbon2010"] .tp-body input[type=text]:not(:read-only) { background: #fff; }
+[data-look="ribbon2010"] .dlg input[type=text]:focus, [data-look="ribbon2010"] .dlg input[type=number]:focus, [data-look="ribbon2010"] .dlg input[type=password]:focus, [data-look="ribbon2010"] .dlg textarea:focus,
+[data-look="ribbon2010"] .tp-body input[type=text]:focus { border-color: #bee6fd; border-top-color: #98d1ef; outline: none; }
+[data-look="ribbon2010"] .dlg select:not([size]), [data-look="ribbon2010"] .tp-body select:not([size]) { appearance: none; height: 21px; border: 1px solid #8e8f8f; border-radius: 3px; padding: 1px 18px 1px 4px; --w7-sel-1: #f2f2f2; --w7-sel-2: #ebebeb; --w7-sel-3: #cfcfcf; transition: --w7-sel-1 1s var(--w7-ease), --w7-sel-2 1s var(--w7-ease), --w7-sel-3 1s var(--w7-ease), border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease);
+  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4=") right 2px center / 14px 12px no-repeat, linear-gradient(var(--w7-sel-1) 45%, var(--w7-sel-2) 45%, var(--w7-sel-3)); }
+[data-look="ribbon2010"] .dlg select:not([size]):not(:disabled):hover, [data-look="ribbon2010"] .tp-body select:not([size]):not(:disabled):hover { border-color: #3c7fb1; --w7-sel-1: #eaf6fd; --w7-sel-2: #bee6fd; --w7-sel-3: #a7d9f5; }
+[data-look="ribbon2010"] .dlg select:not([size]):not(:disabled):active, [data-look="ribbon2010"] .tp-body select:not([size]):not(:disabled):active { outline: none; border-color: #6d91ab; box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4="), var(--w7-btn-down); }
+/* 7.css select:disabled — flat face, grey arrow, grey type. Hover and press stay on the enabled control. */
+[data-look="ribbon2010"] .dlg select:not([size]):disabled, [data-look="ribbon2010"] .tp-body select:not([size]):disabled { opacity: 1; border-color: #adb2b5; color: #838383; -webkit-text-fill-color: #838383; box-shadow: none;
+  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiNhZmFmYWYiLz48L3N2Zz4=") right 2px center / 14px 12px no-repeat, #f4f4f4; }
+[data-look="ribbon2010"] .combo:not(.dis) .combo-btn { position: relative; z-index: 0; transition: background 1s var(--w7-ease), border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="ribbon2010"] .combo:not(.dis) .combo-btn::before { content: ""; position: absolute; z-index: -1; inset: 1px; pointer-events: none; background: var(--w7-btn-hot); opacity: 0; transition: opacity 1s var(--w7-ease); }
+[data-look="ribbon2010"] .combo:not(.dis):hover .combo-btn { border-color: #3c7fb1; }
+[data-look="ribbon2010"] .combo:not(.dis):hover .combo-btn::before { opacity: 1; }
+[data-look="ribbon2010"] .minibar .combo:not(.dis):hover .combo-btn { border-color: transparent; }
+[data-look="ribbon2010"] .minibar .combo:not(.dis):hover .combo-btn::before { opacity: 0; }
+[data-look="ribbon2010"] .combo:not(.dis) .combo-btn:active { border-color: #6d91ab; background: var(--w7-btn-down); box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
+/* disabled editable combo: the field is 7.css textbox:disabled, the button is button:disabled, and neither lights up */
+[data-look="ribbon2010"] .combo.dis, [data-look="ribbon2010"] .combo.dis:hover, [data-look="ribbon2010"] .combo.dis.focus { opacity: 1; border-color: #afafaf; background: #f0f0f0; box-shadow: inset 0 0 0 1px #fff; color: #838383; }
+[data-look="ribbon2010"] .combo.dis .combo-in { color: #838383; -webkit-text-fill-color: #838383; background: transparent; }
+[data-look="ribbon2010"] .minibar .combo.dis .combo-in { text-shadow: none !important; }
+[data-look="ribbon2010"] .combo.dis .combo-btn, [data-look="ribbon2010"] .combo.dis .combo-btn:hover, [data-look="ribbon2010"] .combo.dis .combo-btn:active { background: #f4f4f4; border-left-color: #adb2b5; box-shadow: none; color: #838383; }
+[data-look="ribbon2010"] .combo.dis .dd-arrow { border-top-color: #afafaf; }
+[data-look="ribbon2010"] .dlg fieldset, [data-look="ribbon2010"] .grp { border-color: #cdd7db; border-radius: 3px; box-shadow: inset 0 0 0 1px #fff; }
+[data-look="ribbon2010"] .dlg legend, [data-look="ribbon2010"] .grp legend { color: #000; }
+[data-look="ribbon2010"] .spin { border-radius: 2px; border-color: #8e8f8f; }
+[data-look="ribbon2010"] .spin-b { background: var(--w7-btn); }
+
+/* checkboxes and radios: 7.css sunken square and circle, drawn on the input itself */
+[data-look="ribbon2010"] .ck { position: relative; gap: 6px; }
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=checkbox],
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=radio] { appearance: none; flex: none; width: 14px; height: 14px; margin: 0; box-sizing: border-box; background-color: #f6f6f6; background-repeat: no-repeat; background-position: center; border: 1px solid #8e8f8f; transition: background-color 1s var(--w7-ease), border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=checkbox] { box-shadow: inset 0 0 0 1px #f4f4f4, inset 1px 1px 0 1px #aeaeae, inset -1px -1px 0 1px #ddd, inset 3px 3px 6px #ccc; }
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=radio] { border-radius: 50%; box-shadow: inset 0 0 0 1.5px #f4f4f4, inset 1px 1px 0 1.5px #aeaeae, inset -1px 0 0 1.5px #ddd, inset 3px 3px 6px #ccc; }
+[data-look="ribbon2010"] .ck:hover input[type=checkbox]:not(:disabled),
+[data-look="ribbon2010"] :is(.dlg, .tp-body, dialog, .taskpane) input[type=checkbox]:hover:not(:disabled) { background-color: #e9f7fe; border-color: #3c7fb1; box-shadow: inset 0 0 0 1px #def9fa, inset 1px 1px 0 1px #79c6f9, inset -1px -1px 0 1px #c6e9fc, inset 3px 3px 6px #b1dffd; }
+[data-look="ribbon2010"] .ck:hover input[type=radio]:not(:disabled),
+[data-look="ribbon2010"] :is(.dlg, .tp-body, dialog, .taskpane) input[type=radio]:hover:not(:disabled) { border-color: #3c7fb1; box-shadow: inset 0 0 0 1.5px #def9fa, inset 1px 1px 0 1.5px #79c6f9, inset -1px -1px 0 1.5px #c6e9fc, inset 3px 3px 6px #b1dffd; }
+[data-look="ribbon2010"] :is(.dlg, .tp-body, dialog, .taskpane) input[type=checkbox]:checked { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><text x='1' y='12' font-family='Segoe UI, sans-serif' font-size='13' font-weight='700' fill='%234a5f97'>✔</text></svg>"); }
+/* the tick is a glyph on the label, not on the box. A wrapped label is taller than the box, so the glyph is centred with the box. */
+[data-look="ribbon2010"] .ck:has(input[type=checkbox]:checked)::after { content: "\2714"; position: absolute; left: 2px; top: 50%; height: 14px; margin-top: -7px; color: #4a5f97; font-weight: bold; font-size: 13px; line-height: 14px; pointer-events: none; }
+[data-look="ribbon2010"] .ck:has(input[type=checkbox]:disabled:checked)::after { color: #bfbfbf; }
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=radio]:checked { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><circle cx='7' cy='7' r='3.1' fill='%237cd3eb' stroke='%2327506d' stroke-width='1.5'/></svg>"); }
+[data-look="ribbon2010"] .ck:has(input:focus-visible) { outline: 1px dotted #000; }
+[data-look="ribbon2010"] .ck:has(input[type=checkbox]:disabled) { color: #6d6d6d; }
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=checkbox]:disabled { background-color: transparent; background-image: linear-gradient(to bottom right, #f0f0f0, #fbfbfb); box-shadow: none; border-color: #b1b1b1; }
+[data-look="ribbon2010"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=checkbox]:disabled:checked { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><text x='1' y='12' font-family='Segoe UI, sans-serif' font-size='13' font-weight='700' fill='%23bfbfbf'>✔</text></svg>"), linear-gradient(to bottom right, #f0f0f0, #fbfbfb); }
+[data-look="ribbon2010"] .ck input[type=checkbox]:checked { background-image: none; }
+[data-look="ribbon2010"] .ck input[type=checkbox]:disabled:checked { background-image: linear-gradient(to bottom right, #f0f0f0, #fbfbfb); }
+[data-look="ribbon2010"] .ck:has(input[type=radio]:disabled) { filter: grayscale(1); opacity: .6; }
+
+[data-look="ribbon2010"] ::-webkit-scrollbar { width: 16px; }
+[data-look="ribbon2010"] ::-webkit-scrollbar:horizontal { height: 17px; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-corner { background: #f2f2f2; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-track:vertical { background: var(--w7-sb-y); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-track:horizontal { background: var(--w7-sb-x); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb { border: 1px solid #8e8f8f; border-radius: 3px; box-shadow: inset 0 0 0 1px #fffc; background-color: #f2f2f2; transition: border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button { transition: border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:active, [data-look="ribbon2010"] ::-webkit-scrollbar-button:active { transition-duration: 250ms; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:vertical { background: var(--w7-sb-grip-y) no-repeat center, linear-gradient(to right, #f2f2f2 45%, #ebebeb 45%, #cfcfcf); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:horizontal { background: var(--w7-sb-grip-x) no-repeat center, linear-gradient(to bottom, #f2f2f2 45%, #ebebeb 45%, #cfcfcf); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:vertical:hover { border-color: #3c7fb1; background: var(--w7-sb-grip-y) no-repeat center, linear-gradient(to right, #eaf6fd 45%, #bee6fd 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:horizontal:hover { border-color: #3c7fb1; background: var(--w7-sb-grip-x) no-repeat center, linear-gradient(to bottom, #eaf6fd 45%, #bee6fd 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:vertical:active { border-color: #6d91ab; background: var(--w7-sb-grip-y) no-repeat center, linear-gradient(to right, #c4e5f6 45%, #98d1ef 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-thumb:horizontal:active { border-color: #6d91ab; background: var(--w7-sb-grip-x) no-repeat center, linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:start:increment,
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:end:decrement,
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:start:increment,
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:end:decrement { display: none; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button { border: 1px solid transparent; display: block; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:start:decrement,
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:end:increment { height: 17px; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:start:decrement { background: var(--w7-sb-up) center / 16px 17px no-repeat, var(--w7-sb-y); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:end:increment { background: var(--w7-sb-down) center / 16px 17px no-repeat, var(--w7-sb-y); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:start:decrement,
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:end:increment { width: 16px; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:start:decrement { background: var(--w7-sb-left) center / 16px 17px no-repeat, var(--w7-sb-x); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:end:increment { background: var(--w7-sb-right) center / 16px 17px no-repeat, var(--w7-sb-x); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:hover { border-color: #8e8f8f; border-radius: 3px; box-shadow: inset 0 0 0 1px #fffc; background-color: #f2f2f2; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:start:hover { border-color: #3c7fb1; background: var(--w7-sb-up), linear-gradient(to right, #eaf6fd 45%, #bee6fd 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:end:hover { border-color: #3c7fb1; background: var(--w7-sb-down), linear-gradient(to right, #eaf6fd 45%, #bee6fd 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:start:hover { border-color: #3c7fb1; background: var(--w7-sb-left), linear-gradient(to bottom, #eaf6fd 45%, #bee6fd 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:end:hover { border-color: #3c7fb1; background: var(--w7-sb-right), linear-gradient(to bottom, #eaf6fd 45%, #bee6fd 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:active { border-color: #8e8f8f; border-radius: 3px; box-shadow: inset 0 0 0 1px #fffc; background-color: #f2f2f2; }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:start:active { border-color: #6d91ab; background: var(--w7-sb-up), linear-gradient(to right, #c4e5f6 45%, #98d1ef 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:vertical:end:active { border-color: #6d91ab; background: var(--w7-sb-down), linear-gradient(to right, #c4e5f6 45%, #98d1ef 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:start:active { border-color: #6d91ab; background: var(--w7-sb-left), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
+[data-look="ribbon2010"] ::-webkit-scrollbar-button:horizontal:end:active { border-color: #6d91ab; background: var(--w7-sb-right), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
+
+/* tooltips and the assistant's speech share the 7.css balloon face and shadow. Only the speech has the tail. */
+[data-look="ribbon2010"] :is(.tooltip, .scout-balloon) { background: var(--w7-bl-bg); color: #000; border: 1px solid var(--w7-bl-bd); border-radius: 3px; box-shadow: var(--w7-bl-sd); }
+[data-look="ribbon2010"] .tooltip { padding: 4px 8px 5px; }
+[data-look="ribbon2010"] .scout-balloon { padding: 8px 10px; }
+[data-look="ribbon2010"] .scout-balloon::before { content: ""; position: absolute; width: var(--w7-blt); height: var(--w7-blt); margin: 0; border: 0; padding: 0; pointer-events: none; background-repeat: no-repeat; background-position: center; background-size: 100% 100%; left: var(--scout-tip, 1em); right: auto; }
+[data-look="ribbon2010"] .scout-balloon.is-below::before { top: calc(var(--w7-blt) * -1); bottom: auto; transform: none; background-image: var(--w7-blt-up); }
+[data-look="ribbon2010"] .scout-balloon:not(.is-below)::before { top: auto; bottom: calc(var(--w7-blt) * -1); transform: scaleY(-1); background-image: var(--w7-blt-down); }
+[data-look="ribbon2010"] .scout-balloon.is-tip-right::before { left: auto; right: calc(100% - var(--scout-tip, 1em)); transform: scaleX(-1); }
+[data-look="ribbon2010"] .scout-balloon:not(.is-below).is-tip-right::before { transform: scale(-1); }
+[data-look="ribbon2010"] .scout-balloon::after { content: none; }
+/* Ribbon 2010 ribbon chrome. Colours and shapes follow the Office 2010 silver ribbon
+   (.references/Office-Ribbon-2010/ribbon/ribbon.css). Type stays the Windows 7 face and 11px copied above. */
+[data-look="ribbon2010"] {
+  --rb-bg: #eaedf1; --rb-panel: #fff; --rb-line: #b6babf; --rb-tab-ink: #444; --rb-tab-on-ink: #444; --rb-tab-hot: #f1f3f4;
+  --rb-label-ink: #5B626C; --rb-file-ink: #fff;
+  /* rulers follow the ribbon gray, including the marks and indent handles */
+  --ruler: #eaedf1; --ruler-off: #d5d8de; --ruler-line: #b6babf; --tabsel-line: #8b9097;
+  --ruler-mark-bg: #f1f3f4; --ruler-mark-line: #8b9097;
+  --ruler-tick: #5B626C; --ruler-ink: #444; --ruler-deftab: #8b9097; --ruler-row: #b6babf; --indent-fill: #fff; --indent-line: #5B626C;
+  --ruler-off-2: #d5d8de; --ruler-tick-2: #5B626C; --ruler-ink-2: #444;
+}
+[data-look="ribbon2010"] :is(.r-corner, .ruler, .ruler-h) { background: #eaedf1; }
+[data-look="ribbon2010"] .ruler-v { background: #eaedf1; }
+[data-look="ribbon2010"] .cmdbars { background: #eaedf1; border-bottom-color: transparent; }
+[data-look="ribbon2010"] .rb-tab { border-radius: 4px 4px 0 0; padding: 5px 10px; min-width: 60px; text-align: center; }
+[data-look="ribbon2010"] .rb-tab:hover { background: #f1f3f4; border-color: #b6babf; }
+[data-look="ribbon2010"] .rb-tab.on, [data-look="ribbon2010"] .rb-tab.on:hover { background: #fff; border-color: #b6babf; border-bottom-color: #fff; color: #444; top: 0; }
+[data-look="ribbon2010"] .rb-tab.file {
+  position: relative; z-index: 0; overflow: hidden; color: #fff; border-color: #1f48a1; border-bottom: 0;
+  background: linear-gradient(#458ae6 0%, #3a78d4 10%, #2b63b5 28%, #275fb1 55%, #2561b4 68%, #2866c5 86%, #2d70cf 100%);
+}
+[data-look="ribbon2010"] .rb-tab.file::before, [data-look="ribbon2010"] .rb-tab.file::after {
+  content: ""; position: absolute; z-index: -1; top: 0; bottom: -15px; width: 50%; pointer-events: none;
+}
+[data-look="ribbon2010"] .rb-tab.file::before { left: 0; background: radial-gradient(ellipse 130% 85% at 100% 82%, rgba(110, 176, 245, .80) 0%, rgba(70, 145, 225, .28) 46%, transparent 74%); }
+[data-look="ribbon2010"] .rb-tab.file::after { right: 0; background: radial-gradient(ellipse 130% 85% at 0% 82%, rgba(110, 176, 245, .80) 0%, rgba(70, 145, 225, .28) 46%, transparent 74%); }
+[data-look="ribbon2010"] .rb-tab.file:hover { background: linear-gradient(#54a0f3 0%, #427edc 12%, #3368bf 28%, #2f67bb 56%, #3674c6 78%, #5093e6 100%); }
+[data-look="ribbon2010"] .rb-tab.file:active { background: linear-gradient(#2e6cc1 0%, #265dad 10%, #265db1 48%, #3168c2 64%, #3d7bd8 80%, #489aed 100%); }
+[data-look="ribbon2010"] .rb-panel, [data-look="ribbon2010"] .rb-pop { background: linear-gradient(#fff, #eaedf1); border-top: none; border-bottom: 1px solid #8b9097; }
+[data-look="ribbon2010"] .rb-panel { box-shadow: 0 1px 3px #8b9097; }
+[data-look="ribbon2010"] .rb-group:not(.rb-pop) { border-right: 1px solid #fff; box-shadow: inset -1px 0 #e0e0e0; }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) { border-radius: 3px; }
+/* sample.html: hover glass with a pale top and bottom, pressed gold with an inset shadow.
+   A button that stays selected uses the original ribbon hover: flat #fdeeb3, edge #F1C43F (ribbon.css .ribbon-button:hover). */
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) { border: 1px solid #f1ca58; border-bottom-color: #f6d74b; background: linear-gradient(#fdf9e8 0%, #fdeeb3 8%, #fde38a 40%, #fde48c 48%, #fdf4c6 78%, #fdfdeb 100%); }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) .tb-btn.on:not(.dis) { border: 1px solid #F1C43F; background: #fdeeb3; box-shadow: none; }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn:not(.dis):active, .tb-split:active > .tb-btn:not(.dis), .tb-dd:active, .rb-launch:active, .rb-pin:active) { border-color: #c2762b; border-bottom-color: #c29e47; background: linear-gradient(#f3c25f, #f8cf6e 2px, #fddd81 5px, #fddd81 calc(100% - 2px), #f6ce6f); box-shadow: inset 0 1px 2px rgba(140, 72, 8, .40); transition-duration: 250ms; }
+[data-look="ribbon2010"] .rb-bar .cmd-search input { height: 21px; border-radius: 2px; border: 1px solid #8e8f8f; background: #fff; padding: 0 6px 0 22px; }
+/* tabs change at once; toolbar buttons fade like the Windows 7 toolbar (1s, 250ms while pressed) */
+[data-look="ribbon2010"] .ribbon .rb-tab:not(.dis) { transition: none; }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin):not(.dis) { transition: background 1s var(--w7-ease), border-color 1s var(--w7-ease); }
+/* lists opened from the ribbon (font, colour, grid): Paper 2016's rounded menu, in the ribbon gray, with the gold selection */
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) {
+  background: rgba(234, 237, 241, .75); backdrop-filter: blur(5px); color: #444; border: 1px solid #b6babf; border-radius: 10px; padding: 4px;
+  box-shadow: 0 6px 24px rgba(40, 44, 52, .16), 0 1px 3px rgba(40, 44, 52, .08);
+}
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-item,
+[data-look="ribbon2010"] .menu.combo-list.fonts .m-item { border: 0; border-radius: 6px; min-height: 26px; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-ico.on { border: 0; border-radius: 4px; background: transparent; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-sep { margin: 4px 8px 4px 30px; background: #b6babf; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-head { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 8px 8px 3px; color: #5B626C; background: transparent; border: 0; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.chk:not(.dis) { background: #fdeeb3; box-shadow: inset 0 0 0 1px #f1c43f; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.act:not(.dis) { background: linear-gradient(#fdf9e8 0%, #fdeeb3 8%, #fde38a 40%, #fde48c 48%, #fdf4c6 78%, #fdfdeb 100%); box-shadow: inset 0 0 0 1px #f1ca58; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-check { color: #444; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) :is(.shape-grid, .style-list, .color-panel, .border-grid, .tbl-grid-pick) { background: transparent; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) :is(.shape-grid button:hover, .style-list button:hover, .cp-wide:hover, .border-grid button:hover) { background: linear-gradient(#fdf9e8 0%, #fdeeb3 8%, #fde38a 40%, #fde48c 48%, #fdf4c6 78%, #fdfdeb 100%); border-color: #f1ca58; border-bottom-color: #f6d74b; border-radius: 3px; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .cp-sw:hover { outline-color: #f1c43f; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .tgp-cells span.on { background: #fdeeb3; border-color: #f1c43f; }
+
 
 /* Windows XP. Derived from XP.css themes/XP (MIT) and paint-xp/xp.css.
    The variable block is Classic, so toolbars, the dock, the task pane, the read and preview bars,
@@ -754,7 +1165,9 @@
 [data-look="xp"] .btn.primary:active:not(:disabled) { background: var(--xp-btn-down); box-shadow: none; }
 
 [data-look="xp"] .dlg input[type=text], [data-look="xp"] .dlg input[type=number], [data-look="xp"] .dlg input[type=password], [data-look="xp"] .dlg textarea,
-[data-look="xp"] .tp-body input[type=text] { padding: 3px 4px; border: 1px solid #7f9db9; background: #fff; border-radius: 0; height: 21px; }
+[data-look="xp"] .tp-body input[type=text] { padding: 3px 4px; border: 1px solid #7f9db9; border-radius: 0; height: 21px; }
+[data-look="xp"] .dlg input[type=text]:not(:read-only), [data-look="xp"] .dlg input[type=number]:not(:read-only), [data-look="xp"] .dlg input[type=password]:not(:read-only), [data-look="xp"] .dlg textarea:not(:read-only),
+[data-look="xp"] .tp-body input[type=text]:not(:read-only) { background: #fff; }
 [data-look="xp"] .dlg textarea { height: auto; }
 [data-look="xp"] input::selection, [data-look="xp"] textarea::selection { background: #2267cb; color: #fff; }
 [data-look="xp"] .dlg select:not([size]), [data-look="xp"] .tp-body select:not([size]) { appearance: none; height: 21px; border: 1px solid #7f9db9; border-radius: 0; padding: 3px 32px 3px 4px; background: var(--xp-dd) top 1px right 1px / 15px no-repeat, #fff; }

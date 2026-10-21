@@ -234,7 +234,7 @@
     function preserve(e) {
       /* whitespace-only text matters inside text-bearing elements (t, v, f, a:t ...) */
       const ln = e.localName;
-      return ln === 't' || ln === 'v' || ln === 'f' || ln === 'formula' || ln === 'formula1' || ln === 'formula2' || ln === 'oddHeader' || ln === 'oddFooter' || ln === 'evenHeader' || ln === 'evenFooter' || ln === 'firstHeader' || ln === 'firstFooter' || ln === 'text' || ln === 'Data' || ln === 'Font' || ln === 'B' || ln === 'I' || ln === 'U' || ln === 'S' || ln === 'Sup' || ln === 'Sub';
+      return ln === 't' || ln === 'v' || ln === 'f' || ln === 'formula' || ln === 'formula1' || ln === 'formula2' || ln === 'oddHeader' || ln === 'oddFooter' || ln === 'evenHeader' || ln === 'evenFooter' || ln === 'firstHeader' || ln === 'firstFooter' || ln === 'text' || ln === 'Data' || ln === 'Font' || ln === 'B' || ln === 'I' || ln === 'U' || ln === 'S' || ln === 'Sup' || ln === 'Sub' || ln === 'source';
     }
     const de = doc.children[0];
     if (!de) throw new Error('XML parse error: no root element');

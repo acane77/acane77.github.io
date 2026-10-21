@@ -1871,6 +1871,7 @@
     D.stylesChanged();
     doc._idxDirty = true;
     L.preserve.finishObjects(doc);
+    if (L.macros) L.macros.adopt(doc);
     return { doc, warnings };
   };
 })();

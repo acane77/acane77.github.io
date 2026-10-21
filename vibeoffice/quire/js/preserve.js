@@ -35,7 +35,7 @@
     const owned = new Set((doc.keep?.objects || []).flatMap(o => o.rels || []).filter(r => r.source === pkg?.id).map(r => r.owner + ':' + r.id));
     const output = K.output(pkg, { doc, format,
       contentType: (source, part) => { const mime = L.extToMime(part.split('.').pop()); return mime.startsWith('image/') ? mime : undefined; },
-      consumes: (base, rel, type) => consumed.has(type) || owned.has((output.originals.get(base) || '') + ':' + rel.id),
+      consumes: (base, rel, type) => consumed.has(type) || owned.has((output.originals.get(base) || '') + ':' + rel.id) || !!(L.macros && L.macros.ownsRel(doc, rel)),
       merge: (base, source, data, writer) => P.merge(doc, base, source, data, writer), audit: P.reportLosses });
     output.bind('word/document.xml', pkg?.main);
     for (const [base, type, mode, root] of P.parts) {

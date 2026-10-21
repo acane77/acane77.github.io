@@ -127,7 +127,7 @@
         if (k) pos = O.insertItem(pos, D.item('br', { type: 'line' }));
         if (part) pos = O.insertText(pos, part);
       });
-      return D.pos(p, D.plen(p));
+      return holdCaret();
     });
   }
 
@@ -147,7 +147,7 @@
     if (!jc) gap('G-ENGINE', 'Alignment');
     edit('Alignment', () => {
       O.setParaProps([p], (pPr) => Object.assign({}, pPr, { jc }));
-      return D.pos(p, D.plen(p));
+      return holdCaret();
     });
   }
 
@@ -173,7 +173,7 @@
     }
     edit('Style', () => {
       O.applyStyle(D.pos(p, 0), D.pos(p, D.plen(p)), id);
-      return D.pos(p, D.plen(p));
+      return holdCaret();
     });
   }
 
@@ -278,6 +278,23 @@
       L.ed.sel = caret;
       if (typeof L.ed.setSel === 'function') L.ed.setSel(pos, pos, { noScroll: true });
     }
+  }
+
+  /* A Range edit must not relocate the Selection. Clamp an offset the edit shortened. */
+  function holdCaret() {
+    if (!caret || !caret.a || !caret.a.p || !D.info(D.doc, caret.a.p)) return null;
+    function clamp(pos) {
+      if (!pos || !pos.p || !D.info(D.doc, pos.p)) return null;
+      const n = D.plen(pos.p);
+      let o = pos.o | 0;
+      if (o < 0) o = 0;
+      if (o > n) o = n;
+      return o === pos.o ? pos : D.pos(pos.p, o);
+    }
+    const a = clamp(caret.a);
+    const f = clamp(caret.f);
+    if (!a || !f) return null;
+    return a === caret.a && f === caret.f ? caret : { a: a, f: f };
   }
 
   function longToColor(n) {
@@ -925,7 +942,6 @@
       anchor.kind = 'span';
       anchor.a = pos;
       anchor.f = pos;
-      placeCaret(pos);
     };
     attachRangeExtras(r, anchor, rangeEnds);
     return r;
@@ -3377,7 +3393,15 @@
     const width = Math.max(72, (sect.pgW || 612) - (sect.ml || 90) - (sect.mr || 90));
     let table = null;
     edit('Insert Table', () => {
+      const host = pos.p;
+      const num = host && host.pPr && host.pPr.num;
+      const carry = num && num.id && num.id !== '0' ? num : null;
       table = D.simpleTable(nr, nc, width);
+      if (carry) {
+        for (const row of table.rows) for (const cell of row.cells) {
+          for (const b of cell.blocks) if (b.t === 'p') b.pPr = Object.assign({}, b.pPr, { num: L.clone(carry) });
+        }
+      }
       O.insertBlockAt(pos, table);
       const p = D.firstPara(table.rows[0].cells[0].blocks);
       return D.pos(p, 0);

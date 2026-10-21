@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ledger</title>
 <meta name="theme-color" content="#4580c4">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../fonts/fonts.css">
-<link rel="stylesheet" href="../fonts/brand.css">
-<script>try{var d=document.documentElement,l=localStorage.getItem('vibeoffice.look')||'win7';d.dataset.look=l;d.dataset.layout=l==='paper2016'?'ribbon':'bars'}catch(e){}</script>
+<script>try{var d=document.documentElement,l=localStorage.getItem('vibeoffice.look')||'ribbon2010';d.dataset.look=l;d.dataset.layout=(l==='paper2016'||l==='ribbon2010')?'ribbon':'bars'}catch(e){}</script>
 <script src="../common/lang.js"></script>
 <link rel="stylesheet" href="../common/looks.css">
 <link rel="stylesheet" href="../common/ui.css">
@@ -169,7 +168,9 @@
 .ref-edit { display: flex; align-items: center; gap: 0; }
 .ref-edit input { flex: 1; min-width: 0; }
 .ref-edit button { width: 22px; height: 21px; margin-left: -1px; padding: 0; border: 1px solid var(--field-border); background: linear-gradient(var(--btn-a), var(--btn-b)); }
-.dlg.collapsed .dlg-body > *:not(.ref-keep), .dlg.collapsed .dlg-foot { display: none; }
+.dlg.collapsed .dlg-body > *:not(.ref-keep) { display: none; }
+.dlg.collapsed .dlg-foot { padding: 0; gap: 0; min-height: 0; }
+.dlg.collapsed .dlg-foot > * { display: none; }
 .cf-cond { border: 1px solid var(--grp-line-2); border-radius: 3px; padding: 6px 8px; margin-bottom: 6px; }
 .cf-cond .cf-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .cf-prev { flex: 1; min-width: 120px; height: 24px; border: 1px solid var(--preview-line); display: flex; align-items: center; justify-content: center; background: var(--surface); font: 11px Arial, Arimo, sans-serif; }
@@ -452,6 +453,7 @@
 <script src="../common/geometry.js"></script>
 <script src="../common/metafile.js"></script>
 <script src="../common/ui.js"></script>
+<script src="../common/macros.js"></script>
 <script src="../common/numfmt.js"></script>
 <script src="js/formula.js"></script>
 <script src="js/model.js"></script>

@@ -894,6 +894,10 @@
     const d = doc();
     try {
       if (L.fields && L.fields.beforeSave) L.fields.beforeSave();
+      if (d.macros && d.macros.length && /^(html|txt|rtf|md|mdzip)$/.test(type)) {
+        const keep = await ui.msg('The macros in this document cannot be stored in this file type. Save as a Word document to keep them.', { icon: 'warn', title: 'Macros', buttons: [L.t('Save anyway'), L.t('Cancel')] });
+        if (keep !== 0) return 'declined';
+      }
       let blob, ext = type;
       d.props.modified = new Date().toISOString();
       d.props.lastModifiedBy = A.opts.userName || 'Quire User';

@@ -451,8 +451,9 @@
     { id: 'xp', name: N('Windows XP'), note: 'Luna windows and menus, on the classic blue toolbars.' },
     { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' },
     { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
-    { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' }];
-  const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'win7'; } catch (e) { return 'win7'; } };
+    { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' },
+    { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' }];
+  const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'ribbon2010'; } catch (e) { return 'ribbon2010'; } };
   const applyLook = (id) => {
     const root = document.documentElement;
     if (!LOOKS.some((l) => l.id === id)) return;
@@ -467,7 +468,7 @@
   VO.look = {
     /** [{ id, name, note, layout }] */
     list: () => LOOKS.map((l) => ({ ...l })),
-    get: () => document.documentElement.dataset.look || 'win7',
+    get: () => document.documentElement.dataset.look || 'ribbon2010',
     /** 'bars' (menus and toolbars) or 'ribbon' */
     layout: () => document.documentElement.dataset.layout || 'bars',
     set(id) {

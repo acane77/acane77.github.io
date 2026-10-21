@@ -1242,6 +1242,7 @@
     const types = new Map(overrides);
     for (const file of files) pack.put(file.name, file.data, types.get(file.name) || defaults.get(file.name.split('.').pop()));
     L.preserve.writeBindings(doc, pack.writer);
+    if (L.macros) L.macros.finish(doc, pack);
     const result = pack.finish();
     const blob = await L.zip.write(result.files, format.mime); blob.dropped = result.dropped;
     return blob;
