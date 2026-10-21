@@ -828,6 +828,7 @@
  "3-D emboss": "3차원 양각",
  "3-D engrave": "3차원 음각",
  "3-D model": "3D 모델",
+ "3. JavaScript runs here as well, but the F12 console is the better place to run a JavaScript script.": "3. 여기서도 JavaScript를 실행할 수 있지만, JavaScript 스크립트는 F12 콘솔에서 직접 실행하는 편이 좋습니다.",
  "3. Start enforcement": "3. 보호 시작",
  "32-Point Star": "포인트가 32개인 별",
  "35mm Slides": "35mm 슬라이드",

@@ -1993,7 +1993,8 @@
  },
  "&Language:": {
   "where": [
-   "quire/js/dialogs2.js:120"
+   "quire/js/dialogs2.js:120",
+   "quire/js/dom-console.js:692"
   ]
  },
  "&Last row": {
@@ -4369,7 +4370,7 @@
  },
  "1. If the right-click menu cannot paste, use the Paste button.": {
   "where": [
-   "quire/js/dom-console.js:545"
+   "quire/js/dom-console.js:643"
   ]
  },
  "1.5 Line Spacing": {
@@ -4473,6 +4474,11 @@
    "lectern/js/dialogs.js:1055"
   ]
  },
+ "2. A line is a Visual Basic statement. Assign directly, as in x = 1. The name stays, and a later line can use it. Read a value with ?x.": {
+  "where": [
+   "quire/js/dom-console.js:646"
+  ]
+ },
  "2. Editing restrictions": {
   "where": [
    "quire/js/panes.js:540"
@@ -4480,7 +4486,7 @@
  },
  "2. Outside a function, do not declare variables with let, var, or const. Each entry runs on its own, so those declarations do not carry to the next line. Assign directly, as in x = 1. The name is then on the global object, and later entries can use it.": {
   "where": [
-   "quire/js/dom-console.js:546"
+   "quire/js/dom-console.js:649"
   ]
  },
  "20 sentences": {
@@ -4516,6 +4522,16 @@
  "3-D model": {
   "where": [
    "lectern/js/render.js:581"
+  ]
+ },
+ "3. A line ending in _ continues on the next line. An unfinished Sub, Function, If or With stays open until it ends. A whole script belongs in Run Script.": {
+  "where": [
+   "quire/js/dom-console.js:647"
+  ]
+ },
+ "3. JavaScript runs here as well, but the F12 console is the better place to run a JavaScript script.": {
+  "where": [
+   "quire/js/dom-console.js:650"
   ]
  },
  "3. Start enforcement": {
@@ -4667,6 +4683,17 @@
  "A (Font)": {
   "where": [
    "ledger/js/dialogs3.js:444"
+  ]
+ },
+ "A VB script is running": {
+  "where": [
+   "quire/js/vb-host.js:254",
+   "quire/js/vb-host.js:314"
+  ]
+ },
+ "A VB statement is running": {
+  "where": [
+   "quire/js/vb-host.js:255"
   ]
  },
  "A cell reference is not valid.": {
@@ -6299,6 +6326,11 @@
  "Automatically resi&ze to fit contents": {
   "where": [
    "quire/js/dialogs2.js:705"
+  ]
+ },
+ "Automation session is not open": {
+  "where": [
+   "quire/js/vb-host.js:142"
   ]
  },
  "Available For Use": {
@@ -9558,7 +9590,7 @@
  },
  "Copy": {
   "where": [
-   "quire/js/dom-console.js:535"
+   "quire/js/dom-console.js:685"
   ]
  },
  "Copy &to:": {
@@ -10455,7 +10487,7 @@
  },
  "DOM API References": {
   "where": [
-   "quire/js/dom-console.js:539"
+   "quire/js/dom-console.js:689"
   ]
  },
  "DRAFT": {
@@ -12335,6 +12367,14 @@
  "Enclosures:": {
   "where": [
    "quire/js/dialogs3.js:486"
+  ]
+ },
+ "End Property": {
+  "where": [
+   "quire/js/vb-host.js:56",
+   "quire/js/vb-host.js:60",
+   "quire/js/vb-host.js:64",
+   "quire/js/vb-host.js:68"
   ]
  },
  "End Show": {
@@ -15555,6 +15595,11 @@
    "ledger/js/dialogs2.js:135"
   ]
  },
+ "IR call failed": {
+  "where": [
+   "quire/js/vb-host.js:170"
+  ]
+ },
  "Ideas that narrow down through layers to one result at the bottom.": {
   "where": [
    "common/smartart.js:411"
@@ -16577,6 +16622,11 @@
  "Japanese (Shift-JIS)": {
   "where": [
    "ledger/js/csv.js:315"
+  ]
+ },
+ "JavaScript": {
+  "where": [
+   "quire/js/dom-console.js:674"
   ]
  },
  "Jewel": {
@@ -20210,6 +20260,11 @@
    "quire/js/ribbon.js:122"
   ]
  },
+ "Output": {
+  "where": [
+   "quire/js/dom-console.js:768"
+  ]
+ },
  "Outset": {
   "where": [
    "quire/js/dialogs.js:431"
@@ -20843,7 +20898,7 @@
  },
  "Paste the text here, then choose OK.": {
   "where": [
-   "quire/js/dom-console.js:495"
+   "quire/js/dom-console.js:616"
   ]
  },
  "Pastel": {
@@ -21612,6 +21667,11 @@
    "quire/js/dialogs3.js:600"
   ]
  },
+ "Procedure arguments must be an array": {
+  "where": [
+   "quire/js/vb-host.js:259"
+  ]
+ },
  "Process": {
   "where": [
    "common/smartart.js:465"
@@ -21739,6 +21799,31 @@
    "quire/js/dialogs3.js:596"
   ]
  },
+ "Public Property Get ActiveDocument() As Object": {
+  "where": [
+   "quire/js/vb-host.js:58"
+  ]
+ },
+ "Public Property Get Application() As Object": {
+  "where": [
+   "quire/js/vb-host.js:54"
+  ]
+ },
+ "Public Property Get Documents() As Object": {
+  "where": [
+   "quire/js/vb-host.js:62"
+  ]
+ },
+ "Public Property Get Selection() As Object": {
+  "where": [
+   "quire/js/vb-host.js:66"
+  ]
+ },
+ "Public Quire As Object": {
+  "where": [
+   "quire/js/vb-host.js:52"
+  ]
+ },
  "Punctuation": {
   "where": [
    "quire/js/spell.js:116",
@@ -21826,7 +21911,7 @@
  "Quire": {
   "where": [
    "index.html:186",
-   "quire/index.html:21"
+   "quire/index.html:31"
   ]
  },
  "Quire &Help": {
@@ -21841,7 +21926,7 @@
  },
  "Quire DOM Console": {
   "where": [
-   "quire/js/dom-console.js:568"
+   "quire/js/dom-console.js:808"
   ]
  },
  "Quire Help": {
@@ -21932,7 +22017,7 @@
  },
  "Quire word processor": {
   "where": [
-   "quire/index.html:371"
+   "quire/index.html:381"
   ]
  },
  "R&eading Layout": {
@@ -24811,6 +24896,21 @@
    "quire/js/dialogs2.js:334"
   ]
  },
+ "Run": {
+  "where": [
+   "quire/js/dom-console.js:772"
+  ]
+ },
+ "Run Script": {
+  "where": [
+   "quire/js/dom-console.js:682"
+  ]
+ },
+ "Run Visual Basic Script": {
+  "where": [
+   "quire/js/dom-console.js:765"
+  ]
+ },
  "Runs a macro": {
   "where": [
    "quire/js/dialogs2.js:138"
@@ -27390,6 +27490,11 @@
    "lectern/js/dialogs.js:920"
   ]
  },
+ "Startup Sub Main or startup form was not found": {
+  "where": [
+   "quire/js/vb-host.js:288"
+  ]
+ },
  "Startup Task Pane": {
   "where": [
    "quire/js/dialogs3.js:595"
@@ -28584,6 +28689,12 @@
    "ledger/js/csv.js:308"
   ]
  },
+ "The VB runtime is not running": {
+  "where": [
+   "quire/js/vb-host.js:257",
+   "quire/js/vb-host.js:315"
+  ]
+ },
  "The active cell does not contain a formula that refers to a valid reference.": {
   "where": [
    "ledger/js/app.js:1332"
@@ -28845,6 +28956,11 @@
    "ledger/js/editor.js:258"
   ]
  },
+ "The injected module has no Quire object": {
+  "where": [
+   "quire/js/vb-host.js:222"
+  ]
+ },
  "The intersection of two areas is empty.": {
   "where": [
    "ledger/js/dialogs3.js:329"
@@ -29000,6 +29116,11 @@
    "quire/js/dom.js:2933"
   ]
  },
+ "The script editor did not load.": {
+  "where": [
+   "quire/js/dom-console.js:718"
+  ]
+ },
  "The search item wasn't found.": {
   "where": [
    "lectern/js/dialogs.js:725"
@@ -29080,7 +29201,7 @@
  },
  "The terminal library did not load.": {
   "where": [
-   "quire/js/dom-console.js:556"
+   "quire/js/dom-console.js:796"
   ]
  },
  "The text is not marked as English, so it was not checked. Use Tools ▸ Language ▸ Set Language to mark it.": {
@@ -29706,7 +29827,7 @@
  },
  "Tips:": {
   "where": [
-   "quire/js/dom-console.js:544"
+   "quire/js/dom-console.js:642"
   ]
  },
  "Title": {
@@ -30453,6 +30574,17 @@
    "ledger/js/dialogs2.js:298"
   ]
  },
+ "Unknown handle": {
+  "where": [
+   "quire/js/dom-ir.js:704",
+   "quire/js/dom-ir.js:787"
+  ]
+ },
+ "Unknown operation": {
+  "where": [
+   "quire/js/dom-ir.js:797"
+  ]
+ },
  "Unlink Fields": {
   "where": [
    "quire/js/commands.js:392",
@@ -30789,6 +30921,16 @@
    "lectern/js/app.js:213"
   ]
  },
+ "VB6 engine is not built. Run make": {
+  "where": [
+   "quire/js/vb-host.js:31"
+  ]
+ },
+ "VB6 engine is not loaded. Run make": {
+  "where": [
+   "quire/js/vb-host.js:20"
+  ]
+ },
  "Va&lidation...": {
   "where": [
    "ledger/js/commands.js:216"
@@ -31017,6 +31159,11 @@
    "ledger/js/dialogs.js:568"
   ]
  },
+ "Visual Basic 6": {
+  "where": [
+   "quire/js/dom-console.js:673"
+  ]
+ },
  "Vivid": {
   "where": [
    "lectern/js/diagram.js:31"
@@ -31161,7 +31308,7 @@
  },
  "Welcome to the DOM Console.": {
   "where": [
-   "quire/js/dom-console.js:543"
+   "quire/js/dom-console.js:641"
   ]
  },
  "WenQuanYi Micro Hei": {

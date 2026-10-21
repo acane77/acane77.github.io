@@ -828,6 +828,7 @@
  "3-D emboss": "Relief 3D",
  "3-D engrave": "Empreinte 3D",
  "3-D model": "Modèle 3D",
+ "3. JavaScript runs here as well, but the F12 console is the better place to run a JavaScript script.": "3. JavaScript s'exécute aussi ici, mais la console F12 convient mieux pour lancer un script JavaScript.",
  "3. Start enforcement": "3. Activation",
  "32-Point Star": "Étoile à 32 branches",
  "35mm Slides": "Diapositives 35 mm",

@@ -828,6 +828,7 @@
  "3-D emboss": "3-D 浮き出し",
  "3-D engrave": "3-D 浮き彫り",
  "3-D model": "3D モデル",
+ "3. JavaScript runs here as well, but the F12 console is the better place to run a JavaScript script.": "3. ここでも JavaScript は実行できますが、JavaScript のスクリプトは F12 コンソールで直接実行することをおすすめします。",
  "3. Start enforcement": "3. 保護の開始",
  "32-Point Star": "星 32",
  "35mm Slides": "35mm スライド",

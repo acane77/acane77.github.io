@@ -828,6 +828,7 @@
  "3-D emboss": "三維浮雕",
  "3-D engrave": "三維凹雕",
  "3-D model": "三維模型",
+ "3. JavaScript runs here as well, but the F12 console is the better place to run a JavaScript script.": "3. 雖然這裡也可以執行 JS，但更建議在 F12 Console 裡直接執行 JavaScript 指令碼。",
  "3. Start enforcement": "3. 啟動強制保護",
  "32-Point Star": "三十二角星",
  "35mm Slides": "35 公釐投影片",
