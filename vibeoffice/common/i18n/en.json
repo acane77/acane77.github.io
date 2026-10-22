@@ -1323,8 +1323,8 @@
  },
  "&File": {
   "where": [
-   "common/ribbon.js:147",
-   "common/ribbon.js:246",
+   "common/ribbon.js:153",
+   "common/ribbon.js:252",
    "common/search.js:96",
    "lectern/js/app.js:65"
   ]
@@ -4753,6 +4753,11 @@
    "ledger/js/dialogs2.js:360"
   ]
  },
+ "A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.": {
+  "where": [
+   "common/suite.js:456"
+  ]
+ },
  "A newer version of VibeOffice is available. This one is {0}.": {
   "where": [
    "index.html:437"
@@ -7582,8 +7587,8 @@
   "where": [
    "common/charts.js:438",
    "common/macros.js:44",
-   "common/suite.js:745",
-   "common/suite.js:886"
+   "common/suite.js:746",
+   "common/suite.js:887"
   ]
  },
  "Cancel an entry": {
@@ -8363,7 +8368,7 @@
  },
  "Choose Blank or a template:": {
   "where": [
-   "common/suite.js:884"
+   "common/suite.js:885"
   ]
  },
  "Choose a Theme:": {
@@ -8829,7 +8834,7 @@
  },
  "Collapse the Ribbon (Ctrl+F1)": {
   "where": [
-   "common/ribbon.js:292"
+   "common/ribbon.js:298"
   ]
  },
  "Color": {
@@ -11375,7 +11380,7 @@
  },
  "Discard the changes": {
   "where": [
-   "common/suite.js:1050"
+   "common/suite.js:1051"
   ]
  },
  "Discard the unsaved changes": {
@@ -18992,7 +18997,7 @@
  },
  "New Document": {
   "where": [
-   "common/suite.js:886",
+   "common/suite.js:887",
    "quire/js/panes.js:81"
   ]
  },
@@ -19003,7 +19008,7 @@
  },
  "New Presentation": {
   "where": [
-   "common/suite.js:886",
+   "common/suite.js:887",
    "lectern/js/panes.js:544"
   ]
  },
@@ -19027,7 +19032,7 @@
  },
  "New Spreadsheet": {
   "where": [
-   "common/suite.js:886"
+   "common/suite.js:887"
   ]
  },
  "New Style": {
@@ -19412,7 +19417,7 @@
  },
  "No unsaved versions are waiting.": {
   "where": [
-   "common/suite.js:1054"
+   "common/suite.js:1055"
   ]
  },
  "No-Width Non Break": {
@@ -20036,7 +20041,7 @@
  },
  "Open the unsaved version": {
   "where": [
-   "common/suite.js:1047"
+   "common/suite.js:1048"
   ]
  },
  "Open the version saved before the changes": {
@@ -20056,7 +20061,7 @@
  },
  "Open “{0}” from the Explorer.": {
   "where": [
-   "common/suite.js:581"
+   "common/suite.js:582"
   ]
  },
  "Opened a template. Save keeps its template format.": {
@@ -20066,7 +20071,7 @@
  },
  "Opening the file. Please wait...": {
   "where": [
-   "common/suite.js:737"
+   "common/suite.js:738"
   ]
  },
  "Opening {0}...": {
@@ -21987,7 +21992,7 @@
  },
  "Quick Access Toolbar": {
   "where": [
-   "common/ribbon.js:289",
+   "common/ribbon.js:295",
    "common/search.js:95"
   ]
  },
@@ -24648,6 +24653,11 @@
    "common/suite.js:455"
   ]
  },
+ "Ribbon Golden Gate": {
+  "where": [
+   "common/suite.js:456"
+  ]
+ },
  "Rice Paper": {
   "where": [
    "quire/js/dialogs.js:980"
@@ -25231,7 +25241,7 @@
  },
  "Save was cancelled.": {
   "where": [
-   "common/suite.js:682"
+   "common/suite.js:683"
   ]
  },
  "Saved .docx files are encrypted with AES-256, as Word 2010 and later do. Passwords are case-sensitive; if you forget it, the document cannot be recovered.": {
@@ -25241,7 +25251,7 @@
  },
  "Saved a copy next to this file. This file still has unsaved changes.": {
   "where": [
-   "common/suite.js:682"
+   "common/suite.js:683"
   ]
  },
  "Saved a copy to attach to your e-mail message.": {
@@ -27591,7 +27601,7 @@
  },
  "Starting {0}": {
   "where": [
-   "common/suite.js:739"
+   "common/suite.js:740"
   ]
  },
  "Startup &Task Pane": {
@@ -28741,13 +28751,13 @@
  },
  "That file is no longer available here. Open it again from the Explorer.": {
   "where": [
-   "common/suite.js:791"
+   "common/suite.js:792"
   ]
  },
  "That file is no longer available here. Open it again from your computer.": {
   "where": [
-   "common/suite.js:810",
-   "common/suite.js:827"
+   "common/suite.js:811",
+   "common/suite.js:828"
   ]
  },
  "The Find What text contains a Pattern Match expression which is not valid.": {
@@ -28973,7 +28983,7 @@
  },
  "The editor did not build a document.": {
   "where": [
-   "common/suite.js:775"
+   "common/suite.js:776"
   ]
  },
  "The editor did not send the file.": {
@@ -29027,7 +29037,7 @@
  "The file is not open in the editor yet.": {
   "where": [
    "common/suite.js:246",
-   "common/suite.js:698"
+   "common/suite.js:699"
   ]
  },
  "The file is saved to your browser's downloads.": {
@@ -30793,12 +30803,12 @@
  },
  "Unsaved changes from {0}": {
   "where": [
-   "common/suite.js:1044"
+   "common/suite.js:1045"
   ]
  },
  "Unsaved changes from {0} (never saved)": {
   "where": [
-   "common/suite.js:1044"
+   "common/suite.js:1045"
   ]
  },
  "Untitled": {
@@ -32515,12 +32525,12 @@
  },
  "{0} (unsaved changes)": {
   "where": [
-   "common/suite.js:1007"
+   "common/suite.js:1008"
   ]
  },
  "{0} (unsaved)": {
   "where": [
-   "common/suite.js:1023"
+   "common/suite.js:1024"
   ]
  },
  "{0} ({1} seconds)": {
@@ -32682,7 +32692,7 @@
  },
  "{0} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.": {
   "where": [
-   "common/suite.js:1058"
+   "common/suite.js:1059"
   ]
  },
  "{0} key sentence highlighted. Undo to restore.": {
@@ -32807,12 +32817,12 @@
  },
  "{0} — open in this window": {
   "where": [
-   "common/suite.js:1045"
+   "common/suite.js:1046"
   ]
  },
  "{0} — unsaved changes from {1}": {
   "where": [
-   "common/suite.js:1019"
+   "common/suite.js:1020"
   ]
  },
  "{0}% normal size": {

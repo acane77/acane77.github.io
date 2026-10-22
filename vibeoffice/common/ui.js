@@ -44,11 +44,11 @@
      (common/i18n.js), not shown */
   const plainAmp = (s) => (root.VO && root.VO.i18n ? root.VO.i18n.plain(String(s || '')) : String(s || '')).replace(/&&/g, '\u0000').replace(/&(\S)/g, '$1').replace(/\u0000/g, '&');
   /** a label as shown, without its access key mark */
-  const stripAmp = (s) => plainAmp(t(s));
+  const stripAmp = (s) => plainAmp(L.dropCjkAccess(t(s)));
   /** text as HTML, its access key underlined */
   const ampMark = (s) => L.esc(s || '').replace(/&amp;&amp;/g, '\u0000').replace(/&amp;(\S)/g, '<u>$1</u>').replace(/\u0000/g, '&amp;');
   /** a label as shown, its access key underlined */
-  const ampHTML = (s) => ampMark(t(s));
+  const ampHTML = (s) => ampMark(L.dropCjkAccess(t(s)));
   const keyOf = (s) => { const m = /&([^&\s])/.exec(s || ''); return m ? m[1].toLowerCase() : null; };
   /** the access key of a label as shown */
   const accessKey = (s) => keyOf(t(s));
@@ -72,10 +72,14 @@
   /* ---------- tooltips ---------- */
   let tipEl = null, tipTimer = null, tipTarget = null;
   function showTip(target, x, y) {
-    const t = target.getAttribute('data-tip');
+    let t = target.getAttribute('data-tip');
+    if (!t) return;
+    if (!target.closest('[translate="no"]') && L.t) t = L.t(t);   // data (a font's name) stays as it is
+    /* Ribbon Golden Gate shows no shortcut keys: a tip's trailing "(Ctrl+S)" or "(⌘S)" comes off */
+    if (document.documentElement.dataset.look === 'goldengate') t = t.replace(/\s*\([^)]*\)\s*$/, '');
     if (!t) return;
     if (!tipEl) { tipEl = h('div', { class: 'tooltip', role: 'tooltip' }); document.body.appendChild(tipEl); }
-    tipEl.textContent = target.closest('[translate="no"]') ? t : (L.t ? L.t(t) : t);   // data (a font's name) stays as it is
+    tipEl.textContent = t;
     tipEl.hidden = false;
     const r = tipEl.getBoundingClientRect();
     let left = x + 2, top = y + 20;
@@ -117,7 +121,7 @@
     keepDepth = keepDepth || 0;
     while (openStack.length > keepDepth) {
       const m = openStack.pop();
-      m.el.remove();
+      (m.shell || m.el).remove();
       if (m.opts && m.opts.onClose) m.opts.onClose();
     }
     if (!keepDepth && menuBarState) {
@@ -141,7 +145,11 @@
     const bar = document.querySelector('.minibar');
     if (bar && !bar.hidden) above(parseInt(bar.style.zIndex, 10));
     const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (winStack.length ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
-    el.style.zIndex = String(menuZ);
+    /* the glass sits on a shell. The menu itself scrolls, and overflow on the blurred element paints a solid fill. */
+    const shell = document.documentElement.dataset.look === 'goldengate' ? h('div', { class: 'gg-menu-glass' }) : null;
+    const host = shell || el;
+    if (shell) { shell.appendChild(el); el.style.position = 'relative'; }
+    host.style.zIndex = String(menuZ);
     const rows = [];
     list.forEach((it) => {
       if (it.sep) { el.appendChild(h('div', { class: 'm-sep' })); return; }
@@ -194,7 +202,7 @@
       void idx;
       return false;
     };
-    document.body.appendChild(el);
+    document.body.appendChild(host);
     /* position */
     const r = el.getBoundingClientRect();
     let x, y;
@@ -203,9 +211,9 @@
     else { x = at.x; y = at.y; }
     if (x + r.width > window.innerWidth - 2) x = at && at.side != null ? at.side - r.width + 3 : window.innerWidth - r.width - 2;
     if (y + r.height > window.innerHeight - 2) y = Math.max(2, window.innerHeight - r.height - 2);
-    el.style.left = Math.max(2, x) + 'px';
-    el.style.top = Math.max(2, y) + 'px';
-    const entry = { el, opts, first: () => setActive(rows.find((r2) => !r2.classList.contains('dis'))) };
+    host.style.left = Math.max(2, x) + 'px';
+    host.style.top = Math.max(2, y) + 'px';
+    const entry = { el, shell, opts, first: () => setActive(rows.find((r2) => !r2.classList.contains('dis'))) };
     openStack.push(entry);
     if (opts.selectFirst) entry.first();
     return el;
@@ -865,12 +873,13 @@
   const winStack = [];
   let dlgBackdrop = null;
   ui.dialogOpen = () => dlgStack.length > 0;
-  /** Windows 7, Ribbon 2010, Paper and Paper 2016 window show and close. Other looks, and reduced motion, stay instant. */
+  /** Windows 7, Ribbon 2010, Ribbon Golden Gate, Paper and Paper 2016 window show and close. Other looks, and reduced motion, stay instant. */
   function win7WindowMotion() {
     const look = document.documentElement && document.documentElement.dataset.look;
-    if (look !== 'win7' && look !== 'ribbon2010' && look !== 'paper' && look !== 'paper2016') return false;
+    if (look !== 'win7' && look !== 'ribbon2010' && look !== 'goldengate' && look !== 'paper' && look !== 'paper2016') return false;
     try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
   }
+  const windowMotionDone = (e, name) => e.animationName === 'win7-' + name || e.animationName === 'goldengate-' + name;
   /** drop windows a test removed from the page, then stack the rest and show the veil behind them when a modal is open */
   function layoutWindows() {
     for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].overlay.isConnected) {
@@ -1000,7 +1009,7 @@
     /* measured before the class, so the opening scale does not shift the centred box */
     if (win7WindowMotion()) {
       dlg.classList.add('is-opening');
-      const endOpen = (e) => { if (e.target !== dlg || e.animationName !== 'win7-open') return; dlg.classList.remove('is-opening'); dlg.removeEventListener('animationend', endOpen); };
+      const endOpen = (e) => { if (e.target !== dlg || !windowMotionDone(e, 'open')) return; dlg.classList.remove('is-opening'); dlg.removeEventListener('animationend', endOpen); };
       dlg.addEventListener('animationend', endOpen);
       setTimeout(() => dlg.classList.remove('is-opening'), 400);
     }
@@ -1061,7 +1070,7 @@
         dlg.classList.add('is-closing');
         let dropped = false;
         const finish = () => { if (dropped) return; dropped = true; drop(); };
-        dlg.addEventListener('animationend', (e) => { if (e.target === dlg && e.animationName === 'win7-close') finish(); });
+        dlg.addEventListener('animationend', (e) => { if (e.target === dlg && windowMotionDone(e, 'close')) finish(); });
         setTimeout(finish, 400);
       } else drop();
       layoutWindows();
@@ -1694,6 +1703,10 @@
     const show = (n) => {
       if (String(range.value) !== String(n)) range.value = String(n);
       if (document.activeElement !== pct) pct.value = n + '%';
+      /* the accent runs to the thumb's centre, half a thumb in from each end */
+      const lo = Number(range.min) || 0, hi = Number(range.max);
+      const ratio = hi === lo ? 0 : (Number(range.value) - lo) / (hi - lo);
+      range.style.setProperty('--gg-zoom-ratio', String(ratio));
     };
     const apply = (n) => { n = Math.round(L.clamp(n, min, max)); o.onChange(n); show(n); };
     const sync = () => { if (!typing) show(read()); };

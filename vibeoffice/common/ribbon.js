@@ -77,7 +77,7 @@
     /* in a narrow window the group folds into one button that opens it below (fit()) */
     const first = g.items.flatMap((x) => (x && x.row) || [x]).find((x) => x !== '|' && !(x && x.make));
     const icon = g.icon || (first && (typeof first === 'string' ? (spec.icons || {})[first] || (ui.cmds[first] || {}).icon : first.icon || (spec.icons || {})[first.cmd || first.split] || (ui.cmds[first.cmd || first.split] || {}).icon));
-    const fold = h('button', { class: 'tb-btn rb-large rb-fold tb-drop with-label', type: 'button', 'aria-label': g.label, 'data-tip': g.label, html: (icon ? L.icons.get(icon, 32) : '') + `<span class="tb-lbl">${L.esc(L.t(g.label))}</span><span class="dd-arrow"></span>` });
+    const fold = h('button', { class: 'tb-btn rb-large rb-fold tb-drop with-label', type: 'button', 'aria-label': g.label, 'data-tip': g.label, html: (icon ? L.icons.get(icon, 32) : '') + `<span class="tb-lbl">${L.esc(L.dropCjkAccess(L.t(g.label)))}</span><span class="dd-arrow"></span>` });
     const grp = h('div', { class: 'rb-group', role: 'group', 'aria-label': g.label }, fold, body, label);
     fold.addEventListener('pointerdown', (e) => e.preventDefault());
     fold.addEventListener('click', () => openFold(grp, fold));

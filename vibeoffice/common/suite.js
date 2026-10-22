@@ -452,7 +452,8 @@
     { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' },
     { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
     { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' },
-    { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' }];
+    { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' },
+    { id: 'goldengate', name: N('Ribbon Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' }];
   const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'ribbon2010'; } catch (e) { return 'ribbon2010'; } };
   const applyLook = (id) => {
     const root = document.documentElement;
