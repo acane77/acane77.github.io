@@ -433,14 +433,12 @@
     }
     async function runImmediate(code) {
       const host = await L.vb.session();
-      const mark = host.output.length;
+      const stopPrints = followPrints(host, (line) => writeOut(line));
       try {
         await evalVB6(joinVb(code));
-      } catch (e) {
-        host.output.slice(mark).forEach((line) => writeOut(line));
-        throw e;
+      } finally {
+        stopPrints();
       }
-      host.output.slice(mark).forEach((line) => writeOut(line));
     }
     async function submit() {
       if (busy) return;
@@ -709,7 +707,7 @@
         toolButton({ label: 'Paste', icon: 'paste' }, pasteIn),
         toolButton({ label: 'Clear', icon: 'eraser' }, clearScreen),
         L.h('span', { class: 'tb-sep' }),
-        toolButton({ label: 'DOM API References', icon: 'read' }, () => { /* the reference is not written yet */ }),
+        toolButton({ label: 'DOM API References', icon: 'read' }, () => { if (L.vbDomRef) L.vbDomRef.show(); }),
         L.h('span', { class: 'tb-sep' }),
         L.h('span', { class: 'dom-console-lang' },
           L.h('label', { for: 'dom-console-lang', html: L.ui.ampHTML('&Language:') }),
@@ -721,6 +719,25 @@
     term.write('> ');
     term.focus();
     return box;
+  }
+
+  /* Prints land in host.output as they happen. The Output box used to read that
+     list only after the script returned, so a MsgBox hid every Debug.Print until No. */
+  function followPrints(host, write) {
+    let seen = host.output.length;
+    function flush() {
+      if (!host.output || seen >= host.output.length) return;
+      const next = host.output.slice(seen);
+      seen = host.output.length;
+      for (let i = 0; i < next.length; i++) write(next[i]);
+    }
+    const prev = host.onPrint;
+    function onPrint() { flush(); }
+    host.onPrint = onPrint;
+    return function stop() {
+      if (host.onPrint === onPrint) host.onPrint = prev;
+      flush();
+    };
   }
 
   function rememberScript(text, log) {
@@ -854,18 +871,19 @@
       if (!editing) persist();
       const seq = L.D && L.D.hist ? L.D.hist.seq : null;
       const doc = L.D ? L.D.doc : null;
-      let host = null;
-      let mark = 0;
+      let stopPrints = null;
       try {
-        host = await L.vb.session();
-        mark = host.output.length;
+        const host = await L.vb.session();
+        stopPrints = followPrints(host, append);
         const value = editing && L.macros ? await L.macros.runDraft(editing.name, code, editing.store) : await L.runVB6(code);
-        host.output.slice(mark).forEach(append);
+        stopPrints();
+        stopPrints = null;
         if (value !== undefined) append(editing ? String(value) : formatValue(value));
       } catch (e) {
-        if (host) host.output.slice(mark).forEach(append);
+        if (stopPrints) { stopPrints(); stopPrints = null; }
         append(editing && e && e.message ? e.message : formatValue(e));
       } finally {
+        if (stopPrints) stopPrints();
         running = false;
         if (L.D && (L.D.doc !== doc || (seq !== null && L.D.hist && L.D.hist.seq !== seq))) {
           refreshDocument(() => { if (editor) editor.focus(); });
@@ -955,5 +973,6 @@
     joinVb: joinVb,
     hoistFunctions: hoistFunctions,
     scriptSource: scriptSource,
+    followPrints: followPrints,
   };
 })(window);

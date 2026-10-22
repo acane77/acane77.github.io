@@ -519,7 +519,7 @@
     const r = +td.dataset.r, c = +td.dataset.c;
     if (r !== st.cell[0] || c !== st.cell[1]) { TE.sync(); st.cell = [r, c]; st.root = td.querySelector('.txi'); TE.lastSel = null; L.ui.refresh(); }
   }
-  document.addEventListener('selectionchange', () => {
+  if (typeof document !== 'undefined') document.addEventListener('selectionchange', () => {
     if (!TE.state) return;
     const s = TE.getSel();
     if (s) {

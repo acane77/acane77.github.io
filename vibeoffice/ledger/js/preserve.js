@@ -215,7 +215,8 @@
     const output = K.output(pkg, { doc: wb, format, consumes: (base, rel, type) => consumed.has(type) || L.slicers.consumes(type) ||
       type === 'http://schemas.microsoft.com/office/2017/10/relationships/threadedComment' ||
       (type === RT('queryTable') && wb.extra.queries?.some(q => q.part === rel.part)) ||
-      (type === RT('pivotTable') && wb.extra.pivots?.tables.some(t => t.part === rel.part)),
+      (type === RT('pivotTable') && wb.extra.pivots?.tables.some(t => t.part === rel.part)) ||
+      !!(L.macros && L.macros.ownsRel(wb, rel)),
       convert: base => base === 'xl/theme/theme1.xml' ? L.xlsxWrite.themeXml(wb) : null,
       merge: (base, source, data, writer) => P.merge(wb, base, source, data, writer),
       audit: writer => {

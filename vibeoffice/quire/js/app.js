@@ -65,7 +65,7 @@
       {
         label: '&View', items: () => ['viewNormal', 'viewWeb', 'viewPrint', 'viewReading', 'viewOutline', '-', 'taskPane',
           { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_tables', 'tb_reviewing', 'tb_picture', 'tb_outlining', 'tb_headerFooter', 'tb_mailMerge', 'tb_wordart', '-', 'customize'] },
-          'ruler', '-', 'docMap', 'thumbnails', '-', 'headerFooter', 'footnotes', 'markup', '-', 'fullScreen', 'zoomDlg'],
+          'ruler', '-', 'docMap', 'thumbnails', '-', 'headerFooter', 'footnotes', 'markup', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde'],
       },
       {
         label: '&Insert', items: () => ['insertBreak', 'pageNumbers', 'dateTime', { label: '&AutoText', sub: () => L.autocorrect ? L.autocorrect.autoTextMenu() : [] }, 'insertField', 'insertSymbol', 'insertEquation', 'insertComment', '-',

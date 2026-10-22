@@ -1145,6 +1145,30 @@
     return out.length ? Array.from(new Set(out)) : null;
   }
 
+  /* The notice comes first. OK opens the Macros window. The title's close button does not.
+     Never show this message again is unchecked until the user checks it and clicks OK.
+     The flag is lectern.macroNotice, so Quire's notice stays its own. */
+  D.macros = async function () {
+    if (!L.store.get('macroNotice', false)) {
+      let hide = false;
+      const check = ui.check('Never show this message again', false, (v) => { hide = v; });
+      check.style.marginTop = '8px';
+      const i = await ui.dialog({
+        title: 'Notice on Macros in Lectern',
+        width: 480,
+        body: h('div', {},
+          h('p', { text: 'Macros created by Microsoft PowerPoint are not executed in Lectern. A VBA project in a .pptm file is kept in the package and is not run.' }),
+          h('p', { text: 'Additionally, macros created in Lectern cannot be loaded or executed by Microsoft PowerPoint, nor can macros created in PowerPoint be loaded or executed by Lectern.' }),
+          h('p', { text: 'The purpose of introducing Visual Basic-based macros in Lectern is to automate presentation editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft PowerPoint\'s .pptm format or VBA projects.' }),
+          check),
+        buttons: [{ label: 'OK', primary: true }],
+      }).done;
+      if (i !== 0) return;
+      if (hide) L.store.set('macroNotice', true);
+    }
+    L.openMacroDialog();
+  };
+
   /* ---------- About ---------- */
   D.about = () => ui.about({ name: 'Lectern', office: 'PowerPoint', text: [
     L.N('A presentation editor in the style of Microsoft Office PowerPoint that runs entirely in your browser. Presentations are read and written as Office Open XML (.pptx, .pptm); nothing is uploaded.'),

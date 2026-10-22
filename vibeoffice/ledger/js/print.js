@@ -322,27 +322,38 @@
   /**
    * opts: {what: 'sheets'|'selection'|'workbook', from, to, quick}
    */
-  P.exportPDF = async function (opts) {
+  P.pdfBytes = async function (opts) {
     opts = opts || {};
     const A = L.app, wb = G().wb;
-    const sheets = opts.what === 'workbook' ? wb.sheets.filter((s) => s.state === 'visible') : A.selectedSheets();
+    const sheets = opts.sheet ? [opts.sheet] : (opts.what === 'workbook' ? wb.sheets.filter((s) => s.state === 'visible') : A.selectedSheets());
     const sel = opts.what === 'selection' ? G().range() : null;
     const items = P.allPages(sheets, sel);
-    if (!items.length) { ui.msg('Ledger did not find anything to print.', { icon: 'info' }); return; }
+    if (!items.length) return null;
     const from = Math.max(1, opts.from || 1), to = Math.min(items.length, opts.to || items.length);
+    const pages = [];
+    for (let i = from - 1; i < to; i++) {
+      const r = await renderAny(items[i], i, items.length, 2);
+      const blob = await new Promise((res) => r.cv.toBlob(res, 'image/jpeg', 0.92));
+      pages.push({ jpeg: new Uint8Array(await blob.arrayBuffer()), iw: r.cv.width, ih: r.cv.height, pw: r.w, ph: r.h });
+    }
+    const pdf = L.buildPDF(pages, { title: (wb.props && wb.props.title) || (A.books[A.cur] ? A.books[A.cur].name : 'Book1'), author: (wb.props && wb.props.creator) || '' });
+    pdf.pageCount = pages.length;
+    return pdf;
+  };
+  P.exportPDF = async function (opts) {
+    opts = opts || {};
+    const A = L.app;
     ui.busy(true, 'Preparing pages...');
     try {
-      const pages = [];
-      for (let i = from - 1; i < to; i++) {
-        const r = await renderAny(items[i], i, items.length, 2);
-        const blob = await new Promise((res) => r.cv.toBlob(res, 'image/jpeg', 0.92));
-        pages.push({ jpeg: new Uint8Array(await blob.arrayBuffer()), iw: r.cv.width, ih: r.cv.height, pw: r.w, ph: r.h });
-      }
-      const pdf = L.buildPDF(pages, { title: (wb.props && wb.props.title) || (A.books[A.cur] ? A.books[A.cur].name : 'Book1'), author: (wb.props && wb.props.creator) || '' });
+      const pdf = await P.pdfBytes(opts);
       ui.busy(false);
+      if (!pdf) { ui.msg('Ledger did not find anything to print.', { icon: 'info' }); return; }
       const name = (A.books[A.cur] ? A.books[A.cur].name : 'Book1').replace(/\.[^.]+$/, '') + '.pdf';
       const res = await L.saveFile(name, pdf);
-      if (res === 'saved' && !opts.quiet) ui.toast(pages.length === 1 ? L.t('{0} page saved as {1}. Open it to print.', pages.length, name) : L.t('{0} pages saved as {1}. Open it to print.', pages.length, name));
+      if (res === 'saved' && !opts.quiet) {
+        const n = pdf.pageCount || 1;
+        ui.toast(n === 1 ? L.t('{0} page saved as {1}. Open it to print.', n, name) : L.t('{0} pages saved as {1}. Open it to print.', n, name));
+      }
     } catch (e) { ui.busy(false); A.error(e); }
     finally { ui.busy(false); }
   };

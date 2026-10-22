@@ -147,6 +147,9 @@
 
   /* ---------- Help ---------- */
   C('help', { label: 'Lectern &Help', icon: 'help', key: 'F1', tip: 'Lectern Help', run: () => L.panes.task.show('help') });
+  C('domConsole', { label: 'Lectern DOM &Console', run: () => L.domConsole && L.domConsole.open() });
+  C('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => L.dlg.macros() });
+  C('vbIde', { label: 'Visual &Basic IDE', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
   C('about', { label: '&About Lectern', icon: 'about', run: () => L.dlg.about() });
   C('gettingStarted', { label: '&Getting Started', run: () => L.panes.task.show('getting-started') });
 

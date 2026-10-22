@@ -13,16 +13,25 @@
 ActiveDocument get Document
 Documents get Documents
 Selection get Selection
+HasHostAbility call
+MsgBox call AlwaysAllow
+InputBox call AlwaysAllow
+HostShell call AlwaysDeny Shell
+HostDir call RequestApproval Dir
+Dialogs get BuiltinDialogs
+FileDialog call BuiltinFileDialog
+GetOpenFilename call RequestApproval FileDialog dialog
+GetSaveAsFilename call RequestApproval FileDialog dialog
 # Documents collection
 Item call Document
 Add call Document
-Open gap G-HOST call
+Open call RequestApproval Open
 Close gap G-HOST call
 Save gap G-HOST call
 # Document
 Name get
-FullName gap G-HOST get
-Path gap G-HOST get
+FullName get AlwaysAllow Path
+Path get AlwaysAllow Path
 Saved rw
 Content get Range
 Paragraphs get Paragraphs
@@ -53,18 +62,18 @@ Range gap G-STORY call
 Select call
 Activate call
 Close call
-Save call
-SaveAs gap G-HOST call
-SaveAs2 gap G-HOST call
+Save call RequestApproval Save
+SaveAs call RequestApproval SaveAs
+SaveAs2 call RequestApproval SaveAs
 ComputeStatistics call
-PrintOut gap G-HOST call
+PrintOut call AlwaysAllow Print
 PrintPreview gap G-HOST call
 Protect gap G-ENGINE call
 Unprotect gap G-ENGINE call
 Compare gap G-HOST call
-FollowHyperlink gap G-HOST call
+FollowHyperlink call AlwaysAllow Hyperlink
 GoTo gap G-STORY call
-ExportAsFixedFormat gap G-HOST call
+ExportAsFixedFormat call RequestApproval FixedFormat
 TrackRevisions rw
 # Selection
 Text rw
@@ -101,7 +110,7 @@ Information gap G-STORY call
 InsertBreak call
 InsertSymbol call
 InsertDateTime call
-InsertFile gap G-HOST call
+InsertFile call AlwaysAllow InsertFile
 InsertCaption gap G-ENGINE call
 InsertCells call
 InsertRows call
@@ -125,6 +134,7 @@ Duplicate call Range
 Copy call
 Cut call
 Paste call
+InsertFile call AlwaysAllow InsertFile
 Font get Font
 ParagraphFormat get ParagraphFormat
 Style rw
@@ -513,7 +523,7 @@ Index get
 Reference gap G-STORY get
 # InlineShapes collection
 Item call InlineShape
-AddPicture gap G-HOST call
+AddPicture call RequestApproval Picture
 # InlineShape
 Width rw
 Height rw
@@ -620,6 +630,13 @@ Item gap G-STORY call
 # Pane gap G-HOST
 # View gap G-HOST
 # Dialogs gap G-HOST
+# BuiltinDialogs
+Item call BuiltinDialog
+# BuiltinDialog
+Show call AlwaysAllow
+# BuiltinFileDialog
+Show call RequestApproval FileDialog dialog
+SelectedItems get
 # Dialog gap G-HOST
 # FileDialog gap G-HOST
 # System gap G-HOST
@@ -631,6 +648,20 @@ Item gap G-STORY call
 # Options gap G-HOST
 # DefaultWebOptions gap G-HOST
 `;
+
+  function takeAudit(parts) {
+    const AUDIT = { AlwaysAllow: 1, RequestApproval: 1, AlwaysDeny: 1 };
+    const out = parts.slice();
+    let fileDialog = false;
+    if (out[out.length - 1] === 'dialog') { fileDialog = true; out.pop(); }
+    let audit = '';
+    let ability = '';
+    const last = out[out.length - 1];
+    const prev = out[out.length - 2];
+    if (prev && AUDIT[prev]) { audit = prev; ability = last; out.splice(out.length - 2, 2); }
+    else if (last && AUDIT[last]) { audit = last; out.pop(); }
+    return { parts: out, audit: audit, ability: ability, fileDialog: fileDialog };
+  }
 
   function parseCatalog(text) {
     const types = {};
@@ -646,8 +677,9 @@ Item gap G-STORY call
         types[cur.name] = cur;
         continue;
       }
-      const parts = line.split(/\s+/);
-      const rec = { kind: parts[1] };
+      const taken = takeAudit(line.split(/\s+/));
+      const parts = taken.parts;
+      const rec = { kind: parts[1], audit: taken.audit, ability: taken.ability, fileDialog: taken.fileDialog };
       if (parts[1] === 'gap') {
         rec.code = parts[2];
         rec.as = parts[3] || 'any';
@@ -689,6 +721,21 @@ Item gap G-STORY call
 
   function fail(code, member, message) {
     return { ok: false, code: code, member: member || '', message: message || (member ? member + ' is not available (' + code + ')' : code) };
+  }
+
+  function auditCall(desc, member, produce) {
+    if (desc && desc.audit === 'AlwaysDeny') {
+      if (!L.hostAudit || !L.hostAudit.has(desc.ability || '')) return fail('G-HOST', member, member + ' is not available (G-HOST)');
+      return fail('E-DENIED', member, 'The editor refused this operation.');
+    }
+    if (!desc || desc.audit !== 'RequestApproval' || desc.fileDialog || member === 'ExportAsFixedFormat' || !L.hostAudit) return produce();
+    return Promise.resolve(L.hostAudit.gate({
+      tier: 'RequestApproval', ability: desc.ability || member, member: member,
+    })).then(function (r) {
+      if (!r || r.ok === false) return fail((r && r.code) || 'E-APPROVAL', member, (r && r.message) || 'The editor did not allow this operation.');
+      try { return produce(); }
+      catch (e) { return fail((e && e.code) || 'error', member, e && e.message); }
+    });
   }
 
   function hasMember(obj, name) {
@@ -812,7 +859,9 @@ Item gap G-STORY call
           return { ok: true, kind: 'empty' };
         }
         const args = bindArgs(session, req.args);
-        if (typeof rec.obj[name] === 'function') return settle(session, rec.obj[name].apply(rec.obj, args), desc.ret || 'empty');
+        if (typeof rec.obj[name] === 'function') return auditCall(desc, member, function () {
+          return settle(session, rec.obj[name].apply(rec.obj, args), desc.ret || 'empty');
+        });
         if (!args.length && hasMember(rec.obj, name)) return settle(session, rec.obj[name], desc.kind === 'call' ? (desc.ret === 'empty' ? 'scalar' : desc.ret) : desc.ret);
         return fail('missing-live', member);
       } catch (e) {

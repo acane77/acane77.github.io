@@ -1,4 +1,4 @@
-/* Quire headless VB6 engine. Built by tools/vb6/build-engine.mjs. Not ApplicationHost. */
+/* Headless VB6 engine. Built by tools/vb6/build-engine.mjs. Not ApplicationHost. */
 /* VB6 Studio Web 0.5.0 - MIT. Generated from modular sources. */
 (()=>{'use strict';
 const __modules=[];
@@ -13423,7 +13423,7 @@ __modules[143]=(()=>{
 const { compileProject }=__modules[43];
 const { VirtualMachine }=__modules[142];
 const { AutomationRegistry }=__modules[80];
-const { describe, unbox, NOTHING, MISSING }=__modules[37];
+const { describe, unbox, NOTHING, MISSING, VBArray }=__modules[37];
 const { VBError }=__modules[1];
 /** Headless engine for Quire. Compiler, virtual machine, values and Automation.
  *  Quire does not load ApplicationHost, the IDE, or the forms bundle from here. */
@@ -13433,7 +13433,7 @@ const { VBError }=__modules[1];
 
 
 
-return {compileProject,VirtualMachine,AutomationRegistry,describe,unbox,NOTHING,MISSING,VBError};
+return {compileProject,VirtualMachine,AutomationRegistry,describe,unbox,NOTHING,MISSING,VBError,VBArray};
 })();
 globalThis["VB6Engine"]=__modules[143];
 })();

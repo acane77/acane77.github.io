@@ -1132,6 +1132,7 @@
     files.unshift({ name: '[Content_Types].xml', data: ct });
     const mime = format.mime;
     const types = new Map(overrides.map(([name, type]) => [name.slice(1), type]));
+    if (L.macros) L.macros.finish(pres, pack);
     for (const file of files) pack.put(file.name, file.data, types.get(file.name) || defaults.get(file.name.split('.').pop()));
     const result = pack.finish();
     const blob = await L.zip.write(result.files, mime);

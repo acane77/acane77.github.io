@@ -201,7 +201,9 @@
   cmd('calcSheet', { label: 'Calculate Sheet', key: 'Shift+F9', run: run(() => A().calculateNow()) });
   cmd('autoCorrectDlg', { label: '&AutoCorrect Options...', run: run(() => D().autoCorrect()) });
   cmd('options', { label: '&Options...', run: run(() => D().options()) });
-  cmd('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => ui.msg('Ledger does not run macros. Workbooks with macros (.xlsm) open and save with their macros intact.', { icon: 'info', title: 'Macros' }) });
+  cmd('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => L.macros && L.macros.open() });
+  cmd('vbIde', { label: 'Visual &Basic IDE', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
+  cmd('domConsole', { label: 'Ledger DOM &Console', icon: 'help', run: () => L.domConsole && L.domConsole.open() });
   cmd('addIns', { label: 'Add-&Ins...', run: () => ui.msg('Analysis ToolPak functions (engineering, financial, date) are built in.', { icon: 'info' }) });
 
   /* ------------------------------------------------------------ Data */

@@ -68,7 +68,7 @@
         label: '&View', items: () => ['viewNormal', 'viewSorter', 'showFromStart', 'viewNotes', '-',
           { label: '&Master', sub: ['viewMaster'] },
           { label: 'Co&lor/Grayscale', sub: ['viewColor', 'viewGray', 'viewBW'] }, '-',
-          'taskPane', 'slidesPane', { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_outlining', 'tb_picture', 'tb_tables', 'tb_wordart'] }, 'ruler', 'gridGuides', '-', 'headerFooter', '-', 'zoomDlg'],
+          'taskPane', 'slidesPane', { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_outlining', 'tb_picture', 'tb_tables', 'tb_wordart'] }, 'ruler', 'gridGuides', '-', 'headerFooter', '-', 'zoomDlg', '-', 'vbIde'],
       },
       {
         label: '&Insert', items: ['newSlide', 'duplicateSlide', '-', 'insertSlideNumber', 'insertDateTime', 'insertSymbol', '-', 'slidesFromFiles', 'slidesFromOutline', '-',
@@ -76,14 +76,14 @@
           'insertDiagram', 'textBox', 'insertMedia', 'insertChart', 'insertTable', '-', 'hyperlink'],
       },
       { label: 'F&ormat', items: ['fontDlg', 'bulletsDlg', { label: '&Alignment', sub: ['alignLeft', 'alignCenter', 'alignRight', 'justify'] }, 'lineSpacing', 'changeCase', 'replaceFonts', '-', 'slideDesign', 'slideLayout', 'background', '-', 'formatObject'] },
-      { label: '&Tools', items: ['spelling', '-', 'autocorrectDlg', '-', 'optionsDlg'] },
+      { label: '&Tools', items: ['spelling', '-', { label: '&Macro', sub: ['macros'] }, '-', 'autocorrectDlg', '-', 'optionsDlg'] },
       {
         label: 'Sli&de Show', items: () => ['showFromStart', 'setupShow', 'rehearse', '-',
           { label: 'Act&ion Buttons', sub: [{ custom: (close) => shapeGrid(L.geom.MENU['Action Buttons'], close) }] }, 'actionSettings', '-',
           'animSchemes', 'customAnim', 'transitionPane', '-', 'hideSlide'],
       },
       { label: '&Window', items: () => [{ label: '&1 ' + A.fileName.replace(/&/g, '&&'), raw: true, checked: () => true, run: () => {} }] },
-      { label: '&Help|menu bar', items: ['help', 'showAssistant', '-', 'gettingStarted', '-', ui.themeMenu(), ui.languageMenu(), 'about'] },
+      { label: '&Help|menu bar', items: ['help', 'showAssistant', '-', 'gettingStarted', 'domConsole', '-', ui.themeMenu(), ui.languageMenu(), 'about'] },
     ];
     void autoShapeSub;
     const row = L.$('#menurow');
@@ -476,6 +476,10 @@
     if (TE.active()) TE.sync();
     if (L.panes.left.tab === 'outline') L.panes.left.commitOutline();
     try {
+      if (L.pres.macros && L.pres.macros.length && !/^(pptx|pptm|ppsx|ppsm|potx|potm)$/.test(type)) {
+        const keep = await ui.msg('The macros in this presentation cannot be stored in this file type. Save as a PowerPoint presentation to keep them.', { icon: 'warn', title: 'Macros', buttons: [L.t('Save anyway'), L.t('Cancel')] });
+        if (keep !== 0) return 'declined';
+      }
       let blob, ext = type;
       if (/^(pptx|pptm|ppsx|ppsm|potx|potm)$/.test(type)) blob = await L.pptx.write(L.pres, { format: type });
       else if (type === 'html') blob = await A.buildWebPage();
@@ -1799,8 +1803,9 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     'Ctrl+Shift+>': 'growFont', 'Ctrl+Shift+<': 'shrinkFont', 'Ctrl+]': 'growFont', 'Ctrl+[': 'shrinkFont', 'Ctrl+=': 'subscript', 'Ctrl+Shift+=': 'superscript', 'Ctrl+Shift++': 'superscript', 'Ctrl+Space': 'resetChar',
     'Shift+F3': 'changeCase', 'Ctrl+G': 'group', 'Ctrl+Shift+G': 'ungroup', 'F5': 'showFromStart', 'Shift+F5': 'showFromCurrent', 'F7': 'spelling', 'F1': 'help', 'Ctrl+F1': 'taskPane',
     'Alt+Shift+ArrowLeft': 'promote', 'Alt+Shift+ArrowRight': 'demote', 'Alt+Shift+ArrowUp': 'moveParaUp', 'Alt+Shift+ArrowDown': 'moveParaDown', 'F12': 'saveAs', 'Ctrl+Shift+S': 'saveAs',
+    'Alt+F8': 'macros',
   };
-  const TEXT_SAFE = new Set(['bold', 'italic', 'underline', 'alignCenter', 'alignLeft', 'alignRight', 'justify', 'growFont', 'shrinkFont', 'subscript', 'superscript', 'resetChar', 'fontDlg', 'hyperlink', 'changeCase', 'promote', 'demote', 'moveParaUp', 'moveParaDown', 'undo', 'redo', 'save', 'open', 'new', 'print', 'newSlide', 'find', 'replace', 'showFromStart', 'showFromCurrent', 'help', 'spelling', 'taskPane', 'saveAs']);
+  const TEXT_SAFE = new Set(['bold', 'italic', 'underline', 'alignCenter', 'alignLeft', 'alignRight', 'justify', 'growFont', 'shrinkFont', 'subscript', 'superscript', 'resetChar', 'fontDlg', 'hyperlink', 'changeCase', 'promote', 'demote', 'moveParaUp', 'moveParaDown', 'undo', 'redo', 'save', 'open', 'new', 'print', 'newSlide', 'find', 'replace', 'showFromStart', 'showFromCurrent', 'help', 'spelling', 'taskPane', 'saveAs', 'macros']);
   document.addEventListener('keydown', (e) => {
     if (L.show.active) return;
     if (ui.menuOpen()) { if (ui.menuKey(e)) { e.preventDefault(); e.stopPropagation(); } return; }

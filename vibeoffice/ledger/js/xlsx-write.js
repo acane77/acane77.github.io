@@ -1024,6 +1024,7 @@
     L.slicers.write(slicers);
     L.threads.write(wb, pack);
     for (const file of files) pack.put(file.name, file.data, overrides.get('/' + file.name) || defaults.get(file.name.split('.').pop()));
+    if (L.macros) L.macros.finish(wb, pack);
     const result = pack.finish();
     const blob = await L.zip.write(result.files, format.mime);
     let bytes = new Uint8Array(await blob.arrayBuffer());

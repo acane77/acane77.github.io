@@ -1941,6 +1941,7 @@
     L.preserve.seal(pres);
     L.preserve.readSlideLists(pres);
     pres.ooxmlFormat = L.opc.variant(pres.pkg, 'pptx');
+    if (L.macros) L.macros.adopt(pres);
     return pres;
   }
 

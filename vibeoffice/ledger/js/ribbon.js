@@ -12,10 +12,10 @@
       nameCreate: 'nameBox', nameApply: 'nameBox', functionsHelp: 'help', calcSheet: 'calcNow', errorChecking: 'traceError', showAll: 'filter', advancedFilter: 'filterOn', consolidate: 'subtotal',
       groupRows: 'group', ungroupRows: 'ungroup', showDetail: 'expand', hideDetail: 'collapse', autoOutline: 'group', clearOutline: 'ungroup', importText: 'textToCols', refreshData: 'redo',
       protectWorkbook: 'protect', allowEditRanges: 'protect', deleteComment: 'delete', showHideComment: 'comment', showComments: 'comment', viewNormal: 'normalGrid', newWindow: 'newWindow',
-      arrangeWindows: 'arrangeAll', macros: 'macros', formulaBar: 'fx', statusBar: 'layout', gridlinesView: 'grid', headingsView: 'headingRows', setPrintArea: 'pageSetup', insertPageBreak: 'pageBreak',
+      arrangeWindows: 'arrangeAll', macros: 'macros', vbIde: 'vbIde', formulaBar: 'fx', statusBar: 'layout', gridlinesView: 'grid', headingsView: 'headingRows', setPrintArea: 'pageSetup', insertPageBreak: 'pageBreak',
       resetPageBreaks: 'pageBreak', sheetBackground: 'background', createList: 'table', totalRow: 'autoSum', convertToRange: 'tableToText', newSheetChart: 'chart', exportCSV: 'excel', conditionalFormat: 'condFormat', styleDlg: 'stylesPane', headerFooter: 'headerFooter', formatObject: 'formatPicture' },
     qat: ['save', 'undo', 'redo'],
-    file: () => ['newBook', 'open', 'close', '-', 'save', 'saveAs', 'saveWeb', '-', 'properties', 'links', '-', 'pageSetup', 'printPreview', 'print', '-', 'exportPDF', 'exportCSV', '-', 'options', 'addIns', 'help', ui.themeMenu(), ui.languageMenu(), 'about', '-', 'exitApp'],
+    file: () => ['newBook', 'open', 'close', '-', 'save', 'saveAs', 'saveWeb', '-', 'properties', 'links', '-', 'pageSetup', 'printPreview', 'print', '-', 'exportPDF', 'exportCSV', '-', 'options', 'addIns', 'help', 'domConsole', ui.themeMenu(), ui.languageMenu(), 'about', '-', 'exitApp'],
     tabs: [
       { id: 'home', label: '&Home', groups: [
         { label: 'Clipboard', launcher: 'officeClipboard', items: [{ split: 'paste', size: 'large', menu: open(['paste', 'pasteValues', 'pasteSpecial', 'pasteHyperlink']) }, 'cut', 'copy', 'formatPainter'] },
@@ -77,7 +77,7 @@
         { label: 'Show', items: ['formulaBar', { cmd: 'gridlinesView', label: 'Gridlines' }, { cmd: 'headingsView', label: 'Headings' }, 'statusBar', 'taskPane'] },
         { label: 'Zoom', items: [{ cmd: 'zoomDlg', size: 'large', label: 'Zoom' }, { make: () => A().parts.zoom({ width: 70, id: 'rb-zoom' }) }] },
         { label: 'Window', items: [{ cmd: 'newWindow', size: 'large', label: 'New Window' }, 'arrangeWindows', { cmd: 'freezePanes', size: 'large', label: 'Freeze Panes' }, 'splitWindow'] },
-        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }] },
+        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'Visual Basic IDE' }] },
       ] },
     ],
     contextual: [

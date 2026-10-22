@@ -524,6 +524,7 @@
       show: { loop: false, noAnim: false, useTimings: true, from: 0, to: 0, penColor: '#FF0000', kiosk: false },
       hf: { dt: false, dtAuto: true, dtFmt: 'datetime1', dtText: '', num: false, ftr: false, ftrText: '', notOnTitle: false },
       props: { author: '', subject: '', keywords: '', comments: '', company: '', category: '', created: new Date().toISOString() },
+      macros: [],
     };
     /* the text language and fonts of the UI's language (common/locales.js); not for a file being read
        (pptx-read.js: locale false). A language without its own faces uses 等线 for both, as a blank document does. */
@@ -750,7 +751,7 @@
 
   /* ---------- undo / redo ---------- */
   const H = (L.hist = { undo: [], redo: [], limit: 100, dirty: false, lastLabel: '' });
-  H.snapshot = () => JSON.stringify({ W: L.pres.W, H: L.pres.H, firstNum: L.pres.firstNum, designs: L.pres.designs, slides: L.pres.slides, show: L.pres.show, hf: L.pres.hf, props: L.pres.props, title: L.pres.title, keep: L.pres.keep, ooxmlFormat: L.pres.ooxmlFormat, losses: L.pres.losses || [], shapeDefaults: L.pres.shapeDefaults, lineDefaults: L.pres.lineDefaults });
+  H.snapshot = () => JSON.stringify({ W: L.pres.W, H: L.pres.H, firstNum: L.pres.firstNum, designs: L.pres.designs, slides: L.pres.slides, show: L.pres.show, hf: L.pres.hf, props: L.pres.props, title: L.pres.title, keep: L.pres.keep, macros: L.pres.macros || [], ooxmlFormat: L.pres.ooxmlFormat, losses: L.pres.losses || [], shapeDefaults: L.pres.shapeDefaults, lineDefaults: L.pres.lineDefaults });
   H.restore = (snap) => { Object.assign(L.pres, JSON.parse(snap)); };
   /** Record state before a mutation. coalesceKey merges rapid repeats (typing). */
   H.push = (label, coalesceKey) => {

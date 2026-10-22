@@ -89,7 +89,7 @@
     const pkg = pres.pkg;
     const consumed = new Set([RT('officeDocument'), ...P.parts.map(p => p[1]), ...L.comments.types, ...['slide', 'slideMaster', 'slideLayout', 'notesSlide', 'theme', 'image', 'chart', 'hyperlink', 'tags'].map(RT)]);
     const output = K.output(pkg, { doc: pres, format, contentType: P.mediaType,
-      consumes: (base, rel, type) => consumed.has(type) || L.frames.consumes(pres, base, rel),
+      consumes: (base, rel, type) => consumed.has(type) || L.frames.consumes(pres, base, rel) || !!(L.macros && L.macros.ownsRel(pres, rel)),
       convert: (base, source, data) => /^ppt\/(theme\/|notesMasters\/|notesSlides\/|viewProps\.xml$|tableStyles\.xml$)/.test(base) ? data : null,
       merge: (base, source, data, writer) => P.mergePackage(pres, base, source, data, writer), audit: P.reportLosses });
     output.bind('ppt/presentation.xml', pkg?.main, 'merged');

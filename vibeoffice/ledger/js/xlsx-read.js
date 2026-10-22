@@ -1271,6 +1271,7 @@
     if (/macroEnabled/i.test((await pkg.text('[Content_Types].xml')) || '')) wb.macroEnabled = true;
     const customXml = Array.from(zip.keys()).filter((k) => /^customXml\//.test(k));
     if (customXml.length) { wb.extra.customXml = []; for (const k of customXml) wb.extra.customXml.push({ name: k, bytes: await pkg.bytes(k) }); }
+    if (L.macros) L.macros.adopt(wb);
     if (zip.repaired) wb.repaired = true;
     /* active sheet must be visible */
     if (!wb.sheets.length) wb.addSheet('Sheet1');

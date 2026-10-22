@@ -11,10 +11,29 @@
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../fonts/fonts.css">
 <link rel="stylesheet" href="../fonts/brand.css">
+<link rel="stylesheet" href="../common/vendor/xterm/xterm.css">
+<link rel="stylesheet" href="../common/vendor/codemirror/codemirror.css">
 <link rel="stylesheet" href="../common/looks.css">
 <link rel="stylesheet" href="../common/ui.css">
 <link rel="stylesheet" href="../common/scout/scout.css">
 <style>
+.dlg.dom-console > .dlg-body { padding: 0; background: var(--dlg); overflow: hidden; display: flex; flex-direction: column; }
+.dlg.dom-console > .dlg-foot { padding: 0; }
+.dom-console-bar { display: flex; align-items: center; flex: 0 0 auto; height: 26px; padding: 0 2px; color: var(--dlg-ink); border-bottom: 1px solid var(--tb-border); overflow-x: auto; }
+.dom-console-lang { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.dom-console-lang label { white-space: nowrap; }
+.dom-console-bar select { font: inherit; color: var(--dlg-ink); background: var(--dlg); max-width: 11em; }
+.dom-console-host { background: #0c0c0c; box-sizing: border-box; overflow: hidden; }
+.dom-console-paste-note { margin: 0 0 6px; }
+.dom-console-paste { width: 100%; min-height: 160px; box-sizing: border-box; font-family: monospace; }
+.dlg.vb-script > .dlg-body { display: flex; flex-direction: column; height: min(560px, 70vh); }
+.vb-script-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; height: 100%; }
+.vb-script-editor { flex: 1 1 auto; min-height: 180px; border: 1px solid var(--tb-border); overflow: hidden; }
+.vb-script-editor .CodeMirror { height: 100%; font-family: monospace; font-size: 13px; }
+.vb-script-out-label { flex: 0 0 auto; }
+.vb-script-out { flex: 0 0 110px; width: 100%; box-sizing: border-box; font-family: monospace; resize: none; }
+.vb-script-name { order: -1; display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.vb-script-name input { flex: 1 1 auto; min-width: 0; }
 /* The presentation window: docked command bars, three-pane Normal view (slides/outline · slide · task pane),
    drawing bar and status bar. Chrome colours come from the look settings (../common/looks.css). */
 
@@ -326,6 +345,8 @@
 <script src="../common/clipart.js"></script>
 <script src="js/dialogs.js"></script>
 <script src="js/panes.js"></script>
+<script src="../common/vb-dom-ref.js"></script>
+<script src="js/vb-dom-ref.js"></script>
 <script src="../common/smartart.js"></script>
 <script src="js/diagram.js"></script>
 <script src="js/smartart-io.js"></script>
@@ -347,4 +368,14 @@
 <script src="js/ribbon.js"></script>
 <script src="../common/minibar.js"></script>
 <script src="js/app.js"></script>
+<script src="../common/host-audit.js"></script>
+<script src="js/dom.js"></script>
+<script src="js/dom-ir.js"></script>
+<script src="js/vb-host.js"></script>
+<script src="js/macros.js"></script>
+<script src="../common/vendor/xterm/xterm.js"></script>
+<script src="../common/vendor/codemirror/codemirror.js"></script>
+<script src="../common/vendor/codemirror/vb.js"></script>
+<script src="../common/vb-ide.js"></script>
+<script src="js/dom-console.js"></script>
 </html>

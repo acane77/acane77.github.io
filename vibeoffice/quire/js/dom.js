@@ -1205,7 +1205,13 @@
     Object.defineProperty(r, 'Comments', { enumerable: true, get() { return rangeComments(r, anchor); } });
     Object.defineProperty(r, 'InlineShapes', { enumerable: true, get() { return rangeShapes(r, anchor); } });
     denyGet(r, ['FormattedText'], 'G-ENGINE');
-    denyFn(r, ['InsertFile'], 'G-HOST');
+    r.InsertFile = function (fileName) {
+      if (!L.hostAudit || !L.hostAudit.has('InsertFile')) gap('G-HOST', 'InsertFile');
+      L.hostAudit.rejectExtra(arguments, 1, ['FileName', 'Range', 'ConfirmConversions', 'Link', 'Attachment']);
+      return L.hostAudit.readBytes(fileName, 'InsertFile', 'AlwaysAllow').then((bytes) => {
+        return L.app.insertFileBytes(String(fileName).split(/[/\\]/).pop(), bytes);
+      });
+    };
     denyFn(r, ['InsertCaption', 'PasteAndFormat', 'PasteSpecial', 'PasteExcelTable'], 'G-ENGINE');
   }
 
@@ -1380,11 +1386,26 @@
 
     doc.Save = function () {
       requireActive(doc);
-      if (L.app && typeof L.app.save === 'function') return L.app.save();
+      const run = () => (L.app && typeof L.app.save === 'function' ? L.app.save() : undefined);
+      if (!L.hostAudit) return run();
+      return L.hostAudit.must('RequestApproval', 'Save', 'save the open file').then(run);
     };
 
-    doc.SaveAs = function () { gap('G-HOST', 'SaveAs'); };
-    doc.SaveAs2 = function () { gap('G-HOST', 'SaveAs2'); };
+    function quireSaveBytes(fileFormat) {
+      if (fileFormat === 17 || fileFormat === 'pdf') return L.app.buildPDF();
+      if (fileFormat != null && fileFormat !== '' && fileFormat !== 12 && fileFormat !== 16 && fileFormat !== 'docx') {
+        const e = new Error('The parameter FileFormat is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      return L.docx.write(model, { format: 'docx' });
+    }
+    doc.SaveAs = function (fileName, fileFormat) {
+      if (!L.hostAudit || !L.hostAudit.has('SaveAs')) gap('G-HOST', 'SaveAs');
+      L.hostAudit.rejectExtra(arguments, 2, ['FileName', 'FileFormat', 'LockComments', 'Password']);
+      return L.hostAudit.saveCopy(fileName, () => quireSaveBytes(fileFormat));
+    };
+    doc.SaveAs2 = doc.SaveAs;
 
     function times(n) { return n == null ? 1 : (n | 0); }
     doc.Undo = function (n) {
@@ -1902,9 +1923,35 @@
       } else if (mode !== 0) gap('G-ENGINE', 'Close');
       finishClose(doc);
     };
-    denyGet(doc, ['FullName', 'Path'], 'G-HOST');
+    Object.defineProperty(doc, 'FullName', {
+      enumerable: true,
+      get() {
+        if (!L.hostAudit || !L.hostAudit.has('Path')) gap('G-HOST', 'FullName');
+        return L.hostAudit.documentPath();
+      },
+    });
+    Object.defineProperty(doc, 'Path', {
+      enumerable: true,
+      get() {
+        if (!L.hostAudit || !L.hostAudit.has('Path')) gap('G-HOST', 'Path');
+        return L.hostAudit.documentDir();
+      },
+    });
+    doc.PrintOut = function () {
+      if (!L.hostAudit || !L.hostAudit.has('Print')) gap('G-HOST', 'PrintOut');
+      return L.hostAudit.printPdf(() => L.app.buildPDF());
+    };
+    doc.ExportAsFixedFormat = function (format, fileName) {
+      if (!L.hostAudit || !L.hostAudit.has('FixedFormat')) gap('G-HOST', 'ExportAsFixedFormat');
+      return L.hostAudit.exportPdf(format, fileName, () => L.app.buildPDF());
+    };
+    doc.FollowHyperlink = function (address) {
+      if (!L.hostAudit || !L.hostAudit.has('Hyperlink')) gap('G-HOST', 'FollowHyperlink');
+      L.hostAudit.rejectExtra(arguments, 1, ['Address', 'SubAddress', 'NewWindow', 'AddHistory', 'ExtraInfo', 'Method', 'HeaderInfo']);
+      return L.hostAudit.follow(address);
+    };
     denyFn(doc, ['UndoClear', 'Protect', 'Unprotect'], 'G-ENGINE');
-    denyFn(doc, ['PrintOut', 'PrintPreview', 'Compare', 'ExportAsFixedFormat', 'FollowHyperlink'], 'G-HOST');
+    denyFn(doc, ['PrintPreview', 'Compare'], 'G-HOST');
   }
 
   function listsOf(doc) {
@@ -2490,7 +2537,19 @@
       });
       return makeShape(doc, host, it);
     };
-    col.AddPicture = function () { gap('G-HOST', 'AddPicture'); };
+    col.AddPicture = function (fileName, linkToFile) {
+      if (linkToFile === true || linkToFile === -1) {
+        const e = new Error('The parameter LinkToFile is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      if (!L.hostAudit || !L.hostAudit.has('Picture')) gap('G-HOST', 'AddPicture');
+      L.hostAudit.rejectExtra(arguments, 2, ['FileName', 'LinkToFile', 'SaveWithDocument', 'Range']);
+      return L.hostAudit.readBytes(fileName, 'Picture', 'RequestApproval').then((bytes) => {
+        const file = new File([bytes], String(fileName).split(/[/\\]/).pop());
+        return L.app.insertPictureFiles([file]);
+      });
+    };
     col.AddChart = function () { gap('G-ENGINE', 'AddChart'); };
     return col;
   }
@@ -3440,7 +3499,11 @@
     clearPending();
     return wrap;
   };
-  Documents.Open = function () { gap('G-HOST', 'Open'); };
+  Documents.Open = function (fileName) {
+    if (!L.hostAudit || !L.hostAudit.has('Open')) gap('G-HOST', 'Open');
+    L.hostAudit.rejectExtra(arguments, 1, ['FileName', 'ConfirmConversions', 'ReadOnly', 'AddToRecentFiles', 'PasswordDocument']);
+    return L.hostAudit.openPath(fileName);
+  };
   Documents.Close = function () { gap('G-HOST', 'Documents.Close'); };
   Documents.Save = function () { gap('G-HOST', 'Documents.Save'); };
 
@@ -3520,7 +3583,13 @@
         return D.eqPos(e[0], e[1]) ? 1 : 2;
       },
     });
-    denyFn(sel, ['InsertFile'], 'G-HOST');
+    sel.InsertFile = function (fileName) {
+      if (!L.hostAudit || !L.hostAudit.has('InsertFile')) gap('G-HOST', 'InsertFile');
+      L.hostAudit.rejectExtra(arguments, 1, ['FileName', 'Range', 'ConfirmConversions', 'Link', 'Attachment']);
+      return L.hostAudit.readBytes(fileName, 'InsertFile', 'AlwaysAllow').then((bytes) => {
+        return L.app.insertFileBytes(String(fileName).split(/[/\\]/).pop(), bytes);
+      });
+    };
     denyFn(sel, ['InsertCaption', 'PasteAndFormat', 'PasteSpecial', 'PasteExcelTable'], 'G-ENGINE');
     sel._find = makeFind(sel, selAnchor);
     Object.defineProperty(sel, 'Find', { enumerable: true, configurable: true, get() { return sel._find; } });
@@ -3535,6 +3604,40 @@
   Object.defineProperty(Application, 'ActiveDocument', { enumerable: true, configurable: true, get: activeDocument });
   Object.defineProperty(Application, 'Documents', { enumerable: true, configurable: true, get() { return Documents; } });
   Object.defineProperty(Application, 'Selection', { enumerable: true, configurable: true, get() { return Selection; } });
+  Object.defineProperty(Application, 'Dialogs', {
+    enumerable: true,
+    get() { return L.hostAudit ? L.hostAudit.dialogsCollection() : gap('G-HOST', 'Dialogs'); },
+  });
+  Application.FileDialog = function (type) {
+    if (!L.hostAudit) gap('G-HOST', 'FileDialog');
+    return L.hostAudit.fileDialog(type);
+  };
+  Application.HasHostAbility = function (name) { return L.hostAudit && L.hostAudit.has(name) ? -1 : 0; };
+  Application.MsgBox = function (prompt, buttons, title) {
+    if (!L.hostAudit) gap('G-HOST', 'MsgBox');
+    return L.hostAudit.msgBox(prompt, buttons, title);
+  };
+  Application.InputBox = function (prompt, title, def) {
+    if (!L.hostAudit) gap('G-HOST', 'InputBox');
+    return L.hostAudit.inputBox(prompt, title, def);
+  };
+  Application.HostDir = function (pattern) {
+    if (!L.hostAudit || !L.hostAudit.has('Dir')) gap('G-HOST', 'Dir');
+    return L.hostAudit.dir(pattern);
+  };
+  Application.HostShell = function () {
+    if (!L.hostAudit || !L.hostAudit.has('Shell')) gap('G-HOST', 'Shell');
+    return L.hostAudit.shell();
+  };
+  Application.GetOpenFilename = function (filter, filterIndex, title, buttonText, multi) {
+    void filter; void filterIndex; void title; void buttonText;
+    if (!L.hostAudit) gap('G-HOST', 'GetOpenFilename');
+    return L.hostAudit.getOpenFilename(multi);
+  };
+  Application.GetSaveAsFilename = function () {
+    if (!L.hostAudit) gap('G-HOST', 'GetSaveAsFilename');
+    return L.hostAudit.getSaveAsFilename();
+  };
 
   dom.Application = Application;
   dom.gap = gap;
@@ -3561,6 +3664,21 @@
     wdSortOrderAscending: 0, wdSortOrderDescending: 1,
     wdBorderTop: -1, wdBorderLeft: -2, wdBorderBottom: -3, wdBorderRight: -4,
     wdPropertyTypeString: 4, wdEnglishUS: 1033,
+    wdDialogFileOpen: 80, wdDialogFileSaveAs: 84, wdDialogFilePrint: 88, wdDialogFileSummaryInfo: 86,
+    wdDialogFormatFont: 174, wdDialogFormatParagraph: 175, wdDialogFormatTabs: 179, wdDialogFormatBordersAndShading: 189,
+    wdDialogFormatBulletsAndNumbering: 824, wdDialogFormatColumns: 177, wdDialogFormatDropCap: 488,
+    wdDialogFormatChangeCase: 322, wdDialogFormatStyle: 180, wdDialogFormatDrawingObject: 960,
+    wdDialogFilePageSetup: 178, wdDialogFileDocumentLayout: 178, wdDialogInsertPageNumbers: 294,
+    wdDialogInsertBreak: 159, wdDialogInsertDateTime: 165, wdDialogInsertField: 166, wdDialogInsertSymbol: 162,
+    wdDialogInsertFootnote: 370, wdDialogInsertCaption: 357, wdDialogInsertCrossReference: 367,
+    wdDialogInsertBookmark: 168, wdDialogInsertHyperlink: 925, wdDialogInsertObject: 172,
+    wdDialogTableInsertTable: 129, wdDialogTableInsertCells: 130, wdDialogTableDeleteCells: 133,
+    wdDialogTableSplitCells: 137, wdDialogTableAutoFormat: 563, wdDialogTableSort: 199, wdDialogTableFormula: 348,
+    wdDialogTextToTable: 127, wdDialogTableToText: 128, wdDialogToolsWordCount: 228, wdDialogToolsHyphenation: 195,
+    wdDialogToolsEnvelopesAndLabels: 607, wdDialogLetterWizard: 821, wdDialogToolsTemplates: 87,
+    wdDialogOrganizer: 222, wdDialogToolsAutoCorrect: 378, wdDialogToolsOptions: 974, wdDialogToolsLanguage: 188,
+    wdDialogEditPasteSpecial: 111, wdExportFormatPDF: 17, wdExportFormatXPS: 18,
+    msoFileDialogOpen: 1, msoFileDialogSaveAs: 2, msoFileDialogFilePicker: 3, msoFileDialogFolderPicker: 4,
   };
 
   function hexToBgr(hex) {

@@ -506,7 +506,7 @@
       {
         label: '&View', items: () => ['viewNormal', 'viewPageBreak', '-', 'taskPane',
           { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_borders', 'tb_chart', 'tb_drawing', 'tb_auditing', 'tb_reviewing', 'tb_picture', 'tb_list', '-', 'customize'] },
-          'formulaBar', 'statusBar', '-', 'headerFooter', 'showComments', '-', 'fullScreen', 'zoomDlg'],
+          'formulaBar', 'statusBar', '-', 'headerFooter', 'showComments', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde'],
       },
       {
         label: '&Insert', items: () => ['insertCells', 'insertRows', 'insertCols', 'insertSheet', 'insertChart', 'insertSymbol', 'insertPageBreak', '-', 'insertFunction',
@@ -528,7 +528,7 @@
           { label: 'Import External &Data', sub: ['importText'] }, '-', { label: '&List', sub: ['createList', 'totalRow', 'convertToRange'] }, '-', 'refreshData'],
       },
       { label: '&Window', items: () => ['newWindow', 'arrangeWindows', '-', 'splitWindow', 'freezePanes', '-', ...A.books.map((b, i) => ({ label: `&${i + 1} ${b.name.replace(/&/g, '&&')}`, raw: true, radio: true, checked: () => i === A.cur, run: () => A.switchBook(i) }))] },
-      { label: '&Help|menu bar', items: ['help', 'showAssistant', '-', 'keyboardHelp', 'functionsHelp', '-', ui.themeMenu(), ui.languageMenu(), 'about'] },
+      { label: '&Help|menu bar', items: ['help', 'showAssistant', '-', 'keyboardHelp', 'functionsHelp', '-', 'domConsole', '-', ui.themeMenu(), ui.languageMenu(), 'about'] },
     ];
     const row = L.$('#menurow');
     A.menuBar = ui.menuBar(row, menus);
