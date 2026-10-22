@@ -240,7 +240,7 @@ html.tb-dock #drawrow:not([hidden]) { display: flex; flex-direction: column; ove
 .app.fullscreen .tb-dock-side { display: none !important; }
 @media print { .dlg-overlay.toolbox, .tb-ghost, .tb-dock-side { display: none !important; } }
 /* a toolbox is the same window. Its close button is square, and the title's padding is the margin above and below it. */
-html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="goldengate"]) .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) { width: 20px; min-width: 20px; height: 20px; min-height: 20px; margin-top: 0; margin-bottom: 0; align-self: center; }
+html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]) .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) { width: 20px; min-width: 20px; height: 20px; min-height: 20px; margin-top: 0; margin-bottom: 0; align-self: center; }
 .dlg.toolbox > .dlg-foot { padding: 0; gap: 0; min-height: 0; }
 .dlg.toolbox .dlg-body {
     padding: 0;
@@ -277,12 +277,12 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="goldengate"])
 .macro-dlg-desc { width: 100%; height: 52px; box-sizing: border-box; resize: none; }
 .dlg-foot .btn.left { margin-right: auto; }
 /* inactive: the title and the window's own text fade. Windows 7 replaces this with its own frame (looks.css) */
-html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]) .dlg.inactive .dlg-title,
-html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]) .dlg.inactive .dlg-ttl,
-html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]) .dlg.inactive .dlg-x { color: var(--muted); }
-html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]) .dlg.inactive .dlg-body,
-html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]) .dlg.inactive .dlg-foot { color: var(--muted); }
-html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]) .dlg.inactive .dlg-title,
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]) .dlg.inactive .dlg-ttl,
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]) .dlg.inactive .dlg-x { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]) .dlg.inactive .dlg-body,
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]) .dlg.inactive .dlg-foot { color: var(--muted); }
+html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"]):not([data-look="goldengate"]):not([data-look="goldengatedark"]):not([data-look="paper"]):not([data-look="paper2016"]) .dlg.inactive .dlg-title { filter: saturate(.35); }
 .btn { min-width: 75px; height: 23px; padding: 0 10px; border: 1px solid var(--btn-border); border-radius: 2px; background: linear-gradient(var(--btn-a), var(--btn-b)); cursor: default; }
 .btn:hover:not(:disabled) { border-color: var(--tb-border); background: linear-gradient(var(--btn-a), var(--btn-hot-b)); }
 .btn:active:not(:disabled) { background: linear-gradient(var(--btn-press-a), var(--btn-press-b)); }

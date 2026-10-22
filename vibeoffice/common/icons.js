@@ -364,13 +364,50 @@
   I.ct_table = I.table; I.ct_chart = I.chart; I.ct_clipart = I.clipart; I.ct_picture = I.picture; I.ct_diagram = I.diagram; I.ct_media = I.movie;
   I.resetPicture = `${I.picture}<path d="M11.5 1.5a3.5 3.5 0 103.5 3.5" fill="none" stroke="${R}" stroke-width="1.3"/>`;
 
+  /* Ribbon Golden Gate (Dark): same drawings. A grey or black darker than #888
+     (channels differ by at most 0x12, and the brightest channel is below 0x88)
+     is #fff minus that colour, then each channel min(0xff, value + 0x33).
+     #333 → #fff. Every other colour stays. */
+  const invertGray = (hex) => {
+    const raw = hex.slice(1);
+    const full = raw.length === 3 ? raw.replace(/./g, (c) => c + c) : raw;
+    if (full.length !== 6) return hex;
+    const n = parseInt(full, 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    if (max - min > 0x12 || max >= 0x88) return hex;
+    const lift = (v) => Math.min(0xff, (0xff - v) + 0x33);
+    const ir = lift(r), ig = lift(g), ib = lift(b);
+    const byte = (v) => v.toString(16).padStart(2, '0');
+    const out = byte(ir) + byte(ig) + byte(ib);
+    if (raw.length === 3 && (ir >> 4) === (ir & 15) && (ig >> 4) === (ig & 15) && (ib >> 4) === (ib & 15)) return '#' + out[0] + out[2] + out[4];
+    return '#' + out;
+  };
+  const inkCache = new Map();
+  const lightInk = (body) => {
+    const hit = inkCache.get(body);
+    if (hit) return hit;
+    const stash = [];
+    const masked = body.replace(/url\([^)]*\)|var\([^)]*\)/g, (m) => { stash.push(m); return `\u0000${stash.length - 1}\u0000`; });
+    const lifted = masked.replace(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-fA-F])/g, invertGray)
+      .replace(/\u0000(\d+)\u0000/g, (_, i) => stash[+i]);
+    inkCache.set(body, lifted);
+    return lifted;
+  };
+  const vscodeDarkGlass = () => {
+    const body = document.body;
+    return !!(body && (body.classList.contains('vscode-dark') || body.classList.contains('vscode-high-contrast')));
+  };
+  const darkIcons = () => typeof document !== 'undefined' && (document.documentElement.dataset.look === 'goldengatedark' || (document.documentElement.dataset.look === 'vscodegg' && vscodeDarkGlass()));
+
   L.icons = {
     raw: I,
     get(name, size) {
       const body = I[name];
       if (body == null) return '';
       const sz = size || 16;
-      return `<svg class="ico" width="${sz}" height="${sz}" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${body}</svg>`;
+      const ink = darkIcons() ? lightInk(body) : body;
+      return `<svg class="ico" data-ico="${name}" width="${sz}" height="${sz}" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${ink}</svg>`;
     },
     /** the application's own icon; each app sets L.icons.app in its app.js (this is the suite's) */
     app(size) {
@@ -382,4 +419,24 @@
     /** drawing helpers and the Luna palette, for apps that add icons */
     kit: { page, txt, lines, arrow, pg, tl, cellGrid, B, B2, LB, Y, YD, R, G, K, GR },
   };
+  const repaintIcons = () => {
+    document.querySelectorAll('svg.ico[data-ico]').forEach((el) => {
+      const html = L.icons.get(el.getAttribute('data-ico'), el.getAttribute('width') || 16);
+      if (html) el.outerHTML = html;
+    });
+  };
+  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('vo-look', repaintIcons);
+  /* VS Code updates the body class when its theme changes; the look id stays, so icons and canvas chrome redraw from here */
+  const watchVscodeGlass = () => {
+    if (!document.body || document.body.dataset.vscGlassWatch) return;
+    document.body.dataset.vscGlassWatch = '1';
+    new MutationObserver(() => {
+      if (document.documentElement.dataset.look !== 'vscodegg') return;
+      window.dispatchEvent(new Event('vo-look'));
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  };
+  if (typeof document !== 'undefined') {
+    if (document.body) watchVscodeGlass();
+    else document.addEventListener('DOMContentLoaded', watchVscodeGlass);
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

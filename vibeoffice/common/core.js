@@ -17,7 +17,7 @@
      children whose whole text has a translation */
   const SHOWN = { title: 1, placeholder: 1, 'aria-label': 1, 'data-tip': 1 };
   /* Office writes a CJK access key after the words, 文件(&F). Ribbon Golden Gate does not show it. */
-  L.dropCjkAccess = (s) => (typeof s === 'string' && typeof document !== 'undefined' && document.documentElement && document.documentElement.dataset.look === 'goldengate' ? s.replace(/\s*[（(]\s*&[^&\s]\s*[）)]/g, '') : s);
+  L.dropCjkAccess = (s) => (typeof s === 'string' && typeof document !== 'undefined' && document.documentElement && (document.documentElement.dataset.look === 'goldengate' || document.documentElement.dataset.look === 'goldengatedark' || document.documentElement.dataset.look === 'vscodegg') ? s.replace(/\s*[（(]\s*&[^&\s]\s*[）)]/g, '') : s);
   const tr = (v, ...args) => L.dropCjkAccess(typeof v !== 'string' ? v : L.t ? L.t(v, ...args) : v.replace(/(\S)\|[A-Za-z][A-Za-z -]*$/, '$1').replace(/\{(\d+)\}/g, (m, i) => (args[i] != null ? args[i] : m)));
   L.h = function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);

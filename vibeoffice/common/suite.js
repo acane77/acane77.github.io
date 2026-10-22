@@ -453,8 +453,17 @@
     { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
     { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' },
     { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' },
-    { id: 'goldengate', name: N('Ribbon Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' }];
-  const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'ribbon2010'; } catch (e) { return 'ribbon2010'; } };
+    { id: 'goldengate', name: N('Ribbon Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' },
+    { id: 'goldengatedark', name: N('Ribbon Golden Gate (Dark)'), layout: 'ribbon', note: 'Ribbon Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.' },
+    { id: 'vscodegg', name: N('VS Code Golden Gate'), layout: 'ribbon', note: 'Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.' }];
+  const storedLook = () => {
+    try {
+      const id = localStorage.getItem('vibeoffice.look') || 'ribbon2010';
+      /* this look exists only in a VS Code or code-server webview; a browser keeps Ribbon 2010 */
+      if (id === 'vscodegg' && !(window.__VO_HOST__ && window.__VO_HOST__.kind === 'vscode')) return 'ribbon2010';
+      return id;
+    } catch (e) { return 'ribbon2010'; }
+  };
   const applyLook = (id) => {
     const root = document.documentElement;
     if (!LOOKS.some((l) => l.id === id)) return;
@@ -468,12 +477,13 @@
   };
   VO.look = {
     /** [{ id, name, note, layout }] */
-    list: () => LOOKS.map((l) => ({ ...l })),
+    list: () => LOOKS.filter((l) => l.id !== 'vscodegg' || VO.host.kind === 'vscode').map((l) => ({ ...l })),
     get: () => document.documentElement.dataset.look || 'ribbon2010',
     /** 'bars' (menus and toolbars) or 'ribbon' */
     layout: () => document.documentElement.dataset.layout || 'bars',
     set(id) {
       if (!LOOKS.some((l) => l.id === id)) return;
+      if (id === 'vscodegg' && VO.host.kind !== 'vscode') return;
       try { localStorage.setItem('vibeoffice.look', id); } catch (e) { /* this window still changes */ }
       applyLook(id);
       if (chan) chan.postMessage('look');

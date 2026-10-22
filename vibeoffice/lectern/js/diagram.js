@@ -258,8 +258,9 @@
     E().select([g.id]);
     E().render(); E().touched();
     DG.showPane(true);
-    /* with the ribbon, SmartArt Tools ▸ Design opens, as in PowerPoint */
-    if (L.ribbonUI && L.ribbonUI.built && L.ribbonUI.built()) { ui.refresh(); setTimeout(() => L.ribbonUI.select('smartartDesign'), 60); }
+    /* with the ribbon, SmartArt Tools ▸ Design is selected, as in PowerPoint. A collapsed ribbon shows the tab
+       and leaves the panel closed until the user opens it. */
+    if (L.ribbonUI && L.ribbonUI.built && L.ribbonUI.built()) { ui.refresh(); setTimeout(() => L.ribbonUI.select('smartartDesign', { peek: false }), 60); }
   };
 
   /** items from outline lines: '\t' before a line makes it a sub-item of the line above */

@@ -157,15 +157,16 @@
   }
   const active = () => (spec.contextual || []).filter((c) => { try { return c.when(); } catch (e) { return false; } });
 
-  /** show a tab ('home', 'insert', … or a contextual tab's id) */
-  RB.select = function (id) {
+  /** show a tab ('home', 'insert', … or a contextual tab's id).
+   *  opts.peek false keeps a collapsed ribbon's panel closed (the tab is shown and selected). */
+  RB.select = function (id, opts) {
     if (!el) return;
     if (!allTabs().some((t) => t.id === id)) id = spec.tabs[0].id;
     cur = id;
     panelEl.textContent = '';
     panelEl.append(panelFor(id));
     for (const b of tabsEl.querySelectorAll('.rb-tab')) b.classList.toggle('on', b.dataset.tab === cur);
-    if (el.classList.contains('collapsed')) peek(true);
+    if (el.classList.contains('collapsed') && !(opts && opts.peek === false)) peek(true);
     fit();
     ui.refresh();   // a panel shown again: its buttons and boxes were not refreshed while detached
   };
@@ -197,11 +198,13 @@
     ctxShown = sig;
     drawTabs();
     /* as in Office, a tool set opens when its object was just inserted (from the Insert tab) or is a view
-       of its own (open: true); when it goes, the tab used before it comes back */
+       of its own (open: true); when it goes, the tab used before it comes back. A collapsed ribbon shows and
+       selects that tab, and leaves the panel closed until the user opens the tab or the ribbon. */
     const main = spec.tabs.some((t) => t.id === cur);
     const take = active().find((c) => !before.includes(c.id) && (c.open || cur === 'insert'));
-    if (take) { if (main) back = cur; RB.select(take.tabs[0].id); }
-    else if (!main && !active().some((c) => c.tabs.some((t) => t.id === cur))) RB.select(back || spec.tabs[0].id);
+    const quiet = { peek: false };
+    if (take) { if (main) back = cur; RB.select(take.tabs[0].id, quiet); }
+    else if (!main && !active().some((c) => c.tabs.some((t) => t.id === cur))) RB.select(back || spec.tabs[0].id, quiet);
     else fit();
   }
 
@@ -301,7 +304,7 @@
     L.$('.cmdbars').prepend(el);
     drawTabs();
     if (L.store.get('ribbonCollapsed', false)) el.classList.add('collapsed');
-    RB.select(cur);
+    RB.select(cur, { peek: false });
     L.bus.on('ui-refresh', updateContext);
     window.addEventListener('resize', L.rafThrottle(fit));
     /* a click on a command closes a panel opened over the document */
