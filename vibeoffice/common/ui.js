@@ -967,10 +967,74 @@
     if (i !== winStack.length - 1) { winStack.splice(i, 1); winStack.push(entry); document.body.appendChild(entry.overlay); }
     layoutWindows();
   }
+  /* Dragging an edge or a corner. The title stays the title: no extra button is added for this. */
+  function attachDialogResize(dlg, opts) {
+    const minW = Number(opts.minWidth) > 0 ? Number(opts.minWidth) : 160;
+    const minH = Number(opts.minHeight) > 0 ? Number(opts.minHeight) : 80;
+    let frame = 0;
+    const fire = () => {
+      frame = 0;
+      if (typeof opts.onResize === 'function') opts.onResize(dlg);
+    };
+    const edges = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
+      const handle = h('div', { class: 'dlg-resize dlg-resize-' + edge });
+      handle.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        const left0 = dlg.offsetLeft, top0 = dlg.offsetTop, w0 = dlg.offsetWidth, h0 = dlg.offsetHeight;
+        const x0 = e.clientX, y0 = e.clientY;
+        const west = edge.indexOf('w') >= 0, east = edge.indexOf('e') >= 0;
+        const north = edge.indexOf('n') >= 0, south = edge.indexOf('s') >= 0;
+        const move = (ev) => {
+          const edgeX = 4, edgeY = 4;
+          const limitW = Math.max(120, window.innerWidth - edgeX * 2);
+          const limitH = Math.max(64, window.innerHeight - edgeY * 2);
+          const floorW = Math.min(minW, limitW), floorH = Math.min(minH, limitH);
+          const right = left0 + w0, bottom = top0 + h0;
+          let w = w0, h = h0;
+          if (east) w = w0 + ev.clientX - x0;
+          if (west) w = w0 - (ev.clientX - x0);
+          if (south) h = h0 + ev.clientY - y0;
+          if (north) h = h0 - (ev.clientY - y0);
+          w = L.clamp(w, floorW, limitW);
+          h = L.clamp(h, floorH, limitH);
+          let left = west ? right - w : left0;
+          let top = north ? bottom - h : top0;
+          if (left < edgeX) { left = edgeX; if (west) w = L.clamp(right - left, floorW, limitW); }
+          if (top < edgeY) { top = edgeY; if (north) h = L.clamp(bottom - top, floorH, limitH); }
+          if (left + w > window.innerWidth - edgeX) w = Math.max(floorW, window.innerWidth - edgeX - left);
+          if (top + h > window.innerHeight - edgeY) h = Math.max(floorH, window.innerHeight - edgeY - top);
+          left = L.clamp(left, edgeX, Math.max(edgeX, window.innerWidth - w - edgeX));
+          top = L.clamp(top, edgeY, Math.max(edgeY, window.innerHeight - h - edgeY));
+          dlg.style.width = w + 'px';
+          dlg.style.height = h + 'px';
+          dlg.style.left = left + 'px';
+          dlg.style.top = top + 'px';
+          if (!frame) frame = requestAnimationFrame(fire);
+        };
+        const up = () => {
+          handle.removeEventListener('pointermove', move);
+          handle.removeEventListener('pointerup', up);
+          handle.removeEventListener('pointercancel', up);
+          if (frame) { cancelAnimationFrame(frame); frame = 0; }
+          fire();
+        };
+        handle.setPointerCapture(e.pointerId);
+        handle.addEventListener('pointermove', move);
+        handle.addEventListener('pointerup', up);
+        handle.addEventListener('pointercancel', up);
+      });
+      dlg.appendChild(handle);
+    }
+  }
+
   /**
-   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose, brand, isToolBoxWindow}
+   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose, brand, isToolBoxWindow, resizeable, minWidth, minHeight, onResize}
    * a new window opens in front of the ones already open and leaves them where they are.
    * canClose false hides the title's close button, and Escape does not close the window (it does not press Cancel either).
+   * resizeable defaults to false. True lets an edge or a corner change the size. The title bar does not gain a button for it.
    * brand sets data-brand to the app, so the body and foot use that app's --brand-bg. The frame is not restyled.
    * isToolBoxWindow defaults to 0. 1 is a modeless window whose close button is square; the frame is otherwise the same window, inactive the same way.
    */
@@ -984,7 +1048,7 @@
     const s0 = window.getSelection();
     const prevRange = prevFocus && prevFocus.isContentEditable && s0.rangeCount && prevFocus.contains(s0.anchorNode) ? s0.getRangeAt(0).cloneRange() : null;
     const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') + (opts.isToolBoxWindow ? ' toolbox' : '') });
-    const dlg = h('div', { class: 'dlg' + (opts.brand ? ' brand' : '') + (opts.isToolBoxWindow ? ' toolbox' : ''), role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title, dataset: opts.brand && L.APP_ID ? { brand: L.APP_ID } : null });
+    const dlg = h('div', { class: 'dlg' + (opts.brand ? ' brand' : '') + (opts.isToolBoxWindow ? ' toolbox' : '') + (opts.resizeable ? ' dlg-resizeable' : ''), role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title, dataset: opts.brand && L.APP_ID ? { brand: L.APP_ID } : null });
     dlg.style.width = (opts.isToolBoxWindow ? Math.min(opts.width || 420, window.innerWidth - 16) : Math.min(opts.width || 380, window.innerWidth - 16)) + 'px';
     const titleBar = h('div', { class: 'dlg-title' }, h('span', { class: 'dlg-ttl', text: opts.title }),
       opts.help ? h('button', { class: 'dlg-x dlg-help', type: 'button', 'aria-label': 'Help', text: '?', onclick: opts.help }) : null,
@@ -1031,11 +1095,12 @@
       if (e.target.closest('button') || opts.isToolBoxWindow) return;
       const sx = e.clientX, sy = e.clientY, ox = dlg.offsetLeft, oy = dlg.offsetTop;
       titleBar.setPointerCapture(e.pointerId);
-      const mv = (ev) => { dlg.style.left = L.clamp(ox + ev.clientX - sx, -r.width + 60, window.innerWidth - 60) + 'px'; dlg.style.top = L.clamp(oy + ev.clientY - sy, 0, window.innerHeight - 30) + 'px'; };
+      const mv = (ev) => { const w = dlg.offsetWidth; dlg.style.left = L.clamp(ox + ev.clientX - sx, -w + 60, window.innerWidth - 60) + 'px'; dlg.style.top = L.clamp(oy + ev.clientY - sy, 0, window.innerHeight - 30) + 'px'; };
       const up = () => { titleBar.removeEventListener('pointermove', mv); titleBar.removeEventListener('pointerup', up); };
       titleBar.addEventListener('pointermove', mv);
       titleBar.addEventListener('pointerup', up);
     });
+    if (opts.resizeable) attachDialogResize(dlg, opts);
     winStack.push(entry);
     if (opts.modeless) dlg.addEventListener('keydown', (e) => { entry.keys(e); e.stopPropagation(); });   // keys stay in a modeless dialog
     else dlgStack.push(entry);

@@ -66,7 +66,7 @@
         { label: 'Presentation Views', items: [{ cmd: 'viewNormal', size: 'large', label: 'Normal' }, { cmd: 'viewSorter', size: 'large', label: 'Slide Sorter' }, { cmd: 'viewNotes', size: 'large', label: 'Notes Page' }] },
         { label: 'Master Views', items: [{ cmd: 'viewMaster', size: 'large', label: 'Slide Master' }] },
         { label: 'Show', items: ['ruler', 'showGrid', 'gridGuides', { cmd: 'speakerNotes', label: 'Notes' }, 'slidesPane', 'taskPane'] },
-        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'Visual Basic IDE' }] },
+        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }] },
         { label: 'Zoom', items: [{ cmd: 'zoomDlg', size: 'large', label: 'Zoom' }, { cmd: 'zoomFit', size: 'large', label: 'Fit to Window' }, { make: () => A().parts.zoom({ width: 64, id: 'rb-zoom' }) }] },
         { label: 'Color/Grayscale', items: ['viewColor', 'viewGray', 'viewBW'] },
       ] },

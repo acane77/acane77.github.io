@@ -408,7 +408,7 @@
   C('envelopes', { label: '&Envelopes and Labels...', icon: 'envelope', run: dlg('envelopes') });
   C('letterWizard', { label: '&Letter Wizard...', run: dlg('letterWizard') });
   C('macros', { label: '&Macros...', key: 'Alt+F8', run: dlg('macros') });
-  C('vbIde', { label: 'Visual &Basic IDE', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
+  C('vbIde', { label: 'VibeOffice Visual Basic', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
   C('templates', { label: 'Templates and Add-&Ins...', run: dlg('templates') });
   C('autocorrectDlg', { label: '&AutoCorrect Options...', run: dlg('autocorrect') });
   C('customize', { label: '&Customize...', run: dlg('customize') });

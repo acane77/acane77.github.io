@@ -202,7 +202,7 @@
   cmd('autoCorrectDlg', { label: '&AutoCorrect Options...', run: run(() => D().autoCorrect()) });
   cmd('options', { label: '&Options...', run: run(() => D().options()) });
   cmd('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => L.macros && L.macros.open() });
-  cmd('vbIde', { label: 'Visual &Basic IDE', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
+  cmd('vbIde', { label: 'VibeOffice Visual Basic', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
   cmd('domConsole', { label: 'Ledger DOM &Console', icon: 'help', run: () => L.domConsole && L.domConsole.open() });
   cmd('addIns', { label: 'Add-&Ins...', run: () => ui.msg('Analysis ToolPak functions (engineering, financial, date) are built in.', { icon: 'info' }) });
 

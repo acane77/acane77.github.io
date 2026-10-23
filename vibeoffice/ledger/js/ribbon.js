@@ -77,7 +77,7 @@
         { label: 'Show', items: ['formulaBar', { cmd: 'gridlinesView', label: 'Gridlines' }, { cmd: 'headingsView', label: 'Headings' }, 'statusBar', 'taskPane'] },
         { label: 'Zoom', items: [{ cmd: 'zoomDlg', size: 'large', label: 'Zoom' }, { make: () => A().parts.zoom({ width: 70, id: 'rb-zoom' }) }] },
         { label: 'Window', items: [{ cmd: 'newWindow', size: 'large', label: 'New Window' }, 'arrangeWindows', { cmd: 'freezePanes', size: 'large', label: 'Freeze Panes' }, 'splitWindow'] },
-        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'Visual Basic IDE' }] },
+        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }] },
       ] },
     ],
     contextual: [

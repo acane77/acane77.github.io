@@ -75,7 +75,7 @@
         { label: 'Show', items: ['ruler', 'docMap', 'thumbnails', 'taskPane'] },
         { label: 'Zoom', items: [{ cmd: 'zoomDlg', size: 'large', label: 'Zoom' }, { make: () => A().parts.zoom({ width: 90, id: 'rb-zoom' }) }, 'fullScreen'] },
         { label: 'Window', items: [{ cmd: 'newWindow', size: 'large', label: 'New Window' }, 'arrangeAll', 'splitWindow'] },
-        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'Visual Basic IDE' }] },
+        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }] },
       ] },
     ],
     contextual: [
