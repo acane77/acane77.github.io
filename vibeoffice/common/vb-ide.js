@@ -28,6 +28,7 @@
   let lowerPane = null;
   let editorShare = 1.15;
   let startBtn = null;
+  let runBtn = null;
   let contBtn = null;
   let intoBtn = null;
   let overBtn = null;
@@ -62,6 +63,7 @@
     const idle = next === 'idle';
     const paused = next === 'paused';
     if (startBtn) startBtn.disabled = !idle;
+    if (runBtn) runBtn.disabled = !idle;
     if (contBtn) contBtn.disabled = !paused;
     if (intoBtn) intoBtn.disabled = !paused;
     if (overBtn) overBtn.disabled = !paused;
@@ -678,17 +680,19 @@
         { label: '&Stop Debugging', enabled: () => phase !== 'idle', run: stopDebugging },
       ]));
 
-    startBtn = L.h('button', { class: 'btn', type: 'button', text: 'Start Debug(F5)' });
+    startBtn = L.h('button', { class: 'btn', type: 'button', text: 'Start Debug (F5)' });
+    runBtn = L.h('button', { class: 'btn', type: 'button', text: 'Start Run' });
     contBtn = L.h('button', { class: 'btn', type: 'button', text: 'Continue' });
-    intoBtn = L.h('button', { class: 'btn', type: 'button', text: 'Step In' });
+    intoBtn = L.h('button', { class: 'btn', type: 'button', text: 'Step Into' });
     overBtn = L.h('button', { class: 'btn', type: 'button', text: 'Step Over' });
     stopBtn = L.h('button', { class: 'btn', type: 'button', text: 'Stop Debugging' });
     startBtn.addEventListener('click', () => start(false));
+    runBtn.addEventListener('click', () => start(true));
     contBtn.addEventListener('click', () => go('continue'));
     intoBtn.addEventListener('click', () => go('into'));
     overBtn.addEventListener('click', () => go('over'));
     stopBtn.addEventListener('click', stopDebugging);
-    const bar = L.h('div', { class: 'vb-ide-bar' }, startBtn, L.h('span', { class: 'vb-ide-sep' }), contBtn, intoBtn, overBtn, stopBtn);
+    const bar = L.h('div', { class: 'vb-ide-bar' }, startBtn, runBtn, L.h('span', { class: 'vb-ide-sep' }), contBtn, intoBtn, overBtn, stopBtn);
 
     editorHost = L.h('div', { class: 'vb-ide-editor' });
     const area = L.h('textarea', { translate: 'no' });
