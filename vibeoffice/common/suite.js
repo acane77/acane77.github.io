@@ -467,7 +467,8 @@
   /* ------------------------------------------------------------ Looks */
   /* the chrome's colours (common/looks.css) and, for a look with layout 'ribbon', the ribbon instead of menus and
      toolbars (common/ribbon.js); one choice for the whole suite: <html data-look data-layout> is set before
-     the first paint by each page's head script from localStorage 'vibeoffice.look'; changing it here
+     the first paint by each page's head script from localStorage 'vibeoffice.look' (Golden Gate when nothing
+     is stored, Golden Gate (Follow VS Code Color Theme) in a VS Code webview); changing it here
      repaints every open window of the suite. Canvas-drawn chrome (rulers, sheet headers) redraws on 'vo-look'. */
   const N = (s) => s;   // UI text, translated where it is shown (VO.N, common/i18n.js)
   N('Blank Document'); N('Blank Workbook'); N('Blank Presentation');   // templates.json's Blank entries (tools/templates.mjs)
@@ -478,18 +479,21 @@
     { id: 'win7', name: N('Classic 7'), sep: true, note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
     { id: 'xp', name: N('Classic XP'), note: 'Luna windows and menus, on the classic blue toolbars.' },
     { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' }];
+  const vscodeHost = () => !!(window.__VO_HOST__ && window.__VO_HOST__.kind === 'vscode');
+  /* nothing stored: Golden Gate, or Follow VS Code inside a VS Code or code-server webview */
+  const defaultLook = () => (vscodeHost() ? 'vscodegg' : 'goldengate');
   const storedLook = () => {
     try {
-      let id = localStorage.getItem('vibeoffice.look') || 'goldengate';
+      let id = localStorage.getItem('vibeoffice.look') || defaultLook();
       /* Paper and Paper 2016 are no longer offered; a stored choice becomes the default */
       if (id === 'paper' || id === 'paper2016') {
-        id = 'goldengate';
+        id = defaultLook();
         try { localStorage.setItem('vibeoffice.look', id); } catch (e) { /* this window still changes */ }
       }
       /* this look exists only in a VS Code or code-server webview; a browser keeps Golden Gate */
-      if (id === 'vscodegg' && !(window.__VO_HOST__ && window.__VO_HOST__.kind === 'vscode')) return 'goldengate';
+      if (id === 'vscodegg' && !vscodeHost()) return 'goldengate';
       return id;
-    } catch (e) { return 'goldengate'; }
+    } catch (e) { return defaultLook(); }
   };
   const applyLook = (id) => {
     const root = document.documentElement;
@@ -505,7 +509,7 @@
   VO.look = {
     /** [{ id, name, note, layout }] */
     list: () => LOOKS.filter((l) => l.id !== 'vscodegg' || VO.host.kind === 'vscode').map((l) => ({ ...l })),
-    get: () => document.documentElement.dataset.look || 'goldengate',
+    get: () => document.documentElement.dataset.look || defaultLook(),
     /** 'bars' (menus and toolbars) or 'ribbon' */
     layout: () => document.documentElement.dataset.layout || 'bars',
     set(id) {

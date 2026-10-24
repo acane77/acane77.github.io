@@ -1485,7 +1485,8 @@
   ui.group = (title, ...kids) => h('fieldset', { class: 'grp' }, h('legend', { html: ampHTML(title) }), ...kids);
   /** Tools ▸ Options ▸ General ▸ Theme: the suite's look (common/looks.css). { el, apply() }; apply on OK
    *  changes every open window of the suite. null outside the suite (no common/suite.js). */
-  /** Help ▸ Theme: the same looks as the Start Center, the current one marked. Golden Gate is the stored default.
+  /** Help ▸ Theme: the same looks as the Start Center, the current one marked. Golden Gate is the stored default
+   *  outside a VS Code webview; there it is Golden Gate (Follow VS Code Color Theme).
    *  A look marked sep has a separator before it. */
   ui.themeMenu = () => ({
     label: '&Theme',

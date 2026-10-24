@@ -3,7 +3,8 @@
  * Document content (pages, cells, slides, comments, revisions), icons and colour swatches are never
  * themed. A look is one block keyed by data-look="…" (on <html>, set before first paint by VO.look; on any
  * element for a preview, as the Start Center's Themes dialog does); Classic is also :root, so a page with no
- * data-look still has colours. Golden Gate is the look a page uses when none is stored. To add a look, copy the Classic block and change the values. */
+ * data-look still has colours. Golden Gate is the look a page uses when none is stored; a VS Code webview uses
+ * Golden Gate (Follow VS Code Color Theme). To add a look, copy the Classic block and change the values. */
 :root, [data-look="classic"] {
   color-scheme: light;
   --theme-color: #2a64c8;   /* the browser's own bar (meta theme-color) */
@@ -1447,6 +1448,11 @@
   --gg-accent: #0088ff;
   --gg-menu: #0069f9;
   --gg-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M3.1 8.3 6.4 11.7 13 4.2'/%3E%3C/svg%3E");
+  --gg-spin-bg: #fff; --gg-spin-bg-off: rgba(255,255,255,.5); --gg-spin-ink: rgba(0,0,0,.85); --gg-spin-ring: rgba(0,0,0,.08);
+  --gg-spin-plate: rgba(0,0,0,.08); --gg-spin-plate-down: rgba(0,0,0,.16); --gg-spin-plate-off: rgba(0,0,0,.04);
+  --gg-spin-glyph: rgba(0,0,0,.85); --gg-spin-glyph-off: rgba(0,0,0,.25);
+  --gg-spin-div: rgba(0,0,0,.12); --gg-spin-div-off: rgba(0,0,0,.06);
+  --gg-spin-focus: 0 0 0 1px rgba(0,136,255,.5), 0 0 0 4.5px rgba(0,136,255,.35);
   --dlg: #fff;
 }
 
@@ -1624,7 +1630,8 @@
 
 [data-look="goldengate"] .tabs-head {
   display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
-  height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+  min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+  padding-top: 3px; padding-bottom: 3px;
 }
 [data-look="goldengate"] .tab,
 [data-look="goldengate"] .tab.on,
@@ -1632,7 +1639,7 @@
 [data-look="goldengate"] .tab.on:focus,
 [data-look="goldengate"] .tab.on:active {
   top: 0; margin: 0; min-width: 54px; height: 30px; padding: 0 10px; border: 0; border-radius: 15px;
-  background: transparent; box-shadow: none; color: rgba(0,0,0,.85); font-weight: 510; z-index: 1;
+  background: transparent; box-shadow: none; color: rgba(0,0,0,.85); font-weight: 510; z-index: 1; margin: 0 auto !important;
 }
 [data-look="goldengate"] .tab:hover:not(.on):not(:disabled) { background: rgba(0,0,0,.06); border: 0; }
 [data-look="goldengate"] .tab:active:not(.on):not(:disabled) { background: rgba(0,0,0,.10); border: 0; box-shadow: none; }
@@ -2379,6 +2386,11 @@
   --gg-accent: #0091FF;
   --gg-menu: #0091FF;
   --gg-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M3.1 8.3 6.4 11.7 13 4.2'/%3E%3C/svg%3E");
+  --gg-spin-bg: #1E1E1E; --gg-spin-bg-off: rgba(30,30,30,.5); --gg-spin-ink: rgba(255,255,255,.85); --gg-spin-ring: rgba(255,255,255,.12);
+  --gg-spin-plate: rgba(255,255,255,.07); --gg-spin-plate-down: rgba(255,255,255,.16); --gg-spin-plate-off: rgba(255,255,255,.04);
+  --gg-spin-glyph: rgba(255,255,255,.85); --gg-spin-glyph-off: rgba(255,255,255,.25);
+  --gg-spin-div: rgba(0,0,0,.12); --gg-spin-div-off: rgba(0,0,0,.06);
+  --gg-spin-focus: 0 0 0 1px rgba(0,145,255,.5), 0 0 0 4.5px rgba(0,145,255,.35);
   --dlg: #1E1E1E;
 }
 
@@ -2556,7 +2568,8 @@
 
 [data-look="goldengatedark"] .tabs-head {
   display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
-  height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+  min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+  padding-top: 3px; padding-bottom: 3px;
 }
 [data-look="goldengatedark"] .tab,
 [data-look="goldengatedark"] .tab.on,
@@ -2564,7 +2577,7 @@
 [data-look="goldengatedark"] .tab.on:focus,
 [data-look="goldengatedark"] .tab.on:active {
   top: 0; margin: 0; min-width: 54px; height: 30px; padding: 0 10px; border: 0; border-radius: 15px;
-  background: transparent; box-shadow: none; color: rgba(255,255,255,.85); font-weight: 510; z-index: 1;
+  background: transparent; box-shadow: none; color: rgba(255,255,255,.85); font-weight: 510; z-index: 1; margin: 0 auto !important;
 }
 [data-look="goldengatedark"] .tab:hover:not(.on):not(:disabled) { background: rgba(255,255,255,.06); border: 0; }
 [data-look="goldengatedark"] .tab:active:not(.on):not(:disabled) { background: rgba(255,255,255,.10); border: 0; box-shadow: none; }
@@ -3618,6 +3631,13 @@
   --gg-solid: #f0f0f0;
   --gg-solid-bar: #f6f6f6;
   --gg-caret: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.4'/></svg>");
+  --gg-spin-bg: var(--vsc-input); --gg-spin-bg-off: color-mix(in srgb, var(--vsc-input) 50%, transparent);
+  --gg-spin-ink: var(--vsc-input-fg); --gg-spin-ring: var(--vsc-input-border);
+  --gg-spin-plate: var(--gg-plate); --gg-spin-plate-down: var(--gg-plate-down);
+  --gg-spin-plate-off: color-mix(in srgb, var(--gg-plate) 50%, transparent);
+  --gg-spin-glyph: var(--vsc-fg); --gg-spin-glyph-off: var(--vsc-disabled);
+  --gg-spin-div: rgba(0,0,0,.12); --gg-spin-div-off: rgba(0,0,0,.06);
+  --gg-spin-focus: 0 0 0 1px var(--vsc-accent), 0 0 0 4.5px color-mix(in srgb, var(--vsc-accent) 35%, transparent);
   --gg-accent: var(--vsc-button);
   --gg-menu: var(--vsc-menu-sel);
   --gg-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M3.1 8.3 6.4 11.7 13 4.2'/%3E%3C/svg%3E");
@@ -3799,7 +3819,8 @@
 
 [data-look="vscodegg"] .tabs-head {
   display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
-  height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+  min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+  padding-top: 3px; padding-bottom: 3px;
 }
 [data-look="vscodegg"] .tab,
 [data-look="vscodegg"] .tab.on,
@@ -3807,7 +3828,7 @@
 [data-look="vscodegg"] .tab.on:focus,
 [data-look="vscodegg"] .tab.on:active {
   top: 0; margin: 0; min-width: 54px; height: 30px; padding: 0 10px; border: 0; border-radius: 15px;
-  background: transparent; box-shadow: none; color: var(--vsc-fg); font-weight: 510; z-index: 1;
+  background: transparent; box-shadow: none; color: var(--vsc-fg); font-weight: 510; z-index: 1; margin: 0 auto !important;
 }
 [data-look="vscodegg"] .tab:hover:not(.on):not(:disabled) { background: var(--gg-tab-hot); border: 0; }
 [data-look="vscodegg"] .tab:active:not(.on):not(:disabled) { background: var(--gg-tab-down); border: 0; box-shadow: none; }
@@ -4151,4 +4172,62 @@ body:is(.vscode-dark, .vscode-high-contrast) [data-look="vscodegg"] {
   --gg-solid-bar: #2C2C2C;
   --gg-caret: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23fff' stroke-width='1.4'/></svg>");
   --gg-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M3.1 8.3 6.4 11.7 13 4.2'/%3E%3C/svg%3E");
+}
+
+/* Golden Gate number stepper. The value and the two chevron halves follow Puppertino's
+   desktop stepper (dist/css/forms.css .p-stepper-field, MIT): a rounded field, then a
+   separate 20×24 plate 4px away. The halves are flat gray; the cut between them stays dark. */
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin {
+  align-items: center; gap: 4px; height: 24px; border: 0; border-radius: 0;
+  background: transparent; overflow: visible;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin > input.spin-in {
+  box-sizing: border-box; width: 62px; height: 24px !important; padding: 0 6px;
+  border: 0 !important; border-radius: 6px; background: var(--gg-spin-bg); color: var(--gg-spin-ink);
+  -webkit-text-fill-color: var(--gg-spin-ink); box-shadow: 0 0 0 1px var(--gg-spin-ring);
+  text-align: center; font-weight: 510;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin > input.spin-in:focus {
+  outline: none; border: 0; box-shadow: var(--gg-spin-focus);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(.dlg, .tp-body) .spin > input.spin-in:disabled {
+  background: var(--gg-spin-bg-off); color: var(--gg-spin-glyph-off); -webkit-text-fill-color: var(--gg-spin-glyph-off);
+  box-shadow: 0 0 0 1px var(--gg-spin-ring); opacity: 1;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-bs {
+  position: relative; flex: none; width: 20px; height: 24px; border-radius: 6px; overflow: hidden; background: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-bs::after {
+  content: ""; position: absolute; z-index: 1; top: 50%; left: 3px; right: 3px; height: 1px; margin-top: -0.5px;
+  background: var(--gg-spin-div); pointer-events: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-bs:has(> .spin-b:disabled)::after {
+  background: var(--gg-spin-div-off);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b {
+  position: relative; flex: 1; margin: 0; padding: 0; border: 0; border-radius: 0;
+  background: var(--gg-spin-plate); box-shadow: none; cursor: default;
+  transition: background 0.12s ease-out;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b:active:not(:disabled) {
+  background: var(--gg-spin-plate-down);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b:disabled {
+  background: var(--gg-spin-plate-off); cursor: default;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b > span { display: none; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b::before {
+  content: ""; position: absolute; inset: 0; margin: auto; width: 12px; height: 8px;
+  background: var(--gg-spin-glyph); pointer-events: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b.up::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 6 6 1.8 10.5 6' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 6 6 1.8 10.5 6' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b.dn::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 2 6 6.2 10.5 2' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 2 6 6.2 10.5 2' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b:disabled::before {
+  background: var(--gg-spin-glyph-off);
 }
