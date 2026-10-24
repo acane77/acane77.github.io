@@ -797,8 +797,7 @@
     if (more.length) out.push({ heading: 'Fonts on This Computer' }, ...more);
     return out;
   };
-  /* the families queryLocalFonts() found, kept for every app of the suite (VO.localFonts, common/suite.js;
-     the Start Center's Settings can load or forget them) */
+  /* the families queryLocalFonts() found, kept for every app of the suite (VO.localFonts, common/suite.js) */
   L.localFonts = () => (root.VO ? root.VO.localFonts.list() : []);
   L.loadLocalFonts = async function () {
     try {

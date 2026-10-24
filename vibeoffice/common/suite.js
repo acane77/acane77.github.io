@@ -349,8 +349,8 @@
   /* ------------------------------------------------------------ updates */
   /** updater/current.json on the published site says, per policy and platform, the version an edition must
    *  be at least: older than "show-update-dialog" asks with a dialog, older than "show-update-button" shows an
-   *  Update button. Versions compare by date (VO.compareVersions); a dev build never asks. The desktop app
-   *  checks when the Start Center opens; nothing about the user or their files is sent. */
+   *  Update button. Versions compare by date (VO.compareVersions); a dev build never asks. Nothing about the
+   *  user or their files is sent. The Start Center does not call this. */
   VO.UPDATES = (native && native.updates) || 'https://vibeoffice.work/updater/current.json';
   /** updater/whatsnew.json: { "<version>": "<plain text>" }, one list for every platform */
   VO.WHATSNEW = (native && native.whatsnew) || 'https://vibeoffice.work/updater/whatsnew.json';

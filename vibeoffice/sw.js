@@ -22,7 +22,7 @@
  *   page as { type: 'vo-cache', state: 'progress', update, progress (0 to 1: the download, then the unpacking),
  *   received and total (the zip's bytes; total 0 if the server didn't say), version }, then { state: 'failed',
  *   error } or, once the new worker has taken over (activate, so a reload gets the new version), { state: 'done',
- *   update }; the Start Center shows it, and offers a reload after an update. The new worker takes over at once
+ *   update }; the Start Center does not draw it. The new worker takes over at once
  *   (skipWaiting, clients.claim), which is safe because of the next point.
  * - Each page keeps the version it was loaded with: a page (client) is served only from its own version's cache,
  *   recorded in the cache "vibeoffice-clients" (client id → version), so a page that is open while an update
