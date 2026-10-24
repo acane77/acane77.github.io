@@ -310,7 +310,9 @@
       defaults: { rPr: { font: '等线', fontEA: '等线', sz: 12, lang: 'en-US' }, pPr: {} },
       numbering: { abs: {}, nums: {} },
       hf: {}, fn: {}, en: {}, comments: {},
-      settings: { defTab: 36, evenOdd: false, track: false, protect: null, fnPr: { fmt: 'decimal', pos: 'pageBottom', start: 1, restart: 'continuous' }, enPr: { fmt: 'lowerRoman', pos: 'docEnd', start: 1 }, mirror: false, fieldShade: 'selected', autoHyphen: false },
+      /* compatibilityMode 15: a document started here is laid out as Microsoft Word 2013 and later.
+         An opened file replaces this with the mode it was saved in. */
+      settings: { compat: 15, defTab: 36, evenOdd: false, track: false, protect: null, fnPr: { fmt: 'decimal', pos: 'pageBottom', start: 1, restart: 'continuous' }, enPr: { fmt: 'lowerRoman', pos: 'docEnd', start: 1 }, mirror: false, fieldShade: 'selected', autoHyphen: false },
       props: { title: '', subject: '', creator: L.store.get('userName', 'Quire User'), keywords: '', description: '', lastModifiedBy: '', category: '', company: '', manager: '', created: new Date().toISOString(), modified: new Date().toISOString(), revision: 1 },
       custom: {},
       macros: [],

@@ -195,7 +195,97 @@
     return n;
   };
   /** remove a laid-out fragment together with the page-level floats it anchored */
-  const dropFrag = (f) => { if (f._floats) { for (const w of f._floats) w.remove(); f._floats = null; } f.remove(); };
+  const dropFrag = (f) => {
+    if (f._floats) { for (const w of f._floats) w.remove(); f._floats = null; }
+    /* a top-and-bottom object that did not stay on this page must not keep a hole in the other columns */
+    if (f._bandPage && f._bandKeys && f._bandPage.wrapBands) f._bandPage.wrapBands = f._bandPage.wrapBands.filter((b) => !f._bandKeys.has(b.key));
+    f.remove();
+  };
+  /** drop page-level floats anchored in a column, then empty it; wrap bands stay (a reflow still needs them) */
+  function clearCol(col) {
+    for (const frag of col.querySelectorAll('.p, .tbl')) if (frag._floats) { for (const w of frag._floats) w.remove(); frag._floats = null; }
+    col.textContent = '';
+  }
+  function colGeom(frame, scale) {
+    const pg = frame.page.el.getBoundingClientRect(), r = frame.el.getBoundingClientRect();
+    return { x: (r.left - pg.left) / scale, w: frame.width || r.width / scale, top: (r.top - pg.top) / scale, colTop: r.top };
+  }
+  function bandHits(geom, band) {
+    return band.x + band.w > geom.x + 0.5 && band.x < geom.x + geom.w - 0.5;
+  }
+  function bandSpacer(key, h) {
+    const sp = el('div', 'col-band');
+    sp.contentEditable = 'false';
+    sp.dataset.band = key;
+    sp.style.cssText = `height:${h}px;width:100%;pointer-events:none`;
+    return sp;
+  }
+  /**
+   * Top-and-bottom wrap clears the object's vertical span in every column it crosses (LibreOffice widens
+   * that obstacle to the column's print area). The anchor column already reserved the span with its float.
+   */
+  function dodgeBands(frame, scale) {
+    const bands = frame.page && frame.page.wrapBands;
+    if (!bands || !bands.length || frame.kind !== 'col') return;
+    const geom = colGeom(frame, scale);
+    let used = frame.el.lastElementChild ? (frame.el.lastElementChild.getBoundingClientRect().bottom - geom.colTop) / scale : 0;
+    for (const band of bands.slice().sort((a, b) => a.top - b.top)) {
+      if (band.colEl === frame.el || !bandHits(geom, band)) continue;
+      const top = band.top - geom.top, bottom = band.bottom - geom.top;
+      if (bottom <= used + 0.5 || used + 0.5 < top) continue;
+      const h = Math.min(bottom - used, frame.limit - used);
+      if (h <= 0.5) continue;
+      const sp = bandSpacer(band.key, h);
+      frame.el.appendChild(sp);
+      used = (sp.getBoundingClientRect().bottom - geom.colTop) / scale;
+    }
+  }
+  /** a paragraph that starts just above a band and runs into it moves wholly below the band */
+  function pushBelowBands(frame, frag, scale) {
+    const bands = frame.page && frame.page.wrapBands;
+    if (!bands || !bands.length || frame.kind !== 'col') return;
+    const geom = colGeom(frame, scale);
+    for (const band of bands.slice().sort((a, b) => a.top - b.top)) {
+      if (band.colEl === frame.el || !bandHits(geom, band)) continue;
+      const top = (frag.getBoundingClientRect().top - geom.colTop) / scale;
+      const bot = (frag.getBoundingClientRect().bottom - geom.colTop) / scale;
+      const bTop = band.top - geom.top, bBot = band.bottom - geom.top;
+      if (top < bTop - 0.5 && bot > bTop + 0.5) frag.before(bandSpacer(band.key, bBot - top));
+    }
+  }
+  /**
+   * Record the vertical span a top-and-bottom object holds on this page. Replaces a band with the same key
+   * (a balanced region lays the anchor out again). Asks the region to reflow once when the span covers a
+   * column that was filled before the anchor was seen.
+   */
+  LY.noteWrapBand = function (page, frag, frame, band) {
+    if (!page || !frame || frame.kind !== 'col') return;
+    band = Object.assign({ colEl: frame.el }, band);
+    if (!page.wrapBands) page.wrapBands = [];
+    const i = page.wrapBands.findIndex((b) => b.key === band.key);
+    if (i >= 0) page.wrapBands[i] = band; else page.wrapBands.push(band);
+    if (!frag._bandKeys) frag._bandKeys = new Set();
+    frag._bandKeys.add(band.key);
+    frag._bandPage = page;
+    /* this column is the anchor: a dodge spacer left here on a reflow would stack on the float */
+    let prev = frag.previousElementSibling, onlySpacers = true;
+    const mine = [];
+    while (prev) {
+      if (prev.classList.contains('col-band') && prev.dataset.band === band.key) mine.push(prev);
+      else if (prev.classList.contains('p') || prev.classList.contains('tbl')) { onlySpacers = false; break; }
+      prev = prev.previousElementSibling;
+    }
+    if (onlySpacers) for (const s of mine) s.remove();
+    for (const region of page.regions || []) {
+      const ci = region.frames.findIndex((f) => f.el === frame.el);
+      if (ci < 0) continue;
+      for (let k = 0; k < ci; k++) {
+        const col = region.frames[k];
+        if (band.x + band.w <= page.bodyLeft + col.x + 0.5 || band.x >= page.bodyLeft + col.x + col.w - 0.5) continue;
+        if (col.el.querySelector('.p, .tbl') && region.bandReflow !== 'done') region.bandReflow = 'need';
+      }
+    }
+  };
   /** lowest edge of the text-wrapped floats inside a fragment (they hang outside its box) */
   const floatBottom = (frag, frameTop, scale) => {
     let b = 0;
@@ -219,6 +309,7 @@
     const d = ctx.doc;
     frame.chain = frame.chain || [];
     while (st.bi < end) {
+      dodgeBands(frame, scale);
       const b = blocks[st.bi];
       if (b.t === 'tbl') {
         /* "page break before" on the first paragraph of the table's first cell breaks before the table (Word) */
@@ -268,6 +359,7 @@
       let frag = R.para(p, o, segEnd, fctx);
       frame.el.appendChild(frag);
       postPara(frag, p, fctx, frame);
+      pushBelowBands(frame, frag, scale);
       /* an unlimited frame (a table cell being filled) needs no measuring: skip the forced reflow */
       let bottom = frame.limit === Infinity && !frame.notes ? 0 : bottomOf(frag, frame.top, scale);
       /* footnotes referenced in this fragment */
@@ -1036,7 +1128,7 @@
     let h = Math.ceil(total / n);
     const maxH = page.bodyH - region.y;
     for (let attempt = 0; attempt < 12 && h <= maxH; attempt++) {
-      for (const f of region.frames) f.el.textContent = '';
+      for (const f of region.frames) clearCol(f.el);
       let st = startSt;
       let ok = true;
       for (let ci = 0; ci < n; ci++) {
@@ -1051,7 +1143,7 @@
       h += Math.max(6, Math.round(h * 0.06));
     }
     /* fall back to an unbalanced fill */
-    for (const f of region.frames) f.el.textContent = '';
+    for (const f of region.frames) clearCol(f.el);
     let st = startSt;
     for (let ci = 0; ci < n; ci++) { const fr = frameFor(page, region, ci, ctx, ci > 0); const res = LY.flow(fr, blocks, st, endIdx, ctx); st = res.st; if (res.stop === 'done') break; }
     return false;
@@ -1136,6 +1228,15 @@
       if ((d.settings && d.settings.compat) >= 14 && (res.stop === 'page' || (res.stop === 'column' && region.ci + 1 >= region.frames.length)) && !res.pbb && st.bi >= sec.to) {
         const nt = si + 1 < sections.length ? (sections[si + 1].sect.type || 'nextPage') : null;
         if (!nt || (nt !== 'continuous' && nt !== 'nextColumn')) res.stop = 'done';
+      }
+      /* a top-and-bottom object anchored in a later column also clears the columns already filled */
+      if (region.bandReflow === 'need') {
+        region.bandReflow = 'done';
+        const start = regionStartState(region, page, blocks);
+        for (const f of region.frames) clearCol(f.el);
+        st = start;
+        region.ci = 0;
+        continue;
       }
       if (res.stop === 'done') {
         si++;

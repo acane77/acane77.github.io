@@ -453,6 +453,8 @@
       let oh = pos.oh;
       if (obj.querySelector('.tbx')) { const real = obj.offsetHeight; if (real > oh + 0.5) { oh = real; if (f.wrap === 'topBottom') wrap.style.height = oh + b + 'px'; } }
       cursor = Math.max(cursor, dy) + t + oh + b;
+      /* the float above only reserves this column; other columns the object crosses skip the same span */
+      if (f.wrap === 'topBottom' && frame && frame.kind === 'col' && L.layout.noteWrapBand) L.layout.noteWrapBand(page, frag, frame, { key: p.id + ':' + wrap.dataset.o, x: pos.x, w: pos.ow, top: pos.y - t, bottom: pos.y + oh + b });
     }
   };
 
