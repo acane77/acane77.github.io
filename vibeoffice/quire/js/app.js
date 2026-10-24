@@ -1169,7 +1169,7 @@
     const files = await L.pickFiles('image/*,.emf,.wmf', true);
     if (files.length) A.insertPictureFiles(files);
   };
-  A.insertPictureFiles = async function (files) {
+  A.insertPictureFiles = async function (files, opts) {
     const items = [];
     for (const f of files) {
       const buf = new Uint8Array(await L.readAsArrayBuffer(f));
@@ -1189,8 +1189,16 @@
       if (w > maxW) { hh *= maxW / w; w = maxW; }
       items.push(D.item('img', { media: id, w: L.round(w, 2), h: L.round(hh, 2), name: f.name, alt: '' }));
     }
-    if (!items.length) return;
-    E.edit('Insert Picture', () => { let pos = E.deleteSelection(); for (const it of items) pos = O.insertItem(pos, it); return pos; });
+    if (!items.length) return [];
+    E.edit('Insert Picture', () => {
+      let pos = opts && opts.pos ? opts.pos : E.deleteSelection();
+      for (const it of items) {
+        if (opts && opts.prepare) opts.prepare(it);
+        pos = O.insertItem(pos, it);
+      }
+      return pos;
+    });
+    return items;
   };
 
   /* ================= keyboard ================= */

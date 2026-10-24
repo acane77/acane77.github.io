@@ -36,15 +36,23 @@
     });
   }
 
+  function callParams(desc) {
+    if (desc && Array.isArray(desc.params)) {
+      return desc.params.map(function (p) { return { name: p.name, optional: p.optional !== false }; });
+    }
+    return CALL_PARAMS;
+  }
+
   function memberMeta(name, desc) {
+    const params = callParams(desc);
     if (desc.kind === 'gap') {
       const as = desc.as || 'any';
-      if (as === 'call') return { name: name, modes: [1], params: CALL_PARAMS };
+      if (as === 'call') return { name: name, modes: [1], params: params };
       if (as === 'get') return { name: name, modes: [2], params: [] };
       if (as === 'rw') return { name: name, modes: [2, 4, 8], params: [] };
-      return { name: name, modes: [1, 2, 4, 8], params: CALL_PARAMS };
+      return { name: name, modes: [1, 2, 4, 8], params: params };
     }
-    if (desc.kind === 'call') return { name: name, modes: [1], params: CALL_PARAMS };
+    if (desc.kind === 'call' || desc.kind === 'both') return { name: name, modes: desc.kind === 'both' ? [1, 2] : [1], params: params };
     if (desc.kind === 'rw') return { name: name, modes: [2, 4, 8], params: [] };
     return { name: name, modes: [2], params: [] };
   }
@@ -456,6 +464,33 @@
     }
   };
 
+  function compileResult(engine, project) {
+    const program = engine.compileProject(project);
+    return { valid: !!program.valid, diagnostics: program.diagnostics || [] };
+  }
+
+  /* Syntax only. Same projects as debugBegin, run and runDraft. No machine is started. */
+  QuireVbHost.prototype.compileIde = function (source) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('quire-vb-ide', [
+      { id: 'quire-dom', name: 'QuireDOM', kind: 'module', code: moduleCode() },
+      { id: 'module1', name: 'Module1', kind: 'module', code: String(source) },
+    ]));
+  };
+
+  QuireVbHost.prototype.compileScript = function (source) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('quire-vb-script', [
+      { id: 'quire-dom', name: 'QuireDOM', kind: 'module', code: moduleCode() },
+      { id: 'script', name: 'Script', kind: 'module', code: String(source) },
+    ]));
+  };
+
+  QuireVbHost.prototype.compileDraft = function (macros) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('quire-vb-draft', macroModules(macros)));
+  };
+
   /* Debug VM for the Visual Basic IDE. The Immediate VM stays. Maps stay swapped until debugEnd. */
   QuireVbHost.prototype.debugBegin = async function (source) {
     if (this.script) throw new Error('A VB script is running');
@@ -553,6 +588,21 @@
     this.auto = null;
   };
 
+  function completionHost() {
+    return {
+      name: 'QuireDOM',
+      code: moduleCode(),
+      files: false,
+      types: {
+        Quire: 'Application',
+        Application: 'Application',
+        ActiveDocument: 'Document',
+        Documents: 'Documents',
+        Selection: 'Selection',
+      },
+    };
+  }
+
   let shared = null;
   let starting = null;
 
@@ -607,6 +657,21 @@
     return host.runDraft(macros, entry);
   }
 
+  async function compileIde(source) {
+    const host = await session();
+    return host.compileIde(source);
+  }
+
+  async function compileScript(source) {
+    const host = await session();
+    return host.compileScript(source);
+  }
+
+  async function compileDraft(macros) {
+    const host = await session();
+    return host.compileDraft(macros);
+  }
+
   async function open() {
     const host = new QuireVbHost();
     await host.start();
@@ -622,8 +687,13 @@
     open: open,
     session: session,
     current: current,
+    engine: loadEngine,
+    completionHost: completionHost,
     loadMacros: loadMacros,
     runSaved: runSaved,
     runDraft: runDraft,
+    compileIde: compileIde,
+    compileScript: compileScript,
+    compileDraft: compileDraft,
   };
 })();

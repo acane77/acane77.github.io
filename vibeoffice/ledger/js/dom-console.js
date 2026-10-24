@@ -830,7 +830,7 @@
       asking = true;
       try {
         const i = await L.ui.msg('Save the changes to this macro?', { icon: 'question', title: 'Run Visual Basic Script', buttons: [L.t('Save'), L.t("Don't Save"), L.t('Cancel')] });
-        if (i === 0) { if (save() && box) box.close(); }
+        if (i === 0) { if (await saveChecked() && box) box.close(); }
         else if (i === 1 && box) box.close();
       } finally { asking = false; }
     }
@@ -860,15 +860,43 @@
           try {
             i = await L.ui.msg('Save the changes to this macro?', { icon: 'question', title: 'Run Visual Basic Script', buttons: [L.t('Save'), L.t("Don't Save"), L.t('Cancel')] });
           } finally { asking = false; }
-          if (i === 0) { if (!save()) return; }
+          if (i === 0) { if (!(await saveChecked())) return; }
           else if (i !== 1) return;
         }
         apply(next);
       }
       await rejectName(next);
     }
+    async function compiles() {
+      const code = text();
+      const editing = macro;
+      let compiled;
+      try {
+        if (!L.vb) throw new Error(L.t('The VB runtime is not running'));
+        if (editing) {
+          if (!L.macros || !L.macros.draftModules || !L.vb.compileDraft) throw new Error(L.t('The VB runtime is not running'));
+          compiled = await L.vb.compileDraft(L.macros.draftModules(editing.name, code, editing.store));
+        } else {
+          if (!L.vb.compileScript) throw new Error(L.t('The VB runtime is not running'));
+          compiled = await L.vb.compileScript(code);
+        }
+      } catch (e) {
+        if (L.ui && L.ui.msg) await L.ui.msg(e && e.message ? e.message : String(e), { icon: 'error', title: 'Run Visual Basic Script' });
+        return false;
+      }
+      if (text() !== code || macro !== editing) return false;
+      if (compiled && compiled.valid) return true;
+      if (L.vbIde && L.vbIde.reportDiagnostics) await L.vbIde.reportDiagnostics(compiled && compiled.diagnostics, 'Run Visual Basic Script');
+      return false;
+    }
+    async function saveChecked() {
+      if (!macro || !L.macros || !L.macros.commit) return false;
+      if (!(await compiles())) return false;
+      return save();
+    }
     async function run() {
       if (running) return;
+      if (!(await compiles())) return;
       running = true;
       const code = text();
       const editing = macro;
@@ -901,7 +929,7 @@
         log),
       width: 720,
       buttons: [
-        { label: 'Save', onClick: () => { save(); return false; } },
+        { label: 'Save', onClick: () => { saveChecked(); return false; } },
         { label: 'Run', primary: true, onClick: () => { run(); return false; } },
         { label: 'Close', onClick: () => { askClose(); return false; } },
       ],

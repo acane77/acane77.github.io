@@ -967,6 +967,51 @@
     if (i !== winStack.length - 1) { winStack.splice(i, 1); winStack.push(entry); document.body.appendChild(entry.overlay); }
     layoutWindows();
   }
+  function dialogPlaceOn(opts) {
+    const v = opts && opts.restoreWindowSizeAndPosition;
+    return v === 1 || v === true || v === '1';
+  }
+
+  function dialogPlaceName(opts) {
+    if (opts && opts.windowName != null && String(opts.windowName) !== '') return String(opts.windowName);
+    return opts && opts.title ? String(opts.title) : '';
+  }
+
+  function loadDialogPlace(name) {
+    if (!name || !L.store) return null;
+    const all = L.store.get('dlgPlace', {});
+    const raw = all && all[name];
+    if (!raw || typeof raw !== 'object') return null;
+    const left = +raw.left, top = +raw.top, width = +raw.width, height = +raw.height;
+    if (![left, top, width, height].every(Number.isFinite) || width < 40 || height < 40) return null;
+    return { left: left, top: top, width: width, height: height };
+  }
+
+  function saveDialogPlace(name, dlg) {
+    if (!name || !L.store || !dlg) return;
+    const all = L.store.get('dlgPlace', {});
+    const map = all && typeof all === 'object' ? all : {};
+    map[name] = { left: dlg.offsetLeft, top: dlg.offsetTop, width: dlg.offsetWidth, height: dlg.offsetHeight };
+    L.store.set('dlgPlace', map);
+  }
+
+  function applyDialogPlace(dlg, opts) {
+    const place = loadDialogPlace(dialogPlaceName(opts));
+    if (!place) return false;
+    const edge = 4;
+    const minW = Number(opts.minWidth) > 0 ? Number(opts.minWidth) : 160;
+    const minH = Number(opts.minHeight) > 0 ? Number(opts.minHeight) : 80;
+    const maxW = Math.max(minW, window.innerWidth - edge * 2);
+    const maxH = Math.max(minH, window.innerHeight - edge * 2);
+    const width = L.clamp(place.width, Math.min(minW, maxW), maxW);
+    const height = L.clamp(place.height, Math.min(minH, maxH), maxH);
+    dlg.style.width = width + 'px';
+    dlg.style.height = height + 'px';
+    dlg.style.left = L.clamp(place.left, -width + 60, Math.max(-width + 60, window.innerWidth - 60)) + 'px';
+    dlg.style.top = L.clamp(place.top, 0, Math.max(0, window.innerHeight - 30)) + 'px';
+    return true;
+  }
+
   /* Dragging an edge or a corner. The title stays the title: no extra button is added for this. */
   function attachDialogResize(dlg, opts) {
     const minW = Number(opts.minWidth) > 0 ? Number(opts.minWidth) : 160;
@@ -1031,10 +1076,11 @@
   }
 
   /**
-   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose, brand, isToolBoxWindow, resizeable, minWidth, minHeight, onResize}
+   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose, brand, isToolBoxWindow, resizeable, minWidth, minHeight, onResize, windowName, restoreWindowSizeAndPosition}
    * a new window opens in front of the ones already open and leaves them where they are.
    * canClose false hides the title's close button, and Escape does not close the window (it does not press Cancel either).
    * resizeable defaults to false. True lets an edge or a corner change the size. The title bar does not gain a button for it.
+   * restoreWindowSizeAndPosition defaults to 0. 1 keeps this window's left, top, width and height in this app, and the next open uses them. windowName is the stored key; without it the title is the key.
    * brand sets data-brand to the app, so the body and foot use that app's --brand-bg. The frame is not restyled.
    * isToolBoxWindow defaults to 0. 1 is a modeless window whose close button is square; the frame is otherwise the same window, inactive the same way.
    */
@@ -1101,6 +1147,11 @@
       titleBar.addEventListener('pointerup', up);
     });
     if (opts.resizeable) attachDialogResize(dlg, opts);
+    let rememberPlace = null;
+    if (dialogPlaceOn(opts)) {
+      rememberPlace = () => saveDialogPlace(dialogPlaceName(opts), dlg);
+      window.addEventListener('beforeunload', rememberPlace);
+    }
     winStack.push(entry);
     if (opts.modeless) dlg.addEventListener('keydown', (e) => { entry.keys(e); e.stopPropagation(); });   // keys stay in a modeless dialog
     else dlgStack.push(entry);
@@ -1130,6 +1181,11 @@
     };
     function close(i) {
       if (entry.closed) return;
+      if (rememberPlace) {
+        rememberPlace();
+        window.removeEventListener('beforeunload', rememberPlace);
+        rememberPlace = null;
+      }
       entry.closed = true;
       const k = dlgStack.indexOf(entry);
       if (k >= 0) dlgStack.splice(k, 1);
@@ -1163,6 +1219,7 @@
       if (first) { first.focus(); if (first.select && first.tagName === 'INPUT') first.select(); }
     }, 0);
     if (opts.onOpen) opts.onOpen(dlg);
+    if (dialogPlaceOn(opts) && applyDialogPlace(dlg, opts) && typeof opts.onResize === 'function') opts.onResize(dlg);
     return { el: dlg, body, overlay, close, done, buttons: btns };
   };
   ui.dialogKey = (e) => { const top = dlgStack[dlgStack.length - 1]; return top ? top.keys(e) || true : false; };

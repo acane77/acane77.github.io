@@ -3,7 +3,7 @@
 (()=>{'use strict';
 const __modules=[];
 
-/* ..\language\source-scanner.js */
+/* ..\..\third_party\VB6\src\language\source-scanner.js */
 __modules[0]=(()=>{
 
 /** Shared lexical boundaries for source splitting and statement parsing.
@@ -117,7 +117,7 @@ function continuationStart(text) {
 return {isDigit,isIdentifierStart,isIdentifierPart,isSpace,isTypeSuffix,identifierEnd,stringEnd,dateEnd,scanSyntax,stripComment,syntaxTokens,isKeyword,findKeyword,statementParts,continuationStart};
 })();
 
-/* ..\language\errors.js */
+/* ..\..\third_party\VB6\src\language\errors.js */
 __modules[1]=(()=>{
 
 class VBError extends Error {
@@ -127,7 +127,7 @@ class VBError extends Error {
 return {VBError};
 })();
 
-/* calendar.js */
+/* ..\..\third_party\VB6\src\runtime\calendar.js */
 __modules[2]=(()=>{
 const {VBError}=__modules[1];
 /** Gregorian/OLE DATE support. Numeric dates encode civil time, not UTC instants.
@@ -206,7 +206,7 @@ function weekdayName(day,abbreviate=0,first=1){day=integer(day);if(day<1||day>7)
 return {validateDate,dateOrdinal,dateToSerial,serialToDate,asDate,dateAdd,dateDiff,datePart,dateSerial,timeSerial,weekday,monthName,weekdayName};
 })();
 
-/* ..\language\lexer.js */
+/* ..\..\third_party\VB6\src\language\lexer.js */
 __modules[3]=(()=>{
 const {isDigit,isIdentifierStart,isIdentifierPart,isSpace,identifierEnd,stringEnd,dateEnd,scanSyntax,stripComment,statementParts,continuationStart}=__modules[0];
 const {asDate}=__modules[2];
@@ -313,7 +313,7 @@ function logicalLines(source,{preserveContinuations=false}={}) {
 return {tokenize,splitTop,logicalLines,VBError};
 })();
 
-/* ..\language\expression.js */
+/* ..\..\third_party\VB6\src\language\expression.js */
 __modules[4]=(()=>{
 const { tokenize, VBError }=__modules[3];
 
@@ -490,7 +490,7 @@ function radixLiteralValue(raw) {
 return {MAX_EXPRESSION_NESTING,MAX_EXPRESSION_NODES,ExpressionParser,parseExpression,parseCall};
 })();
 
-/* ..\language\graphics-statements.js */
+/* ..\..\third_party\VB6\src\language\graphics-statements.js */
 __modules[5]=(()=>{
 const {tokenize,splitTop,VBError}=__modules[3];
 const {parseExpression : E}=__modules[4];
@@ -564,7 +564,7 @@ function parseGraphicsStatement(text){
 return {parseGraphicsStatement};
 })();
 
-/* ..\language\record-recursion.js */
+/* ..\..\third_party\VB6\src\language\record-recursion.js */
 __modules[6]=(()=>{
 
 /** Return every field participating in a recursive project-record dependency.
@@ -620,7 +620,7 @@ function recursiveRecordFields(index) {
 return {recursiveRecordFields};
 })();
 
-/* ..\language\record-resolution.js */
+/* ..\..\third_party\VB6\src\language\record-resolution.js */
 __modules[7]=(()=>{
 const {recursiveRecordFields}=__modules[6];
 
@@ -703,7 +703,7 @@ function validateRecordDeclarations(modules) {
 return {RecordTypeIndex,resolveRecordDefinition,validateRecordDeclarations};
 })();
 
-/* ..\core\signal.js */
+/* ..\..\third_party\VB6\src\core\signal.js */
 __modules[8]=(()=>{
 
 /** Synchronous, insertion-ordered notifications shared by the IDE and runtime.
@@ -813,7 +813,7 @@ class Signal {
 return {Signal};
 })();
 
-/* ..\core\history.js */
+/* ..\..\third_party\VB6\src\core\history.js */
 __modules[9]=(()=>{
 const {Signal}=__modules[8];
 
@@ -1062,7 +1062,7 @@ class History extends Signal {
 return {History};
 })();
 
-/* ..\core\debounce.js */
+/* ..\..\third_party\VB6\src\core\debounce.js */
 __modules[10]=(()=>{
 
 /** Debounce with receiver preservation, explicit cleanup and optional deadlines.
@@ -1123,7 +1123,7 @@ function debounce(fn, delay = 200, {leading = false, trailing = true, maxWait, s
 return {debounce};
 })();
 
-/* ..\core\window-context.js */
+/* ..\..\third_party\VB6\src\core\window-context.js */
 __modules[11]=(()=>{
 
 /** Documents belonging to one live IDE session. No DOM monkey-patching.
@@ -1215,7 +1215,7 @@ function hasUIDialog() {
 return {registerUIDocument,uiDocuments,uiDocument,hasUIDialog};
 })();
 
-/* ..\core\dom.js */
+/* ..\..\third_party\VB6\src\core\dom.js */
 __modules[12]=(()=>{
 const {uiDocument}=__modules[11];
 
@@ -1316,7 +1316,7 @@ function download(name, data, type = 'application/octet-stream', {document: doc 
 return {el,download};
 })();
 
-/* ..\core\core.js */
+/* ..\..\third_party\VB6\src\core\core.js */
 __modules[13]=(()=>{
 const {Signal}=__modules[8];
 const {History}=__modules[9];
@@ -1345,7 +1345,7 @@ const VERSION = '0.6.0';
 return {clone,lower,escapeHTML,safeName,VERSION,Signal,History,debounce,el,download};
 })();
 
-/* ..\language\declaration-cursor.js */
+/* ..\..\third_party\VB6\src\language\declaration-cursor.js */
 __modules[14]=(()=>{
 const {VBError}=__modules[1];
 const {tokenize}=__modules[3];
@@ -1380,7 +1380,7 @@ class DeclarationCursor {
 return {DeclarationCursor};
 })();
 
-/* ..\language\default-types.js */
+/* ..\..\third_party\VB6\src\language\default-types.js */
 __modules[15]=(()=>{
 const {VBError}=__modules[3];
 
@@ -1407,7 +1407,7 @@ function defaultIdentifierType(name,table={}){
 return {DEFAULT_TYPE_NAMES,addDefaultTypes,defaultIdentifierType};
 })();
 
-/* ..\language\declarations.js */
+/* ..\..\third_party\VB6\src\language\declarations.js */
 __modules[16]=(()=>{
 const {lower}=__modules[13];
 const {VBError}=__modules[1];
@@ -1520,7 +1520,7 @@ function parseProcedureHeader(text,defaultTypes={}) {
 return {checkDeclarationType,parseDeclarations,parseTypeFields,parseParameters,parseProcedureHeader};
 })();
 
-/* ..\language\redim-semantics.js */
+/* ..\..\third_party\VB6\src\language\redim-semantics.js */
 __modules[17]=(()=>{
 const {RecordTypeIndex}=__modules[7];
 const {parseDeclarations}=__modules[16];
@@ -1582,7 +1582,7 @@ function bindRedimDeclarations(modules,scopes) {
 return {parseRedimDeclarations,bindRedimDeclarations};
 })();
 
-/* ..\language\print-list.js */
+/* ..\..\third_party\VB6\src\language\print-list.js */
 __modules[18]=(()=>{
 const {ExpressionParser}=__modules[4];
 const {scanSyntax}=__modules[0];
@@ -1620,7 +1620,7 @@ function splitPrintList(source){
 return {splitPrintList};
 })();
 
-/* ..\language\module-syntax.js */
+/* ..\..\third_party\VB6\src\language\module-syntax.js */
 __modules[19]=(()=>{
 const {DeclarationCursor}=__modules[14];
 const {parseParameters,checkDeclarationType}=__modules[16];
@@ -1689,7 +1689,7 @@ function parseEnumMember(text,previous=null) {
 return {parseModuleHeader,parseEnumMember};
 })();
 
-/* ..\language\statement-syntax.js */
+/* ..\..\third_party\VB6\src\language\statement-syntax.js */
 __modules[20]=(()=>{
 const {findKeyword, scanSyntax, isKeyword}=__modules[0];
 const {VBError}=__modules[1];
@@ -1730,7 +1730,7 @@ function inlineElse(text) {
 return {parseIfHeader,inlineElse};
 })();
 
-/* ..\language\statement-headers.js */
+/* ..\..\third_party\VB6\src\language\statement-headers.js */
 __modules[21]=(()=>{
 const {splitPrintList}=__modules[18];
 const {VBError}=__modules[1];
@@ -1866,7 +1866,7 @@ function parseFileStatement(text) {
 return {loopVariable,parseForHeader,parseLabel,parseComputedBranch,parseFileStatement};
 })();
 
-/* ..\..\packages\auto-layout\src\track-expression.js */
+/* ..\..\third_party\VB6\packages\auto-layout\src\track-expression.js */
 __modules[22]=(()=>{
 
 /** Bounded data-only length expressions. No eval/Function/CSS/DOM dependency.
@@ -1947,7 +1947,7 @@ function evaluateLength(value,extent,variables={},chain=[]){
 return {parseLength,normalizeLength,normalizeVariables,evaluateLength};
 })();
 
-/* ..\..\packages\auto-layout\src\track-template.js */
+/* ..\..\third_party\VB6\packages\auto-layout\src\track-template.js */
 __modules[23]=(()=>{
 const {normalizeLength,evaluateLength}=__modules[22];
 
@@ -2078,7 +2078,7 @@ function serializeTracks(tracks){
 return {cloneTracks,trackNames,splitTrackList,normalizeTracks,resolveTrackTemplate,serializeTracks};
 })();
 
-/* ..\..\packages\auto-layout\src\grid-lines.js */
+/* ..\..\third_party\VB6\packages\auto-layout\src\grid-lines.js */
 __modules[24]=(()=>{
 
 /** CSS-style one-based line selectors are separate from the legacy zero-based
@@ -2160,7 +2160,7 @@ function resolveGridItem(node,item,columnNames,rowNames,regions){
 return {normalizeGridLine,normalizeAreas,normalizeGridSelectors,areaGeometry,lineNames,resolveAxisPlacement,resolveGridItem};
 })();
 
-/* ..\..\packages\auto-layout\src\grid-placement.js */
+/* ..\..\third_party\VB6\packages\auto-layout\src\grid-placement.js */
 __modules[25]=(()=>{
 
 /** Bounded, renderer-independent grid placement. Explicit overlap is intentional.
@@ -2242,7 +2242,7 @@ function placeGridItems(items, columns, rows, flow = 0) {
 return {placeGridItems};
 })();
 
-/* ..\..\packages\auto-layout\src\advanced.js */
+/* ..\..\third_party\VB6\packages\auto-layout\src\advanced.js */
 __modules[26]=(()=>{
 const {normalizeTracks,resolveTrackTemplate}=__modules[23];
 const {areaGeometry,lineNames,resolveGridItem,resolveAxisPlacement}=__modules[24];
@@ -2459,7 +2459,7 @@ function measureTree(e,allocated){
 return {advancedColumns,normalizeAdvanced,distribute,layoutGrid,layoutMasonry,measureTree,normalizeTracks};
 })();
 
-/* ..\..\packages\auto-layout\src\index.js */
+/* ..\..\third_party\VB6\packages\auto-layout\src\index.js */
 __modules[27]=(()=>{
 const {cloneTracks}=__modules[23];
 const {normalizeGridSelectors}=__modules[24];
@@ -2826,7 +2826,7 @@ class LayoutEngine {
 return {AnchorStyles,DockStyle,LayoutMode,parseAnchor,formatAnchor,parseDock,parseLayoutMode,solveAnchor,LayoutEngine};
 })();
 
-/* ..\layout\contract.js */
+/* ..\..\third_party\VB6\src\layout\contract.js */
 __modules[28]=(()=>{
 const {AnchorStyles,DockStyle,LayoutMode,parseAnchor,parseDock,parseLayoutMode}=__modules[27];
 const {normalizeTracks}=__modules[26];
@@ -2902,7 +2902,7 @@ const LAYOUT_ENUMS=Object.freeze(Object.fromEntries(['AnchorStyles','DockStyle',
 return {LAYOUT_DEFAULTS,LAYOUT_KEYS,LAYOUT_CHOICES,LAYOUT_CONSTANTS,layoutEnabled,layoutEligible,layoutContainer,layoutKey,LAYOUT_FORM_KEYS,layoutDefaults,layoutProperty,validateLayout,setLayoutProperty,LAYOUT_ENUMS};
 })();
 
-/* ..\layout\language-gate.js */
+/* ..\..\third_party\VB6\src\layout\language-gate.js */
 __modules[29]=(()=>{
 const {layoutEnabled,layoutDefaults,layoutKey}=__modules[28];
 
@@ -2952,7 +2952,7 @@ function validateLayoutMembers(modules,settings={}) {
 return {layoutBindingSnapshot,validateLayoutMembers};
 })();
 
-/* ..\language\semantic-checks.js */
+/* ..\..\third_party\VB6\src\language\semantic-checks.js */
 __modules[30]=(()=>{
 const {parseExpression}=__modules[4];
 const {defaultIdentifierType}=__modules[15];
@@ -3050,7 +3050,7 @@ function validateLanguageSemantics(modules,scopes,recordTypes) {
 return {validateLanguageSemantics};
 })();
 
-/* ..\graphics\constants.js */
+/* ..\..\third_party\VB6\src\graphics\constants.js */
 __modules[31]=(()=>{
 
 /** Classic drawing constants shared by the browser runtime and source compiler. */
@@ -3064,7 +3064,7 @@ const GRAPHICS_CONSTANTS=Object.freeze({
 return {GRAPHICS_CONSTANTS};
 })();
 
-/* ..\controls\webbrowser-contract.js */
+/* ..\..\third_party\VB6\src\controls\webbrowser-contract.js */
 __modules[32]=(()=>{
 
 /** Source-level SHDocVw/IWebBrowser2 contract; no MSHTML/ActiveX code is loaded.
@@ -3177,7 +3177,7 @@ function webBrowserHTML(value) {
 return {WEB_BROWSER_ALIASES,isWebBrowser,WEB_BROWSER_CONSTANTS,WEB_BROWSER_DEFAULTS,WEB_BROWSER_EVENTS,webBrowserEvent,webBrowserEventSignature,WEB_BROWSER_METHODS,WEB_BROWSER_READONLY,WEB_BROWSER_LIMITS,WebBrowserError,webBrowserURL,webBrowserFlags,webBrowserHTML};
 })();
 
-/* constants.js */
+/* ..\..\third_party\VB6\src\runtime\constants.js */
 __modules[33]=(()=>{
 const {GRAPHICS_CONSTANTS}=__modules[31];
 const {WEB_BROWSER_CONSTANTS}=__modules[32];
@@ -3209,7 +3209,7 @@ Object.freeze(VB_CONSTANTS);
 return {VB_CONSTANTS};
 })();
 
-/* array-lifetime.js */
+/* ..\..\third_party\VB6\src\runtime\array-lifetime.js */
 __modules[34]=(()=>{
 const {VBError}=__modules[1];
 
@@ -3293,7 +3293,7 @@ function reconcileArrayEnumerations(frame) {
 return {assertArrayUnlocked,bindArrayOwner,inheritArrayOwners,inheritReferenceOwners,ArrayLeaseScope,closeArrayEnumeration,closeArrayEnumerations,reconcileArrayEnumerations};
 })();
 
-/* like.js */
+/* ..\..\third_party\VB6\src\runtime\like.js */
 __modules[35]=(()=>{
 const {VBError}=__modules[1];
 
@@ -3395,7 +3395,7 @@ function matchLike(source,pattern,compare='binary') {
 return {compileLikePattern,matchLike};
 })();
 
-/* decimal.js */
+/* ..\..\third_party\VB6\src\runtime\decimal.js */
 __modules[36]=(()=>{
 const {VBError}=__modules[1];
 
@@ -3491,7 +3491,7 @@ class VBDecimal {
 return {VBDecimal};
 })();
 
-/* values.js */
+/* ..\..\third_party\VB6\src\runtime\values.js */
 __modules[37]=(()=>{
 const {assertArrayUnlocked,bindArrayOwner}=__modules[34];
 const {matchLike}=__modules[35];
@@ -4006,7 +4006,7 @@ function describe(value){if(value instanceof VBScalar)return value.type==='boole
 return {bankersRound,NOTHING,MISSING,VBErrorValue,explicitErrorValue,VBScalar,SCALAR_TYPES,unbox,scalarType,tagScalar,storageScalar,readScalar,literalScalar,signedLiteralScalar,scalarBinary,scalarUnary,VBInterfaceView,objectIdentity,objectSupports,interfaceView,isNothing,truth,numeric,decimal,normalizeNumericString,scalarNumberString,vbString,printScalar,roundRatio,VBCurrency,recordField,recordIdentity,arrayTypeMatches,recordTypeMatches,makeRecord,cloneValue,defaultValue,coerce,Cell,LazyCell,Ref,VBArray,VBCollection,VBDictionary,unary,binary,describe,VBDecimal};
 })();
 
-/* ..\language\binding.js */
+/* ..\..\third_party\VB6\src\language\binding.js */
 __modules[38]=(()=>{
 const {bindRedimDeclarations}=__modules[17];
 const {validateLanguageSemantics}=__modules[30];
@@ -4206,7 +4206,7 @@ function bindConstants(modules,settings={}) {
 return {bindConstants};
 })();
 
-/* ..\language\interfaces.js */
+/* ..\..\third_party\VB6\src\language\interfaces.js */
 __modules[39]=(()=>{
 const {RecordTypeIndex}=__modules[7];
 const {lower}=__modules[13];
@@ -4252,7 +4252,7 @@ function validateInterfaces(modules){
 return {validateInterfaces};
 })();
 
-/* ..\language\conditional.js */
+/* ..\..\third_party\VB6\src\language\conditional.js */
 __modules[40]=(()=>{
 const {VBError}=__modules[1];
 const {stripComment,continuationStart}=__modules[0];
@@ -4327,7 +4327,7 @@ function preprocess(source, constants = {}, sourceName = '') {
 return {preprocess};
 })();
 
-/* ..\language\compiler-core.js */
+/* ..\..\third_party\VB6\src\language\compiler-core.js */
 __modules[41]=(()=>{
 const {parseGraphicsStatement}=__modules[5];
 const {validateRecordDeclarations}=__modules[7];
@@ -4595,7 +4595,7 @@ function parseLeafStatement(text, module, procedure, line=1) {
 return {compileModule,compileProject,validateCompiledModules,parseLeafStatement,parseDeclarations,parseParameters};
 })();
 
-/* ..\xaml\contract.js */
+/* ..\..\third_party\VB6\src\xaml\contract.js */
 __modules[42]=(()=>{
 
 /** Shared authoring/build contract. No parser, schema or IDE dependency. */
@@ -4650,7 +4650,7 @@ function xamlBuildDiagnostics(project) {
 return {MAX_XAML_LENGTH,xamlEnabled,formStamp,validateXamlDocument,nextXamlRevision,xamlBuildDiagnostics};
 })();
 
-/* ..\language\compiler.js */
+/* ..\..\third_party\VB6\src\language\compiler.js */
 __modules[43]=(()=>{
 const {compileProject : compileCoreProject,compileModule,validateCompiledModules,parseLeafStatement,parseDeclarations,parseParameters}=__modules[41];
 const {xamlBuildDiagnostics}=__modules[42];
@@ -4666,7 +4666,7 @@ function compileProject(project,options) {
 return {compileProject,compileModule,validateCompiledModules,parseLeafStatement,parseDeclarations,parseParameters};
 })();
 
-/* local-storage.js */
+/* ..\..\third_party\VB6\src\runtime\local-storage.js */
 __modules[44]=(()=>{
 
 // Plans contain declaration metadata only: never live Cells, values, frames or
@@ -4705,7 +4705,7 @@ function procedureLocalDeclarations(proc) {
 return {procedureLocalDeclarations};
 })();
 
-/* parameter-binding.js */
+/* ..\..\third_party\VB6\src\runtime\parameter-binding.js */
 __modules[45]=(()=>{
 const {Cell,LazyCell,Ref,VBArray,SCALAR_TYPES,NOTHING,unbox,coerce,scalarType,storageScalar,readScalar,arrayTypeMatches,recordTypeMatches}=__modules[37];
 const {inheritReferenceOwners}=__modules[34];
@@ -4777,7 +4777,7 @@ async function bindReferenceParameter(vm,param,ref,module) {
 return {variantParameterReference,bindReferenceParameter};
 })();
 
-/* record-storage.js */
+/* ..\..\third_party\VB6\src\runtime\record-storage.js */
 __modules[46]=(()=>{
 const {VBArray,NOTHING,Cell,cloneValue,defaultValue,makeRecord}=__modules[37];
 const {VBError}=__modules[1];
@@ -4816,7 +4816,7 @@ async function createRuntimeRecord(vm,name,frame,depth=0) {
 return {createRuntimeArray,createRuntimeRecord};
 })();
 
-/* with-lifetime.js */
+/* ..\..\third_party\VB6\src\runtime\with-lifetime.js */
 __modules[47]=(()=>{
 const {ArrayLeaseScope}=__modules[34];
 const {VBArray,VBCurrency,VBDecimal,VBErrorValue,NOTHING,MISSING,cloneValue,readScalar,unbox}=__modules[37];
@@ -4900,7 +4900,7 @@ function reconcileWithScopes(frame) {
 return {closeWithScopes,popWithScope,unwindWithScopes,withValue,pushWithScope,reconcileWithScopes};
 })();
 
-/* debug-control.js */
+/* ..\..\third_party\VB6\src\runtime\debug-control.js */
 __modules[48]=(()=>{
 const {VBError,tokenize}=__modules[3];
 const {lower}=__modules[13];
@@ -5044,7 +5044,7 @@ function immediateStatements(text){
 return {StopExecution,isSequencePoint,statementIndex,RuntimeDebugger,immediateStatements};
 })();
 
-/* ..\..\packages\win32-browser\src\core.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\core.js */
 __modules[49]=(()=>{
 
 /** MIT. A bounded, process-private 32-bit address and handle space. */
@@ -5109,7 +5109,7 @@ class MemoryFileSystem {
 return {ERROR,Win32Error,integer,unsigned,Handles,encodeANSI,decodeANSI,Memory,MemoryFileSystem};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-calendar.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-calendar.js */
 __modules[50]=(()=>{
 const {Win32Error,integer}=__modules[49];
 
@@ -5162,7 +5162,7 @@ function installCalendar(w) {
 return {FILETIME_EPOCH_MS,readSystemTime,dateFields,systemTimeDate,installCalendar};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-integer.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-integer.js */
 __modules[51]=(()=>{
 const {Win32Error,unsigned}=__modules[49];
 
@@ -5188,7 +5188,7 @@ function installIntegerOperations(w) {
 return {installIntegerOperations};
 })();
 
-/* ..\..\packages\win32-browser\src\services-utils.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\services-utils.js */
 __modules[52]=(()=>{
 const {Win32Error,integer}=__modules[49];
 
@@ -5213,7 +5213,7 @@ function rejectOverlap(a,an,b,bn) {
 return {registerAW,units,putComplete,rejectOverlap};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-locale.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-locale.js */
 __modules[53]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {registerAW,putComplete,units}=__modules[52];
@@ -5300,7 +5300,7 @@ function installLocaleFormatting(w) {
 return {LOCALE_CONSTANTS,installLocaleFormatting};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-messages.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-messages.js */
 __modules[54]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {registerAW}=__modules[52];
@@ -5363,7 +5363,7 @@ function installMessageFormatting(w) {
 return {MESSAGE_CONSTANTS,installMessageFormatting};
 })();
 
-/* ..\..\packages\win32-browser\src\handle-services.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\handle-services.js */
 __modules[55]=(()=>{
 const {Win32Error,unsigned}=__modules[49];
 
@@ -5417,7 +5417,7 @@ function installHandleServices(w){
 return {HANDLE_CONSTANTS,installHandleServices};
 })();
 
-/* ..\..\packages\win32-browser\src\task-memory.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\task-memory.js */
 __modules[56]=(()=>{
 const {Win32Error,integer}=__modules[49];
 
@@ -5443,7 +5443,7 @@ function installTaskMemory(w){
 return {installTaskMemory};
 })();
 
-/* ..\..\packages\win32-browser\src\user32-properties.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\user32-properties.js */
 __modules[57]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {registerAW,units}=__modules[52];
@@ -5503,7 +5503,7 @@ function installWindowProperties(w){
 return {installWindowProperties};
 })();
 
-/* ..\..\packages\win32-browser\src\crypt32-codec.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\crypt32-codec.js */
 __modules[58]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {registerAW,putComplete}=__modules[52];
@@ -5548,7 +5548,7 @@ function installBinaryCodec(w){
 return {CRYPT_CONSTANTS,installBinaryCodec};
 })();
 
-/* ..\..\packages\win32-browser\src\ole32-guid.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\ole32-guid.js */
 __modules[59]=(()=>{
 const {Win32Error,integer}=__modules[49];
 const {putComplete}=__modules[52];
@@ -5581,7 +5581,7 @@ function installGUID(w){
 return {installGUID};
 })();
 
-/* ..\..\packages\win32-browser\src\shlwapi.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\shlwapi.js */
 __modules[60]=(()=>{
 const {Win32Error}=__modules[49];
 const {registerAW,units,putComplete}=__modules[52];
@@ -5631,7 +5631,7 @@ function installPathUtilities(w){
 return {installPathUtilities};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-files.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-files.js */
 __modules[61]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {registerAW,units,putComplete}=__modules[52];
@@ -5733,7 +5733,7 @@ function installFileUtilities(w) {
 return {installFileUtilities};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-nls.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-nls.js */
 __modules[62]=(()=>{
 const {Win32Error,integer,unsigned,decodeANSI}=__modules[49];
 const {registerAW,units,putComplete,rejectOverlap}=__modules[52];
@@ -5800,7 +5800,7 @@ function installNLS(w) {
 return {NLS_CONSTANTS,installNLS};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-sync.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-sync.js */
 __modules[63]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {registerAW}=__modules[52];
@@ -5874,7 +5874,7 @@ function installSynchronization(w) {
 return {SYNC_CONSTANTS,installSynchronization};
 })();
 
-/* ..\..\packages\win32-browser\src\gpu-presenter.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gpu-presenter.js */
 __modules[64]=(()=>{
 
 /** WebGPU presentation of a retained, CPU-readable GDI surface. Raster operations
@@ -5928,7 +5928,7 @@ class GPURasterPresenter {
 return {GPURasterPresenter};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi-transform.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi-transform.js */
 __modules[65]=(()=>{
 const {Win32Error,integer}=__modules[49];
 
@@ -5970,7 +5970,7 @@ function installTransforms(w,{dc,add}){
 return {TRANSFORM_CONSTANTS,IDENTITY,multiply,inverse,mapPoint,mapping,translatedOnly,devicePoint,mapBounds,readTransform,installTransforms};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi-path.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi-path.js */
 __modules[66]=(()=>{
 const {Win32Error,integer}=__modules[49];
 const {mapping,mapPoint,inverse,IDENTITY}=__modules[65];
@@ -6063,7 +6063,7 @@ function installPaths(w,{dc,bitmaps,regions,add,style}){
 return {PATH_CONSTANTS,installPaths};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi-text.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi-text.js */
 __modules[67]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 const {mapping,multiply,mapPoint,mapBounds}=__modules[65];
@@ -6172,7 +6172,7 @@ function installText(w,{dc,bitmaps,regions,add,stock,stocks}){
 return {TEXT_CONSTANTS,installText};
 })();
 
-/* ..\..\packages\win32-browser\src\user32-paint.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\user32-paint.js */
 __modules[68]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 
@@ -6278,7 +6278,7 @@ function installPainting(w,{dc,bitmaps,regions}){
 return {PAINT_CONSTANTS,installPainting};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi-geometry.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi-geometry.js */
 __modules[69]=(()=>{
 const {Win32Error,integer}=__modules[49];
 
@@ -6372,7 +6372,7 @@ function frameRegion(store,region,x,y){
 return {polygonRegion,roundedRegion,transformRegion,frameRegion};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi-region.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi-region.js */
 __modules[70]=(()=>{
 const {polygonRegion,roundedRegion,transformRegion,frameRegion}=__modules[69];
 const {mapping,devicePoint,mapBounds,inverse,readTransform}=__modules[65];
@@ -6572,7 +6572,7 @@ function installRegions(w,{dc,bitmaps,regions,add}){
 return {REGION_CONSTANTS,RegionStore,installRegions};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi-bitmap.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi-bitmap.js */
 __modules[71]=(()=>{
 const {mapping,inverse,mapPoint,mapBounds,devicePoint,translatedOnly}=__modules[65];
 const {Win32Error,integer,unsigned}=__modules[49];
@@ -6674,7 +6674,7 @@ class BitmapStore {
 return {GDI_CONSTANTS,coord,intersect,rgbBytes,rgbValue,ropInfo,BitmapStore};
 })();
 
-/* ..\..\packages\win32-browser\src\clipboard.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\clipboard.js */
 __modules[72]=(()=>{
 const {Win32Error,unsigned}=__modules[49];
 
@@ -6706,7 +6706,7 @@ function installClipboard(w){
 return {installClipboard};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32-profiles.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32-profiles.js */
 __modules[73]=(()=>{
 const {Win32Error,unsigned}=__modules[49];
 const {registerAW}=__modules[52];
@@ -6787,7 +6787,7 @@ function installProfiles(w) {
 return {installProfiles};
 })();
 
-/* ..\..\packages\win32-browser\src\kernel32.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\kernel32.js */
 __modules[74]=(()=>{
 const {installProfiles}=__modules[73];
 const {ERROR,Win32Error,integer,unsigned}=__modules[49];
@@ -6863,7 +6863,7 @@ function installKernel32(w){
 return {installKernel32};
 })();
 
-/* ..\..\packages\win32-browser\src\user32.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\user32.js */
 __modules[75]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 
@@ -6947,7 +6947,7 @@ function installRectangles(w,add){
 return {installUser32};
 })();
 
-/* ..\..\packages\win32-browser\src\advapi32.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\advapi32.js */
 __modules[76]=(()=>{
 const {Win32Error,integer,unsigned}=__modules[49];
 
@@ -7010,7 +7010,7 @@ function installRegistry(w){
 return {installRegistry};
 })();
 
-/* ..\..\packages\win32-browser\src\gdi32.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\gdi32.js */
 __modules[77]=(()=>{
 const {installTransforms,mapping,translatedOnly,IDENTITY}=__modules[65];
 const {installPaths}=__modules[66];
@@ -7143,7 +7143,7 @@ function installGDI(w){
 return {colorRef,installGDI};
 })();
 
-/* ..\..\packages\win32-browser\src\index.js */
+/* ..\..\third_party\VB6\packages\win32-browser\src\index.js */
 __modules[78]=(()=>{
 const {installCalendar}=__modules[50];
 const {installIntegerOperations}=__modules[51];
@@ -7228,7 +7228,7 @@ function createWin32(options={}){return new Win32Browser(options);}
 return {WIN32_CONSTANTS,normalizeDLL,Win32Browser,createWin32,GPURasterPresenter,RegionStore,ERROR,Win32Error,Memory,MemoryFileSystem,encodeANSI,decodeANSI,colorRef};
 })();
 
-/* win32.js */
+/* ..\..\third_party\VB6\src\runtime\win32.js */
 __modules[79]=(()=>{
 const {createWin32,Win32Error,encodeANSI,decodeANSI}=__modules[78];
 const {VBError}=__modules[3];
@@ -7352,7 +7352,7 @@ class VBWin32Bridge {
 return {VBWin32Bridge};
 })();
 
-/* automation.js */
+/* ..\..\third_party\VB6\src\runtime\automation.js */
 __modules[80]=(()=>{
 const {VBError}=__modules[3];
 const {Ref,Cell,MISSING,unbox,readScalar}=__modules[37];
@@ -7492,7 +7492,7 @@ async function deliverAutomationEvent(object,name,values,context){
 return {isAutomationObject,automationDefaultName,automationInvoke,automationMember,automationReference,AutomationRegistry,automationEnumerate,automationSubscribe};
 })();
 
-/* property-reference.js */
+/* ..\..\third_party\VB6\src\runtime\property-reference.js */
 __modules[81]=(()=>{
 const {Ref,MISSING,unbox}=__modules[37];
 const {VBError}=__modules[1];
@@ -7537,7 +7537,7 @@ async function propertyReference(vm,object,name,nodes,frame,objectSet=false) {
 return {propertyReference};
 })();
 
-/* redim.js */
+/* ..\..\third_party\VB6\src\runtime\redim.js */
 __modules[82]=(()=>{
 const {assertArrayUnlocked}=__modules[34];
 const {VBArray}=__modules[37];
@@ -7570,7 +7570,7 @@ async function executeRedim(vm,decl,frame,preserve=false) {
 return {executeRedim};
 })();
 
-/* procedure-storage.js */
+/* ..\..\third_party\VB6\src\runtime\procedure-storage.js */
 __modules[83]=(()=>{
 const {Cell,VBArray,NOTHING,unbox,arrayTypeMatches,recordTypeMatches}=__modules[37];
 const {VBError}=__modules[1];
@@ -7604,7 +7604,7 @@ function createRecordCell(type,value,identity) {
 return {createArrayCell,procedureResult,createRecordCell};
 })();
 
-/* ..\automation\component.js */
+/* ..\..\third_party\VB6\src\automation\component.js */
 __modules[84]=(()=>{
 const {VBError}=__modules[1];
 const {MISSING,unbox,tagScalar,VBArray,coerce}=__modules[37];
@@ -7638,7 +7638,7 @@ function componentAdapter(object,metadata){
 return {parameter,method,property,int,byteArray,vbBytes,componentAdapter};
 })();
 
-/* ..\data\defaults.js */
+/* ..\..\third_party\VB6\src\data\defaults.js */
 __modules[85]=(()=>{
 
 // Registration is private to trusted library objects; a forged __type never grants a default property.
@@ -7667,7 +7667,7 @@ function hasDataObject(object){return object!=null&&typeof object==='object'&&ob
 return {dataDefault,dataDefaultType,hasDataDefault,dataMembers,hasDataMember,registerDataCommand,isDataCommand,dataObject,hasDataObject};
 })();
 
-/* ..\automation\constants.js */
+/* ..\..\third_party\VB6\src\automation\constants.js */
 __modules[86]=(()=>{
 
 /** ADO Stream constants shared by execution, editor and data integrations. */
@@ -7676,7 +7676,7 @@ const STREAM_CONSTANTS=Object.freeze({adModeUnknown:0,adTypeBinary:1,adTypeText:
 return {STREAM_CONSTANTS};
 })();
 
-/* ..\automation\http-transport.js */
+/* ..\..\third_party\VB6\src\automation\http-transport.js */
 __modules[87]=(()=>{
 const {VBError}=__modules[1];
 /** Shared bounded transport for COM-shaped HTTP and DataContext providers.
@@ -7746,7 +7746,7 @@ class HttpTransport {
 return {HTTP_LIMIT,httpURL,httpHeader,aborted,abortable,responseBytes,HttpTransport};
 })();
 
-/* ..\data\service-definitions.js */
+/* ..\..\third_party\VB6\src\data\service-definitions.js */
 __modules[88]=(()=>{
 const {httpHeader}=__modules[87];
 const {VBError}=__modules[1];
@@ -7810,7 +7810,7 @@ function httpCommandOptions(definition){return Object.fromEntries(HTTP_COMMAND_K
 return {HTTP_COMMAND_KEYS,normalizeServiceDefinitions,httpCommandOptions};
 })();
 
-/* ..\data\common.js */
+/* ..\..\third_party\VB6\src\data\common.js */
 __modules[89]=(()=>{
 const {STREAM_CONSTANTS}=__modules[86];
 const {normalizeServiceDefinitions}=__modules[88];
@@ -7997,7 +7997,7 @@ function resultFromRows(rows,fields){
 return {DATA_LIMITS,DATA_CONSTANTS,dataError,assertData,after,dataList,sqlValue,quoteIdentifier,sameValue,parseConnectionString,connectionConfiguration,assertPublicConfiguration,normalizeDataSources,safeHttpURL,pathValue,columnType,resultFromRows};
 })();
 
-/* ..\data\native-values.js */
+/* ..\..\third_party\VB6\src\data\native-values.js */
 __modules[90]=(()=>{
 const {VBArray}=__modules[37];
 const {vbBytes}=__modules[84];
@@ -8032,7 +8032,7 @@ function nativeDataValue(object,value){
 return {nativeDataValue};
 })();
 
-/* ..\automation\text-codec.js */
+/* ..\..\third_party\VB6\src\automation\text-codec.js */
 __modules[91]=(()=>{
 const {VBError}=__modules[1];
 /** Explicit text codecs used by HTTP and ADO streams. No OS-codepage guessing. */
@@ -8068,7 +8068,7 @@ function httpText(bytes,contentType=''){
 return {charset,bom,encodeText,decodeText,httpText};
 })();
 
-/* ..\automation\xml-dom.js */
+/* ..\..\third_party\VB6\src\automation\xml-dom.js */
 __modules[92]=(()=>{
 const {VBError}=__modules[1];
 const {NOTHING,coerce,tagScalar,unbox,VBArray}=__modules[37];
@@ -8196,7 +8196,7 @@ function xmlDocumentAdapter(session,{transport,fs,DOMParser=globalThis.DOMParser
 return {XML_NODE_METADATA,XML_ELEMENT_METADATA,XML_LIST_METADATA,XML_ATTRIBUTES_METADATA,XML_ERROR_METADATA,XML_DOCUMENT_METADATA,COMMON_XML_CLASSES,xmlObjectText,xmlDocumentAdapter};
 })();
 
-/* ..\automation\ado-stream.js */
+/* ..\..\third_party\VB6\src\automation\ado-stream.js */
 __modules[93]=(()=>{
 const {VBError}=__modules[1];
 const {NOTHING}=__modules[37];
@@ -8287,7 +8287,7 @@ function streamAdapter(session,options){const stream=new AdoStream(options),adap
 return {STREAM_METADATA,AdoStream,streamAdapter,STREAM_CONSTANTS};
 })();
 
-/* ..\automation\http-request.js */
+/* ..\..\third_party\VB6\src\automation\http-request.js */
 __modules[94]=(()=>{
 const {xmlObjectText}=__modules[92];
 const {VBError}=__modules[1];
@@ -8395,7 +8395,7 @@ function httpRequestAdapter(session,options){const object=new HttpRequest({...op
 return {httpMetadata,HttpRequest,httpRequestAdapter};
 })();
 
-/* ..\automation\common-objects.js */
+/* ..\..\third_party\VB6\src\automation\common-objects.js */
 __modules[95]=(()=>{
 const {xmlDocumentAdapter,COMMON_XML_CLASSES}=__modules[92];
 const {AutomationRegistry}=__modules[80];
@@ -8423,7 +8423,7 @@ function createCommonAutomationRegistry({transport,fs,parseXML,xmlEnvironment={}
 return {COMMON_HTTP_CLASSES,createCommonAutomationRegistry};
 })();
 
-/* ..\data\collection.js */
+/* ..\..\third_party\VB6\src\data\collection.js */
 __modules[96]=(()=>{
 const {assertData}=__modules[89];
 
@@ -8446,7 +8446,7 @@ NamedCollection.prototype.Append.vbRawArgs=true;
 return {DataCollection,NamedCollection};
 })();
 
-/* ..\data\ado-filter.js */
+/* ..\..\third_party\VB6\src\data\ado-filter.js */
 __modules[97]=(()=>{
 const {VBError}=__modules[3];
 const {coerce,binary,truth}=__modules[37];
@@ -8518,7 +8518,7 @@ function compileADOFilter(text,column,convert,isText,{single=false}={}){
 return {compileADOFilter};
 })();
 
-/* ..\data\recordset.js */
+/* ..\..\third_party\VB6\src\data\recordset.js */
 __modules[98]=(()=>{
 const {dataDefault,dataObject}=__modules[85];
 const {compileADOFilter}=__modules[97];
@@ -8694,7 +8694,7 @@ class DisconnectedRecordset {
 return {fieldScalarType,dataInteger,fieldValue,fieldDefinition,DisconnectedRecordset};
 })();
 
-/* ..\data\provider-recordset.js */
+/* ..\..\third_party\VB6\src\data\provider-recordset.js */
 __modules[99]=(()=>{
 const {isDataCommand}=__modules[85];
 const {DisconnectedRecordset,fieldValue,dataInteger,fieldDefinition}=__modules[98];
@@ -8857,7 +8857,7 @@ class ProviderRecordset extends DisconnectedRecordset {
 return {ProviderRecordset};
 })();
 
-/* ..\data\connected-recordset.js */
+/* ..\..\third_party\VB6\src\data\connected-recordset.js */
 __modules[100]=(()=>{
 const {VBArray,VBDecimal,VBCurrency,coerce}=__modules[37];
 const {ProviderRecordset}=__modules[99];
@@ -9116,7 +9116,7 @@ class ConnectedRecordset extends ProviderRecordset {
 return {ConnectedRecordset};
 })();
 
-/* ..\data\sql-parameters.js */
+/* ..\..\third_party\VB6\src\data\sql-parameters.js */
 __modules[101]=(()=>{
 const {assertData}=__modules[89];
 
@@ -9194,7 +9194,7 @@ function simpleSelect(source) {
 return {sqlTokens,DAO_TYPES,parameterPlan,simpleSelect};
 })();
 
-/* ..\data\criteria.js */
+/* ..\..\third_party\VB6\src\data\criteria.js */
 __modules[102]=(()=>{
 const {VBDecimal,VBCurrency}=__modules[37];
 const {assertData}=__modules[89];
@@ -9264,7 +9264,7 @@ function compileCriteria(text,columns){
 return {compareData,compileCriteria};
 })();
 
-/* ..\data\dao-recordset.js */
+/* ..\..\third_party\VB6\src\data\dao-recordset.js */
 __modules[103]=(()=>{
 const {dataDefault,dataObject}=__modules[85];
 const {assertData,after,dataList,sameValue,DATA_LIMITS}=__modules[89];
@@ -9373,7 +9373,7 @@ class DAORecordset {
 return {DAORecordset};
 })();
 
-/* ..\data\rdo.js */
+/* ..\..\third_party\VB6\src\data\rdo.js */
 __modules[104]=(()=>{
 const {assertData,DATA_LIMITS,quoteIdentifier}=__modules[89];
 const {dataDefault,dataMembers,dataObject}=__modules[85];
@@ -9557,7 +9557,7 @@ for(const [prototype,method,names,required] of [
 return {RDO_TYPES,RDO_CONSTANTS,RDOParameter,RDOQuery,RDOResultset,RDOConnection,RDOEnvironment,RDOEngine};
 })();
 
-/* ..\data\vendor\sqlite.js */
+/* ..\..\third_party\VB6\src\data\vendor\sqlite.js */
 __modules[105]=(()=>{
 
 // Generated by tools/vendor-sqlite.mjs. sql.js 1.14.2 (MIT); SQLite public domain.
@@ -9754,7 +9754,7 @@ function initializeSQLite(){return initSqlJs({wasmBinary:Uint8Array.from(atob(em
 return {initializeSQLite};
 })();
 
-/* ..\data\dao.js */
+/* ..\..\third_party\VB6\src\data\dao.js */
 __modules[106]=(()=>{
 const {dataDefault}=__modules[85];
 const {assertData,after,quoteIdentifier,connectionConfiguration,DATA_LIMITS}=__modules[89];
@@ -9949,7 +9949,7 @@ class DAOEngine {
 return {DAOField,DAOIndex,DAOTableDef,DAOParameter,DAOQueryDef,DAODatabase,DAOWorkspace,DAOEngine};
 })();
 
-/* ..\data\schema.js */
+/* ..\..\third_party\VB6\src\data\schema.js */
 __modules[107]=(()=>{
 const {VBArray}=__modules[37];
 const {assertData,DATA_LIMITS,dataList,quoteIdentifier}=__modules[89];
@@ -10054,7 +10054,7 @@ function sqliteSchema(provider,kind){
 return {schemaRestrictions,restrictSchema,sqliteDeclaredType,sqliteSchema};
 })();
 
-/* ..\data\sqlite.js */
+/* ..\..\third_party\VB6\src\data\sqlite.js */
 __modules[108]=(()=>{
 const {sqliteSchema}=__modules[107];
 const {initializeSQLite}=__modules[105];
@@ -10187,7 +10187,7 @@ class SQLiteProvider {
 return {SQLiteProvider};
 })();
 
-/* ..\data\wire.js */
+/* ..\..\third_party\VB6\src\data\wire.js */
 __modules[109]=(()=>{
 const {VBCurrency,VBDecimal}=__modules[37];
 const {assertData}=__modules[89];
@@ -10226,7 +10226,7 @@ function decodeResult(result){assertData(Array.isArray(result.columns)&&Array.is
 return {encodeCell,decodeCell,encodeResult,decodeResult};
 })();
 
-/* ..\data\http.js */
+/* ..\..\third_party\VB6\src\data\http.js */
 __modules[110]=(()=>{
 const {abortable}=__modules[87];
 const {encodeCell,decodeResult}=__modules[109];
@@ -10362,7 +10362,7 @@ class GatewayProvider extends HTTPProvider {
 return {HTTPProvider,GatewayProvider};
 })();
 
-/* ..\data\files.js */
+/* ..\..\third_party\VB6\src\data\files.js */
 __modules[111]=(()=>{
 const {assertData,DATA_LIMITS,resultFromRows,sameValue,pathValue}=__modules[89];
 const {fieldValue}=__modules[98];
@@ -10436,7 +10436,7 @@ class FileDataProvider {
 return {parseCSV,writeCSV,FileDataProvider};
 })();
 
-/* ..\data\connection.js */
+/* ..\..\third_party\VB6\src\data\connection.js */
 __modules[112]=(()=>{
 const {schemaRestrictions,restrictSchema}=__modules[107];
 const {dataDefault,registerDataCommand}=__modules[85];
@@ -10637,7 +10637,7 @@ class ADOCommand {
 return {ADOConnection,ADOCommand,DataCollection,DAOEngine,DAODatabase};
 })();
 
-/* file-pattern.js */
+/* ..\..\third_party\VB6\src\runtime\file-pattern.js */
 __modules[113]=(()=>{
 const {VBError}=__modules[1];
 
@@ -10678,7 +10678,7 @@ function compileFilePattern(pattern) {
 return {FILE_PATTERN_BUDGET,compileFilePattern};
 })();
 
-/* sequential-codec.js */
+/* ..\..\third_party\VB6\src\runtime\sequential-codec.js */
 __modules[114]=(()=>{
 const {VBError}=__modules[3];
 const {VBErrorValue,tagScalar,coerce,defaultValue}=__modules[37];
@@ -10724,7 +10724,7 @@ function readInputField(text,start=0,type='Variant'){
 return {readInputField};
 })();
 
-/* binary-codec.js */
+/* ..\..\third_party\VB6\src\runtime\binary-codec.js */
 __modules[115]=(()=>{
 const {VBError}=__modules[3];
 const {VBScalar,SCALAR_TYPES,scalarType,tagScalar,unbox,VBArray,VBCurrency,VBDecimal,VBErrorValue,NOTHING,coerce,numeric,vbString,Cell,recordIdentity,makeRecord : buildRecord}=__modules[37];
@@ -10823,7 +10823,7 @@ function decodeVariable(bytes,schema={},current,mode='binary'){const reader=new 
 return {encodeANSI,decodeANSI,makeRecord,recordLength,encodeVariable,decodeVariable};
 })();
 
-/* financial.js */
+/* ..\..\third_party\VB6\src\runtime\financial.js */
 __modules[116]=(()=>{
 const {VBError}=__modules[1];
 /**
@@ -11013,7 +11013,7 @@ const FINANCIAL_FUNCTIONS = Object.freeze({FV,PV,PMT,IPMT,PPMT,NPER,RATE,NPV,IRR
 return {FinancialError,FV,PV,PMT,IPMT,PPMT,NPER,NPV,RATE,IRR,MIRR,SLN,SYD,DDB,FINANCIAL_SIGNATURES,FINANCIAL_FUNCTIONS};
 })();
 
-/* signatures.js */
+/* ..\..\third_party\VB6\src\runtime\signatures.js */
 __modules[117]=(()=>{
 const {FINANCIAL_SIGNATURES}=__modules[116];
 
@@ -11036,7 +11036,7 @@ function signatureParameters(text){return !text?[]:text.split(',').map(name=>({n
 return {BUILTIN_SIGNATURES,signatureParameters};
 })();
 
-/* text-stream.js */
+/* ..\..\third_party\VB6\src\runtime\text-stream.js */
 __modules[118]=(()=>{
 const {VBError}=__modules[1];
 const {coerce,vbString,VBCollection}=__modules[37];
@@ -11136,7 +11136,7 @@ function fileSystemObject(fs) {
 return {openTextStream,fileSystemObject};
 })();
 
-/* filesystem.js */
+/* ..\..\third_party\VB6\src\runtime\filesystem.js */
 __modules[119]=(()=>{
 const {compileFilePattern,FILE_PATTERN_BUDGET}=__modules[113];
 const {readInputField}=__modules[114];
@@ -11248,7 +11248,7 @@ class VirtualFileSystem {
 return {VirtualFileSystem};
 })();
 
-/* ..\data\context.js */
+/* ..\..\third_party\VB6\src\data\context.js */
 __modules[120]=(()=>{
 const {MISSING}=__modules[37];
 const {nativeDataValue}=__modules[90];
@@ -11369,7 +11369,7 @@ class DataContext {
 return {DataContext};
 })();
 
-/* error-messages.js */
+/* ..\..\third_party\VB6\src\runtime\error-messages.js */
 __modules[121]=(()=>{
 const {VBError}=__modules[1];
 
@@ -11404,7 +11404,7 @@ function errorDescription(number){
 return {errorDescription};
 })();
 
-/* debug-evaluation.js */
+/* ..\..\third_party\VB6\src\runtime\debug-evaluation.js */
 __modules[122]=(()=>{
 const {VBError}=__modules[3];
 
@@ -11433,7 +11433,7 @@ class DebugEvaluationSession {
 return {DebugEvaluationAbort,DebugEvaluationSession};
 })();
 
-/* debug-inspector.js */
+/* ..\..\third_party\VB6\src\runtime\debug-inspector.js */
 __modules[123]=(()=>{
 const {withValue}=__modules[47];
 const {VBError}=__modules[3];
@@ -11489,7 +11489,7 @@ class DebugInspector {
 return {debugDescription,DebugInspector};
 })();
 
-/* instruction-map.js */
+/* ..\..\third_party\VB6\src\runtime\instruction-map.js */
 __modules[124]=(()=>{
 const {VBError}=__modules[3];
 
@@ -11526,7 +11526,7 @@ function uniqueInstructionLines(oldCode,newCode){
 return {instructionKey,linearInstruction,instructionMap,uniqueInstructionLines};
 })();
 
-/* live-edit.js */
+/* ..\..\third_party\VB6\src\runtime\live-edit.js */
 __modules[125]=(()=>{
 const {statementIndex}=__modules[48];
 const {instructionMap,linearInstruction,instructionKey,uniqueInstructionLines}=__modules[124];
@@ -11618,7 +11618,7 @@ function nextStatementIndex(frame,line,column=null){
 return {sameActiveLayout,validateStaticStorage,planLiveEdit,nextStatementIndex};
 })();
 
-/* versioned-edit.js */
+/* ..\..\third_party\VB6\src\runtime\versioned-edit.js */
 __modules[126]=(()=>{
 const {VBError}=__modules[3];
 const {uniqueInstructionLines}=__modules[124];
@@ -11668,7 +11668,7 @@ function planVersionedEdit(current,next,stack,revision=0){
 return {planVersionedEdit};
 })();
 
-/* scalar-library.js */
+/* ..\..\third_party\VB6\src\runtime\scalar-library.js */
 __modules[127]=(()=>{
 const {VBError}=__modules[1];
 const {VBScalar,VBArray,VBErrorValue,MISSING,unbox,scalarType,tagScalar,storageScalar,SCALAR_TYPES,scalarUnary,numeric,truth,vbString,bankersRound,coerce}=__modules[37];
@@ -11734,7 +11734,7 @@ function installScalarLibrary(map,vm){
 return {installScalarLibrary};
 })();
 
-/* com-library.js */
+/* ..\..\third_party\VB6\src\runtime\com-library.js */
 __modules[128]=(()=>{
 const {VBError}=__modules[3];
 const {MISSING,unbox,vbString}=__modules[37];
@@ -11755,7 +11755,7 @@ function installComLibrary(map,vm){
 return {installComLibrary};
 })();
 
-/* strings.js */
+/* ..\..\third_party\VB6\src\runtime\strings.js */
 __modules[129]=(()=>{
 const {VBError}=__modules[3];
 const {MISSING,VBArray,coerce,vbString}=__modules[37];
@@ -11850,7 +11850,7 @@ function stringLibrary(vm){
 return {stringLibrary};
 })();
 
-/* financial-library.js */
+/* ..\..\third_party\VB6\src\runtime\financial-library.js */
 __modules[130]=(()=>{
 const {VBError}=__modules[1];
 const {MISSING,VBArray,numeric}=__modules[37];
@@ -11881,7 +11881,7 @@ function financialLibrary() {
 return {financialLibrary};
 })();
 
-/* random.js */
+/* ..\..\third_party\VB6\src\runtime\random.js */
 __modules[131]=(()=>{
 const {coerce,numeric}=__modules[37];
 
@@ -11923,7 +11923,7 @@ function randomLibrary(clock=()=>new Date()) {
 return {randomLibrary};
 })();
 
-/* number-format.js */
+/* ..\..\third_party\VB6\src\runtime\number-format.js */
 __modules[132]=(()=>{
 const {VBError}=__modules[1];
 const {coerce,numeric,VBCurrency,VBDecimal}=__modules[37];
@@ -11984,7 +11984,7 @@ function numberFormatLibrary(options={}) {
 return {numberFormatLibrary};
 })();
 
-/* settings-library.js */
+/* ..\..\third_party\VB6\src\runtime\settings-library.js */
 __modules[133]=(()=>{
 const {VBError}=__modules[1];
 const {VBArray,vbString}=__modules[37];
@@ -12048,7 +12048,7 @@ function settingsLibrary(vm) {
 return {settingsLibrary};
 })();
 
-/* character-library.js */
+/* ..\..\third_party\VB6\src\runtime\character-library.js */
 __modules[134]=(()=>{
 const {VBError}=__modules[1];
 const {encodeANSI,decodeANSI}=__modules[115];
@@ -12098,7 +12098,7 @@ function characterLibrary() {
 return {characterLibrary};
 })();
 
-/* file-library.js */
+/* ..\..\third_party\VB6\src\runtime\file-library.js */
 __modules[135]=(()=>{
 const {VBError}=__modules[1];
 const {coerce,vbString}=__modules[37];
@@ -12141,7 +12141,7 @@ function fileLibrary(vm) {
 return {fileLibrary};
 })();
 
-/* ..\project\binary-assets.js */
+/* ..\..\third_party\VB6\src\project\binary-assets.js */
 __modules[136]=(()=>{
 const {VBError}=__modules[3];
 
@@ -12153,7 +12153,7 @@ function toBase64(bytes){if(bytes.length>MAX_RESOURCE_BYTES)fail('resource excee
 return {fromBase64,toBase64};
 })();
 
-/* ..\project\native-text.js */
+/* ..\..\third_party\VB6\src\project\native-text.js */
 __modules[137]=(()=>{
 const {decodeANSI,encodeANSI}=__modules[115];
 const {VBError}=__modules[3];
@@ -12220,7 +12220,7 @@ function encodeNativeText(text,document={encoding:'windows-1252',bom:false},over
 return {NATIVE_ENCODINGS,bytesOf,equalBytes,linesOf,lineBody,lineEnding,preferredEOL,unquote,nativePathValue,quote,commentAt,replaceLineValue,decodeNativeBytes,decodeNativeText,encodeNativeText};
 })();
 
-/* ..\project\frx.js */
+/* ..\..\third_party\VB6\src\project\frx.js */
 __modules[138]=(()=>{
 const {VBError}=__modules[3];
 const {decodeNativeBytes,encodeNativeText,bytesOf}=__modules[137];
@@ -12326,7 +12326,7 @@ function prepareResources(project){
 return {MAX_RESOURCE_BYTES,cleanProjectPath,relativeProjectPath,resolveProjectPath,fromBase64,toBase64,resourceOffset,readFRXRecord,writeFRXRecord,rasterDataURL,rasterBytes,hydrateResources,prepareResources};
 })();
 
-/* ..\project\res.js */
+/* ..\..\third_party\VB6\src\project\res.js */
 __modules[139]=(()=>{
 const {VBError}=__modules[3];
 const {cleanProjectPath,fromBase64,toBase64,MAX_RESOURCE_BYTES}=__modules[138];
@@ -12420,7 +12420,7 @@ function listResourceStrings(model){const result=[];for(const entry of model?.en
 return {RESOURCE_TYPES,resourceKey,normalizeResources,readRES,writeRES,decodeStringTable,encodeStringTable,setResource,removeResource,setResourceString,listResourceStrings};
 })();
 
-/* resources.js */
+/* ..\..\third_party\VB6\src\runtime\resources.js */
 __modules[140]=(()=>{
 const {VBError}=__modules[3];
 const {VBArray,bankersRound,numeric}=__modules[37];
@@ -12455,7 +12455,7 @@ class ResourceStore {
 return {ResourceStore};
 })();
 
-/* library.js */
+/* ..\..\third_party\VB6\src\runtime\library.js */
 __modules[141]=(()=>{
 const {LAYOUT_CONSTANTS}=__modules[28];
 const {installScalarLibrary}=__modules[127];
@@ -12560,7 +12560,7 @@ function createLibrary(vm) {
 return {MemoryRecordset,createLibrary,VB_CONSTANTS};
 })();
 
-/* vm.js */
+/* ..\..\third_party\VB6\src\runtime\vm.js */
 __modules[142]=(()=>{
 const {procedureLocalDeclarations}=__modules[44];
 const {bindReferenceParameter}=__modules[45];
@@ -13418,7 +13418,7 @@ class VirtualMachine extends Signal {
 return {VBInstance,VirtualMachine};
 })();
 
-/* engine-entry.js */
+/* ..\..\third_party\VB6\src\runtime\engine-entry.js */
 __modules[143]=(()=>{
 const { compileProject }=__modules[43];
 const { VirtualMachine }=__modules[142];
@@ -13435,5 +13435,482 @@ const { VBError }=__modules[1];
 
 return {compileProject,VirtualMachine,AutomationRegistry,describe,unbox,NOTHING,MISSING,VBError,VBArray};
 })();
-globalThis["VB6Engine"]=__modules[143];
+
+/* ..\..\third_party\VB6\src\language\source-context.js */
+__modules[144]=(()=>{
+
+/** Tolerant VB lexical context. Offsets always refer to the original UTF-16
+ * buffer, including CRLF and explicit continuations; no code is evaluated. */
+const IDENTIFIER = '(?:\\[[^\\]\\r\\n]+\\]|[A-Za-z_\\u0080-\\uffff][\\w\\u0080-\\uffff]*[$%&!#@]?)';
+const TYPE_NAME = IDENTIFIER + '(?:\\s*\\.\\s*' + IDENTIFIER + ')*';
+const symbolKey = value => String(value || '').replace(/\[([^\]]+)\]/g, '$1').replace(/[$%&!#@]$/, '').toLowerCase();
+const typeSuffix = Object.freeze({'%':'Integer','&':'Long','!':'Single','#':'Double','@':'Currency','$':'String'});
+
+function lexicalContext(source) {
+  source = String(source || '');
+  const chars = source.split('');
+  let state = 'code', statementStart = true, bracket = false, statementOffset = 0;
+  for (let i = 0; i < source.length; i++) {
+    const c = source[i];
+    if (c === '\n' || c === '\r') { state = 'code'; bracket = false; statementStart = true; statementOffset = i + 1; continue; }
+    if (state === 'comment') { chars[i] = ' '; continue; }
+    if (state === 'string') {
+      chars[i] = ' ';
+      if (c === '"') {
+        if (source[i + 1] === '"') chars[++i] = ' ';
+        else state = 'code';
+      }
+      continue;
+    }
+    if (state === 'date') { chars[i] = ' '; if (c === '#') state = 'code'; continue; }
+    if (bracket) { if (c === ']') bracket = false; continue; }
+    if (c === '[') { bracket = true; statementStart = false; continue; }
+    if (c === "'" || statementStart && /^Rem(?=\s|$)/i.test(source.slice(i, i + 4))) {
+      state = 'comment'; chars[i] = ' '; continue;
+    }
+    if (c === '"') { state = 'string'; chars[i] = ' '; statementStart = false; continue; }
+    // A type suffix/file channel/directive is not a date delimiter. An open
+    // date literal is masked too, so incomplete typing cannot trigger a list.
+    if (c === '#' && !/[\w\u0080-\uffff\]]/.test(source[i - 1] || '') &&
+        !/^\s*#(?:If|ElseIf|Else|End|Const)\b/i.test(source.slice(source.lastIndexOf('\n', i - 1) + 1, i + 10))) {
+      const prefix=source.slice(statementOffset,i).replace(/^\s*\d+\s+/,''),channel=
+        /^\s*(?:Line\s+Input|Input|Print|Write|Put|Get|Seek|Lock|Unlock)\s*$/i.test(prefix)||
+        /^\s*Close\s+/i.test(prefix)||/^\s*Open\b[\s\S]*\bAs\s*$/i.test(prefix)||
+        /\bInput\$?\s*\([^()]*,\s*$/i.test(prefix);
+      if(!channel){state='date';chars[i]=' ';statementStart=false;continue;}
+    }
+    // A numeric line label is a statement boundary, not the start of an
+    // expression. Preserve all its original offsets while recognizing Rem.
+    if(statementStart&&/\d/.test(c)){
+      const label=source.slice(i).match(/^\d+(?=\s|:(?!=))/);
+      if(label){i+=label[0].length-1;continue;}
+    }
+    if((i===0||/\s/.test(source[i-1]))&&/^(?:Then|Else)\b/i.test(source.slice(i))){
+      const word=source.slice(i).match(/^(?:Then|Else)\b/i)[0];i+=word.length-1;statementStart=true;statementOffset=i+1;continue;
+    }
+    if (c === ':' && source[i + 1] !== '=') {statementStart = true;statementOffset=i+1;}
+    else if (!/\s/.test(c)) statementStart = false;
+  }
+  return {masked: chars.join(''), state, bracket};
+}
+const maskSource = source => lexicalContext(source).masked;
+
+function splitArguments(source, keepEmpty = false) {
+  const masked = maskSource(source), result = [];
+  let depth = 0, bracket = false, start = 0;
+  for (let i = 0; i < masked.length; i++) {
+    const c = masked[i];
+    if (c === '[') bracket = true;
+    else if (c === ']') bracket = false;
+    if (bracket) continue;
+    if (c === '(') depth++;
+    else if (c === ')') depth = Math.max(0, depth - 1);
+    else if (c === ',' && !depth) { result.push(source.slice(start, i).trim()); start = i + 1; }
+  }
+  if (keepEmpty || source.slice(start).trim()) result.push(source.slice(start).trim());
+  return result;
+}
+
+/** Split colon statements and continuations once per module revision. */
+function sourceStatements(source) {
+  const masked = maskSource(source), statements = [];
+  let start = 0, line = 1, firstLine = 1, bracket = false;
+  const add = end => {
+    const text = source.slice(start, end).replace(/[ \t]+_[ \t]*\r?\n/g, ' ');
+    const clean = masked.slice(start, end).replace(/[ \t]+_[ \t]*\r?\n/g, ' ');
+    if (clean.trim()) statements.push({text, clean, line:firstLine, endLine:line, start, end});
+  };
+  for (let i = 0; i < source.length; i++) {
+    const c = masked[i];
+    if (c === '[') bracket = true;
+    else if (c === ']') bracket = false;
+    if (c === '\n') {
+      const continued = /[ \t]_[ \t]*\r?$/.test(masked.slice(start, i));
+      if (!continued) { add(i); start = i + 1; firstLine = line + 1; }
+      line++; bracket = false;
+    } else if (c === ':' && !bracket && masked[i + 1] !== '=') {
+      add(i); start = i + 1; firstLine = line;
+    }
+  }
+  add(source.length);
+  return {masked, statements, lineCount:line};
+}
+
+function statementBefore(text, offset = text.length) {
+  offset = Math.max(0, Math.min(text.length, offset));
+  let start = text.lastIndexOf('\n', offset - 1) + 1;
+  while (start > 0) {
+    const previous = text.lastIndexOf('\n', start - 2) + 1;
+    if (!/[ \t]_[ \t]*\r?$/.test(maskSource(text.slice(previous, start - 1)))) break;
+    start = previous;
+  }
+  const original = text.slice(start, offset), context = lexicalContext(original);
+  let last = 0, bracket = false;
+  for (let i = 0; i < context.masked.length; i++) {
+    const c = context.masked[i];
+    if (c === '[') bracket = true;
+    else if (c === ']') bracket = false;
+    else if (!bracket && c === ':' && context.masked[i + 1] !== '=') last = i + 1;
+  }
+  // Single-line If's Then/Else branches are independent statement contexts.
+  // Only whole lexical words outside grouping/brackets can be boundaries.
+  let depth=0; bracket=false;
+  for(let i=last;i<context.masked.length;i++){
+    const c=context.masked[i];if(c==='[')bracket=true;else if(c===']')bracket=false;if(bracket)continue;
+    if(c==='(')depth++;else if(c===')')depth--;
+    if(!depth&&(i===0||/\s/.test(context.masked[i-1]))){
+      const branch=context.masked.slice(i).match(/^(?:Then|Else)\b/i);
+      if(branch){last=i+branch[0].length;i=last-1;}
+    }
+  }
+  const label=context.masked.slice(last).match(/^\s*\d+(?:[ \t]+|:[ \t]*)/);if(label)last+=label[0].length;
+  return {start:start + last, text:original.slice(last), masked:context.masked.slice(last).replace(/_([ \t]*\r?\n)/g, ' $1'), state:context.state};
+}
+
+/** Complete access expression ending at `end`, including indexed/call results.
+ * Operators and statement keywords to its left are deliberately excluded. */
+function expressionBefore(text, end = text.length) {
+  const statement = statementBefore(text, end), base = statement.start;
+  text = statement.text; end = text.length;
+  const masked = statement.masked; let i = end - 1, depth = 0, bracket = false;
+  while (i >= 0 && /\s/.test(masked[i])) i--;
+  const stop = i + 1;
+  for (; i >= 0; i--) {
+    const c = masked[i];
+    if (c === ']') bracket = true;
+    if (bracket) { if (c === '[') bracket = false; continue; }
+    if (c === ')') { depth++; continue; }
+    if (c === '(') { if (!depth) break; depth--; continue; }
+    if (depth) continue;
+    if (/\s/.test(c)) {
+      const left = masked.slice(0, i).trimEnd().at(-1), right = masked.slice(i + 1, stop).trimStart()[0];
+      if (left === '.' || right === '.' || right === '(') continue;
+      break;
+    }
+    if (!/[\w\u0080-\uffff.$%&!#@]/.test(c)) break;
+  }
+  return {start:base + i + 1, end:base + stop, text:text.slice(i + 1, stop).trim()};
+}
+
+function bracketAt(text,offset){
+  const lineStart=text.lastIndexOf('\n',Math.max(0,offset-1))+1,open=text.lastIndexOf('[',offset);
+  if(open<lineStart||text.lastIndexOf(']',offset-1)>open)return null;
+  const close=text.indexOf(']',open+1),newline=text.indexOf('\n',open);
+  if(close<offset||newline>=0&&close>newline||lexicalContext(text.slice(lineStart,open)).state!=='code')return null;
+  return {start:open,end:close+1};
+}
+function wordAt(text, offset) {
+  offset = Math.max(0, Math.min(text.length, offset));
+  let end = bracketAt(text,offset)?.end||offset;
+  while (end < text.length && /[\w\u0080-\uffff$%&!#@\]]/.test(text[end])) end++;
+  const word = expressionBefore(text, end);
+  return word;
+}
+
+/** Case-sensitive suffixes are insertion syntax, not fuzzy name characters. */
+function completionKey(name){return String(name||'').replace(/\[([^\]]+)\]/g,'$1').toLowerCase();}
+function completionMatches(name,prefix){
+  const a=completionKey(name),b=completionKey(prefix).replace(/^\[/,'');
+  return /[$%&!#@]$/.test(b)?a===b||a.startsWith(b):a.startsWith(b);
+}
+function completionSpan(text, offset) {
+  const bracket=bracketAt(text,offset);if(bracket)return {...bracket,prefix:text.slice(bracket.start,offset)};
+  const before = text.slice(text.lastIndexOf('\n', offset - 1) + 1, offset), prefix = before.match(/(?:\[[^\]\r\n]*|[A-Za-z_\u0080-\uffff][\w\u0080-\uffff]*[$%&!#@]?)$/)?.[0] || '';
+  let end = offset;
+  while (end < text.length && /[\w\u0080-\uffff$%&!#@]/.test(text[end])) end++;
+  if (prefix.startsWith('[') && text[end] === ']') end++;
+  return {start:offset - prefix.length, end, prefix};
+}
+
+/** Rewrite only the explicit As type of a parameter declaration. Bounds,
+ * bracketed identifier text and string/date defaults are never searched as code. */
+function mapParameterType(text, qualify) {
+  const masked = maskSource(text);
+  const head = masked.match(new RegExp('^\\s*(?:(?:Optional|ByVal|ByRef|ParamArray|WithEvents|Static)\\s+)*' + IDENTIFIER, 'i'));
+  if (!head) return text;
+  let at = head[0].length;
+  while (/\s/.test(masked[at] || '!')) at++;
+  if (masked[at] === '(') {
+    let depth = 1, bracket = false; at++;
+    for (; at < masked.length && depth; at++) {
+      const c = masked[at];
+      if (c === '[') bracket = true;
+      else if (c === ']') bracket = false;
+      if (bracket) continue;
+      if (c === '(') depth++;
+      else if (c === ')') depth--;
+    }
+    if (depth) return text;
+  }
+  const type = masked.slice(at).match(new RegExp('^\\s*As\\s+(?:New\\s+)?(' + TYPE_NAME + ')', 'i'));
+  if (!type) return text;
+  const start = at + type[0].length - type[1].length, end = at + type[0].length;
+  return text.slice(0, start) + qualify(text.slice(start, end)) + text.slice(end);
+}
+
+/** Keep source spans while exposing bodies of single-line If statements to
+ * the declaration index. Strings/comments and bracketed names are masked or
+ * skipped; only top-level Then/Else tokens are branch boundaries. */
+function conditionalStatementBodies(statement, source, masked) {
+  let {text, clean} = statement;
+  if (!/^\s*(?:\d+\s+)?If\b/i.test(clean)) return [statement];
+  if (source !== undefined) {
+    text = source.slice(statement.start, statement.end);
+    clean = masked.slice(statement.start, statement.end);
+    // Blank the continuation marker without collapsing physical positions.
+    const chars = text.split('');
+    for (const match of clean.matchAll(/_([ \t]*\r?\n)/g)) chars[match.index] = ' ';
+    text = chars.join(''); clean = clean.replace(/_([ \t]*\r?\n)/g, ' $1');
+  }
+  const cuts = [], boundary = /(?:Then|Else)\b/iy; let depth = 0, bracket = false;
+  for (let i = 0; i < clean.length; i++) {
+    const c = clean[i];
+    if (c === '[') bracket = true;
+    else if (c === ']') bracket = false;
+    if (bracket) continue;
+    if (c === '(') depth++;
+    else if (c === ')') depth = Math.max(0, depth - 1);
+    else if (!depth && (i === 0 || /\s/.test(clean[i - 1]))) {
+      boundary.lastIndex = i; const token = boundary.exec(clean);
+      if (token) { cuts.push({start:i, end:i + token[0].length}); i += token[0].length - 1; }
+    }
+  }
+  return cuts.map((cut, i) => {
+    const end = cuts[i + 1]?.start ?? clean.length;
+    const start = cut.end + (clean.slice(cut.end, end).match(/^\s*/)?.[0].length || 0);
+    return {...statement, text:text.slice(start, end), clean:clean.slice(start, end),
+      line:statement.line + (clean.slice(0, start).match(/\n/g)||[]).length,
+      start:statement.start + start, end:statement.start + end};
+  });
+}
+
+return {IDENTIFIER,TYPE_NAME,symbolKey,typeSuffix,lexicalContext,maskSource,splitArguments,sourceStatements,statementBefore,expressionBefore,wordAt,completionKey,completionMatches,completionSpan,mapParameterType,conditionalStatementBodies};
+})();
+
+/* ..\..\third_party\VB6\src\language\declaration-index.js */
+__modules[145]=(()=>{
+const {preprocess}=__modules[40];
+const {addDefaultTypes,defaultIdentifierType}=__modules[15];
+const {IDENTIFIER,TYPE_NAME,sourceStatements,splitArguments,symbolKey,maskSource,conditionalStatementBodies}=__modules[144];
+
+
+
+const variableName=new RegExp('^('+IDENTIFIER+')','i');
+function parameterSymbol(text, defaults={}) {
+  const original=String(text).trim(),clean=original.replace(/^(?:(?:ByVal|ByRef|Optional|ParamArray|WithEvents|Static)\s+)*/i,'');
+  const m=clean.match(variableName);if(!m)return null;
+  const name=m[1].replace(/^\[|\]$/g,''),afterName=m[0].length;
+  let tail=clean.slice(afterName).trimStart(),array=false,rank=0;
+  if(tail.startsWith('(')){
+    array=true;const close=closingParen(maskSource(tail),0);
+    const dimensions=close<0?'':tail.slice(1,close);rank=Math.max(1,splitArguments(dimensions,true).length);
+    tail=close<0?tail.slice(1):tail.slice(close+1);
+  }
+  const type=tail.match(new RegExp('^\\s*As\\s+(?:New\\s+)?('+TYPE_NAME+')','i'))?.[1]?.replace(/\s*\.\s*/g,'.').replace(/\[([^\]]+)\]/g,'$1')||defaultIdentifierType(name,defaults);
+  return {name,type,withEvents:/^WithEvents\b/i.test(original),array,rank,signature:original,optional:/^Optional\b/i.test(original),paramArray:/\bParamArray\b/i.test(original),byRef:!/^\s*(?:Optional\s+)?ByVal\b/i.test(original),insertText:m[1],...(original.includes('=')?{defaultValue:original.slice(original.indexOf('=')+1).trim()}:{}),fixedLength:tail.match(/\bAs\s+String\s*\*\s*(\d+)/i)?.[1]};
+}
+
+/** Recovers declarations from incomplete procedure bodies without compiling
+ * or running them. Retains physical offsets for projected/split code panes. */
+function closingParen(text,open){
+  if(open<0)return -1;let depth=0,bracket=false;
+  for(let i=open;i<text.length;i++){const c=text[i];if(c==='[')bracket=true;else if(c===']')bracket=false;if(bracket)continue;if(c==='(')depth++;else if(c===')'&&!--depth)return i;}
+  return -1;
+}
+function scanDeclarations(module) {
+  const original=String(module.code||'');let source=original,conditionalError=null;
+  if (/^\s*#(?:If|Const)\b/im.test(source)) {
+    try {
+      const enabled=preprocess(source,module.conditionalConstants||{},module.name).split('\n');
+      source=source.split('\n').map((line,i)=>enabled[i]?.trim()?line:line.replace(/[^\r]/g,' ')).join('\n');
+    } catch(error) { conditionalError=error.message; }
+  }
+  const lexical=sourceStatements(source),{statements,lineCount}=lexical;
+  const symbols=[],procedures=[],records=[],withBlocks=[],selectBlocks=[],labels=[],interfaces=[],redimCandidates=[],defaults={};
+  let owner=null,record=null,withStack=[],selectStack=[];
+  const variable=(text,statement,kind,scope='private',parent=owner)=>{
+    const value=parameterSymbol(text,defaults);if(!value)return null;
+    return {...value,kind,scope,moduleId:module.id,line:statement.line,offset:statement.start,owner:parent?.name||null,ownerId:parent?.id||null};
+  };
+  const endOwner=(line,offset)=>{
+    if(owner){owner.end=line;owner.endOffset=offset;}
+    for(const block of withStack){block.endLine=line;block.end=offset;}
+    withStack=[];for(const block of selectStack){block.endLine=line;block.end=offset;}selectStack=[];owner=null;
+  };
+  for(const statement of statements) {
+    let {text,clean,line,start,end}=statement;
+    clean=clean.replace(/^\s*\d+\s+/,'');text=text.slice(text.length-clean.length);
+    const numbered=statement.text.match(/^\s*(\d+)\s+/);
+    const label=statement.clean.match(new RegExp('^\\s*('+IDENTIFIER+'|\\d+)\\s*$','i'));
+    if(owner&&((label&&source[end]===':')||numbered))labels.push({name:label?.[1]||numbered[1],kind:'label',line,offset:start,moduleId:module.id,owner:owner.name,ownerId:owner.id});
+    const impl=clean.match(new RegExp('^\\s*Implements\\s+('+TYPE_NAME+')','i'));
+    if(impl&&!owner){interfaces.push(impl[1].replace(/\s+/g,''));continue;}
+    const def=clean.trim().match(/^Def(?:Bool|Byte|Int|Lng|Cur|Sng|Dbl|Date|Str|Obj|Var)\b/i);
+    if(def&&!owner){try{addDefaultTypes(defaults,clean.trim());}catch{}continue;}
+    const head=clean.match(new RegExp('^\\s*((?:(?:Public|Private|Friend|Global|Static)\\s+)*)(?:(Declare)\\s+)?(Sub|Function|Property\\s+(?:Get|Let|Set)|Event)\\s+('+IDENTIFIER+')','i'));
+    if(head) {
+      endOwner(Math.max(1,line-1),start);
+      const scope=/\bPrivate\b/i.test(head[1])?'private':/\bFriend\b/i.test(head[1])?'friend':'public';
+      const kind=head[3].toLowerCase(),name=head[4].replace(/^\[|\]$/g,''),open=clean.indexOf('(',head[0].length),close=closingParen(clean,open);
+      const params=open<0?[]:splitArguments(text.slice(open+1,close>open?close:undefined));
+      const tail=close>open&&open>=0?clean.slice(close+1):clean.slice(head[0].length);
+      const type=tail.match(new RegExp('^\\s*As\\s+('+TYPE_NAME+')','i'))?.[1]?.replace(/\s*\.\s*/g,'.')||(kind==='sub'||kind==='event'?'Void':defaultIdentifierType(name,defaults));
+      const proc={name,insertText:head[4],kind,line,end:lineCount,offset:start,endOffset:source.length,id:start+':'+kind,owner:null,moduleId:module.id,scope,type,array:/\)\s*$/.test(tail)&&/As\s+/i.test(tail),signature:text.trim(),params,parameters:params.map(p=>parameterSymbol(p,defaults)).filter(Boolean),external:!!head[2],accessor:kind.startsWith('property ')?kind.split(' ')[1]:null};
+      if(proc.accessor&&proc.accessor!=='get')proc.type=proc.parameters.at(-1)?.type||'Variant';
+      symbols.push(proc);
+      if(kind==='event'||head[2]){proc.end=line;proc.endOffset=end;continue;}
+      owner=proc;procedures.push(proc);
+      for(const p of params){const v=variable(p,statement,'parameter','private');if(v)symbols.push(v);}
+      continue;
+    }
+    if(/^\s*End\s+(Sub|Function|Property)\b/i.test(clean)){endOwner(line,end);continue;}
+    const rec=clean.match(new RegExp('^\\s*(?:(Public|Private)\\s+)?(Type|Enum)\\s+('+IDENTIFIER+')','i'));
+    if(rec){record={name:rec[3].replace(/^\[|\]$/g,''),insertText:rec[3],kind:rec[2].toLowerCase(),scope:(rec[1]||'public').toLowerCase(),line,offset:start,moduleId:module.id,members:[]};record.type=record.name;records.push(record);symbols.push(record);continue;}
+    if(/^\s*End\s+(Type|Enum)\b/i.test(clean)){record=null;continue;}
+    if(record){const value=variable(text,statement,record.kind==='enum'?'constant':'field',record.scope,null);if(value){value.parentType=record.name;value.signature=record.name+'.'+text.trim();if(record.kind==='enum'){value.type=record.name;symbols.push(value);}record.members.push(value);}continue;}
+    const selectMatch=clean.match(/^\s*Select\s+Case\s+/i);
+    if(selectMatch&&owner){const block={expression:text.slice(selectMatch[0].length).trim(),line,start:end,end:source.length,endLine:lineCount,ownerId:owner.id};selectBlocks.push(block);selectStack.push(block);continue;}
+    if(/^\s*End\s+Select\b/i.test(clean)){const block=selectStack.pop();if(block){block.end=start;block.endLine=line;}continue;}
+    const withMatch=clean.match(/^\s*With\s+/i);
+    if(withMatch&&owner){const block={expression:text.slice(withMatch[0].length).trim(),line,start:end,end:source.length,endLine:lineCount,ownerId:owner.id,parent:withStack.at(-1)||null};withBlocks.push(block);withStack.push(block);continue;}
+    if(/^\s*End\s+With\b/i.test(clean)){const block=withStack.pop();if(block){block.end=start;block.endLine=line;}continue;}
+    if(owner){
+      for(const body of conditionalStatementBodies(statement,source,lexical.masked)){
+        const redim=body.clean.match(/^\s*(?:\d+\s+)?ReDim\s+(?:Preserve\s+)?/i);
+        if(!redim)continue;
+        for(const part of splitArguments(body.text.slice(redim[0].length))){
+          const candidate=variable(part,body,'variable');
+          if(candidate?.array)redimCandidates.push({...candidate,implicitRedim:true});
+        }
+      }
+    }
+    const decl=clean.match(/^\s*(Dim|Private|Public|Global|Friend|Static|Const)\s+(?:(Const)\s+)?/i);
+    if(decl){const scope=/^(Public|Global|Friend)$/i.test(decl[1])?(decl[1].toLowerCase()==='friend'?'friend':'public'):'private';for(const p of splitArguments(text.slice(decl[0].length))){const v=variable(p,statement,decl[2]||/^Const$/i.test(decl[1])?'constant':'variable',scope);if(v)symbols.push(v);}}
+  }
+  // Imported .cls/.frm member attributes live outside the editable code buffer.
+  for(const raw of [...(module.attributes||[]),...original.split('\n').filter(l=>/^\s*Attribute\b/i.test(l))]) {
+    const m=raw.match(new RegExp('^\\s*Attribute\\s+('+IDENTIFIER+')\\.(VB_Description|VB_UserMemId|VB_MemberFlags)\\s*=\\s*(.*)$','i'));if(!m)continue;
+    for(const s of symbols.filter(s=>!s.owner&&symbolKey(s.name)===symbolKey(m[1]))){
+      if(/Description$/i.test(m[2]))s.description=m[3].replace(/^"|"$/g,'').replace(/""/g,'"');
+      else if(/UserMemId$/i.test(m[2]))s.defaultMember=Number(m[3])===0;
+      else {const bits=parseInt(m[3].replace(/"/g,''),16)||0;s.hidden=!!(bits&64);s.restricted=!!(bits&1);}
+    }
+  }
+  for(const control of module.form?.controls||[])symbols.push({name:control.name,type:control.type,kind:'control',scope:'public',line:1,moduleId:module.id,array:control.properties?.Index!==undefined,controlArray:control.properties?.Index!==undefined,signature:control.name+' As '+control.type});
+  const menus=[...(module.form?.menus||[])];while(menus.length){const menu=menus.shift();if(menu.name)symbols.push({name:menu.name,type:'Menu',kind:'control',scope:'public',moduleId:module.id,line:1});menus.push(...(menu.items||menu.children||[]));}
+  // Bind explicit names first, even when declared after the resize. Sets keep
+  // large generated modules linear rather than rescanning symbols per ReDim.
+  const globals=new Set(),locals=new Map();
+  for(const symbol of symbols){
+    const key=symbolKey(symbol.name);
+    if(!symbol.owner)globals.add(key);
+    else{if(!locals.has(symbol.ownerId))locals.set(symbol.ownerId,new Set());locals.get(symbol.ownerId).add(key);}
+  }
+  for(const candidate of redimCandidates){
+    const key=symbolKey(candidate.name),local=locals.get(candidate.ownerId)||new Set();
+    if(globals.has(key)||local.has(key))continue;
+    symbols.push(candidate);local.add(key);locals.set(candidate.ownerId,local);
+  }
+  return {moduleId:module.id,name:module.name,symbols,procedures,records,withBlocks,selectBlocks,labels,interfaces,defaults,conditionalError,masked:lexical.masked,statements,privateModule:/^\s*Option\s+Private\s+Module\b/im.test(source),predeclared:!!module.form||/VB_PredeclaredId\s*=\s*True/i.test((module.attributes||[]).join('\n'))};
+}
+
+return {parameterSymbol,scanDeclarations};
+})();
+
+/* intrinsic-catalog.js */
+__modules[146]=(()=>{
+const { BUILTIN_SIGNATURES, signatureParameters }=__modules[117];
+const { VB_CONSTANTS }=__modules[33];
+/** Names the headless virtual machine installs in its library.
+ *  Data only: this does not construct a machine or call a procedure.
+ *  Kept beside createLibrary (third_party/VB6/src/runtime/library.js). */
+
+
+const STRING_FORMS = ['Error', 'Left', 'Right', 'Mid', 'Trim', 'LTrim', 'RTrim', 'UCase', 'LCase', 'Space', 'String', 'Chr', 'ChrW', 'Str', 'Hex', 'Oct', 'Format', 'Input', 'Dir', 'Environ', 'Command'];
+const VOID = new Set('Randomize Beep Kill Reset ChDir MkDir RmDir SetAttr FileCopy SaveSetting DeleteSetting'.split(' '));
+const RETURNS = {
+  CBool: 'Boolean', CByte: 'Byte', CInt: 'Integer', CLng: 'Long', CSng: 'Single', CDbl: 'Double', CCur: 'Currency', CDate: 'Date', CStr: 'String', CDec: 'Variant',
+  MsgBox: 'VbMsgBoxResult', InputBox: 'String', Now: 'Date', Date: 'Date', Time: 'Date', DateSerial: 'Date', TimeSerial: 'Date', DateValue: 'Date', TimeValue: 'Date', DateAdd: 'Date', DateDiff: 'Long', DatePart: 'Integer', Timer: 'Single',
+  RGB: 'ColorConstants', QBColor: 'ColorConstants', LBound: 'Long', UBound: 'Long', Len: 'Long', LenB: 'Long', Asc: 'Integer', AscW: 'Integer', InStr: 'Long', InStrRev: 'Long', StrComp: 'Integer', TypeName: 'String', VarType: 'Integer',
+  CreateObject: 'Object', GetObject: 'Object', LoadResString: 'String', LoadResData: 'Byte', LoadResPicture: 'Object',
+};
+const TYPED = {
+  Atn: 'Double', Cos: 'Double', Exp: 'Double', Log: 'Double', Sin: 'Double', Sqr: 'Double', Tan: 'Double', Sgn: 'Integer', Rnd: 'Single', Val: 'Double',
+  Year: 'Integer', Month: 'Integer', Day: 'Integer', Hour: 'Integer', Minute: 'Integer', Second: 'Integer', Weekday: 'VbDayOfWeek', MonthName: 'String', WeekdayName: 'String',
+  StrReverse: 'String', Join: 'String', Replace: 'String', Split: 'String', Filter: 'String', FormatNumber: 'String', FormatCurrency: 'String', FormatPercent: 'String', FormatDateTime: 'String',
+  EOF: 'Boolean', LOF: 'Long', Loc: 'Long', Seek: 'Long', FileLen: 'Long', FileDateTime: 'Date', FileAttr: 'Long', GetAttr: 'Integer', FreeFile: 'Integer', CurDir: 'String', Dir: 'String', Environ: 'String', Command: 'String', GetSetting: 'String',
+  DoEvents: 'Integer', Erl: 'Long', DDB: 'Double', FV: 'Double', IPmt: 'Double', IRR: 'Double', MIRR: 'Double', NPer: 'Double', NPV: 'Double', Pmt: 'Double', PPmt: 'Double', PV: 'Double', Rate: 'Double', SLN: 'Double', SYD: 'Double',
+};
+
+function procedureType(name) {
+  if (VOID.has(name)) return 'Void';
+  if (TYPED[name]) return TYPED[name];
+  if (RETURNS[name]) return RETURNS[name];
+  if (/^Is/.test(name)) return 'Boolean';
+  return 'Variant';
+}
+
+function procedure(name, args, type) {
+  return { name: name, kind: 'procedure', type: type || procedureType(name), params: signatureParameters(args || '') };
+}
+
+const OBJECTS = [
+  {
+    name: 'Debug', kind: 'module', type: 'Debug',
+    members: [{ name: 'Print', kind: 'procedure', params: [{ name: 'outputlist', optional: true }] }],
+  },
+  {
+    name: 'Err', kind: 'module', type: 'ErrObject',
+    members: [
+      { name: 'Number', kind: 'member', type: 'Long' },
+      { name: 'Description', kind: 'member', type: 'String' },
+      { name: 'Source', kind: 'member', type: 'String' },
+      { name: 'HelpFile', kind: 'member', type: 'String' },
+      { name: 'HelpContext', kind: 'member', type: 'Long' },
+      { name: 'LastDLLError', kind: 'member', type: 'Long' },
+      { name: 'Clear', kind: 'procedure', params: [] },
+      { name: 'Raise', kind: 'procedure', params: [{ name: 'number' }, { name: 'source', optional: true }, { name: 'description', optional: true }, { name: 'helpfile', optional: true }, { name: 'helpcontext', optional: true }] },
+    ],
+  },
+];
+
+function intrinsicCatalog() {
+  const procedures = [];
+  for (const name of Object.keys(BUILTIN_SIGNATURES)) procedures.push(procedure(name, BUILTIN_SIGNATURES[name]));
+  if (!procedures.some(item => item.name === 'CallByName')) {
+    procedures.push({
+      name: 'CallByName', kind: 'procedure', type: 'Variant', variadic: true,
+      params: [{ name: 'object' }, { name: 'procname' }, { name: 'calltype' }],
+    });
+  }
+  for (const name of STRING_FORMS) {
+    const base = procedures.find(item => item.name === name);
+    if (base) procedures.push({ name: name + '$', kind: 'procedure', type: 'String', params: base.params });
+  }
+  const constants = [];
+  for (const name of Object.keys(VB_CONSTANTS)) {
+    constants.push({ name: name, kind: 'constant', type: typeof VB_CONSTANTS[name] === 'string' ? 'String' : 'Long' });
+  }
+  return { procedures: procedures, constants: constants, objects: OBJECTS };
+}
+
+return {intrinsicCatalog};
+})();
+
+/* engine-entry.mjs */
+__modules[147]=(()=>{
+const { compileProject, VirtualMachine, AutomationRegistry, describe, unbox, NOTHING, MISSING, VBError, VBArray }=__modules[143];
+const { scanDeclarations }=__modules[145];
+const { statementBefore, expressionBefore, completionSpan, completionMatches }=__modules[144];
+const { intrinsicCatalog }=__modules[146];
+/** Headless bundle entry for VibeOffice. Re-exports the engine and the
+ *  declaration scan the editor uses for completion. Not ApplicationHost. */
+
+
+
+
+
+return {compileProject,VirtualMachine,AutomationRegistry,describe,unbox,NOTHING,MISSING,VBError,VBArray,scanDeclarations,statementBefore,expressionBefore,completionSpan,completionMatches,intrinsicCatalog};
+})();
+globalThis["VB6Engine"]=__modules[147];
 })();

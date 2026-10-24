@@ -285,12 +285,15 @@
     if (!L.vb || !L.vb.runSaved) throw new Error(L.t('The VB runtime is not running'));
     return L.vb.runSaved(name);
   }
-  async function runDraft(name, source, store) {
+  function draftModules(name, source, store) {
     const pool = store === 'all' ? allList() : list(pres());
     const others = pool.filter((m) => m.name.toLowerCase() !== String(name).toLowerCase());
     others.push({ name: name, source: source });
+    return others;
+  }
+  async function runDraft(name, source, store) {
     if (!L.vb || !L.vb.runDraft) throw new Error(L.t('The VB runtime is not running'));
-    return L.vb.runDraft(others, name);
+    return L.vb.runDraft(draftModules(name, source, store), name);
   }
   function openEditor(macro) {
     if (L.domConsole && L.domConsole.openScript) L.domConsole.openScript({ macro: macro });
@@ -307,6 +310,7 @@
     remove: remove,
     run: run,
     runDraft: runDraft,
+    draftModules: draftModules,
     describe: describe,
     stub: stub,
     vbIdentifier: vbIdentifier,

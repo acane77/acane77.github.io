@@ -147,15 +147,37 @@
       h('p', { class: 'tp-note', text: L.t('When this API changes, update {0} and this reference together.', catalog.spec) }));
   }
 
+  let listed = null;
+
+  /* The note beside a member, as written in the reference. Not UI text. */
+  function purpose(typeName, memberName) {
+    const typeKey = String(typeName || '').toLowerCase();
+    const memberKey = String(memberName || '').toLowerCase();
+    if (!listed || !typeKey || !memberKey) return '';
+    const objects = listed.objects || [];
+    for (let i = 0; i < objects.length; i++) {
+      if (String(objects[i].name || '').toLowerCase() !== typeKey) continue;
+      const members = objects[i].members || [];
+      for (let j = 0; j < members.length; j++) {
+        const names = String(members[j].name || '').split(',');
+        for (let k = 0; k < names.length; k++) {
+          if (names[k].trim().toLowerCase() === memberKey) return members[j].note || '';
+        }
+      }
+    }
+    return '';
+  }
+
   function mount(catalog) {
+    if (catalog) listed = catalog;
     const task = L.panes && L.panes.task;
-    if (!task || !catalog) return;
+    if (!task || !listed) return;
     task.register({
       id: 'vb-dom',
       title: 'Visual Basic DOM API Reference',
-      render(body) { render(body, catalog); },
+      render(body) { render(body, listed); },
     });
   }
 
-  L.vbDomRef = { show, mount };
+  L.vbDomRef = { show, mount, purpose };
 })();

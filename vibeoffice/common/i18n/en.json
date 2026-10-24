@@ -457,7 +457,7 @@
  },
  "&Blue:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "&Bold": {
@@ -535,7 +535,7 @@
  },
  "&Browse...": {
   "where": [
-   "common/ui.js:1411",
+   "common/ui.js:1468",
    "quire/js/dialogs2.js:500"
   ]
  },
@@ -785,8 +785,8 @@
  },
  "&Continue": {
   "where": [
-   "common/ui.js:1304",
-   "common/vb-ide.js:679"
+   "common/ui.js:1361",
+   "common/vb-ide.js:909"
   ]
  },
  "&Continue Numbering": {
@@ -1309,7 +1309,7 @@
  },
  "&Exit": {
   "where": [
-   "common/vb-ide.js:671"
+   "common/vb-ide.js:901"
   ]
  },
  "&F, Page &P": {
@@ -1622,7 +1622,7 @@
  },
  "&Green:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "&Grid and Guides...": {
@@ -1989,7 +1989,7 @@
  },
  "&Language": {
   "where": [
-   "common/ui.js:1455",
+   "common/ui.js:1512",
    "quire/js/app.js:81",
    "quire/js/spell.js:287"
   ]
@@ -2139,7 +2139,7 @@
  },
  "&Location:": {
   "where": [
-   "common/ui.js:1424"
+   "common/ui.js:1481"
   ]
  },
  "&Locked": {
@@ -2378,6 +2378,11 @@
    "quire/js/dialogs3.js:688"
   ]
  },
+ "&New Blank Project": {
+  "where": [
+   "common/vb-ide.js:894"
+  ]
+ },
  "&New Drawing": {
   "where": [
    "quire/js/commands.js:294"
@@ -2552,12 +2557,12 @@
  },
  "&Open Project...": {
   "where": [
-   "common/vb-ide.js:666"
+   "common/vb-ide.js:895"
   ]
  },
  "&Open Visual Basic File...": {
   "where": [
-   "common/vb-ide.js:669"
+   "common/vb-ide.js:899"
   ]
  },
  "&Open...": {
@@ -2916,7 +2921,7 @@
  },
  "&Red:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "&Redo": {
@@ -3186,9 +3191,9 @@
    "ledger/js/dialogs.js:686"
   ]
  },
- "&Save Project...": {
+ "&Save Project": {
   "where": [
-   "common/vb-ide.js:667"
+   "common/vb-ide.js:896"
   ]
  },
  "&Scout": {
@@ -3503,7 +3508,7 @@
  },
  "&Stop Debugging": {
   "where": [
-   "common/vb-ide.js:680"
+   "common/vb-ide.js:910"
   ]
  },
  "&Structure": {
@@ -3691,7 +3696,7 @@
  },
  "&Theme": {
   "where": [
-   "common/ui.js:1431"
+   "common/ui.js:1488"
   ]
  },
  "&Then by": {
@@ -4164,7 +4169,7 @@
  },
  "'{0}' is protected.": {
   "where": [
-   "common/ui.js:1312"
+   "common/ui.js:1369"
   ]
  },
  "'{0}' is protected.\n\nPassword:": {
@@ -4232,7 +4237,7 @@
  },
  "(This page intentionally left blank by a section break)": {
   "where": [
-   "quire/js/app.js:1408"
+   "quire/js/app.js:1416"
   ]
  },
  "(Top 10...)": {
@@ -4250,7 +4255,7 @@
  },
  "(VB bool expression. Leave empty to set unconditional breakpoint)": {
   "where": [
-   "common/vb-ide.js:720"
+   "common/vb-ide.js:968"
   ]
  },
  "(blank)": {
@@ -4442,7 +4447,7 @@
  },
  "1-based. Quire stores 0-based levels. The wrapper converts.": {
   "where": [
-   "quire/js/vb-dom-ref.js:313"
+   "quire/js/vb-dom-ref.js:321"
   ]
  },
  "1. Formatting restrictions": {
@@ -4779,33 +4784,33 @@
  },
  "A Cell.Range is the cell paragraphs, not a story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:212"
+   "quire/js/vb-dom-ref.js:220"
   ]
  },
- "A Range is an anchor to a paragraph, a selection, a cell, a bookmark or a find hit. It is not a story character index. Start and End are not on that anchor.": {
+ "A Range is an anchor. Start and End are offsets in paragraph order: each paragraph is its text plus one mark. A table ends at the paragraph after it. That is not a Word cell-mark index.": {
   "where": [
    "quire/js/vb-dom-ref.js:19"
   ]
  },
  "A VB script is running": {
   "where": [
-   "lectern/js/vb-host.js:305",
-   "lectern/js/vb-host.js:380",
-   "lectern/js/vb-host.js:411",
-   "lectern/js/vb-host.js:435"
+   "lectern/js/vb-host.js:313",
+   "lectern/js/vb-host.js:388",
+   "lectern/js/vb-host.js:419",
+   "lectern/js/vb-host.js:443"
   ]
  },
  "A VB statement is running": {
   "where": [
-   "lectern/js/vb-host.js:306",
-   "lectern/js/vb-host.js:380",
-   "lectern/js/vb-host.js:412",
-   "lectern/js/vb-host.js:436"
+   "lectern/js/vb-host.js:314",
+   "lectern/js/vb-host.js:388",
+   "lectern/js/vb-host.js:420",
+   "lectern/js/vb-host.js:444"
   ]
  },
  "A built-in style Quire will not delete throws.": {
   "where": [
-   "quire/js/vb-dom-ref.js:264"
+   "quire/js/vb-dom-ref.js:272"
   ]
  },
  "A cell reference is not valid.": {
@@ -4865,7 +4870,7 @@
  },
  "A field click is not this call.": {
   "where": [
-   "quire/js/vb-dom-ref.js:377"
+   "quire/js/vb-dom-ref.js:385"
   ]
  },
  "A formula or function contains invalid numeric values.": {
@@ -4923,6 +4928,11 @@
    "ledger/js/vb-dom-ref.js:176"
   ]
  },
+ "A paper size Quire already lists. Custom stays 41.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:251"
+  ]
+ },
  "A pasted slicer or timeline will be saved as a plain shape and won't filter anything, because its table or pivot table isn't in this workbook.": {
   "where": [
    "ledger/js/slicers.js:116"
@@ -4965,7 +4975,7 @@
  },
  "A second anchor to the same span.": {
   "where": [
-   "quire/js/vb-dom-ref.js:155"
+   "quire/js/vb-dom-ref.js:163"
   ]
  },
  "A shallow sheet copy.": {
@@ -5005,12 +5015,12 @@
  },
  "A small table": {
   "where": [
-   "quire/js/app.js:1379"
+   "quire/js/app.js:1387"
   ]
  },
  "A solid fill and a line. Gradients, patterns and arrows fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:438"
+   "quire/js/vb-dom-ref.js:447"
   ]
  },
  "A source column used by the pivot table was deleted. Its remaining result cells are kept.": {
@@ -5112,7 +5122,7 @@
  },
  "About {0}": {
   "where": [
-   "common/ui.js:1271"
+   "common/ui.js:1328"
   ]
  },
  "About {0} MB, kept by VibeOffice on this computer.": {
@@ -5189,12 +5199,12 @@
  },
  "Accept, Reject": {
   "where": [
-   "quire/js/vb-dom-ref.js:449"
+   "quire/js/vb-dom-ref.js:460"
   ]
  },
  "AcceptAll, RejectAll": {
   "where": [
-   "quire/js/vb-dom-ref.js:448"
+   "quire/js/vb-dom-ref.js:459"
   ]
  },
  "Accounting": {
@@ -5338,7 +5348,7 @@
  },
  "Activate the document first": {
   "where": [
-   "quire/js/dom.js:1335"
+   "quire/js/dom.js:1917"
   ]
  },
  "Activate, Select, Delete, Move, Calculate, Protect, Unprotect": {
@@ -5383,8 +5393,8 @@
  },
  "Add": {
   "where": [
-   "common/vb-ide.js:721",
-   "common/vb-ide.js:744"
+   "common/vb-ide.js:969",
+   "common/vb-ide.js:1005"
   ]
  },
  "Add &Watch": {
@@ -5493,7 +5503,7 @@
  },
  "Add(Anchor, Address, SubAddress, ScreenTip, TextToDisplay, Target). Anchor is an anchor range. Target fails.": {
   "where": [
-   "quire/js/vb-dom-ref.js:384"
+   "quire/js/vb-dom-ref.js:392"
   ]
  },
  "Add(Before, After, Count) inserts at the Before sheet, or after After.": {
@@ -5503,7 +5513,7 @@
  },
  "Add(Name, Range). Range is an anchor. An omitted range uses the selection.": {
   "where": [
-   "quire/js/vb-dom-ref.js:352"
+   "quire/js/vb-dom-ref.js:360"
   ]
  },
  "Add(Name, RefersTo).": {
@@ -5513,32 +5523,32 @@
  },
  "Add(Name, Type). Paragraph and character styles.": {
   "where": [
-   "quire/js/vb-dom-ref.js:255"
+   "quire/js/vb-dom-ref.js:263"
   ]
  },
  "Add(Position, Alignment, Leader). Position in points.": {
   "where": [
-   "quire/js/vb-dom-ref.js:303"
+   "quire/js/vb-dom-ref.js:311"
   ]
  },
  "Add(Range, NumRows, NumColumns). DefaultTableBehavior and AutoFitBehavior fail. A paragraph in a list puts every cell paragraph on that list.": {
   "where": [
-   "quire/js/vb-dom-ref.js:215"
+   "quire/js/vb-dom-ref.js:223"
   ]
  },
  "Add(Range, Reference, Text). Endnotes have the same members.": {
   "where": [
-   "quire/js/vb-dom-ref.js:409"
+   "quire/js/vb-dom-ref.js:417"
   ]
  },
  "Add(Range, Text).": {
   "where": [
-   "quire/js/vb-dom-ref.js:396"
+   "quire/js/vb-dom-ref.js:404"
   ]
  },
  "Add(Range, Type, Text, PreserveFormatting). Unknown types are stored and not evaluated.": {
   "where": [
-   "quire/js/vb-dom-ref.js:366"
+   "quire/js/vb-dom-ref.js:374"
   ]
  },
  "Add(anchor, address, subAddress, screenTip, textToDisplay). Writes the link onto the anchor runs.": {
@@ -5576,6 +5586,11 @@
    "ledger/js/vb-dom-ref.js:149"
   ]
  },
+ "AddPicture, AddPicture2": {
+  "where": [
+   "quire/js/vb-dom-ref.js:448"
+  ]
+ },
  "AddShape(type, left, top, width, height). Types are in Constants. Any other auto-shape type fails.": {
   "where": [
    "lectern/js/vb-dom-ref.js:138"
@@ -5583,7 +5598,7 @@
  },
  "AddShape, AddTextbox": {
   "where": [
-   "quire/js/vb-dom-ref.js:439"
+   "quire/js/vb-dom-ref.js:450"
   ]
  },
  "AddTable(rows, cols, left, top, width).": {
@@ -5603,7 +5618,7 @@
  },
  "Additionally, macros created in Ledger cannot be loaded or executed by Microsoft Excel, nor can macros created in Excel be loaded or executed by Ledger.": {
   "where": [
-   "ledger/js/macros.js:329"
+   "ledger/js/macros.js:332"
   ]
  },
  "Additionally, macros created in Quire cannot be loaded or executed by Microsoft Word, nor can macros created in Word be loaded or executed by Quire.": {
@@ -5652,7 +5667,7 @@
  },
  "Address, SubAddress, TextToDisplay, ScreenTip": {
   "where": [
-   "quire/js/vb-dom-ref.js:385"
+   "quire/js/vb-dom-ref.js:393"
   ]
  },
  "Adds all the numbers in a range of cells.": {
@@ -5938,7 +5953,7 @@
  },
  "AllCaps, SmallCaps, Hidden": {
   "where": [
-   "quire/js/vb-dom-ref.js:279"
+   "quire/js/vb-dom-ref.js:287"
   ]
  },
  "Allo&w overlap": {
@@ -6029,7 +6044,7 @@
  },
  "AlternativeText, Title": {
   "where": [
-   "quire/js/vb-dom-ref.js:425"
+   "quire/js/vb-dom-ref.js:434"
   ]
  },
  "Alt|key": {
@@ -6083,34 +6098,29 @@
    "ledger/js/commands.js:207"
   ]
  },
- "Anchor over the main story. No Start or End.": {
+ "Anchor over the main story. Start and End use the paragraph-order index.": {
   "where": [
    "quire/js/vb-dom-ref.js:74"
   ]
  },
  "Anchor whose Text is the bookmarked text. No Start or End.": {
   "where": [
-   "quire/js/vb-dom-ref.js:354"
+   "quire/js/vb-dom-ref.js:362"
   ]
  },
- "Anchor. No Start or End.": {
+ "Anchor. Start and End are on the paragraph-order index.": {
   "where": [
    "quire/js/vb-dom-ref.js:126"
   ]
  },
- "Anchored span. Move, Expand, GoTo, Next, Previous, Start and End are G-STORY.": {
-  "where": [
-   "quire/js/vb-dom-ref.js:147"
-  ]
- },
  "And the matching Delete methods, when the selection is in a table. Outside a table they throw.": {
   "where": [
-   "quire/js/vb-dom-ref.js:141"
+   "quire/js/vb-dom-ref.js:149"
   ]
  },
  "And the other look flags stored on the table.": {
   "where": [
-   "quire/js/vb-dom-ref.js:231"
+   "quire/js/vb-dom-ref.js:239"
   ]
  },
  "Animate your slides": {
@@ -6353,7 +6363,7 @@
  },
  "ApplyBulletDefault, ApplyNumberDefault": {
   "where": [
-   "quire/js/vb-dom-ref.js:314"
+   "quire/js/vb-dom-ref.js:322"
   ]
  },
  "Apps": {
@@ -6373,7 +6383,7 @@
  },
  "Aqua": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Arc": {
@@ -6565,12 +6575,12 @@
  },
  "Author, Date": {
   "where": [
-   "quire/js/vb-dom-ref.js:451"
+   "quire/js/vb-dom-ref.js:462"
   ]
  },
  "Author, Initial": {
   "where": [
-   "quire/js/vb-dom-ref.js:400"
+   "quire/js/vb-dom-ref.js:408"
   ]
  },
  "Author, Page #, Date": {
@@ -6588,8 +6598,8 @@
  },
  "Auto (as the browser)": {
   "where": [
-   "common/ui.js:1458",
-   "common/ui.js:1473",
+   "common/ui.js:1515",
+   "common/ui.js:1530",
    "index.html:530"
   ]
  },
@@ -6806,7 +6816,7 @@
  },
  "Automatic": {
   "where": [
-   "common/ui.js:1499",
+   "common/ui.js:1556",
    "lectern/js/dialogs.js:502",
    "ledger/js/dialogs.js:205",
    "ledger/js/dialogs.js:206"
@@ -6854,9 +6864,9 @@
  },
  "Automation session is not open": {
   "where": [
-   "lectern/js/vb-host.js:149",
-   "ledger/js/vb-host.js:165",
-   "quire/js/vb-host.js:149"
+   "lectern/js/vb-host.js:157",
+   "ledger/js/vb-host.js:173",
+   "quire/js/vb-host.js:157"
   ]
  },
  "Available For Use": {
@@ -7031,7 +7041,7 @@
  },
  "BaseStyle, NextParagraphStyle": {
   "where": [
-   "quire/js/vb-dom-ref.js:266"
+   "quire/js/vb-dom-ref.js:274"
   ]
  },
  "Basic Block List": {
@@ -7180,7 +7190,7 @@
  },
  "Black": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:188"
   ]
@@ -7284,7 +7294,7 @@
  },
  "Blue": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:187",
    "quire/js/dialogs3.js:607"
@@ -7302,7 +7312,7 @@
  },
  "Blue-Gray": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Blueprint": {
@@ -7340,14 +7350,15 @@
  },
  "Bold, Italic, BoldBi, ItalicBi": {
   "where": [
-   "quire/js/vb-dom-ref.js:276"
+   "quire/js/vb-dom-ref.js:284"
   ]
  },
  "Bold, Italic, Underline": {
   "where": [
    "lectern/js/panes.js:564",
    "quire/js/panes.js:107",
-   "quire/js/vb-dom-ref.js:160"
+   "quire/js/vb-dom-ref.js:128",
+   "quire/js/vb-dom-ref.js:168"
   ]
  },
  "Bold, Italic, Underline, Strikethrough": {
@@ -7396,7 +7407,7 @@
  },
  "Bookmark needs a range": {
   "where": [
-   "quire/js/dom.js:3295"
+   "quire/js/dom.js:4452"
   ]
  },
  "Bookmark text": {
@@ -7408,6 +7419,11 @@
   "where": [
    "quire/js/dialogs2.js:457",
    "quire/js/dialogs3.js:613"
+  ]
+ },
+ "Bookmarks, Fields, Comments, Hyperlinks, InlineShapes": {
+  "where": [
+   "quire/js/vb-dom-ref.js:130"
   ]
  },
  "Book|workbook": {
@@ -7476,8 +7492,8 @@
  },
  "Borders, Shading": {
   "where": [
-   "quire/js/vb-dom-ref.js:286",
-   "quire/js/vb-dom-ref.js:301"
+   "quire/js/vb-dom-ref.js:294",
+   "quire/js/vb-dom-ref.js:309"
   ]
  },
  "Bottom": {
@@ -7566,6 +7582,7 @@
  },
  "Break": {
   "where": [
+   "common/vb-ide.js:97",
    "quire/js/dialogs2.js:20",
    "quire/js/ribbon.js:31"
   ]
@@ -7587,12 +7604,12 @@
  },
  "Breaks from the editor sentence extent. The item is an anchor range.": {
   "where": [
-   "quire/js/vb-dom-ref.js:201"
+   "quire/js/vb-dom-ref.js:209"
   ]
  },
  "Breaks from the editor word extent. The item is an anchor range.": {
   "where": [
-   "quire/js/vb-dom-ref.js:207"
+   "quire/js/vb-dom-ref.js:215"
   ]
  },
  "Brig&htness:": {
@@ -7603,7 +7620,7 @@
  },
  "Bright Green": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -7643,7 +7660,7 @@
  },
  "Brown": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Browse": {
@@ -7864,7 +7881,7 @@
  },
  "By number or name.": {
   "where": [
-   "quire/js/vb-dom-ref.js:254"
+   "quire/js/vb-dom-ref.js:262"
   ]
  },
  "C&ell": {
@@ -8134,7 +8151,7 @@
  },
  "Call Stack": {
   "where": [
-   "common/vb-ide.js:782"
+   "common/vb-ide.js:1047"
   ]
  },
  "Callouts": {
@@ -8284,7 +8301,7 @@
  },
  "Captions are inserted by the caption dialog.": {
   "where": [
-   "quire/js/vb-dom-ref.js:140"
+   "quire/js/vb-dom-ref.js:148"
   ]
  },
  "Captions inserted with Insert ▸ Reference ▸ Caption are collected here.": {
@@ -8301,6 +8318,11 @@
  "Case &sensitive": {
   "where": [
    "quire/js/dialogs2.js:785"
+  ]
+ },
+ "Case, LanguageID, LanguageIDFarEast": {
+  "where": [
+   "quire/js/vb-dom-ref.js:132"
   ]
  },
  "Cat&egory:": {
@@ -8413,7 +8435,7 @@
  },
  "Cell(Row, Column), 1-based. A merged cell is returned for each grid square it covers.": {
   "where": [
-   "quire/js/vb-dom-ref.js:216"
+   "quire/js/vb-dom-ref.js:224"
   ]
  },
  "Cell(row, column). Rows.Add and Columns.Add append or insert.": {
@@ -8428,7 +8450,7 @@
  },
  "Cell.Range, Cell.RowIndex, Cell.ColumnIndex, Cell.Width, Cell.Height": {
   "where": [
-   "quire/js/vb-dom-ref.js:225"
+   "quire/js/vb-dom-ref.js:233"
   ]
  },
  "Cells": {
@@ -8448,7 +8470,7 @@
  },
  "Cells.Count, Item, Merge, Split, DistributeWidth, DistributeHeight": {
   "where": [
-   "quire/js/vb-dom-ref.js:224"
+   "quire/js/vb-dom-ref.js:232"
   ]
  },
  "Center": {
@@ -8659,12 +8681,12 @@
  },
  "Chapter One": {
   "where": [
-   "quire/js/app.js:1388"
+   "quire/js/app.js:1396"
   ]
  },
  "Chapter Two": {
   "where": [
-   "quire/js/app.js:1389"
+   "quire/js/app.js:1397"
   ]
  },
  "Chapter starts with style:": {
@@ -9196,8 +9218,8 @@
   "where": [
    "quire/js/app.js:285",
    "quire/js/app.js:286",
-   "quire/js/app.js:1297",
-   "quire/js/app.js:1298"
+   "quire/js/app.js:1305",
+   "quire/js/app.js:1306"
   ]
  },
  "Clear Outline": {
@@ -9233,7 +9255,7 @@
  },
  "Click Continue to save anyway, or Cancel to go back to your document without saving.": {
   "where": [
-   "common/ui.js:1302"
+   "common/ui.js:1359"
   ]
  },
  "Click a button to apply borders:": {
@@ -9369,7 +9391,7 @@
  },
  "Close": {
   "where": [
-   "common/ui.js:1055",
+   "common/ui.js:1101",
    "lectern/js/app.js:946",
    "lectern/js/dialogs.js:285",
    "lectern/js/dialogs.js:727"
@@ -9510,7 +9532,7 @@
  },
  "Code at Line": {
   "where": [
-   "common/vb-ide.js:723"
+   "common/vb-ide.js:971"
   ]
  },
  "Col #:": {
@@ -9537,7 +9559,7 @@
  "Collapse": {
   "where": [
    "quire/js/commands.js:529",
-   "quire/js/vb-dom-ref.js:458"
+   "quire/js/vb-dom-ref.js:469"
   ]
  },
  "Collapse the Ribbon (Ctrl+F1)": {
@@ -9547,7 +9569,7 @@
  },
  "Collapses this range. The Selection stays where it is.": {
   "where": [
-   "quire/js/vb-dom-ref.js:154"
+   "quire/js/vb-dom-ref.js:162"
   ]
  },
  "Collections are 1-based. Item(1) is the first. Count, First and Last are properties.": {
@@ -9653,7 +9675,7 @@
  },
  "Colors": {
   "where": [
-   "common/ui.js:1571",
+   "common/ui.js:1628",
    "lectern/js/diagram.js:553",
    "lectern/js/dialogs.js:408",
    "quire/js/dialogs3.js:158"
@@ -9669,7 +9691,7 @@
  },
  "Colors:": {
   "where": [
-   "common/ui.js:1567"
+   "common/ui.js:1624"
   ]
  },
  "Colour is ColorFormat. RGB is an Office BGR long. ObjectThemeColor is a theme slot. SchemeColor is one of the eight 2003 slots. Writing tint, shade or brightness fails.": {
@@ -9745,6 +9767,11 @@
    "quire/js/dialogs2.js:731"
   ]
  },
+ "Column#": {
+  "where": [
+   "common/vb-ide.js:934"
+  ]
+ },
  "ColumnWidth, RowHeight, Hidden": {
   "where": [
    "ledger/js/vb-dom-ref.js:142"
@@ -9780,7 +9807,7 @@
  },
  "Columns.Add, Columns.Item, Columns.Count, Column.Delete, Column.Select, Column.Width, Column.Cells": {
   "where": [
-   "quire/js/vb-dom-ref.js:223"
+   "quire/js/vb-dom-ref.js:231"
   ]
  },
  "Columns:": {
@@ -9970,13 +9997,18 @@
  },
  "Compatibility Checker": {
   "where": [
-   "common/ui.js:1303"
+   "common/ui.js:1360"
   ]
  },
  "Complete the merge": {
   "where": [
    "quire/js/mailmerge.js:269",
    "quire/js/mailmerge.js:294"
+  ]
+ },
+ "Completions": {
+  "where": [
+   "common/vb-ide.js:1410"
   ]
  },
  "Complimentary closing:": {
@@ -10031,8 +10063,8 @@
  },
  "Condition Expression": {
   "where": [
-   "common/vb-ide.js:723",
-   "common/vb-ide.js:735"
+   "common/vb-ide.js:971",
+   "common/vb-ide.js:983"
   ]
  },
  "Condition {0}": {
@@ -10043,7 +10075,7 @@
  },
  "Condition:": {
   "where": [
-   "common/vb-ide.js:281"
+   "common/vb-ide.js:422"
   ]
  },
  "Conditional Formatting": {
@@ -10171,7 +10203,7 @@
  },
  "Continue": {
   "where": [
-   "common/vb-ide.js:685"
+   "common/vb-ide.js:915"
   ]
  },
  "Continue Numbering": {
@@ -10205,6 +10237,7 @@
  "Convert Notes": {
   "where": [
    "quire/js/dialogs2.js:239",
+   "quire/js/dom.js:3167",
    "quire/js/fields.js:811"
   ]
  },
@@ -10227,12 +10260,12 @@
  },
  "Convert To Table": {
   "where": [
-   "quire/js/dom.js:2673"
+   "quire/js/dom.js:3702"
   ]
  },
  "Convert To Text": {
   "where": [
-   "quire/js/dom.js:2637"
+   "quire/js/dom.js:3666"
   ]
  },
  "Convert all &endnotes to footnotes": {
@@ -10494,8 +10527,8 @@
  },
  "Copy, Cut, Paste": {
   "where": [
-   "quire/js/vb-dom-ref.js:130",
-   "quire/js/vb-dom-ref.js:156"
+   "quire/js/vb-dom-ref.js:138",
+   "quire/js/vb-dom-ref.js:164"
   ]
  },
  "Copyright": {
@@ -10560,28 +10593,28 @@
  },
  "Count only. Characters(Index) is G-STORY.": {
   "where": [
-   "quire/js/vb-dom-ref.js:165"
+   "quire/js/vb-dom-ref.js:173"
   ]
  },
  "Count, Item": {
   "where": [
-   "quire/js/vb-dom-ref.js:214",
-   "quire/js/vb-dom-ref.js:238",
-   "quire/js/vb-dom-ref.js:254",
-   "quire/js/vb-dom-ref.js:324"
+   "quire/js/vb-dom-ref.js:222",
+   "quire/js/vb-dom-ref.js:246",
+   "quire/js/vb-dom-ref.js:262",
+   "quire/js/vb-dom-ref.js:332"
   ]
  },
  "Count, Item, Exists": {
   "where": [
-   "quire/js/vb-dom-ref.js:351"
+   "quire/js/vb-dom-ref.js:359"
   ]
  },
  "Count, Item, First, Last": {
   "where": [
    "lectern/js/vb-dom-ref.js:60",
-   "quire/js/vb-dom-ref.js:177",
-   "quire/js/vb-dom-ref.js:201",
-   "quire/js/vb-dom-ref.js:207"
+   "quire/js/vb-dom-ref.js:185",
+   "quire/js/vb-dom-ref.js:209",
+   "quire/js/vb-dom-ref.js:215"
   ]
  },
  "Count, Row, Column, Address, Text, MergeCells": {
@@ -10591,7 +10624,7 @@
  },
  "Count, spacing and equal width. Line-between when it is stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:242"
+   "quire/js/vb-dom-ref.js:250"
   ]
  },
  "Count={0}": {
@@ -10832,7 +10865,7 @@
  },
  "Crop, brightness and contrast when those values are stored. The rest fails.": {
   "where": [
-   "quire/js/vb-dom-ref.js:427"
+   "quire/js/vb-dom-ref.js:436"
   ]
  },
  "Cross": {
@@ -11185,7 +11218,7 @@
  },
  "Current": {
   "where": [
-   "common/ui.js:1568"
+   "common/ui.js:1625"
   ]
  },
  "Current &array": {
@@ -11247,7 +11280,7 @@
  },
  "Custom": {
   "where": [
-   "common/ui.js:1567",
+   "common/ui.js:1624",
    "lectern/js/model.js:512",
    "ledger/js/dialogs.js:709",
    "ledger/js/dialogs2.js:94"
@@ -11445,29 +11478,29 @@
  },
  "Dark Blue": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
  "Dark Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Dark Red": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
  "Dark Teal": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Dark Yellow": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
@@ -11744,7 +11777,7 @@
  },
  "Decrease": {
   "where": [
-   "common/ui.js:1359",
+   "common/ui.js:1416",
    "quire/js/dialogs.js:30"
   ]
  },
@@ -11780,6 +11813,11 @@
  "Decrease Text Size": {
   "where": [
    "quire/js/panes.js:711"
+  ]
+ },
+ "DefBool DefByte DefInt DefLng DefCur DefSng DefDbl DefDate DefStr DefObj DefVar Implements Option Explicit Base Compare Text Binary Private Public Global Friend Static Dim ReDim Preserve Const As New Set Let Call Sub Function Property Get End Exit If Then Else ElseIf For Each To Step Next Do Loop While Until Wend Select Case Is With WithEvents GoTo GoSub Return On Error Resume Stop And Or Xor Not Eqv Imp Mod Like True False Nothing Null Empty ByVal ByRef Optional ParamArray Type TypeOf LSet RSet Enum RaiseEvent Event Open Close Print Write Input Line Append Output Random Access Read Shared Lock Unlock Integer Long Single Double Currency Decimal Byte Boolean String Date Object Variant Debug Load Unload": {
+  "where": [
+   "common/vb-complete.js:12"
   ]
  },
  "Default Design": {
@@ -11915,7 +11953,7 @@
    "common/charts.js:426",
    "lectern/js/dom.js:1222",
    "ledger/js/ops.js:839",
-   "quire/js/dom.js:2601"
+   "quire/js/dom.js:3630"
   ]
  },
  "Delete Columns": {
@@ -11958,7 +11996,7 @@
    "common/charts.js:428",
    "lectern/js/dom.js:1204",
    "ledger/js/ops.js:839",
-   "quire/js/dom.js:2577"
+   "quire/js/dom.js:3606"
   ]
  },
  "Delete Rows": {
@@ -11999,7 +12037,7 @@
  },
  "Delete Table": {
   "where": [
-   "quire/js/dom.js:2872",
+   "quire/js/dom.js:3921",
    "quire/js/tables.js:290"
   ]
  },
@@ -12236,8 +12274,8 @@
  },
  "Dialogs is not available (G-HOST)": {
   "where": [
-   "common/host-audit.js:388",
-   "common/host-audit.js:394"
+   "common/host-audit.js:401",
+   "common/host-audit.js:407"
   ]
  },
  "Dialogs, Dialog, FileDialog, System, Tasks, CommandBars, KeyBindings, Languages": {
@@ -12436,7 +12474,7 @@
  },
  "Distribute Height": {
   "where": [
-   "quire/js/dom.js:2732"
+   "quire/js/dom.js:3761"
   ]
  },
  "Distribute Rows Evenl&y": {
@@ -12453,7 +12491,7 @@
  },
  "Distribute Width": {
   "where": [
-   "quire/js/dom.js:2722"
+   "quire/js/dom.js:3751"
   ]
  },
  "Distributed": {
@@ -12626,7 +12664,7 @@
  },
  "Document order.": {
   "where": [
-   "quire/js/vb-dom-ref.js:214"
+   "quire/js/vb-dom-ref.js:222"
   ]
  },
  "Document properties": {
@@ -12953,7 +12991,8 @@
  "Drop Cap": {
   "where": [
    "quire/js/dialogs.js:897",
-   "quire/js/dialogs.js:900"
+   "quire/js/dialogs.js:900",
+   "quire/js/dom.js:1346"
   ]
  },
  "Drop a .pptx to open it, or pictures to insert them": {
@@ -12968,7 +13007,7 @@
  },
  "Drop a document to open it, or pictures to insert them": {
   "where": [
-   "quire/js/app.js:1262"
+   "quire/js/app.js:1270"
   ]
  },
  "Drop a workbook to open it, or pictures to insert them": {
@@ -12983,7 +13022,7 @@
  },
  "Drop-cap data is stored. There is no DropCap object.": {
   "where": [
-   "quire/js/vb-dom-ref.js:195"
+   "quire/js/vb-dom-ref.js:203"
   ]
  },
  "Drops rows or columns from the start or end of an array.": {
@@ -13276,7 +13315,7 @@
  },
  "Edit the body with Comment.Range.Text.": {
   "where": [
-   "quire/js/vb-dom-ref.js:402"
+   "quire/js/vb-dom-ref.js:410"
   ]
  },
  "Edit ▸ Find (Ctrl+F), Replace (Ctrl+H) and Go To (Ctrl+G). More options: match case, whole words, wildcards (? any character, * any text, [abc], <word starts, word ends>), sounds like, all word forms, formatting and special characters (^p paragraph mark, ^t tab, ^m manual page break, ^l line break, ^? any character, ^# any digit, ^$ any letter).": {
@@ -13429,6 +13468,16 @@
    "ledger/js/dialogs.js:796"
   ]
  },
+ "Enable this breakpoint": {
+  "where": [
+   "common/vb-ide.js:423"
+  ]
+ },
+ "Enable, line style, width and color. Page art settings fail.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:235"
+  ]
+ },
  "Enclosures:": {
   "where": [
    "quire/js/dialogs3.js:486"
@@ -13436,18 +13485,18 @@
  },
  "End Function": {
   "where": [
-   "common/host-audit.js:471",
-   "common/host-audit.js:474",
-   "common/host-audit.js:477",
-   "common/host-audit.js:480"
+   "common/host-audit.js:484",
+   "common/host-audit.js:487",
+   "common/host-audit.js:490",
+   "common/host-audit.js:493"
   ]
  },
  "End Property": {
   "where": [
-   "lectern/js/vb-host.js:58",
-   "lectern/js/vb-host.js:62",
    "lectern/js/vb-host.js:66",
-   "lectern/js/vb-host.js:70"
+   "lectern/js/vb-host.js:70",
+   "lectern/js/vb-host.js:74",
+   "lectern/js/vb-host.js:78"
   ]
  },
  "End Show": {
@@ -13637,7 +13686,7 @@
  },
  "Enter password to open file": {
   "where": [
-   "common/ui.js:1312"
+   "common/ui.js:1369"
   ]
  },
  "Enter section number:": {
@@ -13799,6 +13848,16 @@
    "ledger/js/dialogs3.js:362"
   ]
  },
+ "Error Message": {
+  "where": [
+   "common/vb-ide.js:934"
+  ]
+ },
+ "Error Number": {
+  "where": [
+   "common/vb-ide.js:934"
+  ]
+ },
  "Error in Value": {
   "where": [
    "ledger/js/dialogs3.js:328"
@@ -13845,6 +13904,7 @@
  },
  "Errors": {
   "where": [
+   "common/vb-ide.js:1035",
    "ledger/js/dialogs.js:564"
   ]
  },
@@ -13892,7 +13952,7 @@
  },
  "Evaluate": {
   "where": [
-   "common/vb-ide.js:708"
+   "common/vb-ide.js:956"
   ]
  },
  "Evaluate &Formula": {
@@ -14078,8 +14138,8 @@
  },
  "Expression": {
   "where": [
-   "common/vb-ide.js:714",
-   "common/vb-ide.js:754",
+   "common/vb-ide.js:962",
+   "common/vb-ide.js:1015",
    "quire/js/find.js:391"
   ]
  },
@@ -14352,7 +14412,7 @@
  },
  "Field codes are not toggled by this method.": {
   "where": [
-   "quire/js/vb-dom-ref.js:368"
+   "quire/js/vb-dom-ref.js:376"
   ]
  },
  "Field codes:": {
@@ -14459,8 +14519,8 @@
  },
  "FileDialog is not available (G-HOST)": {
   "where": [
-   "common/host-audit.js:192",
-   "common/host-audit.js:423"
+   "common/host-audit.js:205",
+   "common/host-audit.js:436"
   ]
  },
  "Filename": {
@@ -14530,7 +14590,7 @@
  },
  "Fill Effects...": {
   "where": [
-   "common/ui.js:1524"
+   "common/ui.js:1581"
   ]
  },
  "Fill Left": {
@@ -14565,7 +14625,7 @@
  },
  "Fill.ForeColor, Line.ForeColor, Line.Weight": {
   "where": [
-   "quire/js/vb-dom-ref.js:438"
+   "quire/js/vb-dom-ref.js:447"
   ]
  },
  "Filled": {
@@ -14690,7 +14750,7 @@
  "Find and Replace": {
   "where": [
    "ledger/js/dialogs.js:538",
-   "quire/js/app.js:1381",
+   "quire/js/app.js:1389",
    "quire/js/find.js:364"
   ]
  },
@@ -14711,7 +14771,7 @@
  },
  "Find wrap and replace": {
   "where": [
-   "quire/js/vb-dom-ref.js:460"
+   "quire/js/vb-dom-ref.js:471"
   ]
  },
  "Find, Replace": {
@@ -14899,7 +14959,12 @@
  },
  "Floating shapes.": {
   "where": [
-   "quire/js/vb-dom-ref.js:433"
+   "quire/js/vb-dom-ref.js:442"
+  ]
+ },
+ "Floats the picture with square wrapping.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:429"
   ]
  },
  "Flowchart": {
@@ -15152,7 +15217,7 @@
  },
  "Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.": {
   "where": [
-   "common/ui.js:1250",
+   "common/ui.js:1307",
    "index.html:272"
   ]
  },
@@ -15185,7 +15250,7 @@
  "Font, ParagraphFormat": {
   "where": [
    "lectern/js/vb-dom-ref.js:178",
-   "quire/js/vb-dom-ref.js:263"
+   "quire/js/vb-dom-ref.js:271"
   ]
  },
  "Font:": {
@@ -15306,7 +15371,7 @@
  },
  "Form protection is not this flag.": {
   "where": [
-   "quire/js/vb-dom-ref.js:248"
+   "quire/js/vb-dom-ref.js:256"
   ]
  },
  "FormFields, FormField, CheckBox, DropDown, TextInput": {
@@ -15964,7 +16029,7 @@
  },
  "GetOpenFilename is not available (G-HOST)": {
   "where": [
-   "common/host-audit.js:439"
+   "common/host-audit.js:452"
   ]
  },
  "GetOpenFilename, GetSaveAsFilename": {
@@ -15974,7 +16039,7 @@
  },
  "GetSaveAsFilename is not available (G-HOST)": {
   "where": [
-   "common/host-audit.js:451"
+   "common/host-audit.js:464"
   ]
  },
  "Getting Started": {
@@ -15986,7 +16051,7 @@
  },
  "Getting around": {
   "where": [
-   "quire/js/app.js:1374"
+   "quire/js/app.js:1382"
   ]
  },
  "Glass buttons and dialogs. The menus stay the blue of Office 2003.": {
@@ -16097,10 +16162,30 @@
  },
  "Gold": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/dialogs.js:307",
    "lectern/js/slideshow.js:889",
    "quire/js/dialogs3.js:147"
+  ]
+ },
+ "Golden Gate": {
+  "where": [
+   "common/suite.js:480"
+  ]
+ },
+ "Golden Gate (Dark)": {
+  "where": [
+   "common/suite.js:481"
+  ]
+ },
+ "Golden Gate (Follow VS Code Color Theme)": {
+  "where": [
+   "common/suite.js:482"
+  ]
+ },
+ "Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.": {
+  "where": [
+   "common/suite.js:481"
   ]
  },
  "Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.": {
@@ -16184,24 +16269,24 @@
  },
  "Gray-25%": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
  "Gray-40%": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Gray-50%": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
  "Gray-80%": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Grayscale": {
@@ -16225,7 +16310,7 @@
  },
  "Green": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:188",
    "quire/js/dialogs3.js:607"
@@ -16411,7 +16496,7 @@
  },
  "He&x:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "Header": {
@@ -16449,7 +16534,7 @@
  },
  "Header and footer index": {
   "where": [
-   "quire/js/vb-dom-ref.js:464"
+   "quire/js/vb-dom-ref.js:475"
   ]
  },
  "Header/Footer": {
@@ -16464,7 +16549,7 @@
  },
  "Headers, Footers": {
   "where": [
-   "quire/js/vb-dom-ref.js:244"
+   "quire/js/vb-dom-ref.js:252"
   ]
  },
  "Headers, footers and page numbers": {
@@ -16533,7 +16618,7 @@
  },
  "HeadingFormat is the header-row flag.": {
   "where": [
-   "quire/js/vb-dom-ref.js:222"
+   "quire/js/vb-dom-ref.js:230"
   ]
  },
  "Headings": {
@@ -16560,7 +16645,7 @@
  },
  "Help": {
   "where": [
-   "common/ui.js:1054",
+   "common/ui.js:1100",
    "lectern/js/panes.js:566",
    "ledger/js/panes.js:137",
    "quire/js/commands.js:460"
@@ -16593,7 +16678,7 @@
  },
  "Hidden is the vanish flag.": {
   "where": [
-   "quire/js/vb-dom-ref.js:279"
+   "quire/js/vb-dom-ref.js:287"
   ]
  },
  "Hidden slides are skipped in the show order.": {
@@ -16668,14 +16753,14 @@
  "Highlight": {
   "where": [
    "quire/js/app.js:203",
-   "quire/js/app.js:1359",
+   "quire/js/app.js:1367",
    "quire/js/commands.js:348",
    "quire/js/dialogs3.js:613"
   ]
  },
  "Highlight-all is a view decoration.": {
   "where": [
-   "quire/js/vb-dom-ref.js:339"
+   "quire/js/vb-dom-ref.js:347"
   ]
  },
  "Highlight:": {
@@ -16700,7 +16785,7 @@
  },
  "HitHighlight, ClearHitHighlight": {
   "where": [
-   "quire/js/vb-dom-ref.js:339"
+   "quire/js/vb-dom-ref.js:347"
   ]
  },
  "Home": {
@@ -16841,7 +16926,7 @@
  },
  "Hyperlinks, Bookmarks, Fields, Comments, InlineShapes": {
   "where": [
-   "quire/js/vb-dom-ref.js:168"
+   "quire/js/vb-dom-ref.js:176"
   ]
  },
  "Hyphenate words in &CAPS": {
@@ -16907,9 +16992,9 @@
  },
  "IR call failed": {
   "where": [
-   "lectern/js/vb-host.js:177",
-   "ledger/js/vb-host.js:239",
-   "quire/js/vb-host.js:177"
+   "lectern/js/vb-host.js:185",
+   "ledger/js/vb-host.js:247",
+   "quire/js/vb-host.js:185"
   ]
  },
  "Id, Type, HasTextFrame, HasTable, ZOrderPosition": {
@@ -17108,7 +17193,7 @@
  },
  "Increase": {
   "where": [
-   "common/ui.js:1358",
+   "common/ui.js:1415",
    "quire/js/dialogs.js:29"
   ]
  },
@@ -17170,7 +17255,7 @@
  },
  "IndentCharWidth, Space1, Space15, Space2": {
   "where": [
-   "quire/js/vb-dom-ref.js:193"
+   "quire/js/vb-dom-ref.js:201"
   ]
  },
  "Indentation": {
@@ -17196,12 +17281,12 @@
  },
  "Index is wdHeaderFooterPrimary, wdHeaderFooterFirstPage or wdHeaderFooterEvenPages, when that story exists.": {
   "where": [
-   "quire/js/vb-dom-ref.js:244"
+   "quire/js/vb-dom-ref.js:252"
   ]
  },
  "Indigo": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Industrial": {
@@ -17237,7 +17322,7 @@
  },
  "Inline pictures and inline shapes.": {
   "where": [
-   "quire/js/vb-dom-ref.js:419"
+   "quire/js/vb-dom-ref.js:427"
   ]
  },
  "InlineShapes, Shapes": {
@@ -17327,7 +17412,7 @@
  "Insert Column": {
   "where": [
    "ledger/js/ops.js:839",
-   "quire/js/dom.js:2588"
+   "quire/js/dom.js:3617"
   ]
  },
  "Insert Columns": {
@@ -17533,7 +17618,7 @@
   "where": [
    "lectern/js/textedit.js:805",
    "ledger/js/ops.js:839",
-   "quire/js/dom.js:2564"
+   "quire/js/dom.js:3593"
   ]
  },
  "Insert Rows": {
@@ -17650,7 +17735,7 @@
  },
  "Insert footnote": {
   "where": [
-   "quire/js/app.js:1381"
+   "quire/js/app.js:1389"
   ]
  },
  "Insert hyperlinks": {
@@ -17660,7 +17745,7 @@
  },
  "Insert or delete. Formatting revisions Quire does not list are absent.": {
   "where": [
-   "quire/js/vb-dom-ref.js:450"
+   "quire/js/vb-dom-ref.js:461"
   ]
  },
  "Insert or edit comment": {
@@ -17710,7 +17795,7 @@
  },
  "Insert ▸ Reference": {
   "where": [
-   "quire/js/app.js:1381"
+   "quire/js/app.js:1389"
   ]
  },
  "Insert ▸ Reference ▸ Footnote (Ctrl+Alt+F footnote, Ctrl+Alt+D endnote), Caption, Cross-reference and Index and Tables (table of contents, figures, index). Right-click a field and choose Update Field, or press F9. Alt+F9 shows field codes.": {
@@ -17720,13 +17805,13 @@
  },
  "InsertAsField True inserts a date field. Calendar and full-width flags fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:139"
+   "quire/js/vb-dom-ref.js:147"
   ]
  },
  "InsertBefore, InsertAfter": {
   "where": [
    "quire/js/vb-dom-ref.js:122",
-   "quire/js/vb-dom-ref.js:150"
+   "quire/js/vb-dom-ref.js:158"
   ]
  },
  "InsertBefore, InsertAfter, Delete, Select": {
@@ -17736,12 +17821,13 @@
  },
  "InsertCells, InsertRows, InsertColumns": {
   "where": [
-   "quire/js/vb-dom-ref.js:141"
+   "quire/js/vb-dom-ref.js:149"
   ]
  },
  "InsertParagraph, InsertParagraphBefore, InsertParagraphAfter": {
   "where": [
-   "quire/js/vb-dom-ref.js:151"
+   "quire/js/vb-dom-ref.js:134",
+   "quire/js/vb-dom-ref.js:159"
   ]
  },
  "InsertSymbol, InsertDateTime, InsertSlideNumber": {
@@ -17787,7 +17873,7 @@
  },
  "Inserts one character in the given font.": {
   "where": [
-   "quire/js/vb-dom-ref.js:138"
+   "quire/js/vb-dom-ref.js:146"
   ]
  },
  "Inserts the mark of a footnote or endnote": {
@@ -17850,7 +17936,7 @@
  },
  "Inside this anchor.": {
   "where": [
-   "quire/js/vb-dom-ref.js:162"
+   "quire/js/vb-dom-ref.js:170"
   ]
  },
  "Inside vertical": {
@@ -18127,8 +18213,8 @@
  },
  "KeepTogether, KeepWithNext, PageBreakBefore, WidowControl": {
   "where": [
-   "quire/js/vb-dom-ref.js:190",
-   "quire/js/vb-dom-ref.js:297"
+   "quire/js/vb-dom-ref.js:198",
+   "quire/js/vb-dom-ref.js:305"
   ]
  },
  "Kept by VibeOffice on this computer.": {
@@ -18163,6 +18249,11 @@
   "where": [
    "lectern/js/panes.js:538",
    "quire/js/panes.js:76"
+  ]
+ },
+ "Keyword": {
+  "where": [
+   "common/vb-ide.js:1394"
   ]
  },
  "Known types: column clustered 51, bar clustered 57, line 4, pie 5, scatter -4169, area 1, doughnut -4120. Any other type fails.": {
@@ -18256,7 +18347,7 @@
  },
  "Language:": {
   "where": [
-   "common/ui.js:1473",
+   "common/ui.js:1530",
    "quire/js/panes.js:502"
   ]
  },
@@ -18315,7 +18406,7 @@
  },
  "Last Value": {
   "where": [
-   "common/vb-ide.js:746"
+   "common/vb-ide.js:1007"
   ]
  },
  "Last co&lumn": {
@@ -18380,7 +18471,7 @@
  },
  "Lavender": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Lay out this document as if created in:": {
@@ -18459,7 +18550,7 @@
  },
  "Lectern DOM Console": {
   "where": [
-   "lectern/js/dom-console.js:941"
+   "lectern/js/dom-console.js:969"
   ]
  },
  "Lectern Help": {
@@ -18500,7 +18591,7 @@
  },
  "Ledger DOM Console": {
   "where": [
-   "ledger/js/dom-console.js:951"
+   "ledger/js/dom-console.js:979"
   ]
  },
  "Ledger Help": {
@@ -18667,7 +18758,7 @@
  },
  "Left, Top, Width, Height": {
   "where": [
-   "quire/js/vb-dom-ref.js:434"
+   "quire/js/vb-dom-ref.js:443"
   ]
  },
  "Left, Top, Width, Height, Rotation": {
@@ -18677,7 +18768,7 @@
  },
  "Left, center, right, both and distribute.": {
   "where": [
-   "quire/js/vb-dom-ref.js:293"
+   "quire/js/vb-dom-ref.js:301"
   ]
  },
  "Left-Right Arrow": {
@@ -18717,8 +18808,8 @@
  },
  "LeftIndent, RightIndent, FirstLineIndent": {
   "where": [
-   "quire/js/vb-dom-ref.js:186",
-   "quire/js/vb-dom-ref.js:294"
+   "quire/js/vb-dom-ref.js:194",
+   "quire/js/vb-dom-ref.js:302"
   ]
  },
  "Legal": {
@@ -18877,7 +18968,7 @@
  },
  "Level format is stored inside numbering definitions, not this gallery.": {
   "where": [
-   "quire/js/vb-dom-ref.js:326"
+   "quire/js/vb-dom-ref.js:334"
   ]
  },
  "Level {0}": {
@@ -18919,27 +19010,27 @@
  },
  "Light Blue": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Orange": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Turquoise": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Yellow": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light and calm: warm paper tones, one teal accent, rounded shapes.": {
@@ -18979,7 +19070,7 @@
  },
  "Lime": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Limit formatting to a selection of styles": {
@@ -18989,7 +19080,7 @@
  },
  "Limited to this anchor story.": {
   "where": [
-   "quire/js/vb-dom-ref.js:164"
+   "quire/js/vb-dom-ref.js:172"
   ]
  },
  "Lin&k level to style:": {
@@ -19041,13 +19132,13 @@
  },
  "Line Number": {
   "where": [
-   "common/vb-ide.js:723",
-   "common/vb-ide.js:731"
+   "common/vb-ide.js:971",
+   "common/vb-ide.js:979"
   ]
  },
  "Line Number:": {
   "where": [
-   "common/vb-ide.js:280"
+   "common/vb-ide.js:421"
   ]
  },
  "Line Numbers": {
@@ -19095,12 +19186,7 @@
   "where": [
    "lectern/js/dialogs.js:249",
    "lectern/js/dom.js:472",
-   "quire/js/vb-dom-ref.js:462"
-  ]
- },
- "Line style, width and color for edges Quire stores. Page-border modes fail.": {
-  "where": [
-   "quire/js/vb-dom-ref.js:227"
+   "quire/js/vb-dom-ref.js:473"
   ]
  },
  "Line with Markers": {
@@ -19115,12 +19201,17 @@
  },
  "Line {0}: {1}": {
   "where": [
-   "common/vb-ide.js:162"
+   "common/vb-ide.js:301"
   ]
  },
  "Line {0}| {1}": {
   "where": [
-   "common/vb-ide.js:86"
+   "common/vb-ide.js:134"
+  ]
+ },
+ "Line#": {
+  "where": [
+   "common/vb-ide.js:934"
   ]
  },
  "Linear Venn": {
@@ -19173,7 +19264,7 @@
  },
  "LinkStyle, Visibility, UnhideWhenUsed, QuickStyle, Priority, Locked": {
   "where": [
-   "quire/js/vb-dom-ref.js:267"
+   "quire/js/vb-dom-ref.js:275"
   ]
  },
  "Linked picture: {0}": {
@@ -19200,7 +19291,7 @@
  },
  "Links stored on runs.": {
   "where": [
-   "quire/js/vb-dom-ref.js:383"
+   "quire/js/vb-dom-ref.js:391"
   ]
  },
  "Links stored on the shape text.": {
@@ -19248,7 +19339,7 @@
  },
  "List level is ListFormat.": {
   "where": [
-   "quire/js/vb-dom-ref.js:194"
+   "quire/js/vb-dom-ref.js:202"
   ]
  },
  "List numbering": {
@@ -19263,17 +19354,17 @@
  },
  "List.Range, List.ListParagraphs, List.CountNumberedItems": {
   "where": [
-   "quire/js/vb-dom-ref.js:325"
+   "quire/js/vb-dom-ref.js:333"
   ]
  },
  "ListIndent, ListOutdent": {
   "where": [
-   "quire/js/vb-dom-ref.js:316"
+   "quire/js/vb-dom-ref.js:324"
   ]
  },
  "ListTemplates, ListTemplate, ListLevels, ListLevel": {
   "where": [
-   "quire/js/vb-dom-ref.js:326"
+   "quire/js/vb-dom-ref.js:334"
   ]
  },
  "Lists (tables)": {
@@ -19293,7 +19384,7 @@
  },
  "Lists the document already distinguishes.": {
   "where": [
-   "quire/js/vb-dom-ref.js:324"
+   "quire/js/vb-dom-ref.js:332"
   ]
  },
  "Lists, ListParagraphs": {
@@ -19598,7 +19689,7 @@
  },
  "Macros created by Microsoft Excel are not executed in Ledger. A VBA project in a .xlsm file is kept in the package and is not run.": {
   "where": [
-   "ledger/js/macros.js:328"
+   "ledger/js/macros.js:331"
   ]
  },
  "Macros created by Microsoft PowerPoint are not executed in Lectern. A VBA project in a .pptm file is kept in the package and is not run.": {
@@ -19613,7 +19704,7 @@
  },
  "Made possible by open source software: {0}.": {
   "where": [
-   "common/ui.js:1246",
+   "common/ui.js:1303",
    "index.html:440"
   ]
  },
@@ -19864,7 +19955,7 @@
  },
  "Match case, whole word, wildcards, sounds-like, all word forms, forward, wrap, format and replace. Kashida, diacritics, alef hamza and control matching fail. wdFindAsk fails. Replace is wdReplaceNone, wdReplaceOne or wdReplaceAll.": {
   "where": [
-   "quire/js/vb-dom-ref.js:333"
+   "quire/js/vb-dom-ref.js:341"
   ]
  },
  "Match entire cell c&ontents": {
@@ -20075,7 +20166,7 @@
  },
  "Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.": {
   "where": [
-   "common/ui.js:1251"
+   "common/ui.js:1308"
   ]
  },
  "Middle": {
@@ -20225,7 +20316,7 @@
  },
  "More Colors...": {
   "where": [
-   "common/ui.js:1523"
+   "common/ui.js:1580"
   ]
  },
  "More Contrast": {
@@ -20236,7 +20327,7 @@
  },
  "More Fill Colors...": {
   "where": [
-   "common/ui.js:1523"
+   "common/ui.js:1580"
   ]
  },
  "More Layouts...": {
@@ -20246,7 +20337,7 @@
  },
  "More Line Colors...": {
   "where": [
-   "common/ui.js:1523"
+   "common/ui.js:1580"
   ]
  },
  "More Lines...": {
@@ -20408,9 +20499,14 @@
    "lectern/js/panes.js:835"
   ]
  },
+ "Move, StartOf, EndOf and Expand use character, word, sentence, paragraph or story. Line, screen, page, GoTo and Information stay unavailable.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:155"
+  ]
+ },
  "MoveLeft, MoveRight, MoveUp, MoveDown, HomeKey, EndKey, GoTo": {
   "where": [
-   "quire/js/vb-dom-ref.js:134"
+   "quire/js/vb-dom-ref.js:142"
   ]
  },
  "Movies and sounds are not supported in this edition. Pictures, charts, tables and diagrams are available from the Insert menu.": {
@@ -20508,7 +20604,7 @@
  },
  "Name writes the Latin face. NameFarEast writes the East Asian face. NameBi writes the complex-script face when stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:274"
+   "quire/js/vb-dom-ref.js:282"
   ]
  },
  "Name writes the Latin face. Underline msoTrue is a single line. NameAscii, NameComplexScript, SizeBi, BoldBi and ItalicBi fail.": {
@@ -20533,7 +20629,7 @@
  },
  "Name, NameAscii, NameFarEast, NameBi": {
   "where": [
-   "quire/js/vb-dom-ref.js:274"
+   "quire/js/vb-dom-ref.js:282"
   ]
  },
  "Name, NameFarEast, Size, Bold, Italic, Underline": {
@@ -20619,12 +20715,12 @@
  },
  "Neighbouring paragraphs in reading order. Not story units.": {
   "where": [
-   "quire/js/vb-dom-ref.js:192"
+   "quire/js/vb-dom-ref.js:200"
   ]
  },
  "Nested-table handling fails.": {
   "where": [
-   "quire/js/vb-dom-ref.js:230"
+   "quire/js/vb-dom-ref.js:238"
   ]
  },
  "Network": {
@@ -20646,7 +20742,7 @@
  "Never show this message again": {
   "where": [
    "lectern/js/dialogs.js:1154",
-   "ledger/js/macros.js:322",
+   "ledger/js/macros.js:325",
    "quire/js/dialogs3.js:517"
   ]
  },
@@ -20838,7 +20934,7 @@
  },
  "New|color": {
   "where": [
-   "common/ui.js:1568"
+   "common/ui.js:1625"
   ]
  },
  "Nex&t": {
@@ -20894,7 +20990,7 @@
  },
  "Next, Previous": {
   "where": [
-   "quire/js/vb-dom-ref.js:192"
+   "quire/js/vb-dom-ref.js:200"
   ]
  },
  "Next: {0}": {
@@ -20914,7 +21010,7 @@
  },
  "Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.": {
   "where": [
-   "common/ui.js:1249",
+   "common/ui.js:1306",
    "index.html:441"
   ]
  },
@@ -20962,7 +21058,7 @@
  },
  "No Fill": {
   "where": [
-   "common/ui.js:1498",
+   "common/ui.js:1555",
    "lectern/js/dialogs.js:22",
    "quire/js/dialogs.js:505",
    "quire/js/dialogs.js:515"
@@ -20975,7 +21071,7 @@
  },
  "No Line": {
   "where": [
-   "common/ui.js:1498",
+   "common/ui.js:1555",
    "lectern/js/dialogs.js:22",
    "quire/js/dialogs3.js:31"
   ]
@@ -21004,7 +21100,7 @@
  },
  "No Unit or Count.": {
   "where": [
-   "quire/js/vb-dom-ref.js:152"
+   "quire/js/vb-dom-ref.js:160"
   ]
  },
  "No arguments. Returns the new presentation and makes it active. WithWindow fails.": {
@@ -21071,7 +21167,7 @@
  },
  "No link-to-previous flag is edited.": {
   "where": [
-   "quire/js/vb-dom-ref.js:247"
+   "quire/js/vb-dom-ref.js:255"
   ]
  },
  "No list was found. Select a cell within your list.": {
@@ -21248,6 +21344,21 @@
    "common/vb-dom-ref.js:90"
   ]
  },
+ "Not available on this platform because the open file has no path.": {
+  "where": [
+   "common/vb-ide.js:1222"
+  ]
+ },
+ "Not available on this platform because this application does not implement it.": {
+  "where": [
+   "common/vb-ide.js:1223"
+  ]
+ },
+ "Not available on this platform because this session has no file host.": {
+  "where": [
+   "common/vb-ide.js:1224"
+  ]
+ },
  "Not in Dictionary": {
   "where": [
    "quire/js/spell.js:156"
@@ -21274,14 +21385,9 @@
    "common/core.js:741"
   ]
  },
- "Not stored as these properties.": {
-  "where": [
-   "quire/js/vb-dom-ref.js:232"
-  ]
- },
  "Not stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:389"
+   "quire/js/vb-dom-ref.js:397"
   ]
  },
  "Not this note model.": {
@@ -21381,7 +21487,7 @@
  },
  "Notice on Macros in Ledger": {
   "where": [
-   "ledger/js/macros.js:325"
+   "ledger/js/macros.js:328"
   ]
  },
  "Notice on Macros in Quire": {
@@ -21600,14 +21706,14 @@
  "OK": {
   "where": [
    "common/charts.js:438",
-   "common/ui.js:1061",
-   "common/ui.js:1272",
-   "common/ui.js:1280"
+   "common/ui.js:1107",
+   "common/ui.js:1329",
+   "common/ui.js:1337"
   ]
  },
  "OLEFormat, Chart, GroupItems, Nodes": {
   "where": [
-   "quire/js/vb-dom-ref.js:441"
+   "quire/js/vb-dom-ref.js:452"
   ]
  },
  "OLEFormat, MediaFormat, CustomerData": {
@@ -21653,7 +21759,7 @@
  },
  "Object Values": {
   "where": [
-   "common/vb-ide.js:783"
+   "common/vb-ide.js:1048"
   ]
  },
  "Object positioning": {
@@ -21733,7 +21839,7 @@
  },
  "Olive Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Omit background &graphics from master": {
@@ -21798,20 +21904,25 @@
    "ledger/js/vb-dom-ref.js:84"
   ]
  },
+ "On the VS Code host, embeds a floating picture. Left, Top, Width, Height and Anchor are accepted. LinkToFile and SaveWithDocument False are errors. Compress is ignored.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:448"
+  ]
+ },
+ "On the VS Code host, embeds the picture at Range, or at the selection. LinkToFile and SaveWithDocument False are errors.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:428"
+  ]
+ },
  "On the VS Code host, embeds the picture.": {
   "where": [
    "lectern/js/vb-dom-ref.js:141",
    "ledger/js/vb-dom-ref.js:230"
   ]
  },
- "On the VS Code host, embeds the picture. LinkToFile is an error.": {
-  "where": [
-   "quire/js/vb-dom-ref.js:420"
-  ]
- },
  "On the VS Code host, inserts txt, html, or a Word file.": {
   "where": [
-   "quire/js/vb-dom-ref.js:137"
+   "quire/js/vb-dom-ref.js:145"
   ]
  },
  "On the VS Code host, opens http, https, or mailto.": {
@@ -21980,13 +22091,13 @@
  },
  "Open source licenses": {
   "where": [
-   "common/ui.js:1247",
+   "common/ui.js:1304",
    "index.html:440"
   ]
  },
  "Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.": {
   "where": [
-   "common/ui.js:1248",
+   "common/ui.js:1305",
    "index.html:270"
   ]
  },
@@ -22034,7 +22145,7 @@
   "where": [
    "lectern/js/vb-dom-ref.js:243",
    "ledger/js/vb-dom-ref.js:185",
-   "quire/js/vb-dom-ref.js:388"
+   "quire/js/vb-dom-ref.js:396"
   ]
  },
  "Opening and closing the collection need a host.": {
@@ -22133,7 +22244,7 @@
  },
  "Orange": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Order": {
@@ -22299,12 +22410,12 @@
  },
  "Outline, Shadow, Emboss, Engrave": {
   "where": [
-   "quire/js/vb-dom-ref.js:284"
+   "quire/js/vb-dom-ref.js:292"
   ]
  },
  "OutlineDemote, OutlinePromote, OutlineDemoteToBody": {
   "where": [
-   "quire/js/vb-dom-ref.js:194"
+   "quire/js/vb-dom-ref.js:202"
   ]
  },
  "Outlined": {
@@ -22343,9 +22454,9 @@
  },
  "Output": {
   "where": [
-   "lectern/js/dom-console.js:890",
-   "ledger/js/dom-console.js:900",
-   "quire/js/dom-console.js:898"
+   "lectern/js/dom-console.js:918",
+   "ledger/js/dom-console.js:928",
+   "quire/js/dom-console.js:926"
   ]
  },
  "Outset": {
@@ -22691,17 +22802,17 @@
  },
  "Page, column and text-wrapping breaks, and section breaks the model can store. Other types fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:136"
+   "quire/js/vb-dom-ref.js:144"
   ]
  },
  "PageSetup.PageWidth, PageHeight, Orientation": {
   "where": [
-   "quire/js/vb-dom-ref.js:240"
+   "quire/js/vb-dom-ref.js:248"
   ]
  },
  "PageSetup.TopMargin, BottomMargin, LeftMargin, RightMargin, Gutter, HeaderDistance, FooterDistance": {
   "where": [
-   "quire/js/vb-dom-ref.js:241"
+   "quire/js/vb-dom-ref.js:249"
   ]
  },
  "Pages": {
@@ -22735,7 +22846,7 @@
  },
  "Pale Blue": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Panes, Pane, View, CommandBars, FileDialog, Dialogs": {
@@ -22810,7 +22921,7 @@
  },
  "Paragraph alignment": {
   "where": [
-   "quire/js/vb-dom-ref.js:457"
+   "quire/js/vb-dom-ref.js:468"
   ]
  },
  "Paragraph formatting": {
@@ -22830,7 +22941,7 @@
  },
  "Paragraph style.": {
   "where": [
-   "quire/js/vb-dom-ref.js:159"
+   "quire/js/vb-dom-ref.js:167"
   ]
  },
  "Paragraph style. A character style fails on this property. Use Font for run formatting.": {
@@ -22848,6 +22959,13 @@
    "quire/js/dialogs2.js:278"
   ]
  },
+ "Paragraph-order offsets.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:141",
+   "quire/js/vb-dom-ref.js:179",
+   "quire/js/vb-dom-ref.js:366"
+  ]
+ },
  "Paragraphs": {
   "where": [
    "quire/js/dialogs2.js:780",
@@ -22856,7 +22974,7 @@
  },
  "Paragraphs in that section. No story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:239"
+   "quire/js/vb-dom-ref.js:247"
   ]
  },
  "Paragraphs joined by a carriage return. A whole-body write replaces the body. A partial write deletes that span and inserts.": {
@@ -22866,7 +22984,12 @@
  },
  "Paragraphs this anchor touches.": {
   "where": [
-   "quire/js/vb-dom-ref.js:161"
+   "quire/js/vb-dom-ref.js:169"
+  ]
+ },
+ "Paragraphs, Sentences, Words, Tables": {
+  "where": [
+   "quire/js/vb-dom-ref.js:129"
   ]
  },
  "Paragraphs, tabs and indents": {
@@ -22903,7 +23026,7 @@
  },
  "Password": {
   "where": [
-   "common/ui.js:1312",
+   "common/ui.js:1369",
    "ledger/js/app.js:171"
   ]
  },
@@ -23072,7 +23195,7 @@
  },
  "Patterned Lines...": {
   "where": [
-   "common/ui.js:1524"
+   "common/ui.js:1581"
   ]
  },
  "Patterns": {
@@ -23224,7 +23347,7 @@
  },
  "Pick:": {
   "where": [
-   "common/ui.js:1565"
+   "common/ui.js:1622"
   ]
  },
  "Picture": {
@@ -23276,7 +23399,7 @@
  },
  "Picture, shape, chart or text box, mapped to the nearest inline-shape type.": {
   "where": [
-   "quire/js/vb-dom-ref.js:422"
+   "quire/js/vb-dom-ref.js:431"
   ]
  },
  "Pictures": {
@@ -23324,7 +23447,7 @@
  },
  "Pink": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -23418,7 +23541,7 @@
  },
  "Plum": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Plus": {
@@ -23457,7 +23580,7 @@
  },
  "Points and percent, as stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:421"
+   "quire/js/vb-dom-ref.js:430"
   ]
  },
  "Points, and the first number.": {
@@ -23468,19 +23591,19 @@
  "Points.": {
   "where": [
    "lectern/js/vb-dom-ref.js:168",
-   "quire/js/vb-dom-ref.js:186",
-   "quire/js/vb-dom-ref.js:241",
-   "quire/js/vb-dom-ref.js:275"
+   "quire/js/vb-dom-ref.js:194",
+   "quire/js/vb-dom-ref.js:249",
+   "quire/js/vb-dom-ref.js:283"
   ]
  },
  "Points. Character-unit indents fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:294"
+   "quire/js/vb-dom-ref.js:302"
   ]
  },
  "Points. Orientation is wdOrientPortrait or wdOrientLandscape.": {
   "where": [
-   "quire/js/vb-dom-ref.js:240"
+   "quire/js/vb-dom-ref.js:248"
   ]
  },
  "Points. Rotation is degrees.": {
@@ -23894,17 +24017,17 @@
  },
  "Procedure arguments must be an array": {
   "where": [
-   "lectern/js/vb-host.js:310",
-   "ledger/js/vb-host.js:356",
-   "quire/js/vb-host.js:308"
+   "lectern/js/vb-host.js:318",
+   "ledger/js/vb-host.js:364",
+   "quire/js/vb-host.js:316"
   ]
  },
  "Procedure not found: {0}": {
   "where": [
-   "lectern/js/vb-host.js:202",
-   "lectern/js/vb-host.js:347",
-   "ledger/js/vb-host.js:389",
-   "ledger/js/vb-host.js:458"
+   "lectern/js/vb-host.js:210",
+   "lectern/js/vb-host.js:355",
+   "ledger/js/vb-host.js:397",
+   "ledger/js/vb-host.js:466"
   ]
  },
  "Process": {
@@ -23985,7 +24108,7 @@
  },
  "Properties stored on a run. Assignment formats the anchor.": {
   "where": [
-   "quire/js/vb-dom-ref.js:272"
+   "quire/js/vb-dom-ref.js:280"
   ]
  },
  "Properties:": {
@@ -24047,120 +24170,120 @@
  },
  "Public Function Dir(Optional PathName, Optional Attributes)": {
   "where": [
-   "common/host-audit.js:484"
+   "common/host-audit.js:497"
   ]
  },
  "Public Function HasHostAbility(Ability)": {
   "where": [
-   "common/host-audit.js:469"
+   "common/host-audit.js:482"
   ]
  },
  "Public Function HostDir(Optional PathName)": {
   "where": [
-   "common/host-audit.js:478"
+   "common/host-audit.js:491"
   ]
  },
  "Public Function HostShell(PathName, Optional WindowStyle)": {
   "where": [
-   "common/host-audit.js:481"
+   "common/host-audit.js:494"
   ]
  },
  "Public Function InputBox(Prompt, Optional Title, Optional Default)": {
   "where": [
-   "common/host-audit.js:475"
+   "common/host-audit.js:488"
   ]
  },
  "Public Function MsgBox(Prompt, Optional Buttons, Optional Title)": {
   "where": [
-   "common/host-audit.js:472"
+   "common/host-audit.js:485"
   ]
  },
  "Public Function Shell(PathName, Optional WindowStyle)": {
   "where": [
-   "common/host-audit.js:487"
+   "common/host-audit.js:500"
   ]
  },
  "Public Lectern As Object": {
   "where": [
-   "lectern/js/vb-host.js:54"
+   "lectern/js/vb-host.js:62"
   ]
  },
  "Public Ledger As Object": {
   "where": [
-   "ledger/js/vb-host.js:54"
+   "ledger/js/vb-host.js:62"
   ]
  },
  "Public Property Get ActiveCell() As Object": {
   "where": [
-   "ledger/js/vb-host.js:76"
+   "ledger/js/vb-host.js:84"
   ]
  },
  "Public Property Get ActiveDocument() As Object": {
   "where": [
-   "quire/js/vb-host.js:60"
+   "quire/js/vb-host.js:68"
   ]
  },
  "Public Property Get ActivePresentation() As Object": {
   "where": [
-   "lectern/js/vb-host.js:60"
+   "lectern/js/vb-host.js:68"
   ]
  },
  "Public Property Get ActiveSheet() As Object": {
   "where": [
-   "ledger/js/vb-host.js:72"
+   "ledger/js/vb-host.js:80"
   ]
  },
  "Public Property Get ActiveWindow() As Object": {
   "where": [
-   "lectern/js/vb-host.js:68"
+   "lectern/js/vb-host.js:76"
   ]
  },
  "Public Property Get ActiveWorkbook() As Object": {
   "where": [
-   "ledger/js/vb-host.js:60"
+   "ledger/js/vb-host.js:68"
   ]
  },
  "Public Property Get Application() As Object": {
   "where": [
-   "lectern/js/vb-host.js:56",
-   "ledger/js/vb-host.js:56",
-   "quire/js/vb-host.js:56"
+   "lectern/js/vb-host.js:64",
+   "ledger/js/vb-host.js:64",
+   "quire/js/vb-host.js:64"
   ]
  },
  "Public Property Get Documents() As Object": {
   "where": [
-   "quire/js/vb-host.js:64"
+   "quire/js/vb-host.js:72"
   ]
  },
  "Public Property Get Presentations() As Object": {
   "where": [
-   "lectern/js/vb-host.js:64"
+   "lectern/js/vb-host.js:72"
   ]
  },
  "Public Property Get Selection() As Object": {
   "where": [
-   "ledger/js/vb-host.js:80",
-   "quire/js/vb-host.js:68"
+   "ledger/js/vb-host.js:88",
+   "quire/js/vb-host.js:76"
   ]
  },
  "Public Property Get ThisWorkbook() As Object": {
   "where": [
-   "ledger/js/vb-host.js:64"
+   "ledger/js/vb-host.js:72"
   ]
  },
  "Public Property Get Workbooks() As Object": {
   "where": [
-   "ledger/js/vb-host.js:68"
+   "ledger/js/vb-host.js:76"
   ]
  },
  "Public Property Get WorksheetFunction() As Object": {
   "where": [
-   "ledger/js/vb-host.js:84"
+   "ledger/js/vb-host.js:92"
   ]
  },
  "Public Quire As Object": {
   "where": [
-   "quire/js/vb-host.js:54"
+   "quire/js/vb-host.js:62"
   ]
  },
  "Punctuation": {
@@ -24214,6 +24337,11 @@
  "Put a space after a comma or semicolon.": {
   "where": [
    "quire/js/spell.js:118"
+  ]
+ },
+ "Puts the picture back in the line.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:449"
   ]
  },
  "Puzzle": {
@@ -24275,7 +24403,7 @@
  },
  "Quire DOM Console": {
   "where": [
-   "quire/js/dom-console.js:949"
+   "quire/js/dom-console.js:977"
   ]
  },
  "Quire Help": {
@@ -24298,7 +24426,7 @@
  },
  "Quire clipboard. PasteAndFormat, PasteSpecial and PasteExcelTable fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:130"
+   "quire/js/vb-dom-ref.js:138"
   ]
  },
  "Quire could not shrink this document by one page.": {
@@ -24344,7 +24472,7 @@
  },
  "Quire has one name, not a localized alias.": {
   "where": [
-   "quire/js/vb-dom-ref.js:261"
+   "quire/js/vb-dom-ref.js:269"
   ]
  },
  "Quire is ready to produce your letters.": {
@@ -24475,10 +24603,10 @@
  },
  "Range is the whole table cell contents.": {
   "where": [
-   "quire/js/vb-dom-ref.js:217"
+   "quire/js/vb-dom-ref.js:225"
   ]
  },
- "Range(Start, End) needs a story index.": {
+ "Range(Start, End) on the paragraph-order index.": {
   "where": [
    "quire/js/vb-dom-ref.js:96"
   ]
@@ -24580,11 +24708,13 @@
  },
  "Reading order in the anchor story, including paragraphs inside tables. Paragraphs(1) is Item(1).": {
   "where": [
-   "quire/js/vb-dom-ref.js:177"
+   "quire/js/vb-dom-ref.js:185"
   ]
  },
  "Ready": {
   "where": [
+   "common/vb-ide.js:99",
+   "common/vb-ide.js:1069",
    "ledger/js/app.js:616",
    "ledger/js/app.js:654"
   ]
@@ -24690,7 +24820,7 @@
  },
  "Recovered the unsaved changes. Save the document to keep them.": {
   "where": [
-   "quire/js/app.js:1449"
+   "quire/js/app.js:1457"
   ]
  },
  "Recovered the unsaved changes. Save the presentation to keep them.": {
@@ -24723,7 +24853,7 @@
  },
  "Red": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:187",
    "quire/js/dialogs3.js:607"
@@ -24906,7 +25036,7 @@
  },
  "Remove": {
   "where": [
-   "common/vb-ide.js:748",
+   "common/vb-ide.js:1009",
    "lectern/js/panes.js:799"
   ]
  },
@@ -24927,12 +25057,12 @@
  },
  "Remove All": {
   "where": [
-   "common/vb-ide.js:749"
+   "common/vb-ide.js:1010"
   ]
  },
  "Remove All Breakpoints": {
   "where": [
-   "common/vb-ide.js:726"
+   "common/vb-ide.js:974"
   ]
  },
  "Remove Borders": {
@@ -24942,7 +25072,7 @@
  },
  "Remove Breakpoint": {
   "where": [
-   "common/vb-ide.js:725"
+   "common/vb-ide.js:973"
   ]
  },
  "Remove Effect": {
@@ -25013,7 +25143,7 @@
  },
  "Removes the link and keeps the text.": {
   "where": [
-   "quire/js/vb-dom-ref.js:387"
+   "quire/js/vb-dom-ref.js:395"
   ]
  },
  "Rename": {
@@ -25131,12 +25261,12 @@
  },
  "Replace-with formatting is not a full Font object.": {
   "where": [
-   "quire/js/vb-dom-ref.js:338"
+   "quire/js/vb-dom-ref.js:346"
   ]
  },
  "Replacement.Font, Replacement.ParagraphFormat": {
   "where": [
-   "quire/js/vb-dom-ref.js:338"
+   "quire/js/vb-dom-ref.js:346"
   ]
  },
  "Replaces existing text with new text in a text string.": {
@@ -25308,6 +25438,11 @@
  "Return address:": {
   "where": [
    "quire/js/dialogs3.js:486"
+  ]
+ },
+ "Returns": {
+  "where": [
+   "common/vb-ide.js:1215"
   ]
  },
  "Returns -1 when a step ran.": {
@@ -27010,21 +27145,6 @@
    "common/suite.js:479"
   ]
  },
- "Ribbon Golden Gate": {
-  "where": [
-   "common/suite.js:480"
-  ]
- },
- "Ribbon Golden Gate (Dark)": {
-  "where": [
-   "common/suite.js:481"
-  ]
- },
- "Ribbon Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.": {
-  "where": [
-   "common/suite.js:481"
-  ]
- },
  "Rice Paper": {
   "where": [
    "quire/js/dialogs.js:980"
@@ -27151,7 +27271,7 @@
  },
  "Rose": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Rota&tion:": {
@@ -27333,7 +27453,7 @@
  },
  "Row.Delete, Row.Select, Row.Range, Row.Cells, Row.HeadingFormat": {
   "where": [
-   "quire/js/vb-dom-ref.js:222"
+   "quire/js/vb-dom-ref.js:230"
   ]
  },
  "Row.Height, Column.Width, Cell.Shape": {
@@ -27364,7 +27484,7 @@
  },
  "Rows, Columns, Range": {
   "where": [
-   "quire/js/vb-dom-ref.js:217"
+   "quire/js/vb-dom-ref.js:225"
   ]
  },
  "Rows, Columns, Worksheet, Font, Interior, Borders": {
@@ -27379,7 +27499,7 @@
  },
  "Rows.Add, Rows.Item, Rows.Count, Rows.Delete": {
   "where": [
-   "quire/js/vb-dom-ref.js:221"
+   "quire/js/vb-dom-ref.js:229"
   ]
  },
  "Ru&n-in": {
@@ -27389,9 +27509,9 @@
  },
  "Run": {
   "where": [
-   "lectern/js/dom-console.js:895",
-   "ledger/js/dom-console.js:905",
-   "quire/js/dom-console.js:903"
+   "lectern/js/dom-console.js:923",
+   "ledger/js/dom-console.js:933",
+   "quire/js/dom-console.js:931"
   ]
  },
  "Run Script": {
@@ -27416,12 +27536,17 @@
    "lectern/js/dom-console.js:822",
    "lectern/js/dom-console.js:834",
    "lectern/js/dom-console.js:851",
-   "lectern/js/dom-console.js:886"
+   "lectern/js/dom-console.js:874"
   ]
  },
  "Run, SendKeys, Wait, OnTime": {
   "where": [
    "ledger/js/vb-dom-ref.js:57"
+  ]
+ },
+ "Running": {
+  "where": [
+   "common/vb-ide.js:92"
   ]
  },
  "Runs a macro": {
@@ -27507,7 +27632,7 @@
  },
  "Same as Previous": {
   "where": [
-   "quire/js/app.js:1408"
+   "quire/js/app.js:1416"
   ]
  },
  "Same as the whole &table": {
@@ -27517,12 +27642,12 @@
  },
  "Same clipboard limit as Selection.": {
   "where": [
-   "quire/js/vb-dom-ref.js:156"
+   "quire/js/vb-dom-ref.js:164"
   ]
  },
  "Same effects as the indent and line-spacing commands.": {
   "where": [
-   "quire/js/vb-dom-ref.js:193"
+   "quire/js/vb-dom-ref.js:201"
   ]
  },
  "Sample": {
@@ -27545,7 +27670,7 @@
  },
  "Sample document": {
   "where": [
-   "quire/js/app.js:1395"
+   "quire/js/app.js:1403"
   ]
  },
  "Sample:": {
@@ -27573,7 +27698,7 @@
    "lectern/js/commands.js:26",
    "lectern/js/dom-console.js:822",
    "lectern/js/dom-console.js:851",
-   "lectern/js/dom-console.js:894"
+   "lectern/js/dom-console.js:922"
   ]
  },
  "Save &As...": {
@@ -27616,6 +27741,11 @@
  "Save Options": {
   "where": [
    "ledger/js/dialogs.js:677"
+  ]
+ },
+ "Save Project &As...": {
+  "where": [
+   "common/vb-ide.js:897"
   ]
  },
  "Save Word files as:": {
@@ -27665,7 +27795,7 @@
  },
  "Save on close": {
   "where": [
-   "quire/js/vb-dom-ref.js:459"
+   "quire/js/vb-dom-ref.js:470"
   ]
  },
  "Save the Document instead.": {
@@ -27877,7 +28007,7 @@
  },
  "Sea Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Search": {
@@ -28014,7 +28144,7 @@
  },
  "Section Break (Next Page)": {
   "where": [
-   "quire/js/app.js:1409",
+   "quire/js/app.js:1417",
    "quire/js/render.js:559"
   ]
  },
@@ -28273,7 +28403,7 @@
  },
  "Select text to highlight. Press Esc to stop.": {
   "where": [
-   "quire/js/app.js:1360"
+   "quire/js/app.js:1368"
   ]
  },
  "Select text, then use the Formatting toolbar or Format ▸ Font. Bullets and numbering live under Format ▸ Bullets and Numbering. Press Tab at the start of a bullet to demote it.": {
@@ -28308,7 +28438,7 @@
  },
  "Select the text to apply the formatting to.": {
   "where": [
-   "quire/js/app.js:1355"
+   "quire/js/app.js:1363"
   ]
  },
  "Select the text you want to store as AutoText first.": {
@@ -28328,9 +28458,9 @@
  },
  "Select, Delete": {
   "where": [
-   "quire/js/vb-dom-ref.js:219",
-   "quire/js/vb-dom-ref.js:423",
-   "quire/js/vb-dom-ref.js:437"
+   "quire/js/vb-dom-ref.js:227",
+   "quire/js/vb-dom-ref.js:432",
+   "quire/js/vb-dom-ref.js:446"
   ]
  },
  "Select, Delete, Duplicate, MoveTo": {
@@ -28360,7 +28490,7 @@
  },
  "Selection type": {
   "where": [
-   "quire/js/vb-dom-ref.js:467"
+   "quire/js/vb-dom-ref.js:478"
   ]
  },
  "Selects the main story.": {
@@ -28429,7 +28559,7 @@
  },
  "Sentences, Words": {
   "where": [
-   "quire/js/vb-dom-ref.js:162"
+   "quire/js/vb-dom-ref.js:170"
   ]
  },
  "Separate fields at:": {
@@ -28449,7 +28579,7 @@
  },
  "Separator and the resulting table. The Apply flags and Format fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:142"
+   "quire/js/vb-dom-ref.js:150"
   ]
  },
  "Series": {
@@ -28517,18 +28647,17 @@
  },
  "Set replaces the span. On a whole paragraph the paragraph is kept. Setting Text does not move the Selection, and does not join with the next paragraph.": {
   "where": [
-   "quire/js/vb-dom-ref.js:149"
+   "quire/js/vb-dom-ref.js:157"
   ]
  },
  "Set them, then call Execute with no arguments.": {
   "where": [
-   "quire/js/vb-dom-ref.js:335"
+   "quire/js/vb-dom-ref.js:343"
   ]
  },
  "Set width and height directly.": {
   "where": [
-   "lectern/js/vb-dom-ref.js:251",
-   "quire/js/vb-dom-ref.js:243"
+   "lectern/js/vb-dom-ref.js:251"
   ]
  },
  "Setting:": {
@@ -28574,7 +28703,7 @@
  },
  "Shading.BackgroundPatternColor, Shading.ForegroundPatternColor, Shading.Texture": {
   "where": [
-   "quire/js/vb-dom-ref.js:226"
+   "quire/js/vb-dom-ref.js:234"
   ]
  },
  "Shadow": {
@@ -28811,9 +28940,14 @@
    "ledger/js/panes.js:137"
   ]
  },
+ "Shortcuts to Font.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:128"
+  ]
+ },
  "Shortcuts to Font. Underline uses the underline constants.": {
   "where": [
-   "quire/js/vb-dom-ref.js:160"
+   "quire/js/vb-dom-ref.js:168"
   ]
  },
  "Show": {
@@ -29087,6 +29221,11 @@
    "ledger/js/dialogs.js:802"
   ]
  },
+ "Signature": {
+  "where": [
+   "common/vb-ide.js:1211"
+  ]
+ },
  "Silver": {
   "where": [
    "lectern/js/dialogs.js:310",
@@ -29204,7 +29343,7 @@
  },
  "Size, SizeBi": {
   "where": [
-   "quire/js/vb-dom-ref.js:275"
+   "quire/js/vb-dom-ref.js:283"
   ]
  },
  "Size:": {
@@ -29237,7 +29376,7 @@
  },
  "Sky Blue": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Slant Down": {
@@ -29684,7 +29823,7 @@
  },
  "Some of this file can't be saved exactly as it was:": {
   "where": [
-   "common/ui.js:1301"
+   "common/ui.js:1358"
   ]
  },
  "Sort": {
@@ -29776,6 +29915,7 @@
  },
  "Source": {
   "where": [
+   "common/vb-ide.js:934",
    "ledger/js/dialogs.js:982"
   ]
  },
@@ -29836,17 +29976,17 @@
  },
  "SpaceBefore, SpaceAfter, LineSpacing": {
   "where": [
-   "quire/js/vb-dom-ref.js:187"
+   "quire/js/vb-dom-ref.js:195"
   ]
  },
  "SpaceBefore, SpaceAfter, LineSpacing, LineSpacingRule": {
   "where": [
-   "quire/js/vb-dom-ref.js:295"
+   "quire/js/vb-dom-ref.js:303"
   ]
  },
  "SpaceBeforeAuto, SpaceAfterAuto": {
   "where": [
-   "quire/js/vb-dom-ref.js:296"
+   "quire/js/vb-dom-ref.js:304"
   ]
  },
  "Space|key": {
@@ -29862,12 +30002,17 @@
  },
  "Spacing and position in points. Scaling is the character-width percent.": {
   "where": [
-   "quire/js/vb-dom-ref.js:283"
+   "quire/js/vb-dom-ref.js:291"
+  ]
+ },
+ "Spacing is the stored cell spacing. Uniform is true when the columns match.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:240"
   ]
  },
  "Spacing, Position, Scaling, Kerning": {
   "where": [
-   "quire/js/vb-dom-ref.js:283"
+   "quire/js/vb-dom-ref.js:291"
   ]
  },
  "Spacing:": {
@@ -30063,7 +30208,7 @@
  },
  "Split Table": {
   "where": [
-   "quire/js/dom.js:2880",
+   "quire/js/dom.js:3929",
    "quire/js/tables.js:542"
   ]
  },
@@ -30079,7 +30224,7 @@
  },
  "Split(BeforeRow).": {
   "where": [
-   "quire/js/vb-dom-ref.js:220"
+   "quire/js/vb-dom-ref.js:228"
   ]
  },
  "Splits text into rows or columns using delimiters.": {
@@ -30170,7 +30315,7 @@
  },
  "Standard": {
   "where": [
-   "common/ui.js:1567",
+   "common/ui.js:1624",
    "lectern/js/app.js:198",
    "ledger/js/app.js:563",
    "ledger/js/dialogs.js:986"
@@ -30212,12 +30357,12 @@
  },
  "Start &Debug": {
   "where": [
-   "common/vb-ide.js:674"
+   "common/vb-ide.js:904"
   ]
  },
  "Start &Run": {
   "where": [
-   "common/vb-ide.js:675"
+   "common/vb-ide.js:905"
   ]
  },
  "Start &With Previous": {
@@ -30233,7 +30378,7 @@
  },
  "Start Debug (F5)": {
   "where": [
-   "common/vb-ide.js:683"
+   "common/vb-ide.js:913"
   ]
  },
  "Start Enforcing Protection": {
@@ -30253,7 +30398,7 @@
  },
  "Start Run": {
   "where": [
-   "common/vb-ide.js:684"
+   "common/vb-ide.js:914"
   ]
  },
  "Start Slide Show": {
@@ -30303,9 +30448,9 @@
  },
  "Start, End": {
   "where": [
-   "quire/js/vb-dom-ref.js:133",
-   "quire/js/vb-dom-ref.js:171",
-   "quire/js/vb-dom-ref.js:358"
+   "quire/js/vb-dom-ref.js:141",
+   "quire/js/vb-dom-ref.js:179",
+   "quire/js/vb-dom-ref.js:366"
   ]
  },
  "Start, Length, BoundLeft, BoundTop, BoundWidth, BoundHeight": {
@@ -30345,9 +30490,9 @@
  },
  "Startup Sub Main or startup form was not found": {
   "where": [
-   "lectern/js/vb-host.js:339",
-   "ledger/js/vb-host.js:381",
-   "quire/js/vb-host.js:337"
+   "lectern/js/vb-host.js:347",
+   "ledger/js/vb-host.js:389",
+   "quire/js/vb-host.js:345"
   ]
  },
  "Startup Task Pane": {
@@ -30380,7 +30525,7 @@
    "lectern/js/dialogs.js:966",
    "ledger/js/dialogs.js:709",
    "quire/js/dialogs3.js:686",
-   "quire/js/vb-dom-ref.js:466"
+   "quire/js/vb-dom-ref.js:477"
   ]
  },
  "Statistics:": {
@@ -30438,22 +30583,22 @@
  },
  "Step &Into": {
   "where": [
-   "common/vb-ide.js:678"
+   "common/vb-ide.js:908"
   ]
  },
  "Step &Over": {
   "where": [
-   "common/vb-ide.js:677"
+   "common/vb-ide.js:907"
   ]
  },
  "Step Into": {
   "where": [
-   "common/vb-ide.js:686"
+   "common/vb-ide.js:916"
   ]
  },
  "Step Over": {
   "where": [
-   "common/vb-ide.js:687"
+   "common/vb-ide.js:917"
   ]
  },
  "Step Up Process": {
@@ -30498,7 +30643,7 @@
  },
  "Stop Debugging": {
   "where": [
-   "common/vb-ide.js:688"
+   "common/vb-ide.js:918"
   ]
  },
  "Stop Protection": {
@@ -30508,19 +30653,12 @@
  },
  "Stored flags, not a separate drawing effect.": {
   "where": [
-   "quire/js/vb-dom-ref.js:284"
+   "quire/js/vb-dom-ref.js:292"
   ]
  },
  "Story": {
   "where": [
-   "quire/js/vb-dom-ref.js:463"
-  ]
- },
- "Story offsets.": {
-  "where": [
-   "quire/js/vb-dom-ref.js:133",
-   "quire/js/vb-dom-ref.js:171",
-   "quire/js/vb-dom-ref.js:358"
+   "quire/js/vb-dom-ref.js:474"
   ]
  },
  "Straight Connector": {
@@ -30539,7 +30677,7 @@
  },
  "StrikeThrough, DoubleStrikeThrough": {
   "where": [
-   "quire/js/vb-dom-ref.js:278"
+   "quire/js/vb-dom-ref.js:286"
   ]
  },
  "Strikethrough": {
@@ -30640,7 +30778,7 @@
  },
  "Styles Quire stores. The underline color is UnderlineColor.": {
   "where": [
-   "quire/js/vb-dom-ref.js:277"
+   "quire/js/vb-dom-ref.js:285"
   ]
  },
  "Styles and Formatting": {
@@ -30678,6 +30816,11 @@
   "where": [
    "lectern/js/dialogs.js:146",
    "quire/js/dialogs.js:219"
+  ]
+ },
+ "Sub Main\n    ' Insert your code here\n    \nEnd Sub": {
+  "where": [
+   "common/vb-ide.js:10"
   ]
  },
  "Subject-Verb Agreement": {
@@ -30827,7 +30970,7 @@
  },
  "Superscript, Subscript": {
   "where": [
-   "quire/js/vb-dom-ref.js:280"
+   "quire/js/vb-dom-ref.js:288"
   ]
  },
  "Swedish": {
@@ -30842,7 +30985,7 @@
  },
  "Switch views with the buttons in the lower-left corner: Normal, Web Layout, Print Layout, Outline and Reading Layout.": {
   "where": [
-   "quire/js/app.js:1377"
+   "quire/js/app.js:1385"
   ]
  },
  "Switches the session to this document.": {
@@ -30987,12 +31130,12 @@
  },
  "TabStop.Position, Alignment, Leader, Clear": {
   "where": [
-   "quire/js/vb-dom-ref.js:305"
+   "quire/js/vb-dom-ref.js:313"
   ]
  },
  "TabStops.Item, Count, ClearAll": {
   "where": [
-   "quire/js/vb-dom-ref.js:304"
+   "quire/js/vb-dom-ref.js:312"
   ]
  },
  "Table": {
@@ -31056,7 +31199,7 @@
  },
  "Table Style": {
   "where": [
-   "quire/js/dom.js:2839"
+   "quire/js/dom.js:3888"
   ]
  },
  "Table Style Options": {
@@ -31117,7 +31260,7 @@
  },
  "Table styles Quire can apply.": {
   "where": [
-   "quire/js/vb-dom-ref.js:218"
+   "quire/js/vb-dom-ref.js:226"
   ]
  },
  "Table styles:": {
@@ -31150,9 +31293,9 @@
    "quire/js/dialogs2.js:340"
   ]
  },
- "Tables this anchor touches.": {
+ "Tables this anchor touches. Add inserts at this anchor when Range is omitted.": {
   "where": [
-   "quire/js/vb-dom-ref.js:163"
+   "quire/js/vb-dom-ref.js:171"
   ]
  },
  "Tables with vertically merged cells cannot be sorted.": {
@@ -31180,7 +31323,7 @@
  },
  "Tabs, leaders and fields": {
   "where": [
-   "quire/js/app.js:1387"
+   "quire/js/app.js:1395"
   ]
  },
  "Tab|key": {
@@ -31195,7 +31338,7 @@
  },
  "Tan": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Target": {
@@ -31282,7 +31425,7 @@
  },
  "Teal": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -31508,7 +31651,7 @@
  },
  "Text animation is not stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:287"
+   "quire/js/vb-dom-ref.js:295"
   ]
  },
  "Text boundaries": {
@@ -31543,12 +31686,12 @@
  },
  "Text of a text box, as an anchor range.": {
   "where": [
-   "quire/js/vb-dom-ref.js:436"
+   "quire/js/vb-dom-ref.js:445"
   ]
  },
  "Text of that header or footer story.": {
   "where": [
-   "quire/js/vb-dom-ref.js:245"
+   "quire/js/vb-dom-ref.js:253"
   ]
  },
  "Text orientation is not this property.": {
@@ -31584,7 +31727,7 @@
  },
  "Text, MatchCase, MatchWholeWord, MatchWildcards, MatchSoundsLike, MatchAllWordForms, Forward, Wrap, Format, Replacement": {
   "where": [
-   "quire/js/vb-dom-ref.js:335"
+   "quire/js/vb-dom-ref.js:343"
   ]
  },
  "TextFrame, TextFrame2": {
@@ -31635,7 +31778,7 @@
  },
  "That address is not available.": {
   "where": [
-   "common/host-audit.js:278"
+   "common/host-audit.js:291"
   ]
  },
  "That command cannot be used on multiple selections.": {
@@ -31650,8 +31793,8 @@
  },
  "That dialog is not available (G-HOST)": {
   "where": [
-   "common/host-audit.js:377",
-   "common/host-audit.js:403"
+   "common/host-audit.js:390",
+   "common/host-audit.js:416"
   ]
  },
  "That file is no longer available here. Open it again from the Explorer.": {
@@ -31667,7 +31810,7 @@
  },
  "That paragraph text. No story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:183"
+   "quire/js/vb-dom-ref.js:191"
   ]
  },
  "The Find What text contains a Pattern Match expression which is not valid.": {
@@ -31725,10 +31868,10 @@
  },
  "The VB runtime is not running": {
   "where": [
-   "common/vb-ide.js:452",
-   "lectern/js/macros.js:260",
-   "lectern/js/macros.js:280",
-   "lectern/js/macros.js:285"
+   "common/vb-ide.js:592",
+   "common/vb-ide.js:618",
+   "common/vb-ide.js:1093",
+   "lectern/js/dom-console.js:865"
   ]
  },
  "The active cell does not contain a formula that refers to a valid reference.": {
@@ -31746,6 +31889,11 @@
    "ledger/js/app.js:1332"
   ]
  },
+ "The active document.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:127"
+  ]
+ },
  "The active presentation.": {
   "where": [
    "lectern/js/vb-dom-ref.js:95"
@@ -31753,7 +31901,7 @@
  },
  "The anchored document span. No story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:399"
+   "quire/js/vb-dom-ref.js:407"
   ]
  },
  "The array and the range are different sizes.": {
@@ -31763,12 +31911,12 @@
  },
  "The autofit modes the table editor already has.": {
   "where": [
-   "quire/js/vb-dom-ref.js:228"
+   "quire/js/vb-dom-ref.js:236"
   ]
  },
  "The bidi flag.": {
   "where": [
-   "quire/js/vb-dom-ref.js:302"
+   "quire/js/vb-dom-ref.js:310"
   ]
  },
  "The built-in design list.": {
@@ -31793,7 +31941,7 @@
  },
  "The case changes the editor already applies.": {
   "where": [
-   "quire/js/vb-dom-ref.js:166"
+   "quire/js/vb-dom-ref.js:174"
   ]
  },
  "The cell or chart you are trying to change is protected and therefore read-only.\n\nTo modify a protected cell or chart, first remove protection using the Unprotect Sheet command (Tools menu, Protection submenu). You may be prompted for a password.": {
@@ -31808,7 +31956,7 @@
  },
  "The chart inserter is not this signature.": {
   "where": [
-   "quire/js/vb-dom-ref.js:440"
+   "quire/js/vb-dom-ref.js:451"
   ]
  },
  "The classic blue toolbars and menus.": {
@@ -31816,9 +31964,14 @@
    "common/suite.js:476"
   ]
  },
+ "The code could not be compiled.": {
+  "where": [
+   "common/vb-ide.js:251"
+  ]
+ },
  "The comment body.": {
   "where": [
-   "quire/js/vb-dom-ref.js:398"
+   "quire/js/vb-dom-ref.js:406"
   ]
  },
  "The comments from Document Properties": {
@@ -31853,7 +32006,7 @@
  },
  "The conversion the notes editor already performs. Endnotes.Convert is the same.": {
   "where": [
-   "quire/js/vb-dom-ref.js:413"
+   "quire/js/vb-dom-ref.js:421"
   ]
  },
  "The criteria range is not valid.": {
@@ -31913,9 +32066,9 @@
  },
  "The document macros are not loaded": {
   "where": [
-   "lectern/js/vb-host.js:413",
-   "ledger/js/vb-host.js:448",
-   "quire/js/vb-host.js:408"
+   "lectern/js/vb-host.js:421",
+   "ledger/js/vb-host.js:456",
+   "quire/js/vb-host.js:416"
   ]
  },
  "The document was shrunk by one page.": {
@@ -31975,10 +32128,10 @@
  },
  "The editor did not allow this operation.": {
   "where": [
-   "common/host-audit.js:86",
-   "common/host-audit.js:109",
-   "lectern/js/dom-ir.js:461",
-   "ledger/js/dom-ir.js:466"
+   "common/host-audit.js:99",
+   "common/host-audit.js:122",
+   "lectern/js/dom-ir.js:484",
+   "ledger/js/dom-ir.js:489"
   ]
  },
  "The editor did not build a document.": {
@@ -31993,10 +32146,10 @@
  },
  "The editor refused this operation.": {
   "where": [
-   "common/host-audit.js:94",
-   "common/host-audit.js:314",
-   "lectern/js/dom-ir.js:455",
-   "ledger/js/dom-ir.js:460"
+   "common/host-audit.js:107",
+   "common/host-audit.js:327",
+   "lectern/js/dom-ir.js:478",
+   "ledger/js/dom-ir.js:483"
   ]
  },
  "The effects in Constants. A stored effect outside that list fails to read.": {
@@ -32033,7 +32186,7 @@
  },
  "The file could not be chosen.": {
   "where": [
-   "common/host-audit.js:198"
+   "common/host-audit.js:211"
   ]
  },
  "The file could not be inserted. {0}": {
@@ -32043,12 +32196,12 @@
  },
  "The file could not be opened.": {
   "where": [
-   "common/host-audit.js:210"
+   "common/host-audit.js:223"
   ]
  },
  "The file could not be read.": {
   "where": [
-   "common/host-audit.js:182",
+   "common/host-audit.js:195",
    "common/suite.js:253"
   ]
  },
@@ -32087,7 +32240,7 @@
  },
  "The folder could not be listed.": {
   "where": [
-   "common/host-audit.js:304"
+   "common/host-audit.js:317"
   ]
  },
  "The fonts on this computer could not be listed: permission was not given.": {
@@ -32139,37 +32292,37 @@
  },
  "The highlight names Quire stores.": {
   "where": [
-   "quire/js/vb-dom-ref.js:282"
+   "quire/js/vb-dom-ref.js:290"
   ]
  },
  "The information types need a story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:135"
+   "quire/js/vb-dom-ref.js:143"
   ]
  },
  "The injected module has no Lectern object": {
   "where": [
-   "lectern/js/vb-host.js:275"
+   "lectern/js/vb-host.js:283"
   ]
  },
  "The injected module has no Ledger object": {
   "where": [
-   "ledger/js/vb-host.js:324"
+   "ledger/js/vb-host.js:332"
   ]
  },
  "The injected module has no Quire object": {
   "where": [
-   "quire/js/vb-host.js:271"
+   "quire/js/vb-host.js:279"
   ]
  },
  "The inline anchor. No story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:424"
+   "quire/js/vb-dom-ref.js:433"
   ]
  },
  "The instruction text as an anchor, not a story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:370"
+   "quire/js/vb-dom-ref.js:378"
   ]
  },
  "The intersection of two areas is empty.": {
@@ -32184,7 +32337,7 @@
  },
  "The linked text. No story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:386"
+   "quire/js/vb-dom-ref.js:394"
   ]
  },
  "The list is empty.": {
@@ -32291,13 +32444,13 @@
  },
  "The new language is used in the windows you open from now on.": {
   "where": [
-   "common/ui.js:1444",
-   "common/ui.js:1450"
+   "common/ui.js:1501",
+   "common/ui.js:1507"
   ]
  },
  "The note story.": {
   "where": [
-   "quire/js/vb-dom-ref.js:410"
+   "quire/js/vb-dom-ref.js:418"
   ]
  },
  "The number in this cell is formatted as text or preceded by an apostrophe.": {
@@ -32327,7 +32480,7 @@
  },
  "The number of rows and columns must be at least 1": {
   "where": [
-   "quire/js/dom.js:3444"
+   "quire/js/dom.js:4613"
   ]
  },
  "The number of the current page": {
@@ -32352,7 +32505,7 @@
  },
  "The object on a Range or Selection. Arguments follow VBA order.": {
   "where": [
-   "quire/js/vb-dom-ref.js:331"
+   "quire/js/vb-dom-ref.js:339"
   ]
  },
  "The open document in the current session.": {
@@ -32372,7 +32525,7 @@
  },
  "The parameter ExportFormat is not available.": {
   "where": [
-   "common/host-audit.js:265"
+   "common/host-audit.js:278"
   ]
  },
  "The parameter FileFormat is not available.": {
@@ -32380,12 +32533,12 @@
    "lectern/js/dom.js:1725",
    "ledger/js/dom.js:1146",
    "ledger/js/dom.js:1592",
-   "quire/js/dom.js:1397"
+   "quire/js/dom.js:1979"
   ]
  },
  "The parameter FileName is not available.": {
   "where": [
-   "common/host-audit.js:218",
+   "common/host-audit.js:231",
    "quire/js/commands.js:702"
   ]
  },
@@ -32398,7 +32551,12 @@
   "where": [
    "lectern/js/dom.js:1092",
    "ledger/js/dom.js:1426",
-   "quire/js/dom.js:2542"
+   "quire/js/dom.js:3552"
+  ]
+ },
+ "The parameter SaveWithDocument is not available.": {
+  "where": [
+   "quire/js/dom.js:3557"
   ]
  },
  "The password confirmation does not match.": {
@@ -32413,7 +32571,7 @@
  },
  "The password is incorrect. Try again.": {
   "where": [
-   "common/ui.js:1312"
+   "common/ui.js:1369"
   ]
  },
  "The password is incorrect. {0} cannot open the document.": {
@@ -32477,7 +32635,7 @@
  },
  "The program is not paused.": {
   "where": [
-   "common/vb-ide.js:486"
+   "common/vb-ide.js:652"
   ]
  },
  "The pronoun \"I\" is always capitalized.": {
@@ -32492,7 +32650,7 @@
  },
  "The purpose of introducing Visual Basic-based macros in Ledger is to automate workbook editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Excel's .xlsm format or VBA projects.": {
   "where": [
-   "ledger/js/macros.js:330"
+   "ledger/js/macros.js:333"
   ]
  },
  "The purpose of introducing Visual Basic-based macros in Quire is to automate document editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Word's .docm format or VBA projects.": {
@@ -32507,20 +32665,20 @@
  },
  "The reference mark offset is not published. The note is still Item.": {
   "where": [
-   "quire/js/vb-dom-ref.js:412"
+   "quire/js/vb-dom-ref.js:420"
   ]
  },
  "The requested member of the collection does not exist.": {
   "where": [
    "lectern/js/dom.js:17",
    "ledger/js/dom.js:64",
-   "quire/js/dom.js:71",
-   "quire/js/dom.js:1446"
+   "quire/js/dom.js:90",
+   "quire/js/dom.js:2037"
   ]
  },
  "The result text.": {
   "where": [
-   "quire/js/vb-dom-ref.js:369"
+   "quire/js/vb-dom-ref.js:377"
   ]
  },
  "The result was a VB object. Use Debug.Print to return a string, number, or Boolean.": {
@@ -32530,27 +32688,37 @@
  },
  "The revised span text. No story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:452"
+   "quire/js/vb-dom-ref.js:463"
   ]
  },
  "The rule matches the spacing Quire stores: single, 1.5, double, at least, exactly, multiple.": {
   "where": [
-   "quire/js/vb-dom-ref.js:295"
+   "quire/js/vb-dom-ref.js:303"
   ]
  },
  "The run border and shading already stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:286"
+   "quire/js/vb-dom-ref.js:294"
   ]
  },
  "The run language. LanguageIDFarEast maps to the East Asian language.": {
   "where": [
-   "quire/js/vb-dom-ref.js:170"
+   "quire/js/vb-dom-ref.js:178"
   ]
  },
  "The running show, or empty.": {
   "where": [
    "lectern/js/vb-dom-ref.js:54"
+  ]
+ },
+ "The same collections as Range, including Add and AddPicture.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:130"
+  ]
+ },
+ "The same collections as Range. Tables.Add inserts at the selection when Range is omitted.": {
+  "where": [
+   "quire/js/vb-dom-ref.js:129"
   ]
  },
  "The same gaps as the objects in Not available.": {
@@ -32565,7 +32733,7 @@
  },
  "The script editor did not load.": {
   "where": [
-   "common/vb-ide.js:814",
+   "common/vb-ide.js:1544",
    "lectern/js/dom-console.js:756",
    "ledger/js/dom-console.js:766",
    "quire/js/dom-console.js:760"
@@ -32633,7 +32801,7 @@
  },
  "The sort keys the table editor already takes. Extra flags fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:229"
+   "quire/js/vb-dom-ref.js:237"
   ]
  },
  "The speller and other proofing tools use the dictionaries of the selected language.": {
@@ -32661,17 +32829,17 @@
  },
  "The stored no-snap flag. The other Far East layout flags fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:306"
+   "quire/js/vb-dom-ref.js:314"
   ]
  },
  "The style does not exist": {
   "where": [
-   "quire/js/dom.js:170"
+   "quire/js/dom.js:189"
   ]
  },
  "The suppress-auto-hyphens flag, inverted to match VBA on that paragraph.": {
   "where": [
-   "quire/js/vb-dom-ref.js:299"
+   "quire/js/vb-dom-ref.js:307"
   ]
  },
  "The table or worksheet that owned this query was deleted.": {
@@ -32686,9 +32854,9 @@
  },
  "The terminal library did not load.": {
   "where": [
-   "lectern/js/dom-console.js:929",
-   "ledger/js/dom-console.js:939",
-   "quire/js/dom-console.js:937"
+   "lectern/js/dom-console.js:957",
+   "ledger/js/dom-console.js:967",
+   "quire/js/dom-console.js:965"
   ]
  },
  "The text is not marked as English, so it was not checked. Use Tools ▸ Language ▸ Set Language to mark it.": {
@@ -32784,7 +32952,7 @@
  },
  "Theme:": {
   "where": [
-   "common/ui.js:1470"
+   "common/ui.js:1527"
   ]
  },
  "Themes": {
@@ -32857,7 +33025,7 @@
  },
  "There is no ListTemplate gallery. Use the bullet and number defaults, or the list level.": {
   "where": [
-   "quire/js/vb-dom-ref.js:317"
+   "quire/js/vb-dom-ref.js:325"
   ]
  },
  "There is no OLE object model.": {
@@ -32867,7 +33035,7 @@
  },
  "There is no bookmark copy.": {
   "where": [
-   "quire/js/vb-dom-ref.js:359"
+   "quire/js/vb-dom-ref.js:367"
   ]
  },
  "There is no building-block object.": {
@@ -32882,7 +33050,7 @@
  },
  "There is no continue-previous flag.": {
   "where": [
-   "quire/js/vb-dom-ref.js:318"
+   "quire/js/vb-dom-ref.js:326"
   ]
  },
  "There is no custom-XML edit API.": {
@@ -32912,7 +33080,7 @@
  },
  "There is no field copy.": {
   "where": [
-   "quire/js/vb-dom-ref.js:376"
+   "quire/js/vb-dom-ref.js:384"
   ]
  },
  "There is no legacy form-field editor.": {
@@ -32927,7 +33095,8 @@
  },
  "There is no rich-text value separate from the document.": {
   "where": [
-   "quire/js/vb-dom-ref.js:169"
+   "quire/js/vb-dom-ref.js:133",
+   "quire/js/vb-dom-ref.js:177"
   ]
  },
  "There is no table of contents in this document.": {
@@ -32943,7 +33112,7 @@
  },
  "There is nothing to print.": {
   "where": [
-   "common/host-audit.js:233"
+   "common/host-audit.js:246"
   ]
  },
  "Thesaurus": {
@@ -32968,7 +33137,7 @@
  },
  "These moves need a story index.": {
   "where": [
-   "quire/js/vb-dom-ref.js:134"
+   "quire/js/vb-dom-ref.js:142"
   ]
  },
  "These settings apply to every app of VibeOffice.work.": {
@@ -32978,7 +33147,7 @@
  },
  "These use anchors, not story indexes. ActiveDocument.Range(0, 5) stays G-STORY. wdColorAutomatic is above. Named palette colours use Word BGR longs.": {
   "where": [
-   "quire/js/vb-dom-ref.js:470"
+   "quire/js/vb-dom-ref.js:481"
   ]
  },
  "Thick": {
@@ -33211,8 +33380,8 @@
  },
  "This file is not a Visual Basic project.": {
   "where": [
-   "common/vb-ide.js:545",
-   "common/vb-ide.js:549"
+   "common/vb-ide.js:762",
+   "common/vb-ide.js:766"
   ]
  },
  "This file is not an Excel workbook.": {
@@ -33347,8 +33516,8 @@
  },
  "This session does not have that host ability (G-HOST)": {
   "where": [
-   "common/host-audit.js:163",
-   "common/host-audit.js:176"
+   "common/host-audit.js:176",
+   "common/host-audit.js:189"
   ]
  },
  "This session does not have that host ability.": {
@@ -33398,7 +33567,7 @@
  },
  "Those objects are not wrapped.": {
   "where": [
-   "quire/js/vb-dom-ref.js:441"
+   "quire/js/vb-dom-ref.js:452"
   ]
  },
  "Those operations are not on the deck.": {
@@ -33413,12 +33582,12 @@
  },
  "Those style-pane flags are not stored.": {
   "where": [
-   "quire/js/vb-dom-ref.js:267"
+   "quire/js/vb-dom-ref.js:275"
   ]
  },
  "Those that lie in the anchor.": {
   "where": [
-   "quire/js/vb-dom-ref.js:168"
+   "quire/js/vb-dom-ref.js:176"
   ]
  },
  "Through": {
@@ -33869,7 +34038,7 @@
   "where": [
    "quire/js/commands.js:404",
    "quire/js/dialogs3.js:620",
-   "quire/js/dom.js:1878",
+   "quire/js/dom.js:2531",
    "quire/js/ribbon.js:66"
   ]
  },
@@ -33890,7 +34059,7 @@
  },
  "Track changes": {
   "where": [
-   "quire/js/app.js:1381",
+   "quire/js/app.js:1389",
    "quire/js/panes.js:107"
   ]
  },
@@ -33998,6 +34167,21 @@
    "quire/js/drawing.js:142"
   ]
  },
+ "Triggered Breakpoint": {
+  "where": [
+   "common/vb-ide.js:94"
+  ]
+ },
+ "Triggered Error Interrupt": {
+  "where": [
+   "common/vb-ide.js:95"
+  ]
+ },
+ "Triggered Watch": {
+  "where": [
+   "common/vb-ide.js:96"
+  ]
+ },
  "Triple": {
   "where": [
    "lectern/js/dialogs.js:468",
@@ -34021,7 +34205,7 @@
  },
  "Turquoise": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -34034,10 +34218,10 @@
  },
  "Type": {
   "where": [
+   "common/vb-ide.js:1231",
    "ledger/js/dialogs.js:632",
    "ledger/js/dialogs.js:982",
-   "ledger/js/ribbon.js:86",
-   "quire/js/dialogs2.js:339"
+   "ledger/js/ribbon.js:86"
   ]
  },
  "Type a brief description of what you want to do and then click Go": {
@@ -34112,7 +34296,7 @@
  },
  "Type, Target": {
   "where": [
-   "quire/js/vb-dom-ref.js:389"
+   "quire/js/vb-dom-ref.js:397"
   ]
  },
  "Type:": {
@@ -34125,7 +34309,7 @@
  },
  "Types the drawing editor can build. Other auto-shape codes fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:439"
+   "quire/js/vb-dom-ref.js:450"
   ]
  },
  "Typing": {
@@ -34329,7 +34513,7 @@
  },
  "Uniform, Spacing": {
   "where": [
-   "quire/js/vb-dom-ref.js:232"
+   "quire/js/vb-dom-ref.js:240"
   ]
  },
  "Unique &records only": {
@@ -34339,22 +34523,23 @@
  },
  "Unknown handle": {
   "where": [
-   "lectern/js/dom-ir.js:477",
-   "lectern/js/dom-ir.js:560",
-   "ledger/js/dom-ir.js:484",
-   "ledger/js/dom-ir.js:571"
+   "lectern/js/dom-ir.js:500",
+   "lectern/js/dom-ir.js:583",
+   "ledger/js/dom-ir.js:507",
+   "ledger/js/dom-ir.js:594"
   ]
  },
  "Unknown operation": {
   "where": [
-   "lectern/js/dom-ir.js:570",
-   "ledger/js/dom-ir.js:581",
-   "quire/js/dom-ir.js:844"
+   "lectern/js/dom-ir.js:593",
+   "ledger/js/dom-ir.js:604",
+   "quire/js/dom-ir.js:1045"
   ]
  },
  "Unlink Fields": {
   "where": [
    "quire/js/commands.js:392",
+   "quire/js/dom.js:2822",
    "quire/js/fields.js:454"
   ]
  },
@@ -34485,7 +34670,7 @@
  },
  "Update Field": {
   "where": [
-   "quire/js/dom.js:2087",
+   "quire/js/dom.js:2789",
    "quire/js/fields.js:409"
   ]
  },
@@ -34527,7 +34712,7 @@
  },
  "Updates fields Quire knows how to evaluate.": {
   "where": [
-   "quire/js/vb-dom-ref.js:367"
+   "quire/js/vb-dom-ref.js:375"
   ]
  },
  "Updating cached resources": {
@@ -34700,7 +34885,7 @@
  },
  "Uses the existing reply. Deeper thread properties fail.": {
   "where": [
-   "quire/js/vb-dom-ref.js:397"
+   "quire/js/vb-dom-ref.js:405"
   ]
  },
  "V&ery Loose": {
@@ -34728,11 +34913,6 @@
   "where": [
    "lectern/js/vb-host.js:22",
    "ledger/js/vb-host.js:22"
-  ]
- },
- "VS Code Golden Gate": {
-  "where": [
-   "common/suite.js:482"
   ]
  },
  "Va&lidation...": {
@@ -34785,12 +34965,12 @@
  },
  "Values stored on the run.": {
   "where": [
-   "quire/js/vb-dom-ref.js:285"
+   "quire/js/vb-dom-ref.js:293"
   ]
  },
  "Values the cell and paragraph shading already store.": {
   "where": [
-   "quire/js/vb-dom-ref.js:226"
+   "quire/js/vb-dom-ref.js:234"
   ]
  },
  "Var": {
@@ -34909,15 +35089,15 @@
  },
  "VibeOffice": {
   "where": [
-   "common/ui.js:1919"
+   "common/ui.js:1976"
   ]
  },
  "VibeOffice Visual Basic": {
   "where": [
-   "common/vb-ide.js:819",
+   "common/vb-ide.js:255",
+   "common/vb-ide.js:1551",
    "lectern/js/commands.js:152",
-   "lectern/js/ribbon.js:69",
-   "ledger/js/commands.js:205"
+   "lectern/js/ribbon.js:69"
   ]
  },
  "VibeOffice.work can't open “{0}”. It opens documents (.docx, .rtf), spreadsheets (.xlsx, .csv) and presentations (.pptx).": {
@@ -34992,7 +35172,7 @@
  },
  "Violet": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
@@ -35020,7 +35200,7 @@
  },
  "Visual Basic DOM API Reference": {
   "where": [
-   "common/vb-dom-ref.js:155"
+   "common/vb-dom-ref.js:177"
   ]
  },
  "Visual Basic is not available in this editor.": {
@@ -35166,8 +35346,8 @@
  },
  "Welcome to Quire": {
   "where": [
-   "quire/js/app.js:1370",
-   "quire/js/app.js:1372"
+   "quire/js/app.js:1378",
+   "quire/js/app.js:1380"
   ]
  },
  "Welcome to VibeOffice.work.": {
@@ -35276,7 +35456,7 @@
  },
  "When the shape stores a link.": {
   "where": [
-   "quire/js/vb-dom-ref.js:426"
+   "quire/js/vb-dom-ref.js:435"
   ]
  },
  "When this API changes, update {0} and this reference together.": {
@@ -35301,7 +35481,7 @@
  },
  "White": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889"
   ]
  },
@@ -35368,7 +35548,7 @@
  },
  "Width and height are points.": {
   "where": [
-   "quire/js/vb-dom-ref.js:225"
+   "quire/js/vb-dom-ref.js:233"
   ]
  },
  "Width and spacing": {
@@ -35378,12 +35558,12 @@
  },
  "Width is points.": {
   "where": [
-   "quire/js/vb-dom-ref.js:223"
+   "quire/js/vb-dom-ref.js:231"
   ]
  },
  "Width, Height, ScaleWidth, ScaleHeight": {
   "where": [
-   "quire/js/vb-dom-ref.js:421"
+   "quire/js/vb-dom-ref.js:430"
   ]
  },
  "Width:": {
@@ -35503,7 +35683,7 @@
  },
  "Word BGR long, plus wdColorAutomatic.": {
   "where": [
-   "quire/js/vb-dom-ref.js:281"
+   "quire/js/vb-dom-ref.js:289"
   ]
  },
  "Word Count": {
@@ -35626,8 +35806,8 @@
  },
  "Working...": {
   "where": [
-   "common/ui.js:1912",
-   "common/ui.js:1914"
+   "common/ui.js:1969",
+   "common/ui.js:1971"
   ]
  },
  "Worksheet": {
@@ -35671,7 +35851,7 @@
  },
  "Wrap modes the drawing editor already sets.": {
   "where": [
-   "quire/js/vb-dom-ref.js:435"
+   "quire/js/vb-dom-ref.js:444"
   ]
  },
  "Wrapping style": {
@@ -35727,7 +35907,7 @@
  },
  "XPS is not available.": {
   "where": [
-   "common/host-audit.js:260"
+   "common/host-audit.js:273"
   ]
  },
  "XY (Scatter)": {
@@ -35738,7 +35918,7 @@
  },
  "Yellow": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -35881,21 +36061,21 @@
  },
  "Zoom": {
   "where": [
-   "common/ui.js:1765",
-   "common/ui.js:1767",
+   "common/ui.js:1822",
+   "common/ui.js:1824",
    "lectern/js/app.js:185",
    "lectern/js/dialogs.js:989"
   ]
  },
  "Zoom In": {
   "where": [
-   "common/ui.js:1766",
+   "common/ui.js:1823",
    "ledger/js/commands.js:89"
   ]
  },
  "Zoom Out": {
   "where": [
-   "common/ui.js:1764",
+   "common/ui.js:1821",
    "ledger/js/commands.js:90"
   ]
  },
@@ -35912,7 +36092,7 @@
  },
  "[Object]": {
   "where": [
-   "common/vb-ide.js:91"
+   "common/vb-ide.js:139"
   ]
  },
  "[Text]": {
@@ -35928,14 +36108,14 @@
  },
  "[object]": {
   "where": [
-   "quire/js/app.js:1409",
+   "quire/js/app.js:1417",
    "quire/js/panes.js:201",
    "quire/js/review.js:38"
   ]
  },
  "a sprite published at codex-pets.net": {
   "where": [
-   "common/ui.js:1249",
+   "common/ui.js:1306",
    "index.html:441"
   ]
  },
@@ -36385,12 +36565,12 @@
  },
  "wdCollapseStart or wdCollapseEnd.": {
   "where": [
-   "quire/js/vb-dom-ref.js:127"
+   "quire/js/vb-dom-ref.js:135"
   ]
  },
  "wdSelectionNormal, wdSelectionIP or wdNoSelection. A selected object is reported as wdSelectionNormal.": {
   "where": [
-   "quire/js/vb-dom-ref.js:132"
+   "quire/js/vb-dom-ref.js:140"
   ]
  },
  "workbook": {
@@ -36523,7 +36703,7 @@
  },
  "{0} and {1} more": {
   "where": [
-   "common/ui.js:1299"
+   "common/ui.js:1356"
   ]
  },
  "{0} can't open {1}. {2}": {
@@ -36749,6 +36929,11 @@
  "{0}% normal size": {
   "where": [
    "ledger/js/dialogs3.js:381"
+  ]
+ },
+ "{0}: line {1}, column {2}: {3} ({4})": {
+  "where": [
+   "common/vb-ide.js:249"
   ]
  },
  "{none}": {

@@ -36,15 +36,23 @@
     });
   }
 
+  function callParams(desc) {
+    if (desc && Array.isArray(desc.params)) {
+      return desc.params.map(function (p) { return { name: p.name, optional: p.optional !== false }; });
+    }
+    return CALL_PARAMS;
+  }
+
   function memberMeta(name, desc) {
+    const params = callParams(desc);
     if (desc.kind === 'gap') {
       const as = desc.as || 'any';
-      if (as === 'call') return { name: name, modes: [1], params: CALL_PARAMS };
+      if (as === 'call') return { name: name, modes: [1], params: params };
       if (as === 'get') return { name: name, modes: [2], params: [] };
       if (as === 'rw') return { name: name, modes: [2, 4, 8], params: [] };
-      return { name: name, modes: [1, 2, 4, 8], params: CALL_PARAMS };
+      return { name: name, modes: [1, 2, 4, 8], params: params };
     }
-    if (desc.kind === 'call' || desc.kind === 'both') return { name: name, modes: [1, 2], params: CALL_PARAMS };
+    if (desc.kind === 'call' || desc.kind === 'both') return { name: name, modes: [1, 2], params: params };
     if (desc.kind === 'rw') return { name: name, modes: [2, 4, 8], params: [] };
     return { name: name, modes: [2], params: [] };
   }
@@ -500,6 +508,33 @@
     }
   };
 
+  function compileResult(engine, project) {
+    const program = engine.compileProject(project);
+    return { valid: !!program.valid, diagnostics: program.diagnostics || [] };
+  }
+
+  /* Syntax only. Same projects as debugBegin, run and runDraft. No machine is started. */
+  LedgerVbHost.prototype.compileIde = function (source) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('ledger-vb-ide', [
+      domModule(),
+      { id: 'module1', name: 'Module1', kind: 'module', code: String(source) },
+    ]));
+  };
+
+  LedgerVbHost.prototype.compileScript = function (source) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('ledger-vb-script', [
+      domModule(),
+      { id: 'script', name: 'Script', kind: 'module', code: String(source) },
+    ]));
+  };
+
+  LedgerVbHost.prototype.compileDraft = function (macros) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('ledger-vb-draft', macroModules(macros)));
+  };
+
   /* Debug VM for the Visual Basic IDE. The Immediate VM stays. Maps stay swapped until debugEnd. */
   LedgerVbHost.prototype.debugBegin = async function (source) {
     if (this.script) throw new Error('A VB script is running');
@@ -596,6 +631,25 @@
     this.auto = null;
   };
 
+  function completionHost() {
+    return {
+      name: 'LedgerDOM',
+      code: moduleCode(),
+      files: false,
+      types: {
+        Ledger: 'Application',
+        Application: 'Application',
+        ActiveWorkbook: 'Workbook',
+        ThisWorkbook: 'Workbook',
+        Workbooks: 'Workbooks',
+        ActiveSheet: 'Worksheet',
+        ActiveCell: 'Range',
+        Selection: 'Range',
+        WorksheetFunction: 'WorksheetFunction',
+      },
+    };
+  }
+
   let shared = null;
   let starting = null;
 
@@ -647,6 +701,21 @@
     return host.runDraft(macros, entry);
   }
 
+  async function compileIde(source) {
+    const host = await session();
+    return host.compileIde(source);
+  }
+
+  async function compileScript(source) {
+    const host = await session();
+    return host.compileScript(source);
+  }
+
+  async function compileDraft(macros) {
+    const host = await session();
+    return host.compileDraft(macros);
+  }
+
   async function open() {
     const host = new LedgerVbHost();
     await host.start();
@@ -662,8 +731,13 @@
     open: open,
     session: session,
     current: function () { return alive(shared) ? shared : null; },
+    engine: loadEngine,
+    completionHost: completionHost,
     loadMacros: loadMacros,
     runSaved: runSaved,
     runDraft: runDraft,
+    compileIde: compileIde,
+    compileScript: compileScript,
+    compileDraft: compileDraft,
   };
 })();

@@ -46,14 +46,27 @@
     return h.documentDir || '';
   }
 
+  function abilityHit(name) {
+    const want = String(name || '').toLowerCase();
+    return COMMON.concat(EXTRA[appId()] || []).find(function (item) { return item.toLowerCase() === want; }) || '';
+  }
+
   function has(name) {
     if (!vscode()) return false;
-    const want = String(name || '').toLowerCase();
-    const list = COMMON.concat(EXTRA[appId()] || []);
-    const hit = list.find(function (item) { return item.toLowerCase() === want; });
+    const hit = abilityHit(name);
     if (!hit) return false;
     if (hit === 'Path' || hit === 'Save' || hit === 'Print' || hit === 'FixedFormat') return !!documentPath();
     return true;
+  }
+
+  /* Why a host member cannot run here. Empty when it can. */
+  function why(name) {
+    if (has(name)) return '';
+    if (!vscode()) return 'platform';
+    const hit = abilityHit(name);
+    if (!hit) return 'app';
+    if (hit === 'Path' || hit === 'Save' || hit === 'Print' || hit === 'FixedFormat') return 'path';
+    return 'platform';
   }
 
   function beginScript() {
@@ -492,6 +505,7 @@
 
   L.hostAudit = {
     has: has,
+    why: why,
     beginScript: beginScript,
     gate: gate,
     must: must,

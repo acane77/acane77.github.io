@@ -47,7 +47,26 @@
   function charactersOf(parent, getEnds) {
     const col = function (index) { return col.Item(index); };
     stamp(col, parent);
-    col.Item = function () { gap('G-STORY', 'Characters'); };
+    col.Item = function (index) {
+      const e = getEnds ? getEnds() : null;
+      if (!e) missing();
+      const n = index | 0;
+      if (n < 1) missing();
+      let left = n;
+      const paras = D.parasBetween(D.doc, e[0].p, e[1].p);
+      for (let i = 0; i < paras.length; i++) {
+        const p = paras[i];
+        const from = i === 0 ? e[0].o : 0;
+        const to = i === paras.length - 1 ? e[1].o : D.plen(p);
+        const len = Math.max(0, to - from);
+        if (left <= len) {
+          const o = from + left - 1;
+          return makeRange(parent, { kind: 'span', a: D.pos(p, o), f: D.pos(p, Math.min(o + 1, D.plen(p))) });
+        }
+        left -= len;
+      }
+      missing();
+    };
     Object.defineProperty(col, 'Count', {
       enumerable: true,
       get() {
@@ -218,7 +237,420 @@
       const last = paras[paras.length - 1];
       return [D.pos(paras[0], 0), D.pos(last, D.plen(last))];
     }
+    if (anchor.kind === 'table') {
+      const table = anchor.table;
+      const first = table.rows[0] && table.rows[0].cells[0] && D.firstPara(table.rows[0].cells[0].blocks);
+      if (!first) return null;
+      const after = paragraphAfterTable(table);
+      if (after) return [D.pos(first, 0), D.pos(after, 0)];
+      const lastRow = table.rows[table.rows.length - 1];
+      const lastCell = lastRow.cells[lastRow.cells.length - 1];
+      const last = (lastCell.blocks || []).filter((b) => b.t === 'p').pop();
+      return [D.pos(first, 0), D.pos(last || first, D.plen(last || first))];
+    }
     return null;
+  }
+
+  /* The story index counts each paragraph's text plus its paragraph mark, in
+     reading order. It is Quire's own order: a table's end is the following
+     paragraph, not Word's cell-mark count. */
+  function paragraphAfterTable(table) {
+    const info = D.tblInfo(D.doc, table);
+    const blocks = info && info.cont && info.cont.blocks;
+    if (!blocks) return null;
+    const i = blocks.indexOf(table);
+    if (i < 0) return null;
+    const next = blocks[i + 1];
+    if (!next) return null;
+    if (next.t === 'p') return next;
+    if (next.t === 'tbl') return D.firstPara(next.rows[0].cells[0].blocks);
+    return null;
+  }
+
+  function storyPair(anchor) {
+    const e = endsOf(anchor);
+    if (!e || !D.doc) return null;
+    const st = storyTextOf(D.storyOf(D.doc, e[0].p));
+    return { st, a: offInStory(st, e[0]), b: offInStory(st, e[1]) };
+  }
+
+  function retarget(anchor, a, b) {
+    if (!anchor) return;
+    if (anchor.kind === 'selection') { placeSpan(a, b); return; }
+    anchor.kind = 'span';
+    anchor.a = a;
+    anchor.f = b;
+  }
+
+  function layoutUnit(unit) { return unit === 5 || unit === 7 || unit === 9 || unit === 11; }
+
+  function stepOff(st, off, unit, dir) {
+    const len = st.text.length;
+    if (unit === 6) { const n = dir < 0 ? 0 : len; return n === off ? null : n; }
+    if (unit === 1) { const n = off + dir; return n < 0 || n > len ? null : n; }
+    if (unit === 4) {
+      const pos = posInStory(st, len ? Math.min(Math.max(off, 0), len - 1) : 0);
+      const i = st.paras.indexOf(pos.p);
+      if (i < 0) return null;
+      if (dir > 0) return i + 1 < st.starts.length ? st.starts[i + 1] : (off < len ? len : null);
+      const start = st.starts[i];
+      if (off > start) return start;
+      return i > 0 ? st.starts[i - 1] : (off === 0 ? null : 0);
+    }
+    if (unit === 2 || unit === 3) {
+      const extFn = unit === 2 ? O.wordExtent : O.sentenceExtent;
+      if (typeof extFn !== 'function') gap('G-ENGINE', 'Move');
+      const pos = posInStory(st, len ? Math.min(Math.max(off, 0), len - 1) : 0);
+      const ext = extFn(pos);
+      if (!ext) return null;
+      const s = offInStory(st, ext[0]);
+      const e = offInStory(st, ext[1]);
+      if (dir > 0) {
+        if (off < e) return e;
+        if (e >= len) return null;
+        const n = extFn(posInStory(st, Math.min(e, len - 1)));
+        const ne = offInStory(st, n[1]);
+        return ne === off ? null : ne;
+      }
+      if (off > s) return s;
+      if (s <= 0) return null;
+      return offInStory(st, extFn(posInStory(st, s - 1))[0]);
+    }
+    gap('G-STORY', 'Move');
+  }
+
+  function unitEdge(st, off, unit, end) {
+    const len = st.text.length;
+    if (unit === 6) return end ? len : 0;
+    if (unit === 4) {
+      const pos = posInStory(st, len ? Math.min(Math.max(off, 0), len - 1) : 0);
+      const i = st.paras.indexOf(pos.p);
+      if (i < 0) return off;
+      return end ? (i + 1 < st.starts.length ? st.starts[i + 1] : len) : st.starts[i];
+    }
+    if (unit === 1) return off;
+    if (unit === 2 || unit === 3) {
+      const extFn = unit === 2 ? O.wordExtent : O.sentenceExtent;
+      const pos = posInStory(st, len ? Math.min(Math.max(off, 0), len - 1) : 0);
+      const ext = extFn(pos);
+      return offInStory(st, end ? ext[1] : ext[0]);
+    }
+    gap('G-STORY', 'Move');
+  }
+
+  function attachStory(obj, getAnchor) {
+    function pair() { return storyPair(getAnchor()); }
+    function writeOff(start, end) {
+      const anchor = getAnchor();
+      const p = pair();
+      const st = p ? p.st : (D.doc ? storyTextOf(D.doc.main) : null);
+      if (!st || !anchor) return;
+      retarget(anchor, posInStory(st, start | 0), posInStory(st, end == null ? (start | 0) : (end | 0)));
+    }
+    Object.defineProperty(obj, 'Start', {
+      enumerable: true, configurable: true,
+      get() { const p = pair(); return p ? p.a : 0; },
+      set(v) { const p = pair(); if (p) writeOff(v | 0, p.b); },
+    });
+    Object.defineProperty(obj, 'End', {
+      enumerable: true, configurable: true,
+      get() { const p = pair(); return p ? p.b : 0; },
+      set(v) { const p = pair(); if (p) writeOff(p.a, v | 0); },
+    });
+    obj.SetRange = function (start, end) { writeOff(start | 0, end == null ? (start | 0) : (end | 0)); };
+    function shift(which, unit, count) {
+      unit = unit == null ? 1 : (unit | 0);
+      count = count == null ? 1 : (count | 0);
+      if (layoutUnit(unit)) gap('G-STORY', 'Move');
+      const p = pair();
+      if (!p) return 0;
+      const dir = count < 0 ? -1 : 1;
+      const n = Math.abs(count);
+      let a = p.a, b = p.b, moved = 0;
+      for (let i = 0; i < n; i++) {
+        const at = which === 'start' ? a : which === 'end' ? b : (dir < 0 ? a : b);
+        const next = stepOff(p.st, at, unit, dir);
+        if (next == null) break;
+        if (which === 'start') a = next;
+        else if (which === 'end') b = next;
+        else a = b = next;
+        moved++;
+      }
+      writeOff(Math.min(a, b), Math.max(a, b));
+      return moved * dir;
+    }
+    obj.Move = function (unit, count) { return shift('both', unit, count); };
+    obj.MoveStart = function (unit, count) { return shift('start', unit, count); };
+    obj.MoveEnd = function (unit, count) { return shift('end', unit, count); };
+    obj.StartOf = function (unit, extend) {
+      unit = unit == null ? 6 : (unit | 0);
+      if (layoutUnit(unit)) gap('G-STORY', 'StartOf');
+      const p = pair();
+      if (!p) return 0;
+      const edge = unitEdge(p.st, p.a, unit, false);
+      writeOff(edge, extend ? p.b : edge);
+      return edge === p.a ? 0 : 1;
+    };
+    obj.EndOf = function (unit, extend) {
+      unit = unit == null ? 6 : (unit | 0);
+      if (layoutUnit(unit)) gap('G-STORY', 'EndOf');
+      const p = pair();
+      if (!p) return 0;
+      const edge = unitEdge(p.st, p.b, unit, true);
+      writeOff(extend ? p.a : edge, edge);
+      return edge === p.b ? 0 : 1;
+    };
+    obj.Expand = function (unit) {
+      unit = unit == null ? 1 : (unit | 0);
+      if (layoutUnit(unit)) gap('G-STORY', 'Expand');
+      const p = pair();
+      if (!p) return 0;
+      writeOff(unitEdge(p.st, p.a, unit, false), unitEdge(p.st, Math.max(p.a, p.b - 1), unit, true));
+      return 1;
+    };
+    storyFns(obj, ['MoveWhile', 'MoveUntil', 'MoveStartWhile', 'MoveStartUntil', 'MoveEndWhile', 'MoveEndUntil', 'Information', 'GoTo', 'GoToNext', 'GoToPrevious', 'Next', 'Previous']);
+  }
+
+  function moveSelection(dir, unit, count, extend) {
+    unit = unit == null ? 1 : (unit | 0);
+    count = count == null ? 1 : (count | 0);
+    if (layoutUnit(unit)) gap('G-STORY', 'Move');
+    const p = storyPair({ kind: 'selection' });
+    if (!p) return 0;
+    const stepDir = dir * (count < 0 ? -1 : 1);
+    const n = Math.abs(count);
+    let a = p.a, b = p.b, moved = 0;
+    if (!extend && a !== b) { if (stepDir < 0) b = a; else a = b; }
+    for (let i = 0; i < n; i++) {
+      if (extend) {
+        const at = stepDir < 0 ? a : b;
+        const next = stepOff(p.st, at, unit, stepDir);
+        if (next == null) break;
+        if (stepDir < 0) a = next; else b = next;
+      } else {
+        const next = stepOff(p.st, a, unit, stepDir);
+        if (next == null) break;
+        a = b = next;
+      }
+      moved++;
+    }
+    const lo = Math.min(a, b), hi = Math.max(a, b);
+    placeSpan(posInStory(p.st, lo), posInStory(p.st, hi));
+    return moved;
+  }
+
+  const LINE_TO = { nil: 0, none: 0, single: 1, dotted: 2, dashSmallGap: 3, dashed: 4, dotDash: 5, dotDotDash: 6, double: 7, triple: 8, thinThickSmallGap: 9, thickThinSmallGap: 10, thinThickThinSmallGap: 11, wave: 18, doubleWave: 19, dashDotStroked: 20, threeDEmboss: 21, threeDEngrave: 22, outset: 23, inset: 24 };
+  const LINE_FROM = { 0: 'nil', 1: 'single', 2: 'dotted', 3: 'dashSmallGap', 4: 'dashed', 5: 'dotDash', 6: 'dotDotDash', 7: 'double', 8: 'triple', 9: 'thinThickSmallGap', 10: 'thickThinSmallGap', 11: 'thinThickThinSmallGap', 18: 'wave', 19: 'doubleWave', 20: 'dashDotStroked', 21: 'threeDEmboss', 22: 'threeDEngrave', 23: 'outset', 24: 'inset' };
+  const CI_HEX = ['', '000000', '0000FF', '00FFFF', '00FF00', 'FF00FF', 'FF0000', 'FFFF00', 'FFFFFF', '000080', '008080', '008000', '800080', '800000', '808000', '808080', 'C0C0C0'];
+  const TEX_TO = { clear: 0, nil: 0, none: 0, solid: 1000, pct5: 50, pct10: 100, pct12: 125, pct15: 150, pct20: 200, pct25: 250, pct30: 300, pct35: 350, pct37: 375, pct40: 400, pct45: 450, pct50: 500, pct55: 550, pct60: 600, pct62: 625, pct65: 650, pct70: 700, pct75: 750, pct80: 800, pct85: 850, pct87: 875, pct90: 900, pct95: 950, horzStripe: -1, vertStripe: -2, reverseDiagStripe: -3, diagStripe: -4, horzCross: -5, diagCross: -6, thinHorzStripe: -7, thinVertStripe: -8, thinReverseDiagStripe: -9, thinDiagStripe: -10, thinHorzCross: -11, thinDiagCross: -12 };
+  const TEX_FROM = {};
+  for (const texName in TEX_TO) if (TEX_FROM[TEX_TO[texName]] == null) TEX_FROM[TEX_TO[texName]] = texName === 'nil' || texName === 'none' ? 'clear' : texName;
+
+  function lineStyleOf(edge) {
+    if (!edge || !edge.val || edge.val === 'nil' || edge.val === 'none') return 0;
+    return LINE_TO[edge.val] != null ? LINE_TO[edge.val] : 1;
+  }
+  function edgeVisible(edge) { return !!(edge && edge.val && edge.val !== 'nil' && edge.val !== 'none'); }
+  function colorIndexOf(hex) {
+    if (!hex || hex === 'auto') return 0;
+    const h = String(hex).replace('#', '').toUpperCase();
+    const i = CI_HEX.indexOf(h);
+    return i > 0 ? i : 0;
+  }
+
+  function bordersOf(parent, spec) {
+    const borders = function (i) { return borders.Item(i); };
+    stamp(borders, parent);
+    const byIndex = {};
+    for (const edge of spec.edges) byIndex[edge.index] = edge.key;
+    function read() { return spec.getBag() || {}; }
+    function write(bag, reason) { spec.setBag(bag, reason); }
+    function paint(keys, edge) {
+      const bag = Object.assign({}, read());
+      for (const key of keys) bag[key] = edge;
+      write(bag);
+    }
+    borders.Item = function (index) {
+      const key = byIndex[index | 0];
+      if (!key) gap('G-ENGINE', 'Borders');
+      const side = stamp({}, borders);
+      function current() { return read()[key] || null; }
+      Object.defineProperty(side, 'LineStyle', {
+        enumerable: true, configurable: true,
+        get() { return lineStyleOf(current()); },
+        set(v) {
+          const n = v | 0;
+          const prev = current() || {};
+          paint([key], n ? { val: LINE_FROM[n] || 'single', sz: prev.sz || 0.5, color: prev.color || 'auto', space: prev.space, shadow: prev.shadow } : { val: 'nil' });
+        },
+      });
+      Object.defineProperty(side, 'LineWidth', {
+        enumerable: true, configurable: true,
+        get() { const e = current(); return e && e.sz ? Math.round(e.sz * 8) : 0; },
+        set(v) { const prev = current() || { val: 'single', color: 'auto' }; paint([key], Object.assign({}, prev, { val: prev.val && prev.val !== 'nil' ? prev.val : 'single', sz: (Number(v) || 0) / 8 })); },
+      });
+      Object.defineProperty(side, 'Color', {
+        enumerable: true, configurable: true,
+        get() { return colorToLong(current() && current().color); },
+        set(v) { const prev = current() || { val: 'single', sz: 0.5 }; paint([key], Object.assign({}, prev, { color: longToColor(v) || 'auto' })); },
+      });
+      Object.defineProperty(side, 'ColorIndex', {
+        enumerable: true, configurable: true,
+        get() { return colorIndexOf(current() && current().color); },
+        set(v) { const hex = CI_HEX[v | 0]; const prev = current() || { val: 'single', sz: 0.5 }; paint([key], Object.assign({}, prev, { color: hex || 'auto' })); },
+      });
+      Object.defineProperty(side, 'Visible', {
+        enumerable: true,
+        get() { return edgeVisible(current()) ? -1 : 0; },
+        set(v) { side.LineStyle = triWrite(v) ? 1 : 0; },
+      });
+      Object.defineProperty(side, 'Inside', { enumerable: true, get() { return spec.inside && spec.inside.indexOf(key) >= 0 ? -1 : 0; } });
+      return side;
+    };
+    const enableKeys = spec.enable || spec.edges.map((e) => e.key);
+    Object.defineProperty(borders, 'Enable', {
+      enumerable: true, configurable: true,
+      get() {
+        const bag = read();
+        const bits = enableKeys.map((key) => edgeVisible(bag[key]));
+        if (!bits.length || bits.every((v) => !v)) return 0;
+        if (bits.every(Boolean)) return -1;
+        return WD_UNDEFINED;
+      },
+      set(v) {
+        const on = triWrite(v);
+        if (on === 'skip') return;
+        const bag = Object.assign({}, read());
+        const edge = on ? { val: 'single', sz: 0.5, color: 'auto' } : { val: 'nil' };
+        for (const key of enableKeys) bag[key] = Object.assign({}, edge);
+        write(bag, 'enable');
+      },
+    });
+    function groupProp(name, keys, field, from, to) {
+      Object.defineProperty(borders, name, {
+        enumerable: true, configurable: true,
+        get() {
+          if (!keys.length) return 0;
+          const bag = read();
+          const vals = keys.map((key) => from(bag[key]));
+          return vals.every((v) => v === vals[0]) ? vals[0] : WD_UNDEFINED;
+        },
+        set(v) { if (v === WD_UNDEFINED) return; paint(keys, to(v, read()[keys[0]])); },
+      });
+    }
+    const outside = spec.outside || [];
+    const inside = spec.inside || [];
+    groupProp('OutsideLineStyle', outside, 'style', lineStyleOf, (v, prev) => ((v | 0) ? { val: LINE_FROM[v | 0] || 'single', sz: (prev && prev.sz) || 0.5, color: (prev && prev.color) || 'auto' } : { val: 'nil' }));
+    groupProp('InsideLineStyle', inside, 'style', lineStyleOf, (v, prev) => ((v | 0) ? { val: LINE_FROM[v | 0] || 'single', sz: (prev && prev.sz) || 0.5, color: (prev && prev.color) || 'auto' } : { val: 'nil' }));
+    groupProp('OutsideLineWidth', outside, 'w', (e) => (e && e.sz ? Math.round(e.sz * 8) : 0), (v, prev) => Object.assign({ val: 'single', color: 'auto' }, prev, { sz: (Number(v) || 0) / 8, val: (prev && prev.val && prev.val !== 'nil') ? prev.val : 'single' }));
+    groupProp('InsideLineWidth', inside, 'w', (e) => (e && e.sz ? Math.round(e.sz * 8) : 0), (v, prev) => Object.assign({ val: 'single', color: 'auto' }, prev, { sz: (Number(v) || 0) / 8, val: (prev && prev.val && prev.val !== 'nil') ? prev.val : 'single' }));
+    groupProp('OutsideColor', outside, 'c', (e) => colorToLong(e && e.color), (v, prev) => Object.assign({ val: 'single', sz: 0.5 }, prev, { color: longToColor(v) || 'auto' }));
+    groupProp('InsideColor', inside, 'c', (e) => colorToLong(e && e.color), (v, prev) => Object.assign({ val: 'single', sz: 0.5 }, prev, { color: longToColor(v) || 'auto' }));
+    Object.defineProperty(borders, 'Shadow', {
+      enumerable: true, configurable: true,
+      get() {
+        const bag = read();
+        const bits = spec.edges.map((e) => (bag[e.key] && bag[e.key].shadow ? -1 : 0));
+        return triRead(bits.map((b) => b === -1));
+      },
+      set(v) {
+        const t = triWrite(v);
+        if (t === 'skip') return;
+        const bag = Object.assign({}, read());
+        for (const edge of spec.edges) bag[edge.key] = Object.assign({ val: 'single', sz: 0.5, color: 'auto' }, bag[edge.key], { shadow: !!t });
+        write(bag);
+      },
+    });
+    function spaceProp(name, key) {
+      Object.defineProperty(borders, name, {
+        enumerable: true, configurable: true,
+        get() {
+          const bag = read();
+          const vals = spec.edges.map((e) => (bag[e.key] && bag[e.key].space) || 0);
+          return vals.every((n) => n === vals[0]) ? vals[0] : WD_UNDEFINED;
+        },
+        set(v) {
+          const bag = Object.assign({}, read());
+          for (const edge of spec.edges) if (!key || edge.key === key) bag[edge.key] = Object.assign({ val: 'single', sz: 0.5, color: 'auto' }, bag[edge.key], { space: Number(v) || 0 });
+          write(bag);
+        },
+      });
+    }
+    const spaceKey = { DistanceFromTop: 'top', DistanceFromLeft: 'left', DistanceFromBottom: 'bottom', DistanceFromRight: 'right' };
+    for (const name in spaceKey) if (byIndex[-1] && (name === 'DistanceFromTop' ? byIndex[-1] : true)) spaceProp(name, spaceKey[name] && byIndex[{ DistanceFromTop: -1, DistanceFromLeft: -2, DistanceFromBottom: -3, DistanceFromRight: -4 }[name]] ? spaceKey[name] : null);
+    Object.defineProperty(borders, 'Count', { enumerable: true, get() { return spec.edges.length; } });
+    Object.defineProperty(borders, 'HasHorizontal', { enumerable: true, get() { const bag = read(); return (bag.insideH || bag.between || bag.top) && edgeVisible(bag.insideH || bag.between || bag.top) ? -1 : 0; } });
+    Object.defineProperty(borders, 'HasVertical', { enumerable: true, get() { const bag = read(); return edgeVisible(bag.insideV || bag.left) ? -1 : 0; } });
+    if (spec.page) {
+      Object.defineProperty(borders, 'DistanceFrom', {
+        enumerable: true, configurable: true,
+        get() { return read().offsetFrom === 'page' ? 0 : 1; },
+        set(v) { const bag = Object.assign({}, read()); bag.offsetFrom = (v | 0) === 0 ? 'page' : 'text'; write(bag); },
+      });
+      Object.defineProperty(borders, 'AlwaysInFront', {
+        enumerable: true, configurable: true,
+        get() { return read().zOrder === 'back' ? 0 : -1; },
+        set(v) { const bag = Object.assign({}, read()); bag.zOrder = triWrite(v) ? 'front' : 'back'; write(bag); },
+      });
+      function pageFlag(name, token) {
+        Object.defineProperty(borders, name, {
+          enumerable: true, configurable: true,
+          get() { const d = read().display || 'allPages'; return d === 'allPages' || d === token ? -1 : 0; },
+          set(v) {
+            const bag = Object.assign({}, read());
+            const on = !!triWrite(v);
+            const other = token === 'firstPage' ? 'notFirstPage' : 'firstPage';
+            const cur = bag.display || 'allPages';
+            if (on && (cur === 'allPages' || cur === token)) bag.display = 'allPages';
+            else if (on) bag.display = token;
+            else if (cur === 'allPages') bag.display = other;
+            else bag.display = token === 'firstPage' ? 'notFirstPage' : 'firstPage';
+            write(bag);
+          },
+        });
+      }
+      pageFlag('EnableFirstPageInSection', 'firstPage');
+      pageFlag('EnableOtherPagesInSection', 'notFirstPage');
+    } else {
+      denyGet(borders, ['DistanceFrom', 'AlwaysInFront', 'EnableFirstPageInSection', 'EnableOtherPagesInSection'], 'G-ENGINE');
+    }
+    denyGet(borders, ['ApplyPageBordersToAllSections', 'JoinBorders', 'SurroundHeader', 'SurroundFooter', 'ArtStyle', 'ArtWidth'], 'G-ENGINE');
+    return borders;
+  }
+
+  function shadingOf(parent, getShd, setShd) {
+    const sh = stamp({}, parent);
+    function cur() { return getShd() || {}; }
+    Object.defineProperty(sh, 'BackgroundPatternColor', {
+      enumerable: true, configurable: true,
+      get() { return colorToLong(cur().fill); },
+      set(v) { const prev = cur(); setShd(Object.assign({}, prev, { val: prev.val || 'clear', fill: longToColor(v) || 'auto' })); },
+    });
+    Object.defineProperty(sh, 'ForegroundPatternColor', {
+      enumerable: true, configurable: true,
+      get() { return colorToLong(cur().color); },
+      set(v) { const prev = cur(); setShd(Object.assign({}, prev, { val: prev.val || 'clear', color: longToColor(v) || 'auto' })); },
+    });
+    Object.defineProperty(sh, 'BackgroundPatternColorIndex', {
+      enumerable: true, configurable: true,
+      get() { return colorIndexOf(cur().fill); },
+      set(v) { const prev = cur(); setShd(Object.assign({}, prev, { val: prev.val || 'clear', fill: CI_HEX[v | 0] || 'auto' })); },
+    });
+    Object.defineProperty(sh, 'ForegroundPatternColorIndex', {
+      enumerable: true, configurable: true,
+      get() { return colorIndexOf(cur().color); },
+      set(v) { const prev = cur(); setShd(Object.assign({}, prev, { val: prev.val || 'clear', color: CI_HEX[v | 0] || 'auto' })); },
+    });
+    Object.defineProperty(sh, 'Texture', {
+      enumerable: true, configurable: true,
+      get() { const val = cur().val || 'clear'; return TEX_TO[val] != null ? TEX_TO[val] : 0; },
+      set(v) {
+        const prev = cur();
+        const name = typeof v === 'string' ? v : (TEX_FROM[v | 0] || 'clear');
+        setShd(Object.assign({}, prev, { val: name }));
+      },
+    });
+    return sh;
   }
 
   function triWrite(v) {
@@ -433,7 +865,27 @@
       },
       set(v) { if (v === WD_UNDEFINED) return; writeKey('em', v || false); },
     });
-    denyGet(font, ['Animation', 'DiacriticColor', 'StylisticSet', 'NumberSpacing', 'NumberForm', 'Ligatures', 'ContextualAlternates', 'Borders', 'Shading'], 'G-ENGINE');
+    Object.defineProperty(font, 'Borders', {
+      enumerable: true, configurable: true,
+      get() {
+        return bordersOf(font, {
+          edges: [{ key: 'border', index: -1 }],
+          enable: ['border'],
+          outside: ['border'],
+          getBag() { const v = readKey('border'); return { border: v.find((x) => x) || null }; },
+          setBag(bag) { writeKey('border', bag.border && bag.border.val !== 'nil' ? bag.border : false); },
+        });
+      },
+    });
+    Object.defineProperty(font, 'Shading', {
+      enumerable: true, configurable: true,
+      get() {
+        return shadingOf(font,
+          () => { const v = readKey('shd'); return v.find((x) => x) || {}; },
+          (shd) => writeKey('shd', shd));
+      },
+    });
+    denyGet(font, ['Animation', 'DiacriticColor', 'StylisticSet', 'NumberSpacing', 'NumberForm', 'Ligatures', 'ContextualAlternates'], 'G-ENGINE');
     return font;
   }
 
@@ -504,7 +956,7 @@
     placeCaret(dir === 1 ? a : b);
   }
 
-  const PARA_DENY = ['CharacterUnitLeftIndent', 'CharacterUnitRightIndent', 'CharacterUnitFirstLineIndent', 'LineUnitBefore', 'LineUnitAfter', 'AutoAdjustRightIndent', 'BaselineAlignment', 'FarEastLineBreakControl', 'HangingPunctuation', 'HalfWidthPunctuationOnTopOfLine', 'AddSpaceBetweenFarEastAndAlpha', 'AddSpaceBetweenFarEastAndDigit', 'MirrorIndents', 'TextboxTightWrap', 'Collapsed', 'WordWrap'];
+  const PARA_DENY = ['CharacterUnitLeftIndent', 'CharacterUnitRightIndent', 'CharacterUnitFirstLineIndent', 'LineUnitBefore', 'LineUnitAfter', 'AutoAdjustRightIndent', 'BaselineAlignment', 'FarEastLineBreakControl', 'HangingPunctuation', 'HalfWidthPunctuationOnTopOfLine', 'AddSpaceBetweenFarEastAndAlpha', 'AddSpaceBetweenFarEastAndDigit', 'TextboxTightWrap', 'Collapsed', 'WordWrap'];
   const TAB_AL_FROM = { 0: 'left', 1: 'center', 2: 'right', 3: 'decimal' };
   const TAB_AL_TO = { left: 0, center: 1, right: 2, decimal: 3, num: 0 };
   const TAB_LD_FROM = { 0: 'none', 1: 'dot', 2: 'hyphen', 3: 'underscore' };
@@ -795,6 +1247,32 @@
       enumerable: true, configurable: true,
       get() { return makeTabStops(fmt, blocks); },
     });
+    const paraEdges = [
+      { key: 'top', index: -1 }, { key: 'left', index: -2 }, { key: 'bottom', index: -3 },
+      { key: 'right', index: -4 }, { key: 'between', index: -5 },
+    ];
+    Object.defineProperty(fmt, 'Borders', {
+      enumerable: true, configurable: true,
+      get() {
+        return bordersOf(fmt, {
+          edges: paraEdges,
+          enable: ['top', 'left', 'bottom', 'right', 'between'],
+          outside: ['top', 'left', 'bottom', 'right'],
+          inside: ['between'],
+          getBag() { const p = blocks()[0]; return (p && p.pPr && p.pPr.borders) || {}; },
+          setBag(bag) { write((pp) => Object.assign({}, pp, { borders: bag })); },
+        });
+      },
+    });
+    Object.defineProperty(fmt, 'Shading', {
+      enumerable: true, configurable: true,
+      get() {
+        return shadingOf(fmt,
+          () => { const p = blocks()[0]; return (p && p.pPr && p.pPr.shd) || {}; },
+          (shd) => write((pp) => Object.assign({}, pp, { shd: shd })));
+      },
+    });
+    boolProp('MirrorIndents', 'mirrorInd');
     denyGet(fmt, PARA_DENY, 'G-ENGINE');
     return fmt;
   }
@@ -847,18 +1325,63 @@
         return caret;
       });
     };
-    Object.defineProperty(para, 'Next', { enumerable: true, get() { const n = siblingPara(block, 1); return n ? makeParagraph(doc, n) : null; } });
-    Object.defineProperty(para, 'Previous', { enumerable: true, get() { const n = siblingPara(block, -1); return n ? makeParagraph(doc, n) : null; } });
+    para.Next = function (count) {
+      let n = block;
+      const c = count == null ? 1 : (count | 0);
+      const dir = c < 0 ? -1 : 1;
+      for (let i = 0; i < Math.abs(c || 1); i++) {
+        const s = siblingPara(n, dir);
+        if (!s) return null;
+        n = s;
+      }
+      return makeParagraph(doc, n);
+    };
+    para.Previous = function (count) { return para.Next(count == null ? -1 : -(count | 0)); };
+    Object.defineProperty(para, 'DropCap', {
+      enumerable: true,
+      get() {
+        const dc = stamp({}, para);
+        function bag() { return (block.pPr && block.pPr.dropCap) || block.dropCap || {}; }
+        function writeDc(patch) {
+          edit('Drop Cap', () => {
+            D.touch(block);
+            const next = Object.assign({ type: 'none', lines: 3, dist: 0 }, bag(), patch);
+            if (!next.type || next.type === 'none') {
+              if (block.pPr) delete block.pPr.dropCap;
+              delete block.dropCap;
+            } else {
+              block.pPr = Object.assign({}, block.pPr, { dropCap: next });
+              block.dropCap = next;
+            }
+            return caret;
+          });
+        }
+        Object.defineProperty(dc, 'Position', {
+          enumerable: true, configurable: true,
+          get() { const t = bag().type; return t === 'margin' ? 2 : (t && t !== 'none' ? 1 : 0); },
+          set(v) { writeDc({ type: (v | 0) === 2 ? 'margin' : (v | 0) === 1 ? 'drop' : 'none' }); },
+        });
+        Object.defineProperty(dc, 'Lines', {
+          enumerable: true, configurable: true,
+          get() { return bag().lines || 0; },
+          set(v) { writeDc({ lines: v | 0, type: bag().type && bag().type !== 'none' ? bag().type : 'drop' }); },
+        });
+        Object.defineProperty(dc, 'DistanceFromText', {
+          enumerable: true, configurable: true,
+          get() { return bag().dist || 0; },
+          set(v) { writeDc({ dist: Number(v) || 0, type: bag().type && bag().type !== 'none' ? bag().type : 'drop' }); },
+        });
+        return dc;
+      },
+    });
     denyFn(para, ['OutlineDemote', 'OutlinePromote', 'OutlineDemoteToBody'], 'G-ENGINE');
-    denyGet(para, ['DropCap'], 'G-ENGINE');
     return para;
   }
 
   function makeRange(parent, anchor) {
     const r = stamp({}, parent);
     r._anchor = anchor || null;
-    storyGets(r, ['Start', 'End']);
-    storyFns(r, RANGE_FNS);
+    attachStory(r, () => anchor);
     function rangeEnds() { return endsOf(anchor); }
     r.Characters = charactersOf(r, rangeEnds);
     Object.defineProperty(r, 'Text', {
@@ -906,6 +1429,8 @@
         return makeSpanFormat(r, rangeEnds);
       },
     });
+    Object.defineProperty(r, 'Borders', { enumerable: true, get() { return r.ParagraphFormat.Borders; } });
+    Object.defineProperty(r, 'Shading', { enumerable: true, get() { return r.ParagraphFormat.Shading; } });
     Object.defineProperty(r, 'Font', {
       enumerable: true, configurable: true,
       get() { return makeFont(r, rangeEnds); },
@@ -1022,6 +1547,8 @@
       if (!it) missing();
       return makeRange(col, { kind: 'span', a: it.a, f: it.b });
     };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1055,6 +1582,19 @@
       obj.ListLevelNumber = Math.max(1, n - 1);
     };
     obj.ApplyListTemplate = function () { gap('G-ENGINE', 'ApplyListTemplate'); };
+    Object.defineProperty(obj, 'ListType', {
+      enumerable: true,
+      get() {
+        const labels = typeof D.computeLists === 'function' ? D.computeLists(D.doc) : null;
+        const types = paras().map((p) => {
+          const lab = labels && labels.get ? labels.get(p.id) : null;
+          if (!lab) return 0;
+          return lab.lv && lab.lv.fmt === 'bullet' ? 2 : 3;
+        });
+        if (!types.length || types.every((t) => t === 0)) return 0;
+        return types.every((t) => t === types[0]) ? types[0] : 5;
+      },
+    });
     denyGet(obj, ['CanContinuePreviousList'], 'G-ENGINE');
     return obj;
   }
@@ -1151,7 +1691,18 @@
     });
   }
 
+  function pictureAtOf(anchor) {
+    return function () {
+      const e = endsOf(anchor);
+      if (!e || !D.doc) return null;
+      const story = D.storyOf(D.doc, e[0].p);
+      if (!story) return null;
+      return { story, off: offInStory(storyTextOf(story), e[0]) };
+    };
+  }
+
   function attachRangeExtras(r, anchor, rangeEnds) {
+    Object.defineProperty(r, '_pictureAt', { value: pictureAtOf(anchor) });
     r.Select = function () {
       const e = rangeEnds();
       if (e) placeSpan(e[0], e[1]);
@@ -1203,7 +1754,8 @@
     Object.defineProperty(r, 'Bookmarks', { enumerable: true, get() { return rangeBookmarks(r, anchor); } });
     Object.defineProperty(r, 'Fields', { enumerable: true, get() { return rangeFields(r, anchor); } });
     Object.defineProperty(r, 'Comments', { enumerable: true, get() { return rangeComments(r, anchor); } });
-    Object.defineProperty(r, 'InlineShapes', { enumerable: true, get() { return rangeShapes(r, anchor); } });
+    Object.defineProperty(r, 'InlineShapes', { enumerable: true, get() { return rangeShapes(r, anchor, false); } });
+    Object.defineProperty(r, 'Shapes', { enumerable: true, get() { return rangeShapes(r, anchor, true); } });
     denyGet(r, ['FormattedText'], 'G-ENGINE');
     r.InsertFile = function (fileName) {
       if (!L.hostAudit || !L.hostAudit.has('InsertFile')) gap('G-HOST', 'InsertFile');
@@ -1248,6 +1800,12 @@
       if (!t) missing();
       return makeTable(activeDocument(), t);
     };
+    col.Add = function (range, numRows, numColumns, defaultTableBehavior, autoFitBehavior) {
+      const at = range && range._anchor ? range : makeRange(parent, anchor);
+      return addTables(at, numRows, numColumns, defaultTableBehavior, autoFitBehavior);
+    };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1270,6 +1828,14 @@
       if (!b) missing();
       return makeBookmark(activeDocument(), b);
     };
+    col.Exists = function (name) {
+      return list().some((b) => b.name.toLowerCase() === String(name).toLowerCase());
+    };
+    col.Add = function (name, range) {
+      return bookmarksOf(activeDocument()).Add(name, range && range._anchor ? range : makeRange(parent, anchor));
+    };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1296,15 +1862,20 @@
       if (id == null) missing();
       return makeComment(activeDocument(), id);
     };
+    col.Add = function (range, text) {
+      return commentsOf(activeDocument()).Add(range && range._anchor ? range : makeRange(parent, anchor), text);
+    };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
-  function rangeShapes(parent, anchor) {
+  function rangeShapes(parent, anchor, floating) {
     const col = function (i) { return col.Item(i); };
     stamp(col, parent);
     function list() {
       const paras = new Set(parasOfAnchor(anchor));
-      return shapeItems(false).filter((hit) => paras.has(hit.p));
+      return shapeItems(!!floating).filter((hit) => paras.has(hit.p));
     }
     Object.defineProperty(col, 'Count', { enumerable: true, get() { return list().length; } });
     col.Item = function (index) {
@@ -1312,6 +1883,17 @@
       if (!hit) missing();
       return makeShape(activeDocument(), hit.p, hit.it);
     };
+    col.AddPicture = function () {
+      const args = Array.prototype.slice.call(arguments);
+      const slot = floating ? 7 : 3;
+      while (args.length <= slot) args.push(undefined);
+      if (args[slot] == null) args[slot] = { _pictureAt: pictureAtOf(anchor) };
+      return shapesOf(activeDocument(), !!floating).AddPicture.apply(null, args);
+    };
+    if (floating) col.AddPicture2 = function () { return col.AddPicture.apply(col, arguments); };
+    col.AddChart = function () { gap('G-ENGINE', 'AddChart'); };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1420,12 +2002,21 @@
       for (let i = 0; i < times(n); i++) { if (!D.redo()) break; any = true; }
       return any;
     };
-    doc.Range = function () { requireActive(doc); gap('G-STORY', 'Range'); };
+    doc.Range = function (start, end) {
+      requireActive(doc);
+      const st = storyTextOf(doc.model.main);
+      const a = posInStory(st, start == null ? 0 : (start | 0));
+      const b = posInStory(st, end == null ? st.text.length : (end | 0));
+      return makeRange(doc, { kind: 'span', a: a, f: b });
+    };
     doc.GoTo = function () { requireActive(doc); gap('G-STORY', 'GoTo'); };
 
     Object.defineProperty(doc, 'Characters', {
       enumerable: true, configurable: true,
-      get() { requireActive(doc); gap('G-STORY', 'Characters'); },
+      get() {
+        requireActive(doc);
+        return charactersOf(doc, () => endsOf({ kind: 'story', story: doc.model.main }));
+      },
     });
 
     Object.defineProperty(doc, 'Paragraphs', {
@@ -1478,8 +2069,7 @@
         };
         col.Add = function (range, numRows, numColumns, defaultTableBehavior, autoFitBehavior) {
           requireActive(doc);
-          if (defaultTableBehavior !== undefined || autoFitBehavior !== undefined) gap('G-ENGINE', 'Tables.Add');
-          return addTable(doc, range, numRows, numColumns);
+          return addTables(range, numRows, numColumns, defaultTableBehavior, autoFitBehavior);
         };
         Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
         Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
@@ -1556,7 +2146,23 @@
         return caret;
       });
     };
-    denyGet(obj, ['LinkStyle', 'Visibility', 'UnhideWhenUsed', 'QuickStyle', 'Priority', 'Locked'], 'G-ENGINE');
+    denyGet(obj, ['UnhideWhenUsed', 'Locked'], 'G-ENGINE');
+    Object.defineProperty(obj, 'LinkStyle', styleRef('link'));
+    Object.defineProperty(obj, 'QuickStyle', {
+      enumerable: true, configurable: true,
+      get() { return st() && st().q ? -1 : 0; },
+      set(v) { const t = triWrite(v); if (t === 'skip') return; edit('Style', () => { D.touchKey(model, 'styles'); if (st()) st().q = !!t; D.stylesChanged(); return caret; }); },
+    });
+    Object.defineProperty(obj, 'Priority', {
+      enumerable: true, configurable: true,
+      get() { return (st() && st().prio) || 0; },
+      set(v) { edit('Style', () => { D.touchKey(model, 'styles'); if (st()) st().prio = v | 0; D.stylesChanged(); return caret; }); },
+    });
+    Object.defineProperty(obj, 'Visibility', {
+      enumerable: true, configurable: true,
+      get() { const s = st(); return s && (s.hidden || s.semiHidden) ? -1 : 0; },
+      set(v) { const t = triWrite(v); if (t === 'skip') return; edit('Style', () => { D.touchKey(model, 'styles'); if (st()) { st().semiHidden = !!t; st().hidden = !!t; } D.stylesChanged(); return caret; }); },
+    });
     return obj;
   }
 
@@ -1666,7 +2272,33 @@
         return tc;
       },
     });
-    denyGet(ps, ['PaperSize'], 'G-ENGINE');
+    const PAPER_WD = { Letter: 2, Legal: 4, Executive: 5, A3: 6, A4: 7, A5: 9, 'B5 (JIS)': 11, Tabloid: 23, Statement: 22, 'Envelope #10': 25, 'Envelope DL': 37, 'Envelope C5': 34, 'Envelope Monarch': 39 };
+    const PAPER_CODE = { Letter: 1, Tabloid: 3, Legal: 5, Statement: 6, Executive: 7, A3: 8, A4: 9, A5: 11, 'B5 (JIS)': 13, 'Envelope #10': 20, 'Envelope DL': 27, 'Envelope C5': 28, 'Envelope Monarch': 37 };
+    const WD_PAPER = {};
+    for (const paperName in PAPER_WD) WD_PAPER[PAPER_WD[paperName]] = paperName;
+    Object.defineProperty(ps, 'PaperSize', {
+      enumerable: true, configurable: true,
+      get() { return PAPER_WD[D.paperName(sec.sect)] || 41; },
+      set(v) {
+        const n = v | 0;
+        if (n === 41) return;
+        const name = WD_PAPER[n];
+        if (!name) gap('G-ENGINE', 'PaperSize');
+        const spec = D.PAPER.find((p) => p[0] === name);
+        if (!spec) return;
+        writeSect(sec, (s) => {
+          const land = s.orient === 'landscape';
+          return Object.assign({}, s, { pgW: land ? spec[2] : spec[1], pgH: land ? spec[1] : spec[2], paperCode: PAPER_CODE[name] || s.paperCode });
+        });
+      },
+    });
+    const SECT_VA = { top: 0, center: 1, both: 2, justify: 2, bottom: 3 };
+    const SECT_VA_FROM = { 0: 'top', 1: 'center', 2: 'both', 3: 'bottom' };
+    Object.defineProperty(ps, 'VerticalAlignment', {
+      enumerable: true, configurable: true,
+      get() { return SECT_VA[sec.sect.vAlign || 'top'] || 0; },
+      set(v) { writeSect(sec, (s) => Object.assign({}, s, { vAlign: SECT_VA_FROM[v | 0] || 'top' })); },
+    });
     return ps;
   }
 
@@ -1703,7 +2335,28 @@
     Object.defineProperty(obj, 'PageSetup', { enumerable: true, get() { return makePageSetup(obj, sec); } });
     obj.Headers = function (index) { return makeHeaderFooter(doc, sec, index == null ? 1 : index, true); };
     obj.Footers = function (index) { return makeHeaderFooter(doc, sec, index == null ? 1 : index, false); };
-    denyGet(obj, ['ProtectedForForms'], 'G-ENGINE');
+    const pageEdges = [
+      { key: 'top', index: -1 }, { key: 'left', index: -2 }, { key: 'bottom', index: -3 }, { key: 'right', index: -4 },
+    ];
+    Object.defineProperty(obj, 'Borders', {
+      enumerable: true,
+      get() {
+        return bordersOf(obj, {
+          page: true,
+          edges: pageEdges,
+          enable: ['top', 'left', 'bottom', 'right'],
+          outside: ['top', 'left', 'bottom', 'right'],
+          inside: [],
+          getBag() { return sec.sect.borders || {}; },
+          setBag(bag) { writeSect(sec, (s) => Object.assign({}, s, { borders: bag })); },
+        });
+      },
+    });
+    Object.defineProperty(obj, 'ProtectedForForms', {
+      enumerable: true, configurable: true,
+      get() { return sec.sect.formProt ? -1 : 0; },
+      set(v) { const t = triWrite(v); if (t === 'skip') return; writeSect(sec, (s) => Object.assign({}, s, { formProt: !!t })); },
+    });
     return obj;
   }
 
@@ -1951,7 +2604,19 @@
       return L.hostAudit.follow(address);
     };
     denyFn(doc, ['UndoClear', 'Protect', 'Unprotect'], 'G-ENGINE');
-    denyFn(doc, ['PrintPreview', 'Compare'], 'G-HOST');
+    denyFn(doc, ['PrintPreview'], 'G-HOST');
+    doc.Compare = function (name) {
+      if (!L.hostAudit || typeof L.hostAudit.readBytes !== 'function') gap('G-HOST', 'Compare');
+      if (!L.hostAudit.has('Open') && !L.hostAudit.has('InsertFile')) gap('G-HOST', 'Compare');
+      if (!L.docx || typeof L.docx.read !== 'function' || !L.review || typeof L.review.compareWith !== 'function') gap('G-ENGINE', 'Compare');
+      const ability = L.hostAudit.has('Open') ? 'Open' : 'InsertFile';
+      return L.hostAudit.readBytes(name, ability, 'AlwaysAllow').then((bytes) => {
+        return Promise.resolve(L.docx.read(bytes)).then((res) => {
+          const other = res.doc || res;
+          return L.review.compareWith(other, (other.props && (other.props.lastModifiedBy || other.props.creator)) || String(name || ''));
+        });
+      });
+    };
   }
 
   function listsOf(doc) {
@@ -1971,6 +2636,16 @@
       if (!id) missing();
       const obj = stamp({}, col);
       Object.defineProperty(obj, 'ListParagraphs', { enumerable: true, get() { return listParagraphsOf(doc, id); } });
+      Object.defineProperty(obj, 'Range', {
+        enumerable: true,
+        get() {
+          const ps = mainParas(doc.model).filter((p) => p.pPr && p.pPr.num && String(p.pPr.num.id) === String(id));
+          if (!ps.length) return makeRange(obj, null);
+          const last = ps[ps.length - 1];
+          return makeRange(obj, { kind: 'span', a: D.pos(ps[0], 0), f: D.pos(last, D.plen(last)) });
+        },
+      });
+      obj.CountNumberedItems = function () { return listParagraphsOf(doc, id).Count; };
       return obj;
     };
     denyGet(col, ['ListTemplates'], 'G-ENGINE');
@@ -2002,15 +2677,19 @@
     const paras = [];
     if (container && container.blocks) D.walk(container, (b) => { if (b.t === 'p') paras.push(b); });
     for (const p of paras) {
+      let o = 0;
       for (const it of p.runs) {
-        if (it.t === 'fb') open.set(it.fid, { fid: it.fid, instr: it.instr || '', result: '', closed: false });
+        if (it.t === 'fb') open.set(it.fid, { fid: it.fid, instr: it.instr || '', result: '', closed: false, p, o, lock: it.lock });
         else if (it.t === 'text') { for (const f of open.values()) if (!f.closed) f.result += it.text; }
         else if (it.t === 'fe' && open.has(it.fid)) {
           const f = open.get(it.fid);
           f.closed = true;
+          f.endP = p;
+          f.endO = o;
           out.push(f);
           open.delete(it.fid);
         }
+        o += D.ilen(it);
       }
     }
     return out;
@@ -2042,6 +2721,29 @@
               if (hit) { D.touch(hit.p); hit.it.instr = ' ' + String(v).trim() + ' '; rec.instr = hit.it.instr; }
               return caret;
             });
+          },
+        });
+        function fieldStory() {
+          const again = collectFields(doc.model.main).find((f) => f.fid === rec.fid) || rec;
+          if (!again.p) return null;
+          return storyTextOf(D.storyOf(doc.model, again.p));
+        }
+        Object.defineProperty(code, 'Start', {
+          enumerable: true,
+          get() {
+            const again = collectFields(doc.model.main).find((f) => f.fid === rec.fid) || rec;
+            const st = fieldStory();
+            return again.p && st ? offInStory(st, D.pos(again.p, again.o || 0)) : 0;
+          },
+        });
+        Object.defineProperty(code, 'End', {
+          enumerable: true,
+          get() {
+            const again = collectFields(doc.model.main).find((f) => f.fid === rec.fid) || rec;
+            const st = fieldStory();
+            if (!again.p || !st) return 0;
+            const end = again.endP ? D.pos(again.endP, again.endO || 0) : D.pos(again.p, again.o || 0);
+            return offInStory(st, end);
           },
         });
         return code;
@@ -2100,7 +2802,47 @@
       });
     };
     obj.Copy = function () { gap('G-ENGINE', 'Field.Copy'); };
-    obj.DoClick = function () { gap('G-HOST', 'Field.DoClick'); };
+    Object.defineProperty(obj, 'Locked', {
+      enumerable: true, configurable: true,
+      get() {
+        const hit = fieldById(doc.model, rec.fid);
+        return hit && hit.it.lock ? -1 : 0;
+      },
+      set(v) {
+        const t = triWrite(v);
+        if (t === 'skip') return;
+        edit('Field', () => {
+          const hit = fieldById(doc.model, rec.fid);
+          if (hit) { D.touch(hit.p); hit.it.lock = t ? true : undefined; }
+          return caret;
+        });
+      },
+    });
+    obj.Unlink = function () {
+      edit('Unlink Fields', () => {
+        D.walk(doc.model.main, (p) => {
+          if (p.t !== 'p') return;
+          if (!p.runs.some((it) => it.fid === rec.fid && (it.t === 'fb' || it.t === 'fs' || it.t === 'fe'))) return;
+          D.touch(p);
+          p.runs = p.runs.filter((it) => !(it.fid === rec.fid && (it.t === 'fb' || it.t === 'fs' || it.t === 'fe')));
+        });
+        return caret;
+      });
+    };
+    obj.Select = function () {
+      const again = collectFields(doc.model.main).find((f) => f.fid === rec.fid);
+      if (!again || !again.p) return;
+      const end = again.endP ? D.pos(again.endP, (again.endO || 0) + 1) : D.pos(again.p, (again.o || 0) + 1);
+      placeSpan(D.pos(again.p, again.o || 0), end);
+    };
+    obj.DoClick = function () {
+      const instr = String(rec.instr || '');
+      if (!/^HYPERLINK\b/i.test(instr.trim())) gap('G-ENGINE', 'Field.DoClick');
+      const m = instr.match(/"([^"]+)"/);
+      const address = m ? m[1] : '';
+      if (!L.hostAudit || !L.hostAudit.has('Hyperlink')) gap('G-HOST', 'Field.DoClick');
+      return L.hostAudit.follow(address);
+    };
     return obj;
   }
 
@@ -2185,7 +2927,10 @@
     obj.Delete = function () {
       edit('Hyperlink', () => { O.setRunProps(span()[0], span()[1], { link: null }); return caret; });
     };
-    obj.Follow = function () { gap('G-HOST', 'Hyperlink.Follow'); };
+    obj.Follow = function () {
+      if (!L.hostAudit || !L.hostAudit.has('Hyperlink')) gap('G-HOST', 'Hyperlink.Follow');
+      return L.hostAudit.follow(hit.link.url || '');
+    };
     denyGet(obj, ['Type', 'Target'], 'G-ENGINE');
     return obj;
   }
@@ -2225,7 +2970,16 @@
     const obj = stamp({}, doc);
     function rec() { return doc.model.comments[id]; }
     Object.defineProperty(obj, 'Author', { enumerable: true, get() { return (rec() && rec().author) || ''; } });
-    Object.defineProperty(obj, 'Initials', { enumerable: true, get() { return (rec() && rec().initials) || ''; } });
+    Object.defineProperty(obj, 'Initials', {
+      enumerable: true, configurable: true,
+      get() { return (rec() && rec().initials) || ''; },
+      set(v) { edit('Comment', () => { D.touchKey(doc.model, 'comments'); if (rec()) rec().initials = String(v || ''); return caret; }); },
+    });
+    Object.defineProperty(obj, 'Initial', {
+      enumerable: true, configurable: true,
+      get() { return obj.Initials; },
+      set(v) { obj.Initials = v; },
+    });
     Object.defineProperty(obj, 'Date', { enumerable: true, get() { return (rec() && rec().date) || ''; } });
     Object.defineProperty(obj, 'Range', {
       enumerable: true,
@@ -2234,12 +2988,16 @@
     obj.Delete = function () {
       edit('Comment', () => {
         D.touchKey(doc.model, 'comments');
-        delete doc.model.comments[id];
+        const drop = new Set([String(id)]);
+        for (const cid of Object.keys(doc.model.comments)) {
+          if (doc.model.comments[cid] && drop.has(String(doc.model.comments[cid].parent))) drop.add(String(cid));
+        }
+        for (const cid of drop) delete doc.model.comments[cid];
         D.walk(doc.model.main, (p) => {
           if (p.t !== 'p') return;
-          if (p.runs.some((it) => (it.t === 'cs' || it.t === 'ce') && String(it.id) === String(id))) {
+          if (p.runs.some((it) => (it.t === 'cs' || it.t === 'ce') && drop.has(String(it.id)))) {
             D.touch(p);
-            p.runs = p.runs.filter((it) => !((it.t === 'cs' || it.t === 'ce') && String(it.id) === String(id)));
+            p.runs = p.runs.filter((it) => !((it.t === 'cs' || it.t === 'ce') && drop.has(String(it.id))));
           }
         });
         doc.model._idxDirty = true;
@@ -2269,7 +3027,27 @@
       });
       return makeComment(doc, nid);
     };
-    obj.Edit = function () { gap('G-HOST', 'Comment.Edit'); };
+    obj.AddReply = function (text) { return obj.Reply(text); };
+    Object.defineProperty(obj, 'Scope', {
+      enumerable: true,
+      get() {
+        let a = null, f = null;
+        D.walk(doc.model.main, (p) => {
+          if (p.t !== 'p') return;
+          let o = 0;
+          for (const it of p.runs) {
+            if (String(it.id) === String(id) && (it.t === 'cs' || it.t === 'ce')) {
+              if (it.t === 'cs' && !a) a = D.pos(p, o);
+              if (it.t === 'ce') f = D.pos(p, o);
+            }
+            o += D.ilen(it);
+          }
+        });
+        if (!a) return makeRange(obj, null);
+        return makeRange(obj, { kind: 'span', a, f: f || a });
+      },
+    });
+    obj.Edit = function () { gap('G-ENGINE', 'Comment.Edit'); };
     return obj;
   }
 
@@ -2303,6 +3081,11 @@
       });
       return makeComment(doc, id);
     };
+    col.AddReply = function (comment, text) {
+      const target = comment && typeof comment.Reply === 'function' ? comment : (comment && comment._id != null ? makeComment(doc, comment._id) : null);
+      if (!target) gap('G-ENGINE', 'Comments.AddReply');
+      return target.Reply(text);
+    };
     return col;
   }
 
@@ -2329,7 +3112,22 @@
         return caret;
       });
     };
-    storyGets(obj, ['Reference']);
+    Object.defineProperty(obj, 'Reference', {
+      enumerable: true,
+      get() {
+        let hit = null;
+        D.walk(doc.model.main, (p) => {
+          if (p.t !== 'p' || hit) return;
+          let o = 0;
+          for (const it of p.runs) {
+            if (it.t === kind && String(it.id) === String(id) && !it.self) { hit = D.pos(p, o); return; }
+            o += D.ilen(it);
+          }
+        });
+        if (!hit) return makeRange(obj, null);
+        return makeRange(obj, { kind: 'span', a: hit, f: D.pos(hit.p, Math.min(hit.o + D.ilen({ t: kind }), D.plen(hit.p))) });
+      },
+    });
     return obj;
   }
 
@@ -2362,6 +3160,48 @@
         return caret;
       });
       return makeNote(doc, kind, id);
+    };
+    col.Convert = function () {
+      const from = kind;
+      const to = from === 'fn' ? 'en' : 'fn';
+      edit('Convert Notes', () => {
+        const d = doc.model;
+        D.touchKey(d, 'fn');
+        D.touchKey(d, 'en');
+        const map = {};
+        let next = 1;
+        for (const nid of Object.keys(d[from] || {})) {
+          while (d[to][next] != null) next++;
+          const id = String(next++);
+          const st = d[from][nid];
+          st.kind = to;
+          st.id = id;
+          D.walk(st, (b) => {
+            if (b.t !== 'p') return;
+            for (const it of b.runs) if (it.t === from && it.self) {
+              it.t = to;
+              it.id = id;
+              it.rPr = Object.assign({}, it.rPr, { style: to === 'fn' ? 'FootnoteReference' : 'EndnoteReference' });
+            }
+            if (b.pPr && b.pPr.style === (from === 'fn' ? 'FootnoteText' : 'EndnoteText')) b.pPr.style = to === 'fn' ? 'FootnoteText' : 'EndnoteText';
+          });
+          d[to][id] = st;
+          map[nid] = id;
+        }
+        d[from] = {};
+        D.walk(d.main, (b) => {
+          if (b.t !== 'p') return;
+          let changed = false;
+          for (const it of b.runs) if (it.t === from && !it.self && map[it.id]) {
+            if (!changed) { D.touch(b); changed = true; }
+            it.t = to;
+            it.id = map[it.id];
+            it.rPr = Object.assign({}, it.rPr, { style: to === 'fn' ? 'FootnoteReference' : 'EndnoteReference' });
+          }
+        });
+        d._idxDirty = true;
+        return caret;
+      });
     };
     return col;
   }
@@ -2414,7 +3254,7 @@
     if (!D.doc || !D.doc.main) return out;
     D.walk(D.doc.main, (p) => {
       if (p.t !== 'p') return;
-      for (const it of p.runs) if (it.t === 'shape' && (!!it.float) === !!floating) out.push({ p, it });
+      for (const it of p.runs) if ((it.t === 'shape' || it.t === 'img') && (!!it.float) === !!floating) out.push({ p, it });
     });
     return out;
   }
@@ -2499,6 +3339,154 @@
       });
     };
     denyGet(obj, ['OLEFormat', 'Chart', 'GroupItems', 'Nodes'], 'G-ENGINE');
+    function shapeAt() {
+      if (!host || !host.runs) return null;
+      let o = 0;
+      for (const run of host.runs) {
+        if (run === it) return D.pos(host, o);
+        o += D.ilen(run);
+      }
+      return null;
+    }
+    const SHAPE_TYPE = { img: 3, chart: 12, diagram: 13 };
+    Object.defineProperty(obj, 'Type', { enumerable: true, get() { return SHAPE_TYPE[it.t] || (it.t === 'group' ? 6 : 1); } });
+    Object.defineProperty(obj, 'AlternativeText', {
+      enumerable: true, configurable: true,
+      get() { return it.alt || ''; },
+      set(v) { edit('Shape', () => { touch(); it.alt = String(v || ''); return caret; }); },
+    });
+    Object.defineProperty(obj, 'Title', {
+      enumerable: true, configurable: true,
+      get() { return it.title || ''; },
+      set(v) { edit('Shape', () => { touch(); it.title = String(v || ''); return caret; }); },
+    });
+    Object.defineProperty(obj, 'ScaleWidth', {
+      enumerable: true, configurable: true,
+      get() { return it.natW ? Math.round((it.w || 0) / it.natW * 100) : 100; },
+      set(v) { edit('Shape', () => { touch(); it.w = (it.natW || it.w || 72) * (Number(v) || 0) / 100; return caret; }); },
+    });
+    Object.defineProperty(obj, 'ScaleHeight', {
+      enumerable: true, configurable: true,
+      get() { return it.natH ? Math.round((it.h || 0) / it.natH * 100) : 100; },
+      set(v) { edit('Shape', () => { touch(); it.h = (it.natH || it.h || 72) * (Number(v) || 0) / 100; return caret; }); },
+    });
+    Object.defineProperty(obj, 'Left', {
+      enumerable: true, configurable: true,
+      get() { return (it.float && it.float.posH && it.float.posH.off) || 0; },
+      set(v) {
+        edit('Shape', () => {
+          touch();
+          it.float = it.float || { wrap: 'square', posH: {}, posV: {} };
+          it.float.posH = Object.assign({}, it.float.posH, { off: Number(v) || 0 });
+          return caret;
+        });
+      },
+    });
+    Object.defineProperty(obj, 'Top', {
+      enumerable: true, configurable: true,
+      get() { return (it.float && it.float.posV && it.float.posV.off) || 0; },
+      set(v) {
+        edit('Shape', () => {
+          touch();
+          it.float = it.float || { wrap: 'square', posH: {}, posV: {} };
+          it.float.posV = Object.assign({}, it.float.posV, { off: Number(v) || 0 });
+          return caret;
+        });
+      },
+    });
+    const WRAP_TO = { square: 0, tight: 1, through: 2, none: 3, topBottom: 4, inline: 7 };
+    const WRAP_FROM = { 0: 'square', 1: 'tight', 2: 'through', 3: 'none', 4: 'topBottom', 7: 'inline' };
+    Object.defineProperty(obj, 'WrapFormat', {
+      enumerable: true,
+      get() {
+        const wrap = stamp({}, obj);
+        Object.defineProperty(wrap, 'Type', {
+          enumerable: true, configurable: true,
+          get() { return it.float ? (WRAP_TO[it.float.wrap] != null ? WRAP_TO[it.float.wrap] : 0) : 7; },
+          set(v) {
+            const name = WRAP_FROM[v | 0];
+            if (!name) gap('G-ENGINE', 'WrapFormat');
+            edit('Shape', () => {
+              touch();
+              if (name === 'inline') { delete it.float; return caret; }
+              it.float = Object.assign({ posH: { off: 0 }, posV: { off: 0 } }, it.float, { wrap: name });
+              return caret;
+            });
+          },
+        });
+        return wrap;
+      },
+    });
+    Object.defineProperty(obj, 'Range', {
+      enumerable: true,
+      get() {
+        const at = shapeAt();
+        if (!at) return makeRange(obj, null);
+        return makeRange(obj, { kind: 'span', a: at, f: D.pos(at.p, Math.min(at.o + 1, D.plen(at.p))) });
+      },
+    });
+    obj.Select = function () {
+      const at = shapeAt();
+      if (at) placeSpan(at, D.pos(at.p, Math.min(at.o + 1, D.plen(at.p))));
+    };
+    Object.defineProperty(obj, 'Hyperlink', {
+      enumerable: true,
+      get() {
+        const link = stamp({}, obj);
+        Object.defineProperty(link, 'Address', {
+          enumerable: true, configurable: true,
+          get() { return (it.link && it.link.url) || ''; },
+          set(v) { edit('Shape', () => { touch(); it.link = Object.assign({}, it.link, { url: String(v || '') }); return caret; }); },
+        });
+        link.Follow = function () {
+          if (!L.hostAudit || !L.hostAudit.has('Hyperlink')) gap('G-HOST', 'Hyperlink.Follow');
+          return L.hostAudit.follow((it.link && it.link.url) || '');
+        };
+        return link;
+      },
+    });
+    Object.defineProperty(obj, 'PictureFormat', {
+      enumerable: true,
+      get() {
+        const pic = stamp({}, obj);
+        function numProp(name, key) {
+          Object.defineProperty(pic, name, {
+            enumerable: true, configurable: true,
+            get() { return (it.crop && it.crop[key]) || (key === 'bright' || key === 'contrast' ? it[key] : 0) || 0; },
+            set(v) {
+              edit('Shape', () => {
+                touch();
+                if (key === 'bright' || key === 'contrast') it[key] = Number(v) || 0;
+                else it.crop = Object.assign({}, it.crop, { [key]: Number(v) || 0 });
+                return caret;
+              });
+            },
+          });
+        }
+        numProp('CropLeft', 'l');
+        numProp('CropTop', 't');
+        numProp('CropRight', 'r');
+        numProp('CropBottom', 'b');
+        numProp('Brightness', 'bright');
+        numProp('Contrast', 'contrast');
+        return pic;
+      },
+    });
+    obj.ConvertToShape = function () {
+      edit('Shape', () => {
+        touch();
+        if (!it.float) {
+          if (L.drawing && typeof L.drawing.setWrap === 'function') L.drawing.setWrap(it, 'square', { x: 0, y: 0 });
+          else it.float = { wrap: 'square', posH: { rel: 'column', off: 0 }, posV: { rel: 'paragraph', off: 0 } };
+        }
+        return caret;
+      });
+      return obj;
+    };
+    obj.ConvertToInlineShape = function () {
+      edit('Shape', () => { touch(); delete it.float; return caret; });
+      return obj;
+    };
     return obj;
   }
 
@@ -2537,19 +3525,60 @@
       });
       return makeShape(doc, host, it);
     };
-    col.AddPicture = function (fileName, linkToFile) {
-      if (linkToFile === true || linkToFile === -1) {
+    function picturePos(target) {
+      if (target == null || target === false || target === 0 || target === '') {
+        const c = ensureCaret();
+        return c && c.a;
+      }
+      const point = typeof target._pictureAt === 'function' ? target._pictureAt() : null;
+      const story = point && point.story;
+      const off = point ? point.off : (typeof target.Start === 'number' ? target.Start : null);
+      const st = story ? storyTextOf(story) : (off != null && D.doc ? storyTextOf(D.doc.main) : null);
+      if (!st || off == null || !st.paras.length) {
+        const e = new Error('The parameter ' + (floating ? 'Anchor' : 'Range') + ' is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      return posInStory(st, off);
+    }
+    function floatPicture(it, left, top, width, height) {
+      if (L.drawing && typeof L.drawing.setWrap === 'function') L.drawing.setWrap(it, 'square', { x: left, y: top });
+      else it.float = { wrap: 'square', posH: { rel: 'column', off: left }, posV: { rel: 'paragraph', off: top } };
+      if (width != null && width !== false) it.w = Number(width);
+      if (height != null && height !== false) it.h = Number(height);
+    }
+    col.AddPicture = function (fileName, linkToFile, saveWithDocument, fourth, fifth, sixth, seventh, eighth) {
+      if (linkToFile) {
         const e = new Error('The parameter LinkToFile is not available.');
         e.code = 'error';
         throw e;
       }
+      if (saveWithDocument === false || saveWithDocument === 0) {
+        const e = new Error('The parameter SaveWithDocument is not available.');
+        e.code = 'error';
+        throw e;
+      }
       if (!L.hostAudit || !L.hostAudit.has('Picture')) gap('G-HOST', 'AddPicture');
-      L.hostAudit.rejectExtra(arguments, 2, ['FileName', 'LinkToFile', 'SaveWithDocument', 'Range']);
+      const target = floating ? eighth : fourth;
       return L.hostAudit.readBytes(fileName, 'Picture', 'RequestApproval').then((bytes) => {
+        if (!L.app || typeof L.app.insertPictureFiles !== 'function') gap('G-ENGINE', 'AddPicture');
+        const pos = picturePos(target);
         const file = new File([bytes], String(fileName).split(/[/\\]/).pop());
-        return L.app.insertPictureFiles([file]);
+        const opts = { pos };
+        if (floating) opts.prepare = (it) => floatPicture(it, Number(fourth) || 0, Number(fifth) || 0, sixth, seventh);
+        return Promise.resolve(L.app.insertPictureFiles([file], opts)).then((items) => {
+          const it = items && items[0];
+          if (!it) return null;
+          let host = null;
+          for (const st of D.stories(D.doc)) {
+            D.walk(st, (p) => { if (!host && p.t === 'p' && p.runs && p.runs.indexOf(it) >= 0) host = p; });
+            if (host) break;
+          }
+          return makeShape(doc, host, it);
+        });
       });
     };
+    if (floating) col.AddPicture2 = function () { return col.AddPicture.apply(col, arguments); };
     col.AddChart = function () { gap('G-ENGINE', 'AddChart'); };
     return col;
   }
@@ -2759,10 +3788,27 @@
               edit('Row', () => { D.touchTbl(table); row.trPr = Object.assign({}, row.trPr, { header: !!t }); return caret; });
             },
           });
+          const ROW_H = { auto: 0, atLeast: 1, exact: 2 };
+          const ROW_H_FROM = { 0: 'auto', 1: 'atLeast', 2: 'exact' };
           Object.defineProperty(wrap, 'Height', {
             enumerable: true,
             get() { return (row.trPr && row.trPr.h) || 0; },
-            set(v) { edit('Row', () => { D.touchTbl(table); row.trPr = Object.assign({}, row.trPr, { h: Number(v) || 0, hRule: 'atLeast' }); return caret; }); },
+            set(v) { edit('Row', () => { D.touchTbl(table); row.trPr = Object.assign({}, row.trPr, { h: Number(v) || 0, hRule: (row.trPr && row.trPr.hRule) || 'atLeast' }); return caret; }); },
+          });
+          Object.defineProperty(wrap, 'HeightRule', {
+            enumerable: true, configurable: true,
+            get() { return ROW_H[(row.trPr && row.trPr.hRule) || 'auto'] || 0; },
+            set(v) { edit('Row', () => { D.touchTbl(table); row.trPr = Object.assign({}, row.trPr, { hRule: ROW_H_FROM[v | 0] || 'atLeast' }); return caret; }); },
+          });
+          Object.defineProperty(wrap, 'AllowBreakAcrossPages', {
+            enumerable: true, configurable: true,
+            get() { return row.trPr && row.trPr.cantSplit ? 0 : -1; },
+            set(v) { const t = triWrite(v); if (t === 'skip') return; edit('Row', () => { D.touchTbl(table); row.trPr = Object.assign({}, row.trPr, { cantSplit: !t }); return caret; }); },
+          });
+          Object.defineProperty(wrap, 'Alignment', {
+            enumerable: true, configurable: true,
+            get() { return { left: 0, center: 1, right: 2, both: 3 }[(row.trPr && row.trPr.jc) || 'left'] || 0; },
+            set(v) { const jc = { 0: 'left', 1: 'center', 2: 'right', 3: 'both' }[v | 0]; if (!jc) return; edit('Row', () => { D.touchTbl(table); row.trPr = Object.assign({}, row.trPr, { jc }); return caret; }); },
           });
           wrap.Delete = function () { deleteRowAt(table, (index | 0) - 1); };
           Object.defineProperty(wrap, 'Cells', { enumerable: true, get() { return cellCollection(doc, table, row.cells); } });
@@ -2785,6 +3831,9 @@
           return wrap;
         };
         rows.Add = function (before) { addRow(table, before); return rows.Item(before ? (before | 0) : table.rows.length); };
+        rows.Delete = function () {
+          for (let i = table.rows.length - 1; i >= 0; i--) deleteRowAt(table, i);
+        };
         return rows;
       },
     });
@@ -2935,15 +3984,126 @@
     Object.defineProperty(obj, 'Range', {
       enumerable: true,
       get() {
-        const first = D.firstPara(table.rows[0].cells[0].blocks);
-        const lastRow = table.rows[table.rows.length - 1];
-        const lastCell = lastRow.cells[lastRow.cells.length - 1];
-        const last = (lastCell.blocks || []).filter((b) => b.t === 'p').pop();
-        if (!first || !last) return makeRange(obj, null);
-        return makeRange(obj, { kind: 'span', a: D.pos(first, 0), f: D.pos(last, D.plen(last)) });
+        const first = table.rows[0] && table.rows[0].cells[0] && D.firstPara(table.rows[0].cells[0].blocks);
+        if (!first) return makeRange(obj, null);
+        return makeRange(obj, { kind: 'table', table: table });
       },
     });
-    denyGet(obj, ['Uniform', 'Spacing'], 'G-ENGINE');
+    const tblEdges = [
+      { key: 'top', index: -1 }, { key: 'left', index: -2 }, { key: 'bottom', index: -3 },
+      { key: 'right', index: -4 }, { key: 'insideH', index: -5 }, { key: 'insideV', index: -6 },
+    ];
+    Object.defineProperty(obj, 'Borders', {
+      enumerable: true,
+      get() {
+        return bordersOf(obj, {
+          edges: tblEdges,
+          enable: ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'],
+          outside: ['top', 'left', 'bottom', 'right'],
+          inside: ['insideH', 'insideV'],
+          getBag() { return (table.tblPr && table.tblPr.borders) || {}; },
+          setBag(bag, reason) {
+            edit('Borders', () => {
+              D.touchTbl(table);
+              table.tblPr = Object.assign({}, table.tblPr, { borders: bag });
+              if (reason === 'enable') {
+                for (const row of table.rows) for (const cell of row.cells) {
+                  if (cell.tcPr && cell.tcPr.borders) cell.tcPr = Object.assign({}, cell.tcPr, { borders: undefined });
+                }
+              }
+              return caret;
+            });
+          },
+        });
+      },
+    });
+    Object.defineProperty(obj, 'Shading', {
+      enumerable: true,
+      get() {
+        return shadingOf(obj,
+          () => (table.tblPr && table.tblPr.shd) || {},
+          (shd) => edit('Shading', () => { D.touchTbl(table); table.tblPr = Object.assign({}, table.tblPr, { shd }); return caret; }));
+      },
+    });
+    function tblEdit(name, patch) {
+      edit(name, () => { D.touchTbl(table); table.tblPr = Object.assign({}, table.tblPr, patch(table.tblPr || {})); return caret; });
+    }
+    Object.defineProperty(obj, 'Spacing', {
+      enumerable: true, configurable: true,
+      get() { return (table.tblPr && table.tblPr.cellSpacing) || 0; },
+      set(v) { tblEdit('Table', () => ({ cellSpacing: Number(v) || 0 })); },
+    });
+    Object.defineProperty(obj, 'Uniform', {
+      enumerable: true,
+      get() {
+        const g = table.grid || [];
+        if (g.length < 2) return -1;
+        return g.every((w) => Math.abs(w - g[0]) < 0.05) ? -1 : 0;
+      },
+    });
+    Object.defineProperty(obj, 'AllowAutoFit', {
+      enumerable: true, configurable: true,
+      get() { return table.tblPr && table.tblPr.layout === 'fixed' ? 0 : -1; },
+      set(v) { const t = triWrite(v); if (t === 'skip') return; tblEdit('Table', () => ({ layout: t ? 'autofit' : 'fixed' })); },
+    });
+    Object.defineProperty(obj, 'PreferredWidth', {
+      enumerable: true, configurable: true,
+      get() {
+        const w = table.tblPr && table.tblPr.w;
+        if (!w || w.type === 'auto') return 0;
+        if (w.type === 'pct') return w.v > 100 ? w.v / 50 : w.v;
+        return w.v || 0;
+      },
+      set(v) {
+        tblEdit('Table', (pr) => {
+          const prev = pr.w || { type: 'dxa', v: 0 };
+          const type = prev.type === 'pct' ? 'pct' : 'dxa';
+          return { w: { type, v: type === 'pct' ? (Number(v) || 0) * 50 : (Number(v) || 0) } };
+        });
+      },
+    });
+    Object.defineProperty(obj, 'PreferredWidthType', {
+      enumerable: true, configurable: true,
+      get() { const w = table.tblPr && table.tblPr.w; return !w || w.type === 'auto' ? 1 : w.type === 'pct' ? 2 : 3; },
+      set(v) {
+        const type = { 1: 'auto', 2: 'pct', 3: 'dxa' }[v | 0];
+        if (!type) return;
+        tblEdit('Table', (pr) => ({ w: { type, v: type === 'pct' ? ((pr.w && pr.w.v) || 5000) : ((pr.w && pr.w.v) || 0) } }));
+      },
+    });
+    function pad(name, key) {
+      Object.defineProperty(obj, name, {
+        enumerable: true, configurable: true,
+        get() { return (table.tblPr && table.tblPr.cellMar && table.tblPr.cellMar[key]) || 0; },
+        set(v) { tblEdit('Table', (pr) => ({ cellMar: Object.assign({}, pr.cellMar, { [key]: Number(v) || 0 }) })); },
+      });
+    }
+    pad('TopPadding', 't'); pad('LeftPadding', 'l'); pad('BottomPadding', 'b'); pad('RightPadding', 'r');
+    Object.defineProperty(obj, 'Alignment', {
+      enumerable: true, configurable: true,
+      get() { return { left: 0, center: 1, right: 2, both: 3 }[(table.tblPr && table.tblPr.jc) || 'left'] || 0; },
+      set(v) { const jc = { 0: 'left', 1: 'center', 2: 'right', 3: 'both' }[v | 0]; if (jc) tblEdit('Table', () => ({ jc })); },
+    });
+    Object.defineProperty(obj, 'Indent', { enumerable: true, get() { return (table.tblPr && table.tblPr.ind) || 0; } });
+    Object.defineProperty(obj, 'TableDirection', {
+      enumerable: true, configurable: true,
+      get() { return table.tblPr && table.tblPr.bidi ? 1 : 0; },
+      set(v) { tblEdit('Table', () => ({ bidi: (v | 0) === 1 })); },
+    });
+    Object.defineProperty(obj, 'Title', {
+      enumerable: true, configurable: true,
+      get() { return (table.tblPr && table.tblPr.caption) || ''; },
+      set(v) { tblEdit('Table', () => ({ caption: String(v || '') })); },
+    });
+    Object.defineProperty(obj, 'Descr', {
+      enumerable: true, configurable: true,
+      get() { return (table.tblPr && table.tblPr.desc) || ''; },
+      set(v) { tblEdit('Table', () => ({ desc: String(v || '') })); },
+    });
+    Object.defineProperty(obj, 'NestingLevel', {
+      enumerable: true,
+      get() { const info = D.tblInfo(D.doc, table); return info ? (info.parents ? info.parents.length : 0) + 1 : 1; },
+    });
   }
 
   function mainTables(model) {
@@ -3039,84 +4199,67 @@
         });
       },
     });
+    const cellEdges = [
+      { key: 'top', index: -1 }, { key: 'left', index: -2 }, { key: 'bottom', index: -3 },
+      { key: 'right', index: -4 }, { key: 'insideH', index: -5 }, { key: 'insideV', index: -6 },
+      { key: 'tl2br', index: -7 }, { key: 'tr2bl', index: -8 },
+    ];
+    function cellBorders() { return (cell.tcPr && cell.tcPr.borders) || {}; }
     Object.defineProperty(obj, 'Shading', {
       enumerable: true,
       get() {
-        const sh = stamp({}, obj);
-        Object.defineProperty(sh, 'BackgroundPatternColor', {
-          enumerable: true, configurable: true,
-          get() { return colorToLong(cell.tcPr && cell.tcPr.shd && cell.tcPr.shd.fill); },
-          set(v) {
-            edit('Shading', () => {
-              D.touchTbl(table);
-              const fill = longToColor(v);
-              const prev = (cell.tcPr && cell.tcPr.shd) || {};
-              cell.tcPr = Object.assign({}, cell.tcPr, { shd: Object.assign({}, prev, { val: prev.val || 'clear', fill: fill || 'auto' }) });
-              return caret;
-            });
-          },
-        });
-        Object.defineProperty(sh, 'ForegroundPatternColor', {
-          enumerable: true, configurable: true,
-          get() { return colorToLong(cell.tcPr && cell.tcPr.shd && cell.tcPr.shd.color); },
-          set(v) {
-            edit('Shading', () => {
-              D.touchTbl(table);
-              const color = longToColor(v);
-              const prev = (cell.tcPr && cell.tcPr.shd) || { val: 'clear' };
-              cell.tcPr = Object.assign({}, cell.tcPr, { shd: Object.assign({}, prev, { color: color || 'auto' }) });
-              return caret;
-            });
-          },
-        });
-        Object.defineProperty(sh, 'Texture', {
-          enumerable: true, configurable: true,
-          get() { return (cell.tcPr && cell.tcPr.shd && cell.tcPr.shd.val) || 'clear'; },
-          set(v) {
-            edit('Shading', () => {
-              D.touchTbl(table);
-              const prev = (cell.tcPr && cell.tcPr.shd) || {};
-              cell.tcPr = Object.assign({}, cell.tcPr, { shd: Object.assign({}, prev, { val: v ? String(v) : 'clear' }) });
-              return caret;
-            });
-          },
-        });
-        return sh;
+        return shadingOf(obj,
+          () => (cell.tcPr && cell.tcPr.shd) || {},
+          (shd) => edit('Shading', () => {
+            D.touchTbl(table);
+            cell.tcPr = Object.assign({}, cell.tcPr, { shd: shd });
+            return caret;
+          }));
       },
     });
     Object.defineProperty(obj, 'Borders', {
       enumerable: true,
       get() {
-        const borders = function (i) { return borders.Item(i); };
-        stamp(borders, obj);
-        const names = { '-1': 'top', '-2': 'left', '-3': 'bottom', '-4': 'right' };
-        borders.Item = function (i) {
-          const name = names[String(i | 0)];
-          if (!name) gap('G-ENGINE', 'Borders');
-          const side = stamp({}, borders);
-          function bag() {
-            cell.tcPr = cell.tcPr || {};
-            cell.tcPr.borders = cell.tcPr.borders || {};
-            return cell.tcPr.borders;
-          }
-          Object.defineProperty(side, 'LineStyle', {
-            enumerable: true, configurable: true,
-            get() {
-              const b = cell.tcPr && cell.tcPr.borders && cell.tcPr.borders[name];
-              return b && b.val && b.val !== 'nil' && b.val !== 'none' ? 1 : 0;
-            },
-            set(v) {
-              edit('Borders', () => {
-                D.touchTbl(table);
-                bag()[name] = v ? { val: 'single', sz: 4, color: 'auto' } : { val: 'nil' };
-                return caret;
-              });
-            },
-          });
-          return side;
-        };
-        return borders;
+        return bordersOf(obj, {
+          edges: cellEdges,
+          enable: ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'],
+          outside: ['top', 'left', 'bottom', 'right'],
+          inside: ['insideH', 'insideV'],
+          getBag: cellBorders,
+          setBag(bag) {
+            edit('Borders', () => {
+              D.touchTbl(table);
+              cell.tcPr = Object.assign({}, cell.tcPr, { borders: bag });
+              return caret;
+            });
+          },
+        });
       },
+    });
+    const CELL_VA = { top: 0, center: 1, bottom: 3 };
+    const CELL_VA_FROM = { 0: 'top', 1: 'center', 3: 'bottom' };
+    Object.defineProperty(obj, 'VerticalAlignment', {
+      enumerable: true, configurable: true,
+      get() { return CELL_VA[(cell.tcPr && cell.tcPr.vAlign) || 'top'] || 0; },
+      set(v) { edit('Cell', () => { D.touchTbl(table); cell.tcPr = Object.assign({}, cell.tcPr, { vAlign: CELL_VA_FROM[v | 0] || 'top' }); return caret; }); },
+    });
+    function cellPad(name, key) {
+      Object.defineProperty(obj, name, {
+        enumerable: true, configurable: true,
+        get() { return (cell.tcPr && cell.tcPr.mar && cell.tcPr.mar[key]) || 0; },
+        set(v) { edit('Cell', () => { D.touchTbl(table); cell.tcPr = Object.assign({}, cell.tcPr, { mar: Object.assign({}, cell.tcPr && cell.tcPr.mar, { [key]: Number(v) || 0 }) }); return caret; }); },
+      });
+    }
+    cellPad('TopPadding', 't'); cellPad('LeftPadding', 'l'); cellPad('BottomPadding', 'b'); cellPad('RightPadding', 'r');
+    Object.defineProperty(obj, 'FitText', {
+      enumerable: true, configurable: true,
+      get() { return cell.tcPr && cell.tcPr.fitText ? -1 : 0; },
+      set(v) { const t = triWrite(v); if (t === 'skip') return; edit('Cell', () => { D.touchTbl(table); cell.tcPr = Object.assign({}, cell.tcPr, { fitText: !!t }); return caret; }); },
+    });
+    Object.defineProperty(obj, 'WordWrap', {
+      enumerable: true, configurable: true,
+      get() { return cell.tcPr && cell.tcPr.noWrap ? 0 : -1; },
+      set(v) { const t = triWrite(v); if (t === 'skip') return; edit('Cell', () => { D.touchTbl(table); cell.tcPr = Object.assign({}, cell.tcPr, { noWrap: !t }); return caret; }); },
     });
     obj.Merge = function (other) {
       const dropCell = other && other._cell;
@@ -3258,7 +4401,21 @@
       enumerable: true,
       get() { return makeRange(obj, { kind: 'span', a: D.pos(b.p, b.o), f: D.pos(b.endP, b.endO), doc }); },
     });
-    storyGets(obj, ['Start', 'End']);
+    function bmOff(end) {
+      const st = storyTextOf(D.storyOf(D.doc, b.p));
+      return offInStory(st, end ? D.pos(b.endP, b.endO) : D.pos(b.p, b.o));
+    }
+    function bmSet(end, v) {
+      edit('Bookmark', () => {
+        const st = storyTextOf(D.storyOf(D.doc, b.p));
+        const pos = posInStory(st, v | 0);
+        if (end) { b.endP = pos.p; b.endO = pos.o; }
+        else { b.p = pos.p; b.o = pos.o; }
+        return caret;
+      });
+    }
+    Object.defineProperty(obj, 'Start', { enumerable: true, configurable: true, get() { return bmOff(false); }, set(v) { bmSet(false, v); } });
+    Object.defineProperty(obj, 'End', { enumerable: true, configurable: true, get() { return bmOff(true); }, set(v) { bmSet(true, v); } });
     obj.Delete = function () { edit('Bookmark', () => { removeBookmark(b); return caret; }); };
     obj.Select = function () {
       caret = { a: D.pos(b.p, b.o), f: D.pos(b.endP, b.endO) };
@@ -3352,6 +4509,7 @@
     find.Wrap = 1;
     find.Format = false;
     find.Found = false;
+    find.ClearFormatting = function () { find.Format = false; };
     find._repl = '';
     const repl = stamp({}, find);
     Object.defineProperty(repl, 'Text', {
@@ -3437,6 +4595,17 @@
     return find;
   }
 
+  function addTables(range, numRows, numColumns, defaultTableBehavior, autoFitBehavior) {
+    if (defaultTableBehavior !== undefined && (defaultTableBehavior | 0) !== 0 && (defaultTableBehavior | 0) !== 1) gap('G-ENGINE', 'Tables.Add');
+    const table = addTable(activeDocument(), range, numRows, numColumns);
+    if (autoFitBehavior !== undefined) {
+      const fit = autoFitBehavior | 0;
+      if (fit !== 0 && fit !== 1 && fit !== 2) gap('G-ENGINE', 'Tables.Add');
+      table.AutoFitBehavior(fit);
+    }
+    return table;
+  }
+
   function addTable(doc, range, numRows, numColumns) {
     const nr = numRows | 0;
     const nc = numColumns | 0;
@@ -3509,10 +4678,35 @@
 
   function makeSelection() {
     const sel = stamp({}, Application);
-    storyGets(sel, ['Start', 'End']);
-    storyFns(sel, ['MoveLeft', 'MoveRight', 'MoveUp', 'MoveDown', 'HomeKey', 'EndKey', 'GoTo', 'GoToNext', 'GoToPrevious']);
-    sel.Characters = charactersOf(sel, () => endsOf({ kind: 'selection' }));
     const selAnchor = { kind: 'selection' };
+    attachStory(sel, () => selAnchor);
+    storyFns(sel, ['GoTo', 'GoToNext', 'GoToPrevious']);
+    sel.MoveLeft = function (unit, count, extend) { return moveSelection(-1, unit == null ? 1 : unit, count, extend); };
+    sel.MoveRight = function (unit, count, extend) { return moveSelection(1, unit == null ? 1 : unit, count, extend); };
+    sel.MoveUp = function (unit, count, extend) {
+      const u = unit == null ? 5 : (unit | 0);
+      if (layoutUnit(u)) gap('G-STORY', 'MoveUp');
+      return moveSelection(-1, u, count, extend);
+    };
+    sel.MoveDown = function (unit, count, extend) {
+      const u = unit == null ? 5 : (unit | 0);
+      if (layoutUnit(u)) gap('G-STORY', 'MoveDown');
+      return moveSelection(1, u, count, extend);
+    };
+    function keyEdge(unit, extend, end) {
+      const u = unit == null ? 5 : (unit | 0);
+      if (layoutUnit(u)) gap('G-STORY', end ? 'EndKey' : 'HomeKey');
+      const p = storyPair(selAnchor);
+      if (!p) return 0;
+      const edge = unitEdge(p.st, end ? p.b : p.a, u, end);
+      const a = end ? (extend ? p.a : edge) : edge;
+      const b = end ? edge : (extend ? p.b : edge);
+      placeSpan(posInStory(p.st, Math.min(a, b)), posInStory(p.st, Math.max(a, b)));
+      return 1;
+    }
+    sel.HomeKey = function (unit, extend) { return keyEdge(unit, extend, false); };
+    sel.EndKey = function (unit, extend) { return keyEdge(unit, extend, true); };
+    sel.Characters = charactersOf(sel, () => endsOf({ kind: 'selection' }));
     Object.defineProperty(sel, 'Range', {
       enumerable: true,
       get() { return makeRange(sel, selAnchor); },
@@ -3591,8 +4785,130 @@
       });
     };
     denyFn(sel, ['InsertCaption', 'PasteAndFormat', 'PasteSpecial', 'PasteExcelTable'], 'G-ENGINE');
+    for (const name of ['Paragraphs', 'Sentences', 'Words', 'Tables', 'ListFormat', 'Hyperlinks', 'Bookmarks', 'Fields', 'Comments', 'InlineShapes', 'FormattedText']) {
+      Object.defineProperty(sel, name, {
+        enumerable: true, configurable: true,
+        get() { return sel.Range[name]; },
+      });
+    }
+    for (const name of ['Bold', 'Italic', 'Underline', 'Case', 'LanguageID', 'LanguageIDFarEast']) {
+      Object.defineProperty(sel, name, {
+        enumerable: true, configurable: true,
+        get() { return sel.Range[name]; },
+        set(v) { sel.Range[name] = v; },
+      });
+    }
+    for (const name of ['InsertParagraph', 'InsertParagraphBefore', 'InsertParagraphAfter']) {
+      sel[name] = function () { return sel.Range[name].apply(sel.Range, arguments); };
+    }
+    Object.defineProperty(sel, 'Document', {
+      enumerable: true, configurable: true,
+      get() { return activeDocument(); },
+    });
     sel._find = makeFind(sel, selAnchor);
     Object.defineProperty(sel, 'Find', { enumerable: true, configurable: true, get() { return sel._find; } });
+    Object.defineProperty(sel, 'Borders', { enumerable: true, get() { return sel.ParagraphFormat.Borders; } });
+    Object.defineProperty(sel, 'Shading', { enumerable: true, get() { return sel.ParagraphFormat.Shading; } });
+    Object.defineProperty(sel, 'Shapes', {
+      enumerable: true,
+      get() { return rangeShapes(sel, { kind: 'selection' }, true); },
+    });
+    Object.defineProperty(sel, 'ShapeRange', { enumerable: true, get() { return sel.Shapes; } });
+    Object.defineProperty(sel, 'Cells', {
+      enumerable: true,
+      get() {
+        const hit = caretCell();
+        if (!hit) return cellCollection(activeDocument(), { rows: [], grid: [] }, []);
+        return cellCollection(activeDocument(), hit.table, [hit.cell]);
+      },
+    });
+    function emptyRows(parent) {
+      const rows = function () { missing(); };
+      stamp(rows, parent);
+      Object.defineProperty(rows, 'Count', { enumerable: true, get() { return 0; } });
+      rows.Item = function () { missing(); };
+      rows.Delete = function () {};
+      return rows;
+    }
+    Object.defineProperty(sel, 'Rows', {
+      enumerable: true,
+      get() {
+        const hit = caretCell();
+        if (!hit) return emptyRows(sel);
+        return makeTable(activeDocument(), hit.table).Rows;
+      },
+    });
+    Object.defineProperty(sel, 'Columns', {
+      enumerable: true,
+      get() {
+        const hit = caretCell();
+        if (!hit) return emptyRows(sel);
+        return makeTable(activeDocument(), hit.table).Columns;
+      },
+    });
+    Object.defineProperty(sel, 'Sections', { enumerable: true, get() { return activeDocument().Sections; } });
+    Object.defineProperty(sel, 'PageSetup', { enumerable: true, get() { const s = activeDocument().Sections; return s.Count ? s.Item(1).PageSetup : null; } });
+    Object.defineProperty(sel, 'StoryType', {
+      enumerable: true,
+      get() {
+        const e = endsOf(selAnchor);
+        if (!e || !D.doc) return 1;
+        const story = D.storyOf(D.doc, e[0].p);
+        return story === D.doc.main ? 1 : 5;
+      },
+    });
+    Object.defineProperty(sel, 'StoryLength', {
+      enumerable: true,
+      get() {
+        const e = endsOf(selAnchor);
+        const story = e && D.doc ? D.storyOf(D.doc, e[0].p) : (D.doc && D.doc.main);
+        return story ? storyTextOf(story).text.length : 0;
+      },
+    });
+    sel.InStory = function (range) { return range ? -1 : 0; };
+    sel.InRange = function (range) {
+      if (!range || !range.Start && range.Start !== 0) return 0;
+      const a = sel.Start, b = sel.End;
+      return a >= range.Start && b <= range.End ? -1 : 0;
+    };
+    Object.defineProperty(sel, 'StartIsActive', { enumerable: true, get() { return 0; } });
+    Object.defineProperty(sel, 'BookmarkID', { enumerable: true, get() { return 0; } });
+    Object.defineProperty(sel, 'NoProofing', {
+      enumerable: true, configurable: true,
+      get() {
+        const e = endsOf(selAnchor);
+        if (!e) return 0;
+        const vals = runValues(e[0], e[1], 'noProof');
+        return triRead(vals);
+      },
+      set(v) {
+        const t = triWrite(v);
+        if (t === 'skip') return;
+        const e = endsOf(selAnchor);
+        if (e) applyRun(e[0], e[1], { noProof: !!t });
+      },
+    });
+    sel.SelectCell = function () { const hit = caretCell(); if (hit) makeCell(activeDocument(), hit.table, hit.cell).Range.Select(); };
+    sel.SelectRow = function () {
+      const hit = caretCell();
+      if (!hit) return;
+      const row = makeTable(activeDocument(), hit.table).Rows.Item(hit.rowIndex);
+      if (row) row.Select();
+    };
+    sel.SelectColumn = function () {
+      const hit = caretCell();
+      if (!hit) return;
+      const col = hit.row.cells.indexOf(hit.cell) + 1;
+      makeTable(activeDocument(), hit.table).Columns.Item(col).Select();
+    };
+    Object.defineProperty(sel, '_pictureAt', { value: pictureAtOf({ kind: 'selection' }) });
+    sel.InsertRowsAbove = function (n) { insertRowsAtCaret(n); };
+    sel.InsertRowsBelow = function (n) { insertRowsAtCaret(n); };
+    sel.InsertColumnsRight = function (n) { insertColsAtCaret(n); };
+    const storyGap = ['MoveWhile', 'MoveUntil', 'MoveStartWhile', 'MoveEndWhile', 'MoveStartUntil', 'MoveEndUntil', 'IPAtEndOfLine', 'IsEndOfRowMark'];
+    storyGets(sel, storyGap.filter((n) => n === 'IPAtEndOfLine' || n === 'IsEndOfRowMark'));
+    denyGet(sel, ['ChildShapeRange', 'HasChildShapeRange', 'Editors', 'FormFields', 'Frames', 'HTMLDivisions', 'WordOpenXML', 'XML', 'EndnoteOptions', 'FootnoteOptions', 'FitTextWidth', 'Flags', 'ExtendMode', 'ColumnSelectMode', 'EnhMetaFileBits', 'LanguageIDOther', 'HeaderFooter', 'TopLevelTables'], 'G-ENGINE');
+    denyFn(sel, ['InsertFormula', 'InsertCrossReference', 'InsertXML', 'InsertStyleSeparator', 'PasteAsNestedTable', 'PasteAppendTable', 'PasteFormat', 'CopyAsPicture', 'ToggleCharacterCode', 'DetectLanguage', 'Calculate', 'Shrink', 'EscapeKey', 'CreateAutoTextEntry', 'NextRevision', 'BoldRun', 'ItalicRun', 'ClearFormatting', 'CreateTextbox', 'NextField', 'PreviousField', 'InsertNewPage', 'SortAscending', 'SortDescending', 'SplitTable'], 'G-ENGINE');
     return sel;
   }
   const Selection = makeSelection();
@@ -3662,7 +4978,19 @@
     wdAutoFitFixed: 0, wdAutoFitContent: 1, wdAutoFitWindow: 2,
     wdSeparateByParagraphs: 0, wdSeparateByTabs: 1, wdSeparateByCommas: 2,
     wdSortOrderAscending: 0, wdSortOrderDescending: 1,
-    wdBorderTop: -1, wdBorderLeft: -2, wdBorderBottom: -3, wdBorderRight: -4,
+    wdBorderTop: -1, wdBorderLeft: -2, wdBorderBottom: -3, wdBorderRight: -4, wdBorderHorizontal: -5, wdBorderVertical: -6, wdBorderDiagonalDown: -7, wdBorderDiagonalUp: -8,
+    wdLineStyleNone: 0, wdLineStyleSingle: 1, wdLineStyleDot: 2, wdLineStyleDashSmallGap: 3, wdLineStyleDashLargeGap: 4, wdLineStyleDashDot: 5, wdLineStyleDashDotDot: 6, wdLineStyleDouble: 7, wdLineStyleTriple: 8, wdLineStyleThinThickSmallGap: 9, wdLineStyleThickThinSmallGap: 10, wdLineStyleThinThickThinSmallGap: 11, wdLineStyleWave: 18, wdLineStyleDoubleWave: 19, wdLineStyleDashDotStroked: 20, wdLineStyleEmboss3D: 21, wdLineStyleEngrave3D: 22, wdLineStyleOutset: 23, wdLineStyleInset: 24,
+    wdLineWidth025pt: 2, wdLineWidth050pt: 4, wdLineWidth075pt: 6, wdLineWidth100pt: 8, wdLineWidth150pt: 12, wdLineWidth225pt: 18, wdLineWidth300pt: 24, wdLineWidth450pt: 36, wdLineWidth600pt: 48,
+    wdTextureNone: 0, wdTextureSolid: 1000, wdTexture5Percent: 50, wdTexture10Percent: 100, wdTexture25Percent: 250, wdTexture50Percent: 500, wdTexture75Percent: 750,
+    wdCharacter: 1, wdWord: 2, wdSentence: 3, wdParagraph: 4, wdLine: 5, wdStory: 6, wdScreen: 7, wdWindow: 11,
+    wdPaperLetter: 2, wdPaperLegal: 4, wdPaperExecutive: 5, wdPaperA3: 6, wdPaperA4: 7, wdPaperA5: 9, wdPaperB5: 11, wdPaperTabloid: 23, wdPaperStatement: 22, wdPaperEnvelope10: 25, wdPaperEnvelopeDL: 37, wdPaperEnvelopeC5: 34, wdPaperEnvelopeMonarch: 39, wdPaperCustom: 41,
+    wdRowHeightAuto: 0, wdRowHeightAtLeast: 1, wdRowHeightExactly: 2,
+    wdDropNone: 0, wdDropNormal: 1, wdDropMargin: 2,
+    wdListNoNumbering: 0, wdListBullet: 2, wdListSimpleNumbering: 3, wdListMixedNumbering: 5,
+    wdPreferredWidthAuto: 1, wdPreferredWidthPercent: 2, wdPreferredWidthPoints: 3,
+    wdAlignVerticalTop: 0, wdAlignVerticalCenter: 1, wdAlignVerticalJustify: 2, wdAlignVerticalBottom: 3,
+    wdWrapSquare: 0, wdWrapTight: 1, wdWrapThrough: 2, wdWrapNone: 3, wdWrapTopBottom: 4, wdWrapInline: 7,
+    wdInlineShapePicture: 3, wdInlineShapeChart: 12, wdInlineShapeSmartArt: 13,
     wdPropertyTypeString: 4, wdEnglishUS: 1033,
     wdDialogFileOpen: 80, wdDialogFileSaveAs: 84, wdDialogFilePrint: 88, wdDialogFileSummaryInfo: 86,
     wdDialogFormatFont: 174, wdDialogFormatParagraph: 175, wdDialogFormatTabs: 179, wdDialogFormatBordersAndShading: 189,

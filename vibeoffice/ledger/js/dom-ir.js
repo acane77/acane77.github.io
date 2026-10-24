@@ -30,24 +30,24 @@ Redo call
 Windows gap G-HOST get
 AddIns gap G-HOST get
 Dialogs get BuiltinDialogs
-FileDialog call BuiltinFileDialog
+FileDialog call BuiltinFileDialog ([Type])
 CommandBars gap G-HOST get
-Run gap G-HOST call
-SendKeys gap G-HOST call
-Wait gap G-HOST call
-OnTime gap G-HOST call
-GetOpenFilename call RequestApproval FileDialog dialog
-GetSaveAsFilename call RequestApproval FileDialog dialog
-HasHostAbility call
-MsgBox call AlwaysAllow
-InputBox call AlwaysAllow
-HostShell call AlwaysDeny Shell
-HostDir call RequestApproval Dir
+Run gap G-HOST call ([Macro], [Arg1], [Arg2], [Arg3], [Arg4], [Arg5], [Arg6], [Arg7], [Arg8], [Arg9], [Arg10], [Arg11], [Arg12], [Arg13], [Arg14], [Arg15], [Arg16], [Arg17], [Arg18], [Arg19], [Arg20], [Arg21], [Arg22], [Arg23], [Arg24], [Arg25], [Arg26], [Arg27], [Arg28], [Arg29], [Arg30])
+SendKeys gap G-HOST call ([Keys], [Wait])
+Wait gap G-HOST call ([Time])
+OnTime gap G-HOST call ([EarliestTime], [Procedure], [LatestTime], [Schedule])
+GetOpenFilename call RequestApproval FileDialog dialog ([FileFilter], [FilterIndex], [Title], [ButtonText], [MultiSelect])
+GetSaveAsFilename call RequestApproval FileDialog dialog ([InitialFilename], [FileFilter], [FilterIndex], [Title], [ButtonText])
+HasHostAbility call ([Ability])
+MsgBox call AlwaysAllow ([Prompt], [Buttons], [Title])
+InputBox call AlwaysAllow ([Prompt], [Title], [Default])
+HostShell call AlwaysDeny Shell ([PathName])
+HostDir call RequestApproval Dir ([PathName])
 EnableEvents gap G-ENGINE get
 # Workbooks collection
 Item call Workbook
-Add call Workbook
-Open call RequestApproval Open
+Add call Workbook ([Template])
+Open call RequestApproval Open ([Filename], [UpdateLinks], [ReadOnly], [Format], [Password])
 Close gap G-HOST call
 # Workbook
 Name get
@@ -64,25 +64,25 @@ BuiltInDocumentProperties get DocumentProperties
 CustomDocumentProperties get DocumentProperties
 Activate call
 Save call RequestApproval Save
-Close call
-Protect call
-Unprotect call
-SaveAs call RequestApproval SaveAs
-SaveAs2 gap G-HOST call
-PrintOut call AlwaysAllow Print
-ExportAsFixedFormat call RequestApproval FixedFormat
-FollowHyperlink call AlwaysAllow Hyperlink
-SendMail gap G-HOST call
+Close call ([SaveChanges], [Filename], [RouteWorkbook])
+Protect call ([Password])
+Unprotect call ([Password])
+SaveAs call RequestApproval SaveAs ([Filename], [FileFormat], [Password], [WriteResPassword])
+SaveAs2 gap G-HOST call ([Filename], [FileFormat], [Password], [WriteResPassword])
+PrintOut call AlwaysAllow Print ([From], [To], [Copies], [Preview], [ActivePrinter], [PrintToFile], [Collate], [PrToFileName], [IgnorePrintAreas])
+ExportAsFixedFormat call RequestApproval FixedFormat ([Type], [Filename])
+FollowHyperlink call AlwaysAllow Hyperlink ([Address], [SubAddress], [NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
+SendMail gap G-HOST call ([Recipients], [Subject], [ReturnReceipt])
 Windows gap G-HOST get
 # DocumentProperties collection
 Item call DocumentProperty
-Add call DocumentProperty
+Add call DocumentProperty ([Name], [LinkToContent], [Type], [Value])
 # DocumentProperty
 Name get
 Value rw
 # Names collection
 Item call Name
-Add call Name
+Add call Name ([Name], [RefersTo])
 # Name
 Name rw
 RefersTo rw
@@ -94,17 +94,17 @@ Item call Style
 Name get
 # Sheets collection
 Item call Worksheet
-Add call Worksheet
+Add call Worksheet ([Before], [After], [Count])
 # Worksheets collection
 Item call Worksheet
-Add call Worksheet
+Add call Worksheet ([Before], [After], [Count])
 # Worksheet
 Name rw
 Index get
 Visible rw
 UsedRange get Range
-Range call Range
-Cells both Range
+Range call Range ([Cell1], [Cell2])
+Cells both Range ([RowIndex], [ColumnIndex])
 Rows get Range
 Columns get Range
 Comments get Comments
@@ -124,18 +124,18 @@ Scenarios get Scenarios
 Activate call
 Select call
 Delete call
-Copy call Worksheet
-Move call
+Copy call Worksheet ([Before], [After])
+Move call ([Before], [After])
 Calculate call
-Protect call
-Unprotect call
+Protect call ([Password])
+Unprotect call ([Password])
 QueryTables gap G-ENGINE get
 XmlMaps gap G-ENGINE get
 OLEObjects gap G-ENGINE get
 CommentsThreaded gap G-ENGINE get
-PrintOut call AlwaysAllow Print
-ExportAsFixedFormat call RequestApproval FixedFormat
-SaveAs call RequestApproval SheetSaveAs
+PrintOut call AlwaysAllow Print ([From], [To], [Copies], [Preview], [ActivePrinter], [PrintToFile], [Collate], [PrToFileName], [IgnorePrintAreas])
+ExportAsFixedFormat call RequestApproval FixedFormat ([Type], [Filename])
+SaveAs call RequestApproval SheetSaveAs ([Filename], [FileFormat], [Password], [WriteResPassword], [ReadOnlyRecommended], [CreateBackup])
 # Range
 Count get
 Row get
@@ -157,15 +157,15 @@ ColumnWidth rw
 RowHeight rw
 Hidden rw
 MergeCells get
-Item call Range
-Cells both Range
-Resize call Range
-Offset call Range
+Item call Range ([RowIndex], [ColumnIndex])
+Cells both Range ([RowIndex], [ColumnIndex])
+Resize call Range ([RowSize], [ColumnSize])
+Offset call Range ([RowOffset], [ColumnOffset])
 EntireRow get Range
 EntireColumn get Range
-End call Range
+End call Range ([Direction])
 CurrentRegion get Range
-SpecialCells call Range
+SpecialCells call Range ([Type], [Value])
 Clear call
 ClearContents call
 ClearFormats call
@@ -174,15 +174,15 @@ Merge call
 UnMerge call
 Select call
 Activate call
-Copy call
-PasteSpecial call
-Insert call
-Delete call
-Find call Range
-Replace call
-Sort call
-AutoFilter call
-AddComment call Comment
+Copy call ([Destination])
+PasteSpecial call ([Paste])
+Insert call ([Shift])
+Delete call ([Shift])
+Find call Range ([What], [After], [LookIn], [LookAt], [SearchOrder], [SearchDirection], [MatchCase])
+Replace call ([What], [Replacement], [LookAt], [SearchOrder], [MatchCase])
+Sort call ([Key1], [Order1], [Key2], [Type], [Order2], [Key3], [Order3], [Header])
+AutoFilter call ([Field], [Criteria1])
+AddComment call Comment ([Text])
 Comment get Comment
 Hyperlinks get Hyperlinks
 Validation get Validation
@@ -209,7 +209,7 @@ ThemeColor rw
 TintAndShade rw
 PatternColor rw
 # Borders
-Item call Border
+Item call Border ([Index])
 LineStyle rw
 # Border
 LineStyle rw
@@ -217,14 +217,14 @@ Weight rw
 Color rw
 # Comments collection
 Item call Comment
-Add call Comment
+Add call Comment ([Range], [Text])
 # Comment
 Text rw
 Author get
 Delete call
 # Hyperlinks collection
 Item call Hyperlink
-Add call Hyperlink
+Add call Hyperlink ([Anchor], [Address], [SubAddress])
 Delete call
 # Hyperlink
 Address rw
@@ -234,12 +234,12 @@ TextToDisplay rw
 Delete call
 Follow gap G-HOST call
 # Validation
-Add call
+Add call ([Type], [AlertStyle], [Operator], [Formula1])
 Delete call
-Modify gap G-ENGINE call
+Modify gap G-ENGINE call ([Type], [AlertStyle], [Operator], [Formula1], [Formula2])
 # FormatConditions collection
 Item call FormatCondition
-Add call FormatCondition
+Add call FormatCondition ([Type], [Operator], [Formula1], [Formula2])
 Delete call
 # FormatCondition
 Type get
@@ -247,13 +247,13 @@ Formula1 get
 Delete call
 # ListObjects collection
 Item call ListObject
-Add call ListObject
+Add call ListObject ([SourceType], [Source], [LinkSource], [XlListObjectHasHeaders], [Destination])
 # ListObject
 Name rw
 Range get Range
 ListColumns get ListColumns
 Delete call
-Resize call
+Resize call ([Range])
 Refresh gap G-ENGINE call
 # ListColumns collection
 Item call ListColumn
@@ -261,7 +261,7 @@ Item call ListColumn
 Name rw
 # ChartObjects collection
 Item call ChartObject
-Add call ChartObject
+Add call ChartObject ([Left], [Top], [Width], [Height])
 # ChartObject
 Name rw
 Left rw
@@ -275,11 +275,11 @@ ChartType rw
 Name get
 SeriesCollection gap G-ENGINE get
 Axes gap G-ENGINE get
-SetSourceData gap G-ENGINE call
+SetSourceData gap G-ENGINE call ([Source], [PlotBy])
 # Shapes collection
 Item call Shape
-AddTextbox call Shape
-AddPicture call RequestApproval Picture
+AddTextbox call Shape ([Orientation], [Left], [Top], [Width], [Height])
+AddPicture call RequestApproval Picture ([Filename], [LinkToFile], [SaveWithDocument], [Left], [Top], [Width], [Height])
 # Shape
 Name rw
 Left rw
@@ -311,28 +311,28 @@ BottomMargin rw
 PrintArea rw
 CenterHorizontally rw
 CenterVertically rw
-PrintOut call AlwaysAllow Print
+PrintOut call AlwaysAllow Print ([From], [To], [Copies], [Preview], [ActivePrinter], [PrintToFile], [Collate], [PrToFileName], [IgnorePrintAreas])
 # PageBreaks collection
 Item call PageBreak
-Add call
+Add call ([Before])
 # PageBreak
 Location get Range
 Delete call
 # Outline
 SummaryRow get
-ShowLevels call
+ShowLevels call ([RowLevels], [ColumnLevels])
 # AutoFilter
 Range get Range
 ShowAllData call
 # Scenarios collection
 Item call Scenario
-Add call Scenario
+Add call Scenario ([Name], [ChangingCells], [Values])
 # Scenario
 Name rw
 Comment rw
 Show call
 Delete call
-ChangeScenario gap G-ENGINE call
+ChangeScenario gap G-ENGINE call ([ChangingCells], [Values])
 # WorksheetFunction
 # QueryTables gap G-ENGINE
 # QueryTable gap G-ENGINE
@@ -359,7 +359,7 @@ ChangeScenario gap G-ENGINE call
 # AddIn gap G-HOST
 # Dialogs gap G-HOST
 # BuiltinDialogs
-Item call BuiltinDialog
+Item call BuiltinDialog ([Index])
 # BuiltinDialog
 Show call AlwaysAllow
 # BuiltinFileDialog
@@ -384,6 +384,26 @@ SelectedItems get
     return { parts: out, audit: audit, ability: ability, fileDialog: fileDialog };
   }
 
+  function takeSignature(line) {
+    const open = line.indexOf('(');
+    if (open < 0) return { line: line, params: null };
+    const close = line.indexOf(')', open);
+    if (close < 0) throw new Error('Unclosed signature: ' + line);
+    const body = line.slice(open + 1, close).trim();
+    const params = [];
+    if (body) {
+      for (const bit of body.split(',')) {
+        const tok = bit.trim();
+        const opt = /^\[([A-Za-z][A-Za-z0-9]*)\]$/.exec(tok);
+        const bare = /^[A-Za-z][A-Za-z0-9]*$/.exec(tok);
+        const name = opt ? opt[1] : (bare ? bare[0] : '');
+        if (!name) throw new Error('Bad signature name: ' + line);
+        params.push({ name: name, optional: !!opt });
+      }
+    }
+    return { line: (line.slice(0, open) + line.slice(close + 1)).replace(/\s+/g, ' ').trim(), params: params };
+  }
+
   function parseCatalog(text) {
     const types = {};
     let cur = null;
@@ -398,9 +418,11 @@ SelectedItems get
         types[cur.name] = cur;
         continue;
       }
-      const taken = takeAudit(line.split(/\s+/));
+      const signed = takeSignature(line);
+      const taken = takeAudit(signed.line.split(/\s+/));
       const parts = taken.parts;
       const rec = { kind: parts[1], audit: taken.audit, ability: taken.ability, fileDialog: taken.fileDialog };
+      if (signed.params) rec.params = signed.params;
       if (parts[1] === 'gap') {
         rec.code = parts[2];
         rec.as = parts[3] || 'any';
@@ -420,6 +442,7 @@ SelectedItems get
       if (!t.members.First) t.members.First = { kind: 'get', ret: ret };
       if (!t.members.Last) t.members.Last = { kind: 'get', ret: ret };
       if (!t.members.Item) t.members.Item = { kind: 'call', ret: ret };
+      if (t.members.Item.kind === 'call' && !t.members.Item.params) t.members.Item.params = [{ name: 'Index', optional: true }];
     }
     return types;
   }

@@ -434,6 +434,7 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .chart-preview { border: 1px solid var(--field-border); background: var(--surface); width: 310px; max-width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; }
 .ds-tools { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
 .tooltip { position: fixed; z-index: 3000; background: var(--tip-bg); border: 1px solid var(--tip-line); padding: 1px 4px; pointer-events: none; font-size: 11px; white-space: nowrap; box-shadow: 1px 1px 2px var(--tip-shadow-c); }
+.vb-ide-tip { z-index: 9000; white-space: pre-wrap; max-width: 420px; }
 .toast { position: fixed; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 2500; background: var(--tip-bg); border: 1px solid var(--tip-line); padding: 6px 12px; box-shadow: 2px 2px 4px var(--toast-shadow-c); }
 .toast .toast-act { margin-left: 8px; padding: 0; border: 0; background: none; color: var(--tip-link); text-decoration: underline; cursor: pointer; font: inherit; }
 /* work that keeps the user waiting (ui.busy): the ordinary modal window, with no button row */
@@ -523,10 +524,14 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .vb-ide-menu-btn { height: 20px; border: 1px solid transparent; background: none; color: var(--dlg-ink); padding: 0 8px; }
 .vb-ide-menu-btn:hover { background: var(--menu-hot); border-color: var(--hot-border); }
 .vb-ide-bar { display: flex; align-items: center; gap: 4px; padding: 3px 4px; border-bottom: 1px solid var(--pane-line); background: var(--dlg); }
+.vb-ide-status { flex: none; display: flex; align-items: center; height: 22px; padding: 0 8px; border-top: 1px solid var(--pane-line); background: var(--dlg); color: var(--dlg-ink); }
 .vb-ide-sep { width: 1px; align-self: stretch; margin: 2px 2px; background: var(--pane-line); }
 .vb-ide-editor { flex: 1.15 1 0; min-height: 80px; overflow: hidden; }
 .vb-ide-split { flex: none; }
 .vb-ide-editor .CodeMirror { height: 100%; font-family: monospace; font-size: 13px; }
+.vb-ide-editor .CodeMirror span.vb-ide-link { color: var(--pane-link); text-decoration: underline; cursor: pointer; }
+.vb-ide-squiggle { text-decoration: underline wavy var(--error-ink); text-decoration-thickness: 1px; }
+.vb-ide-squiggle-empty { display: inline-block; min-width: 1em; text-decoration: underline wavy var(--error-ink); }
 .vb-ide-editor .CodeMirror-gutters { background: var(--surface); border-right: 1px solid var(--field-border); }
 .vb-ide-dot { display: inline-block; width: 9px; height: 9px; margin: 3px 0 0 2px; border-radius: 50%; background: var(--error-ink); }
 .vb-ide-current { background: var(--hot-a); }
@@ -557,5 +562,26 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .vb-ide-cond-panel { position: fixed; z-index: 7000; min-width: 240px; display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--dlg); color: var(--dlg-ink); border: 1px solid var(--tb-border); box-shadow: 0 6px 20px var(--dlg-shadow-c); }
 .vb-ide-cond-row { display: flex; align-items: center; gap: 6px; }
 .vb-ide-cond-row input { flex: 1; min-width: 0; background: var(--surface); color: var(--dlg-ink); border: 1px solid var(--field-border); }
-.vb-ide-cond-buttons { display: flex; justify-content: flex-end; gap: 6px; }
+.vb-ide-cond-enable { display: flex; align-items: center; gap: 4px; }
 .vb-ide-dot.off { background: transparent; box-shadow: inset 0 0 0 1px var(--error-ink); }
+.vb-ide-complete { position: fixed; z-index: 8000; width: 360px; max-height: 180px; overflow: auto; background: var(--menu-face); color: var(--dlg-ink); border: 1px solid var(--menu-border); box-shadow: 2px 2px 3px var(--shadow-c); }
+.vb-ide-complete-item { display: flex; align-items: center; gap: 4px; padding: 1px 4px; white-space: nowrap; cursor: default; }
+.vb-ide-complete-ico { display: flex; flex: none; }
+.vb-ide-complete-ico .ico { display: block; }
+.vb-ide-complete-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vb-ide-complete-item.on { background: var(--sel); color: var(--sel-ink); }
+.vb-ide-complete-item.dis { color: var(--dis-ink); }
+.vb-ide-complete-item.dis .vb-ide-complete-ico { opacity: 0.45; }
+.vb-ide-complete-detail { flex: none; margin-left: auto; color: var(--muted); }
+.vb-ide-complete-item.dis .vb-ide-complete-detail { color: var(--dis-ink); }
+.vb-ide-complete-item.on .vb-ide-complete-detail { color: var(--sel-ink); }
+.vb-ide-complete-item.dis.on { color: var(--sel-ink); }
+.vb-ide-complete-item.dis.on .vb-ide-complete-ico { opacity: 1; }
+.vb-ide-complete-item.dis.on .vb-ide-complete-detail { color: var(--sel-ink); }
+.vb-ide-complete-sig { position: fixed; z-index: 8001; width: 360px; padding: 2px 6px 3px; background: var(--menu-face); color: var(--dlg-ink); border: 1px solid var(--menu-border); box-shadow: 2px 2px 3px var(--shadow-c); }
+.vb-ide-complete-sig-name { display: flex; align-items: center; gap: 4px; font-weight: bold; white-space: nowrap; overflow: hidden; }
+.vb-ide-complete-sig-purpose { white-space: normal; overflow-wrap: anywhere; }
+.vb-ide-complete-sig-label { margin-top: 10px; color: var(--head-ink); font-style: italic; }
+.vb-ide-complete-sig-why { margin-top: 10px; color: var(--dis-ink); white-space: normal; overflow-wrap: anywhere; }
+.vb-ide-complete-sig-params { white-space: normal; overflow-wrap: anywhere; }
+.vb-ide-complete-sig.vb-ide-hover { z-index: 9000; width: max-content; max-width: 420px; pointer-events: none; }

@@ -477,9 +477,9 @@
     { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
     { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' },
     { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' },
-    { id: 'goldengate', name: N('Ribbon Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' },
-    { id: 'goldengatedark', name: N('Ribbon Golden Gate (Dark)'), layout: 'ribbon', note: 'Ribbon Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.' },
-    { id: 'vscodegg', name: N('VS Code Golden Gate'), layout: 'ribbon', note: 'Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.' }];
+    { id: 'goldengate', name: N('Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' },
+    { id: 'goldengatedark', name: N('Golden Gate (Dark)'), layout: 'ribbon', note: 'Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.' },
+    { id: 'vscodegg', name: N('Golden Gate (Follow VS Code Color Theme)'), layout: 'ribbon', note: 'Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.' }];
   const storedLook = () => {
     try {
       const id = localStorage.getItem('vibeoffice.look') || 'ribbon2010';
