@@ -2451,7 +2451,7 @@
  },
  "&Nikki": {
   "where": [
-   "common/scout/assistant.js:225"
+   "common/scout/assistant.js:226"
   ]
  },
  "&No": {
@@ -3198,7 +3198,7 @@
  },
  "&Scout": {
   "where": [
-   "common/scout/assistant.js:224"
+   "common/scout/assistant.js:225"
   ]
  },
  "&Screen": {
@@ -3228,7 +3228,7 @@
  },
  "&Select Assistant": {
   "where": [
-   "common/scout/assistant.js:222"
+   "common/scout/assistant.js:223"
   ]
  },
  "&Selection": {
@@ -16134,32 +16134,32 @@
  },
  "Good afternoon! I'm Nikki. I'll keep you company while you work.": {
   "where": [
-   "common/scout/assistant.js:105"
+   "common/scout/assistant.js:106"
   ]
  },
  "Good afternoon! I'm Scout, your soon-to-be-AI assistant. For now, I mostly fetch.": {
   "where": [
-   "common/scout/assistant.js:105"
+   "common/scout/assistant.js:106"
   ]
  },
  "Good evening! I'm Nikki. I'll keep you company while you work.": {
   "where": [
-   "common/scout/assistant.js:106"
+   "common/scout/assistant.js:107"
   ]
  },
  "Good evening! I'm Scout, your soon-to-be-AI assistant. For now, I mostly fetch.": {
   "where": [
-   "common/scout/assistant.js:106"
+   "common/scout/assistant.js:107"
   ]
  },
  "Good morning! I'm Nikki. I'll keep you company while you work.": {
   "where": [
-   "common/scout/assistant.js:104"
+   "common/scout/assistant.js:105"
   ]
  },
  "Good morning! I'm Scout, your soon-to-be-AI assistant. For now, I mostly fetch.": {
   "where": [
-   "common/scout/assistant.js:104"
+   "common/scout/assistant.js:105"
   ]
  },
  "Gr&id and Guides...": {
@@ -16680,7 +16680,7 @@
  },
  "Hide the &Assistant": {
   "where": [
-   "common/scout/assistant.js:131"
+   "common/scout/assistant.js:132"
   ]
  },
  "Hierarchy": {
@@ -16903,7 +16903,7 @@
  },
  "I'm Nikki. What would you like to do?": {
   "where": [
-   "common/scout/assistant.js:217"
+   "common/scout/assistant.js:218"
   ]
  },
  "I'm Scout, your soon-to-be-AI assistant. For now, I mostly fetch.": {
@@ -16913,7 +16913,7 @@
  },
  "I'm Scout. What would you like to do?": {
   "where": [
-   "common/scout/assistant.js:217"
+   "common/scout/assistant.js:218"
   ]
  },
  "I, II, III, ...": {
@@ -28400,6 +28400,11 @@
    "quire/js/commands.js:508"
   ]
  },
+ "Send me a wink": {
+  "where": [
+   "common/scout/assistant.js:59"
+  ]
+ },
  "Send to Bac&k": {
   "where": [
    "lectern/js/commands.js:172",
@@ -29001,7 +29006,7 @@
  },
  "Show the &Assistant": {
   "where": [
-   "common/scout/assistant.js:131"
+   "common/scout/assistant.js:132"
   ]
  },
  "Show type": {
@@ -36476,7 +36481,7 @@
  },
  "{0} What would you like to do?": {
   "where": [
-   "common/scout/assistant.js:120"
+   "common/scout/assistant.js:121"
   ]
  },
  "{0} and {1} more": {

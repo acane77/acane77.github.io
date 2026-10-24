@@ -1525,6 +1525,7 @@
 [data-look="goldengate"] :is(.ribbon, .rb-pop, .floatbar, .minibar) .tb-btn.on:not(.dis):active {
   border: 0; background: var(--gg-down); box-shadow: none;
 }
+[data-look="goldengate"] .tb-btn.rb-large { height: 75px; }
 
 /* document window: traffic lights, centred title, the copied open and close motion */
 [data-look="goldengate"] .dlg {
@@ -2452,6 +2453,7 @@
 [data-look="goldengatedark"] :is(.ribbon, .rb-pop, .floatbar, .minibar) .tb-btn.on:not(.dis):active {
   border: 0; background: var(--gg-down); box-shadow: none;
 }
+[data-look="goldengatedark"] .tb-btn.rb-large { height: 75px; }
 
 /* document window: traffic lights, centred title, the copied open and close motion */
 [data-look="goldengatedark"] .dlg {
@@ -3689,6 +3691,7 @@
 [data-look="vscodegg"] :is(.ribbon, .rb-pop, .floatbar, .minibar) .tb-btn.on:not(.dis):active {
   border: 0; background: var(--gg-down); box-shadow: none;
 }
+[data-look="vscodegg"] .tb-btn.rb-large { height: 75px; }
 
 /* document window: traffic lights, centred title, the copied open and close motion */
 [data-look="vscodegg"] .dlg {

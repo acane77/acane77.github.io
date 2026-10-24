@@ -495,7 +495,7 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .rb-launch { position: absolute; right: 0; bottom: 2px; width: 14px; height: 14px; padding: 0; border: 1px solid transparent; background: none; color: var(--rb-label-ink); display: flex; align-items: center; justify-content: center; }
 .rb-launch:hover { background: var(--menu-hot); border-color: var(--hot-border); }
 .tb-btn.rb-medium { justify-content: flex-start; padding: 0 5px 0 3px; }
-.tb-btn.rb-large, .tb-split.rb-large > .tb-btn { flex-direction: column; justify-content: flex-start; height: 62px; min-width: 44px; padding: 3px 4px 0; gap: 3px; }
+.tb-btn.rb-large, .tb-split.rb-large > .tb-btn { flex-direction: column; justify-content: flex-start; height: 68px; min-width: 44px; padding: 3px 4px 0; gap: 3px; }
 .tb-btn.rb-large .tb-lbl, .tb-split.rb-large .tb-lbl { max-width: 62px; white-space: normal; text-align: center; line-height: 1.15; }
 .tb-btn.rb-large.tb-drop { position: relative; padding-bottom: 8px; }
 .tb-btn.rb-large.tb-drop .dd-arrow { margin: 0; }

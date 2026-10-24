@@ -56,7 +56,7 @@
     { label: 'Look something up in Help', cmd: 'help' },
     { label: 'Get started', cmd: 'gettingStarted' },
     { label: 'See the keyboard shortcuts', cmd: 'keyboardHelp' },
-    { label: 'Show me a trick', run: () => scout.animate() },
+    { label: 'Show me a trick', nikki: 'Send me a wink', run: () => scout.animate() },
     { label: 'Nothing for now' },
   ];
 
@@ -89,7 +89,8 @@
   function ask(text, wait) {
     if (!wait) scout.stop();
     const list = CHOICES.filter((c) => (c.cmd ? can(c.cmd) : !c.when || c.when()));
-    scout.ask(L.t(text), list.map((c) => ({ label: L.t(c.label), value: c }))).then((c) => {
+    const nikki = metrics().id === 'nikki';
+    scout.ask(L.t(text), list.map((c) => ({ label: L.t(nikki && c.nikki ? c.nikki : c.label), value: c }))).then((c) => {
       if (!c) return;
       if (c.cmd) ui.exec(c.cmd);
       else if (c.run) c.run();
