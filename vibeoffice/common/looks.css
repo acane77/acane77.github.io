@@ -384,8 +384,8 @@
 [data-look="win7"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="win7"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="win7"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="win7"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="win7"] :is(.floatbar, .minibar, .toast) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="win7"] :is(.floatbar, .minibar, .toast)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
 /* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
 [data-look="win7"] .minibar { padding: 4px 5px 3px; }
 [data-look="win7"] .minibar-row { position: relative; z-index: 1; }
@@ -746,8 +746,8 @@
 [data-look="ribbon2010"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="ribbon2010"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="ribbon2010"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="ribbon2010"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="ribbon2010"] :is(.floatbar, .minibar, .toast) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="ribbon2010"] :is(.floatbar, .minibar, .toast)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
 /* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
 [data-look="ribbon2010"] .minibar { padding: 4px 5px 3px; }
 [data-look="ribbon2010"] .minibar-row { position: relative; z-index: 1; }
@@ -1155,8 +1155,8 @@
 [data-look="goldengate"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="goldengate"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="goldengate"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="goldengate"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="goldengate"] :is(.floatbar, .minibar, .toast) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="goldengate"] :is(.floatbar, .minibar, .toast)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
 /* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
 [data-look="goldengate"] .minibar { padding: 4px 5px 3px; }
 [data-look="goldengate"] .minibar-row { position: relative; z-index: 1; }
@@ -1368,15 +1368,10 @@
 [data-look="goldengate"] ::-webkit-scrollbar-button:horizontal:start:active { border-color: #6d91ab; background: var(--w7-sb-left), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 [data-look="goldengate"] ::-webkit-scrollbar-button:horizontal:end:active { border-color: #6d91ab; background: var(--w7-sb-right), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 
-/* tooltips and the assistant's speech share the 7.css balloon face and shadow. Only the speech has the tail. */
-[data-look="goldengate"] :is(.tooltip, .scout-balloon) { background: var(--w7-bl-bg); color: #000; border: 1px solid var(--w7-bl-bd); border-radius: 3px; box-shadow: var(--w7-bl-sd); }
+/* tooltips and the assistant's speech use the formatting bar's face (with .minibar, below). No tail. */
 [data-look="goldengate"] .tooltip { padding: 4px 8px 5px; }
 [data-look="goldengate"] .scout-balloon { padding: 8px 10px; }
-[data-look="goldengate"] .scout-balloon::before { content: ""; position: absolute; width: var(--w7-blt); height: var(--w7-blt); margin: 0; border: 0; padding: 0; pointer-events: none; background-repeat: no-repeat; background-position: center; background-size: 100% 100%; left: var(--scout-tip, 1em); right: auto; }
-[data-look="goldengate"] .scout-balloon.is-below::before { top: calc(var(--w7-blt) * -1); bottom: auto; transform: none; background-image: var(--w7-blt-up); }
-[data-look="goldengate"] .scout-balloon:not(.is-below)::before { top: auto; bottom: calc(var(--w7-blt) * -1); transform: scaleY(-1); background-image: var(--w7-blt-down); }
-[data-look="goldengate"] .scout-balloon.is-tip-right::before { left: auto; right: calc(100% - var(--scout-tip, 1em)); transform: scaleX(-1); }
-[data-look="goldengate"] .scout-balloon:not(.is-below).is-tip-right::before { transform: scale(-1); }
+[data-look="goldengate"] .scout-balloon::before,
 [data-look="goldengate"] .scout-balloon::after { content: none; }
 /* Ribbon 2010 ribbon chrome. Colours and shapes follow the Office 2010 silver ribbon
    (.references/Office-Ribbon-2010/ribbon/ribbon.css). Type stays the Windows 7 face and 11px copied above. */
@@ -1447,6 +1442,7 @@
   --gg-on: rgba(0,0,0,.11);
   --gg-down: rgba(0,0,0,.16);
   --gg-glass: linear-gradient(#f7f7f7 0%, #f1f1f1 33%, #fff 100%);
+  --gg-panel: linear-gradient(#f7f7f788 0%, #f1f1f188 33%, #fff8 100%);
   --gg-glass-edge: 0 0 0 0.5px rgba(0,0,0,.28), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.95), 0 8px 15px rgba(0,0,0,.04);
   --gg-accent: #0088ff;
   --gg-menu: #0069f9;
@@ -1501,7 +1497,9 @@
 [data-look="goldengate"] .rb-tab.on:active,
 [data-look="goldengate"] .rb-tab.file:active { background: var(--gg-down); border: 0; }
 [data-look="goldengate"] .rb-panel {
-  background: #fff; border: 0; border-bottom: 1px solid rgba(0,0,0,.08); box-shadow: none; height: 110px;
+  background: var(--gg-panel);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  border: 0; border-radius: 17px; box-shadow: var(--gg-glass-edge); height: 110px;
 }
 [data-look="goldengate"] .rb-pop {
   background: linear-gradient(rgba(246, 246, 246, 0.6) 1px, rgba(232, 232, 232, 0.55) 5px, rgba(229, 229, 229, 0.55) 30%, rgba(242, 242, 242, 0.62) 65%, rgba(255, 255, 255, 0.7));
@@ -1829,10 +1827,10 @@
   box-shadow: 0 8px 24px rgba(0,0,0,.12); backdrop-filter: none; -webkit-backdrop-filter: none;
 }
 [data-look="goldengate"] .floatbar::before { content: none; }
-[data-look="goldengate"] .minibar {
+[data-look="goldengate"] :is(.minibar, .toast, .tooltip, .scout-balloon) {
   background: linear-gradient(rgba(246, 246, 246, 0.6) 1px, rgba(232, 232, 232, 0.55) 5px, rgba(229, 229, 229, 0.55) 30%, rgba(242, 242, 242, 0.62) 65%, rgba(255, 255, 255, 0.7));
   -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-  border: 0; border-radius: 18px;
+  border: 0; border-radius: 18px; color: var(--ink); font-family: var(--ui-font); font-size: var(--ui-size);
   box-shadow:
     0 0 0 0.5px rgba(0, 0, 0, 0.1),
     -1px 0 0 rgba(0, 0, 0, 0.1),
@@ -1841,7 +1839,11 @@
     inset 0 -1px 0 rgba(255, 255, 255, 0.6),
     0 8px 15px rgba(0, 0, 0, 0.04);
 }
-[data-look="goldengate"] .minibar::before { content: none; }
+[data-look="goldengate"] :is(.minibar, .toast, .tooltip, .scout-balloon)::before { content: none; }
+[data-look="goldengate"] .scout-choices button { border-radius: 6px; color: var(--ink); }
+[data-look="goldengate"] .scout-choices button::before { background: var(--ink); }
+[data-look="goldengate"] .scout-choices button:hover,
+[data-look="goldengate"] .scout-choices button:focus-visible { background: var(--gg-hover); color: var(--ink); text-decoration: none; }
 [data-look="goldengate"] .minibar .combo,
 [data-look="goldengate"] .minibar .combo:not(.dis):hover,
 [data-look="goldengate"] .minibar .combo.focus:not(.dis) {
@@ -1935,13 +1937,15 @@
 @media (prefers-reduced-transparency: reduce) {
   [data-look="goldengate"] .gg-menu-glass,
   [data-look="goldengate"] .rb-pop,
+  [data-look="goldengate"] .rb-panel,
   [data-look="goldengate"] .rb-tabs,
   [data-look="goldengate"] .rb-qat,
   [data-look="goldengate"] .dlg-title {
     backdrop-filter: none; -webkit-backdrop-filter: none;
   }
+  [data-look="goldengate"] .rb-panel { background: var(--gg-glass); }
   [data-look="goldengate"] .gg-menu-glass { background: #f0f0f0; }
-  [data-look="goldengate"] .minibar { background: #f6f6f6; }
+  [data-look="goldengate"] :is(.minibar, .toast, .tooltip, .scout-balloon) { background: #f6f6f6; }
 }
 
 
@@ -2083,8 +2087,8 @@
 [data-look="goldengatedark"] .statusbar { height: 23px; background: #2C2C2C; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="goldengatedark"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="goldengatedark"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #8E8E93B3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="goldengatedark"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #1E1E1EB3 48%, transparent 49%), linear-gradient(to right, #1E1E1E66, #0000001a, #1E1E1E33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="goldengatedark"] :is(.floatbar, .minibar, .toast) { background: transparent; border: 1px solid #8E8E93B3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="goldengatedark"] :is(.floatbar, .minibar, .toast)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #1E1E1EB3 48%, transparent 49%), linear-gradient(to right, #1E1E1E66, #0000001a, #1E1E1E33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
 /* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
 [data-look="goldengatedark"] .minibar { padding: 4px 5px 3px; }
 [data-look="goldengatedark"] .minibar-row { position: relative; z-index: 1; }
@@ -2296,15 +2300,10 @@
 [data-look="goldengatedark"] ::-webkit-scrollbar-button:horizontal:start:active { border-color: #6d91ab; background: var(--w7-sb-left), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 [data-look="goldengatedark"] ::-webkit-scrollbar-button:horizontal:end:active { border-color: #6d91ab; background: var(--w7-sb-right), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 
-/* tooltips and the assistant's speech share the 7.css balloon face and shadow. Only the speech has the tail. */
-[data-look="goldengatedark"] :is(.tooltip, .scout-balloon) { background: var(--w7-bl-bg); color: #F2F2F2; border: 1px solid var(--w7-bl-bd); border-radius: 3px; box-shadow: var(--w7-bl-sd); }
+/* tooltips and the assistant's speech use the formatting bar's face (with .minibar, below). No tail. */
 [data-look="goldengatedark"] .tooltip { padding: 4px 8px 5px; }
 [data-look="goldengatedark"] .scout-balloon { padding: 8px 10px; }
-[data-look="goldengatedark"] .scout-balloon::before { content: ""; position: absolute; width: var(--w7-blt); height: var(--w7-blt); margin: 0; border: 0; padding: 0; pointer-events: none; background-repeat: no-repeat; background-position: center; background-size: 100% 100%; left: var(--scout-tip, 1em); right: auto; }
-[data-look="goldengatedark"] .scout-balloon.is-below::before { top: calc(var(--w7-blt) * -1); bottom: auto; transform: none; background-image: var(--w7-blt-up); }
-[data-look="goldengatedark"] .scout-balloon:not(.is-below)::before { top: auto; bottom: calc(var(--w7-blt) * -1); transform: scaleY(-1); background-image: var(--w7-blt-down); }
-[data-look="goldengatedark"] .scout-balloon.is-tip-right::before { left: auto; right: calc(100% - var(--scout-tip, 1em)); transform: scaleX(-1); }
-[data-look="goldengatedark"] .scout-balloon:not(.is-below).is-tip-right::before { transform: scale(-1); }
+[data-look="goldengatedark"] .scout-balloon::before,
 [data-look="goldengatedark"] .scout-balloon::after { content: none; }
 /* Ribbon 2010 ribbon chrome. Colours and shapes follow the Office 2010 silver ribbon
    (.references/Office-Ribbon-2010/ribbon/ribbon.css). Type stays the Windows 7 face and 11px copied above. */
@@ -2375,6 +2374,7 @@
   --gg-on: rgba(255,255,255,.12);
   --gg-down: rgba(255,255,255,.18);
   --gg-glass: linear-gradient(#3A3A3C 0%, #323234 33%, #2C2C2E 100%);
+  --gg-panel: linear-gradient(#3A3A3C88 0%, #32323488 33%, #2C2C2E88 100%);
   --gg-glass-edge: 0 0 0 0.5px rgba(255,255,255,.20), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.08), 0 8px 15px rgba(0,0,0,.35);
   --gg-accent: #0091FF;
   --gg-menu: #0091FF;
@@ -2429,7 +2429,9 @@
 [data-look="goldengatedark"] .rb-tab.on:active,
 [data-look="goldengatedark"] .rb-tab.file:active { background: var(--gg-down); border: 0; }
 [data-look="goldengatedark"] .rb-panel {
-  background: #1E1E1E; border: 0; border-bottom: 1px solid rgba(255,255,255,.08); box-shadow: none; height: 110px;
+  background: var(--gg-panel);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  border: 0; border-radius: 17px; box-shadow: var(--gg-glass-edge); height: 110px;
 }
 [data-look="goldengatedark"] .rb-pop {
   background: linear-gradient(rgba(58, 58, 60, 0.78) 1px, rgba(44, 44, 46, 0.72) 5px, rgba(36, 36, 38, 0.74) 30%, rgba(48, 48, 50, 0.8) 65%, rgba(30, 30, 30, 0.86));
@@ -2757,10 +2759,10 @@
   box-shadow: 0 8px 24px rgba(0,0,0,.45); backdrop-filter: none; -webkit-backdrop-filter: none;
 }
 [data-look="goldengatedark"] .floatbar::before { content: none; }
-[data-look="goldengatedark"] .minibar {
+[data-look="goldengatedark"] :is(.minibar, .toast, .tooltip, .scout-balloon) {
   background: linear-gradient(rgba(58, 58, 60, 0.78) 1px, rgba(44, 44, 46, 0.72) 5px, rgba(36, 36, 38, 0.74) 30%, rgba(48, 48, 50, 0.8) 65%, rgba(30, 30, 30, 0.86));
   -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-  border: 0; border-radius: 18px;
+  border: 0; border-radius: 18px; color: var(--ink); font-family: var(--ui-font); font-size: var(--ui-size);
   box-shadow:
     0 0 0 0.5px rgba(255, 255, 255, 0.20),
     -1px 0 0 rgba(255, 255, 255, 0.10),
@@ -2769,7 +2771,11 @@
     inset 0 -1px 0 rgba(255, 255, 255, 0.08),
     0 8px 15px rgba(0, 0, 0, 0.45);
 }
-[data-look="goldengatedark"] .minibar::before { content: none; }
+[data-look="goldengatedark"] :is(.minibar, .toast, .tooltip, .scout-balloon)::before { content: none; }
+[data-look="goldengatedark"] .scout-choices button { border-radius: 6px; color: var(--ink); }
+[data-look="goldengatedark"] .scout-choices button::before { background: var(--ink); }
+[data-look="goldengatedark"] .scout-choices button:hover,
+[data-look="goldengatedark"] .scout-choices button:focus-visible { background: var(--gg-hover); color: var(--ink); text-decoration: none; }
 [data-look="goldengatedark"] .minibar .combo,
 [data-look="goldengatedark"] .minibar .combo:not(.dis):hover,
 [data-look="goldengatedark"] .minibar .combo.focus:not(.dis) {
@@ -2863,13 +2869,15 @@
 @media (prefers-reduced-transparency: reduce) {
   [data-look="goldengatedark"] .gg-menu-glass,
   [data-look="goldengatedark"] .rb-pop,
+  [data-look="goldengatedark"] .rb-panel,
   [data-look="goldengatedark"] .rb-tabs,
   [data-look="goldengatedark"] .rb-qat,
   [data-look="goldengatedark"] .dlg-title {
     backdrop-filter: none; -webkit-backdrop-filter: none;
   }
+  [data-look="goldengatedark"] .rb-panel { background: var(--gg-glass); }
   [data-look="goldengatedark"] .gg-menu-glass { background: #2C2C2C; }
-  [data-look="goldengatedark"] .minibar { background: #2C2C2C; }
+  [data-look="goldengatedark"] :is(.minibar, .toast, .tooltip, .scout-balloon) { background: #2C2C2C; }
 }
 
 
@@ -3298,8 +3306,8 @@
 [data-look="vscodegg"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="vscodegg"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="vscodegg"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="vscodegg"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="vscodegg"] :is(.floatbar, .minibar, .toast) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="vscodegg"] :is(.floatbar, .minibar, .toast)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
 /* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
 [data-look="vscodegg"] .minibar { padding: 4px 5px 3px; }
 [data-look="vscodegg"] .minibar-row { position: relative; z-index: 1; }
@@ -3511,15 +3519,10 @@
 [data-look="vscodegg"] ::-webkit-scrollbar-button:horizontal:start:active { border-color: #6d91ab; background: var(--w7-sb-left), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 [data-look="vscodegg"] ::-webkit-scrollbar-button:horizontal:end:active { border-color: #6d91ab; background: var(--w7-sb-right), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 
-/* tooltips and the assistant's speech share the 7.css balloon face and shadow. Only the speech has the tail. */
-[data-look="vscodegg"] :is(.tooltip, .scout-balloon) { background: var(--w7-bl-bg); color: #000; border: 1px solid var(--w7-bl-bd); border-radius: 3px; box-shadow: var(--w7-bl-sd); }
+/* tooltips and the assistant's speech use the formatting bar's face (with .minibar, below). No tail. */
 [data-look="vscodegg"] .tooltip { padding: 4px 8px 5px; }
 [data-look="vscodegg"] .scout-balloon { padding: 8px 10px; }
-[data-look="vscodegg"] .scout-balloon::before { content: ""; position: absolute; width: var(--w7-blt); height: var(--w7-blt); margin: 0; border: 0; padding: 0; pointer-events: none; background-repeat: no-repeat; background-position: center; background-size: 100% 100%; left: var(--scout-tip, 1em); right: auto; }
-[data-look="vscodegg"] .scout-balloon.is-below::before { top: calc(var(--w7-blt) * -1); bottom: auto; transform: none; background-image: var(--w7-blt-up); }
-[data-look="vscodegg"] .scout-balloon:not(.is-below)::before { top: auto; bottom: calc(var(--w7-blt) * -1); transform: scaleY(-1); background-image: var(--w7-blt-down); }
-[data-look="vscodegg"] .scout-balloon.is-tip-right::before { left: auto; right: calc(100% - var(--scout-tip, 1em)); transform: scaleX(-1); }
-[data-look="vscodegg"] .scout-balloon:not(.is-below).is-tip-right::before { transform: scale(-1); }
+[data-look="vscodegg"] .scout-balloon::before,
 [data-look="vscodegg"] .scout-balloon::after { content: none; }
 /* Ribbon 2010 ribbon chrome. Colours and shapes follow the Office 2010 silver ribbon
    (.references/Office-Ribbon-2010/ribbon/ribbon.css). Type stays the Windows 7 face and 11px copied above. */
@@ -3601,6 +3604,7 @@
   --gg-title-line: rgba(0,0,0,.05);
   --gg-ink: var(--vsc-fg);
   --gg-glass: linear-gradient(#f7f7f7 0%, #f1f1f1 33%, #fff 100%);
+  --gg-panel: linear-gradient(#f7f7f788 0%, #f1f1f188 33%, #fff8 100%);
   --gg-glass-edge: 0 0 0 0.5px rgba(0,0,0,.28), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.95), 0 8px 15px rgba(0,0,0,.04);
   --gg-window-shadow: 0 18px 54px rgba(0,0,0,.3), 0 0 0 1px rgba(0,0,0,.08);
   --gg-window-shadow-quiet: 0 7px 21px rgba(0,0,0,.2), 0 0 0 1px rgba(0,0,0,.06);
@@ -3624,8 +3628,9 @@
 [data-look="vscodegg"] .ruler-v { background: var(--vsc-editor); }
 [data-look="vscodegg"] .cmdbars,
 [data-look="vscodegg"] .ribbon,
-[data-look="vscodegg"] .rb-bar { background: var(--vsc-bar); color: var(--vsc-bar-fg); border-bottom-color: transparent; }
-[data-look="vscodegg"] .rb-panel { background: var(--vsc-editor); color: var(--vsc-fg); border-bottom-color: transparent; }
+[data-look="vscodegg"] .rb-bar,
+[data-look="vscodegg"] .rb-panelwrap { background: rgb(from var(--vsc-bar) r g b / 75%); color: var(--vsc-bar-fg); border-bottom-color: transparent; }
+[data-look="vscodegg"] .rb-panel { color: var(--vsc-fg); border-bottom-color: transparent; }
 [data-look="vscodegg"] .rb-bar {
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, max-content) minmax(0, 1fr); align-items: center;
   gap: 8px; min-height: 40px; padding: 8px 10px;
@@ -3667,7 +3672,9 @@
 [data-look="vscodegg"] .rb-tab.on:active,
 [data-look="vscodegg"] .rb-tab.file:active { background: var(--gg-down); border: 0; }
 [data-look="vscodegg"] .rb-panel {
-  background: var(--vsc-editor); border: 0; border-bottom: 1px solid var(--vsc-border); box-shadow: none; height: 110px;
+  background: var(--gg-panel);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  border: 0; border-radius: 17px; box-shadow: var(--gg-glass-edge); height: 110px;
 }
 [data-look="vscodegg"] .rb-pop {
   background: var(--gg-pop);
@@ -3995,13 +4002,17 @@
   box-shadow: 0 8px 24px rgba(0,0,0,.12); backdrop-filter: none; -webkit-backdrop-filter: none;
 }
 [data-look="vscodegg"] .floatbar::before { content: none; }
-[data-look="vscodegg"] .minibar {
+[data-look="vscodegg"] :is(.minibar, .toast, .tooltip, .scout-balloon) {
   background: var(--gg-pop);
   -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-  border: 0; border-radius: 18px;
+  border: 0; border-radius: 18px; color: var(--ink); font-family: var(--ui-font); font-size: var(--ui-size);
   box-shadow: var(--gg-pop-edge);
 }
-[data-look="vscodegg"] .minibar::before { content: none; }
+[data-look="vscodegg"] :is(.minibar, .toast, .tooltip, .scout-balloon)::before { content: none; }
+[data-look="vscodegg"] .scout-choices button { border-radius: 6px; color: var(--ink); }
+[data-look="vscodegg"] .scout-choices button::before { background: var(--ink); }
+[data-look="vscodegg"] .scout-choices button:hover,
+[data-look="vscodegg"] .scout-choices button:focus-visible { background: var(--gg-hover); color: var(--ink); text-decoration: none; }
 [data-look="vscodegg"] .minibar .combo,
 [data-look="vscodegg"] .minibar .combo:not(.dis):hover,
 [data-look="vscodegg"] .minibar .combo.focus:not(.dis) {
@@ -4095,13 +4106,15 @@
 @media (prefers-reduced-transparency: reduce) {
   [data-look="vscodegg"] .gg-menu-glass,
   [data-look="vscodegg"] .rb-pop,
+  [data-look="vscodegg"] .rb-panel,
   [data-look="vscodegg"] .rb-tabs,
   [data-look="vscodegg"] .rb-qat,
   [data-look="vscodegg"] .dlg-title {
     backdrop-filter: none; -webkit-backdrop-filter: none;
   }
+  [data-look="vscodegg"] .rb-panel { background: var(--gg-glass); }
   [data-look="vscodegg"] .gg-menu-glass { background: var(--gg-solid); }
-  [data-look="vscodegg"] .minibar { background: var(--gg-solid-bar); }
+  [data-look="vscodegg"] :is(.minibar, .toast, .tooltip, .scout-balloon) { background: var(--gg-solid-bar); }
 }
 
 /* VS Code Golden Gate, dark glass. The same look: only the glass recipe changes when the editor theme is dark or high contrast.
@@ -4123,6 +4136,7 @@ body:is(.vscode-dark, .vscode-high-contrast) [data-look="vscodegg"] {
   --gg-title: rgba(30,30,30,.85);
   --gg-title-line: rgba(255,255,255,.10);
   --gg-glass: linear-gradient(#3A3A3C 0%, #323234 33%, #2C2C2E 100%);
+  --gg-panel: linear-gradient(#3A3A3C88 0%, #32323488 33%, #2C2C2E88 100%);
   --gg-glass-edge: 0 0 0 0.5px rgba(255,255,255,.20), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.08), 0 8px 15px rgba(0,0,0,.35);
   --gg-window-shadow: 0 18px 54px rgba(0,0,0,.57), inset 0 0 0 1px rgba(255,255,255,.20);
   --gg-window-shadow-quiet: 0 7px 21px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.12);

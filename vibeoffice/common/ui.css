@@ -435,7 +435,14 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .ds-tools { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
 .tooltip { position: fixed; z-index: 3000; background: var(--tip-bg); border: 1px solid var(--tip-line); padding: 1px 4px; pointer-events: none; font-size: 11px; white-space: nowrap; box-shadow: 1px 1px 2px var(--tip-shadow-c); }
 .vb-ide-tip { z-index: 9000; white-space: pre-wrap; max-width: 420px; }
-.toast { position: fixed; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 2500; background: var(--tip-bg); border: 1px solid var(--tip-line); padding: 6px 12px; box-shadow: 2px 2px 4px var(--toast-shadow-c); }
+/* a short notice. The face is the formatting bar's (the look rules that restyle .minibar restyle this too).
+   It fades in, then fades out before it goes. Centering stays on transform so the fade does not move it. */
+.toast { position: fixed; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 2500; display: flex; align-items: center; max-width: min(520px, calc(100vw - 24px)); padding: 5px 12px; border: 1px solid var(--tb-border); border-radius: var(--tray-radius); background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); box-shadow: 2px 3px 6px var(--shadow-c); color: var(--ink); opacity: 0; }
+.toast.is-in { animation: toast-in 200ms linear both; }
+.toast.is-out { animation: toast-out 200ms linear both; pointer-events: none; }
+@keyframes toast-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
+.toast-in { position: relative; z-index: 1; }
 .toast .toast-act { margin-left: 8px; padding: 0; border: 0; background: none; color: var(--tip-link); text-decoration: underline; cursor: pointer; font: inherit; }
 /* work that keeps the user waiting (ui.busy): the ordinary modal window, with no button row */
 .dlg.busy > .dlg-foot { padding: 0; min-height: 0; gap: 0; }

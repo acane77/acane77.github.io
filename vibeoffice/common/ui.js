@@ -1961,15 +1961,57 @@
   }
 
   /* ---------- status bar & misc ---------- */
+  /* one notice. A later call replaces the words and restarts the wait. Hiding fades it out, then sets hidden. */
+  function toastEl() {
+    let t = L.$('.toast');
+    if (t) return t;
+    t = h('div', { class: 'toast', role: 'status', hidden: true });
+    t.appendChild(h('span', { class: 'toast-in' }));
+    document.body.appendChild(t);
+    return t;
+  }
+  function showToast(t) {
+    const gen = (t._gen || 0) + 1;
+    t._gen = gen;
+    clearTimeout(t._hide);
+    const replay = t.hidden || t.classList.contains('is-out') || !t.classList.contains('is-in');
+    t.classList.remove('is-out');
+    t.hidden = false;
+    if (!replay) return;
+    t.classList.remove('is-in');
+    void t.offsetWidth;
+    if (t._gen !== gen) return;
+    t.classList.add('is-in');
+  }
+  function hideToast(t) {
+    if (!t || t.hidden || t.classList.contains('is-out')) return;
+    const gen = (t._gen || 0) + 1;
+    t._gen = gen;
+    clearTimeout(t._t);
+    t.classList.remove('is-in');
+    t.classList.add('is-out');
+    const finish = () => {
+      if (t._gen !== gen) return;
+      t.hidden = true;
+      t.classList.remove('is-out');
+    };
+    const onEnd = (e) => {
+      if (e.target !== t || e.animationName !== 'toast-out') return;
+      t.removeEventListener('animationend', onEnd);
+      finish();
+    };
+    t.addEventListener('animationend', onEnd);
+    t._hide = setTimeout(() => { t.removeEventListener('animationend', onEnd); finish(); }, 400);
+  }
   /** a short notice at the bottom; action: { label, run } adds a button to it (e.g. Browse) */
   ui.toast = (text, ms, action) => {
-    let t = L.$('.toast');
-    if (!t) { t = h('div', { class: 'toast', role: 'status' }); document.body.appendChild(t); }
-    t.textContent = L.t ? L.t(text) : text;
-    if (action) t.append(' ', h('button', { class: 'toast-act', type: 'button', text: action.label, onclick: () => { t.hidden = true; action.run(); } }));
-    t.hidden = false;
+    const t = toastEl();
+    const inn = t.querySelector('.toast-in');
+    inn.textContent = L.t ? L.t(text) : text;
+    if (action) inn.append(' ', h('button', { class: 'toast-act', type: 'button', text: action.label, onclick: () => { hideToast(t); action.run(); } }));
+    showToast(t);
     clearTimeout(t._t);
-    t._t = setTimeout(() => { t.hidden = true; }, ms || 2600);
+    t._t = setTimeout(() => hideToast(t), ms || 2600);
   };
   /* a modal while work keeps the user waiting. The title is the app's name. No close button and no buttons, so
      Escape does not dismiss it. A window already open stays where it is and this one covers it. Another call

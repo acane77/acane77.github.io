@@ -1,7 +1,8 @@
 /* Scout, the assistant (scout.js, assistant.js): his box on the window, his speech balloon and its choices.
    Chrome colours and the font are the look's settings (common/looks.css), as a tooltip's; the character
    keeps his own colours in every look. Windows 7 draws his balloon with that look's balloon face,
-   shadow and tail (looks.css); tooltips take the face and the shadow only. Above the document and
+   shadow and tail (looks.css); tooltips take the face and the shadow only. Golden Gate draws both
+   with the formatting bar's face, and no tail. Above the document and
    task pane, under menus and dialogs. */
 .scout-agent { position: fixed; left: 0; top: 0; z-index: 900; width: var(--scout-w, 154px); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .scout-agent.is-inline { position: relative; left: auto; top: auto; z-index: auto; margin: 0 auto; }
