@@ -471,22 +471,25 @@
      repaints every open window of the suite. Canvas-drawn chrome (rulers, sheet headers) redraws on 'vo-look'. */
   const N = (s) => s;   // UI text, translated where it is shown (VO.N, common/i18n.js)
   N('Blank Document'); N('Blank Workbook'); N('Blank Presentation');   // templates.json's Blank entries (tools/templates.mjs)
-  const LOOKS = [{ id: 'win7', name: N('Windows 7'), note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
-    { id: 'xp', name: N('Windows XP'), note: 'Luna windows and menus, on the classic blue toolbars.' },
-    { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' },
-    { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
-    { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' },
-    { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' },
-    { id: 'goldengate', name: N('Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' },
+  const LOOKS = [{ id: 'goldengate', name: N('Golden Gate'), layout: 'ribbon', note: 'A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.' },
     { id: 'goldengatedark', name: N('Golden Gate (Dark)'), layout: 'ribbon', note: 'Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.' },
-    { id: 'vscodegg', name: N('Golden Gate (Follow VS Code Color Theme)'), layout: 'ribbon', note: 'Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.' }];
+    { id: 'vscodegg', name: N('Golden Gate (Follow VS Code Color Theme)'), layout: 'ribbon', note: 'Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.' },
+    { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' },
+    { id: 'win7', name: N('Classic 7'), sep: true, note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
+    { id: 'xp', name: N('Classic XP'), note: 'Luna windows and menus, on the classic blue toolbars.' },
+    { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' }];
   const storedLook = () => {
     try {
-      const id = localStorage.getItem('vibeoffice.look') || 'ribbon2010';
-      /* this look exists only in a VS Code or code-server webview; a browser keeps Ribbon 2010 */
-      if (id === 'vscodegg' && !(window.__VO_HOST__ && window.__VO_HOST__.kind === 'vscode')) return 'ribbon2010';
+      let id = localStorage.getItem('vibeoffice.look') || 'goldengate';
+      /* Paper and Paper 2016 are no longer offered; a stored choice becomes the default */
+      if (id === 'paper' || id === 'paper2016') {
+        id = 'goldengate';
+        try { localStorage.setItem('vibeoffice.look', id); } catch (e) { /* this window still changes */ }
+      }
+      /* this look exists only in a VS Code or code-server webview; a browser keeps Golden Gate */
+      if (id === 'vscodegg' && !(window.__VO_HOST__ && window.__VO_HOST__.kind === 'vscode')) return 'goldengate';
       return id;
-    } catch (e) { return 'ribbon2010'; }
+    } catch (e) { return 'goldengate'; }
   };
   const applyLook = (id) => {
     const root = document.documentElement;
@@ -502,7 +505,7 @@
   VO.look = {
     /** [{ id, name, note, layout }] */
     list: () => LOOKS.filter((l) => l.id !== 'vscodegg' || VO.host.kind === 'vscode').map((l) => ({ ...l })),
-    get: () => document.documentElement.dataset.look || 'ribbon2010',
+    get: () => document.documentElement.dataset.look || 'goldengate',
     /** 'bars' (menus and toolbars) or 'ribbon' */
     layout: () => document.documentElement.dataset.layout || 'bars',
     set(id) {

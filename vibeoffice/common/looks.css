@@ -3,7 +3,7 @@
  * Document content (pages, cells, slides, comments, revisions), icons and colour swatches are never
  * themed. A look is one block keyed by data-look="…" (on <html>, set before first paint by VO.look; on any
  * element for a preview, as the Start Center's Themes dialog does); Classic is also :root, so a page with no
- * data-look still has colours. Windows 7 is the look a page uses when none is stored. To add a look, copy the Classic block and change the values. */
+ * data-look still has colours. Golden Gate is the look a page uses when none is stored. To add a look, copy the Classic block and change the values. */
 :root, [data-look="classic"] {
   color-scheme: light;
   --theme-color: #2a64c8;   /* the browser's own bar (meta theme-color) */

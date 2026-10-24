@@ -1392,15 +1392,17 @@
     wrap.input = inp;
     return wrap;
   };
-  /** options: [value, label] pairs, whose labels are UI text, or plain values shown as they are (font names, sizes);
-      o.translate: 'no' shows every label as it is */
+  /** options: [value, label] pairs, whose labels are UI text, or plain values shown as they are (font names, sizes).
+      The string '-' is a separator, not a choice. o.translate: 'no' shows every label as it is */
   ui.select = (options, value, onChange, o) => {
     const sel = h('select', Object.assign({ id: (o && o.id) || 'sel' + (++ctlId) }, o || {}));
+    let group = null;
     for (const op of options) {
+      if (op === '-') { group = h('optgroup', { label: '\u2500'.repeat(8) }); sel.appendChild(group); continue; }
       const [v, l] = Array.isArray(op) ? op : [op, op];
       const opt = h('option', { value: v, text: l, translate: !Array.isArray(op) || (o && o.translate === 'no') ? 'no' : null });
       if (String(v) === String(value)) opt.selected = true;
-      sel.appendChild(opt);
+      (group || sel).appendChild(opt);
     }
     sel.addEventListener('change', () => onChange && onChange(sel.value));
     return sel;
@@ -1483,12 +1485,19 @@
   ui.group = (title, ...kids) => h('fieldset', { class: 'grp' }, h('legend', { html: ampHTML(title) }), ...kids);
   /** Tools ▸ Options ▸ General ▸ Theme: the suite's look (common/looks.css). { el, apply() }; apply on OK
    *  changes every open window of the suite. null outside the suite (no common/suite.js). */
-  /** Help ▸ Theme: the same looks as the Start Center, the current one marked. Windows 7 stays the stored default. */
+  /** Help ▸ Theme: the same looks as the Start Center, the current one marked. Golden Gate is the stored default.
+   *  A look marked sep has a separator before it. */
   ui.themeMenu = () => ({
     label: '&Theme',
-    sub: () => (!window.VO || !VO.look ? [] : VO.look.list().map((l) => ({
-      label: l.name, radio: true, checked: () => VO.look.get() === l.id, run: () => VO.look.set(l.id),
-    }))),
+    sub: () => {
+      if (!window.VO || !VO.look) return [];
+      const items = [];
+      for (const l of VO.look.list()) {
+        if (l.sep) items.push('-');
+        items.push({ label: l.name, radio: true, checked: () => VO.look.get() === l.id, run: () => VO.look.set(l.id) });
+      }
+      return items;
+    },
   });
   /** Remember a UI language. In VS Code the extension keeps it and reloads this editor when the file
    *  has no unsaved changes. The language is part of the page HTML: assigning the same HTML does not
@@ -1523,7 +1532,9 @@
   ui.lookField = () => {
     if (!window.VO || !VO.look) return null;
     let pick = VO.look.get();
-    const sel = ui.select(VO.look.list().map((l) => [l.id, l.name]), pick, (v) => { pick = v; }, { id: 'op-look' });
+    const lookOpts = [];
+    for (const l of VO.look.list()) { if (l.sep) lookOpts.push('-'); lookOpts.push([l.id, l.name]); }
+    const sel = ui.select(lookOpts, pick, (v) => { pick = v; }, { id: 'op-look' });
     const el = h('div', { class: 'col' }, ui.field('Theme:', sel));
     let lang = VO.lang && VO.lang.get();
     /* each language named in itself */
