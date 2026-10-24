@@ -592,3 +592,37 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .vb-ide-complete-sig-why { margin-top: 10px; color: var(--dis-ink); white-space: normal; overflow-wrap: anywhere; }
 .vb-ide-complete-sig-params { white-space: normal; overflow-wrap: anywhere; }
 .vb-ide-complete-sig.vb-ide-hover { z-index: 9000; width: max-content; max-width: 420px; pointer-events: none; }
+.vb-form-dlg .dlg-foot:empty { display: none; }
+.vb-form-dlg.dlg .dlg-body { padding: 0; }
+/* The form's own twip size, not the dialog field's fixed height. Colours stay the look's. */
+.vb-form-dlg.dlg .vb-ctl input[type=text],
+.vb-form-dlg.dlg .vb-ctl input[type=password],
+.vb-form-dlg.dlg .vb-ctl input[type=number],
+.vb-form-dlg.dlg .vb-ctl textarea,
+.vb-form-dlg.dlg .vb-ctl select,
+.vb-form-dlg.dlg .vb-ctl button {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: 0 4px;
+  box-sizing: border-box;
+  font: inherit;
+  line-height: normal;
+}
+.vb-form-dlg.dlg .vb-checkbox input,
+.vb-form-dlg.dlg .vb-optionbutton input { width: auto; height: auto; padding: 0; }
+.vb-form-menu { display: flex; flex-wrap: wrap; gap: 2px; padding: 2px 4px; background: var(--dlg); }
+.vb-form-menu[hidden] { display: none; }
+.vb-form-client { position: relative; overflow: hidden; background: var(--dlg); color: var(--dlg-ink); }
+.vb-ctl { position: absolute; box-sizing: border-box; overflow: hidden; }
+.vb-ctl input, .vb-ctl textarea, .vb-ctl select, .vb-ctl button { width: 100%; height: 100%; box-sizing: border-box; margin: 0; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--field-border); }
+.vb-commandbutton button { background: var(--dlg); }
+.vb-checkbox, .vb-optionbutton { display: flex; align-items: center; gap: 4px; background: transparent; }
+.vb-checkbox input, .vb-optionbutton input { width: auto; height: auto; }
+.vb-frame { border: 1px solid var(--field-border); }
+.vb-frame-cap { position: absolute; top: 0; left: 8px; padding: 0 3px; background: var(--dlg); }
+.vb-frame-client { position: absolute; left: 2px; right: 2px; top: 12px; bottom: 2px; }
+.vb-label { background: transparent; }

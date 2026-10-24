@@ -903,7 +903,7 @@
         if (value !== undefined) append(editing ? String(value) : formatValue(value));
       } catch (e) {
         if (stopPrints) { stopPrints(); stopPrints = null; }
-        append(editing && e && e.message ? e.message : formatValue(e));
+        if (!(e && e.quiet)) append(editing && e && e.message ? e.message : formatValue(e));
       } finally {
         if (stopPrints) stopPrints();
         running = false;

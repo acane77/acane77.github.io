@@ -20,7 +20,7 @@
 
   const DEFAULT_OPTS = {
     statusBar: true, ruler: true, vruler: true, whiteSpace: true, taskOpen: true, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
-    toolbars: { standard: true, formatting: true, drawing: true, tables: false, reviewing: 'auto', picture: 'auto', outlining: 'auto', headerFooter: 'auto', mailMerge: false, wordart: 'auto' },
+    toolbars: { standard: true, formatting: true, drawing: true, tables: false, reviewing: 'auto', picture: 'auto', outlining: 'auto', headerFooter: 'auto', mailMerge: false, wordart: 'auto', vbForm: 'auto' },
     showMarks: false, marks: { tabs: false, spaces: false, para: false, hidden: false, all: false }, textBoundaries: true, fieldShading: 'selected', bookmarks: false,
     smartQuotes: true, autocorrect: true, autoFormat: true, capSentence: true, autoBullets: true, autoNumbers: true, autoBorders: true, autoHeadings: false, autoUrl: true, ordinals: true, fractions: true, dashes: true,
     spell: true, unit: (L.locale && L.locale.get().unit) || 'in', recent: [], zoom: 1, view: 'print', balloons: true, pasteOptions: true, dragDrop: true, smartCut: true, typingReplaces: true,
@@ -64,8 +64,8 @@
       },
       {
         label: '&View', items: () => ['viewNormal', 'viewWeb', 'viewPrint', 'viewReading', 'viewOutline', '-', 'taskPane',
-          { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_tables', 'tb_reviewing', 'tb_picture', 'tb_outlining', 'tb_headerFooter', 'tb_mailMerge', 'tb_wordart', '-', 'customize'] },
-          'ruler', '-', 'docMap', 'thumbnails', '-', 'headerFooter', 'footnotes', 'markup', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde'],
+          { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_tables', 'tb_reviewing', 'tb_picture', 'tb_outlining', 'tb_headerFooter', 'tb_mailMerge', 'tb_wordart', 'tb_vbForm', '-', 'customize'] },
+          'ruler', '-', 'docMap', 'thumbnails', '-', 'headerFooter', 'footnotes', 'markup', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde', 'runForm'],
       },
       {
         label: '&Insert', items: () => ['insertBreak', 'pageNumbers', 'dateTime', { label: '&AutoText', sub: () => L.autocorrect ? L.autocorrect.autoTextMenu() : [] }, 'insertField', 'insertSymbol', 'insertEquation', 'insertComment', '-',
@@ -306,10 +306,11 @@
       headerFooter: ui.toolbar('headerFooter', 'Header and Footer', [ui.tbDrop('Insert AutoText', null, (r) => ui.openMenu(L.autocorrect ? L.autocorrect.hfAutoText() : [], r), 'Insert AutoText'), '|', 'hfPageNum', 'hfNumPages', 'hfFormatPageNum', 'hfDate', 'hfTime', '|', 'pageSetup', 'hfShowText', 'hfLinkPrev', '|', 'hfSwitch', 'hfPrev', 'hfNext', '|', ui.tbButton('hfClose', { label: 'Close' })]),
       mailMerge: ui.toolbar('mailMerge', 'Mail Merge', ['mmMainDoc', 'mmOpenSource', 'mmRecipients', '|', 'mmAddress', 'mmGreeting', 'mmInsertField', '|', 'mmViewData', 'mmFirst', 'mmPrev', ui.combo({ id: 'tb-mmrec', width: 34, tip: 'Go to Record', options: () => [], value: () => String(L.mailmerge ? L.mailmerge.rec + 1 : 1), onChange: (v) => L.mailmerge && L.mailmerge.go(parseInt(v, 10) - 1) }), 'mmNext', 'mmLast', '|', 'mmMergeNew', 'mmMergePrint']),
       wordart: ui.toolbar('wordart', 'LettersArt', ['insertWordArt', ui.tbButton('wordartEdit', { label: 'Edit Text...' }), 'wordartGallery', 'formatObject', ui.tbDrop('', 'waShape', (r) => ui.openMenu(L.drawing.WARPS.map(([k, n]) => ({ label: n, run: () => L.drawing.modifySelected('LettersArt Shape', (it) => { it.warp = k; }) })), r), 'LettersArt Shape'), ui.tbDrop('', 'textWrap', (r) => A.wrapMenu(r), 'Text Wrapping')]),
+      vbForm: ui.toolbar('vbForm', 'VB Form', [ui.tbButton('stopForm', { label: 'Stop' })]),
     };
     const row1 = h('div', { class: 'tb-row' }, A.toolbarsEl.standard);
     const row2 = h('div', { class: 'tb-row' }, A.toolbarsEl.formatting);
-    const row3 = h('div', { class: 'tb-row' }, A.toolbarsEl.tables, A.toolbarsEl.reviewing, A.toolbarsEl.outlining, A.toolbarsEl.headerFooter, A.toolbarsEl.picture, A.toolbarsEl.mailMerge, A.toolbarsEl.wordart);
+    const row3 = h('div', { class: 'tb-row' }, A.toolbarsEl.tables, A.toolbarsEl.reviewing, A.toolbarsEl.outlining, A.toolbarsEl.headerFooter, A.toolbarsEl.picture, A.toolbarsEl.mailMerge, A.toolbarsEl.wordart, A.toolbarsEl.vbForm);
     host.append(row1, row2, row3);
     A.tbRows = [row1, row2, row3];
     /* drawing toolbar */
@@ -636,6 +637,7 @@
     if (id === 'outlining') return A.view === 'outline';
     if (id === 'headerFooter') return !!LY.hfEdit;
     if (id === 'wordart') return !!(E.objSel && E.objSel.it && E.objSel.it.wordart);
+    if (id === 'vbForm') return !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow());
     return false;
   }
   /** what is selected, for the ribbon's contextual tabs: 'table', 'picture', 'shape', 'headerFooter', 'outlining' */
@@ -648,7 +650,7 @@
   A.toggleToolbar = (id) => {
     const v = A.opts.toolbars[id], was = A.tbShown(id);
     A.opts.toolbars[id] = was ? false : true;
-    if (A.opts.toolbars[id] === false && ['reviewing', 'picture', 'outlining', 'headerFooter', 'wordart'].includes(id) && v === true) A.opts.toolbars[id] = 'auto';
+    if (A.opts.toolbars[id] === false && ['reviewing', 'picture', 'outlining', 'headerFooter', 'wordart', 'vbForm'].includes(id) && v === true) A.opts.toolbars[id] = 'auto';
     if (was && ui.tbDock) ui.tbDock.reset(id);
     A.saveOpts(); A.updateToolbars();
   };
@@ -1424,7 +1426,7 @@
     if (L.rulers) L.rulers.mount(L.$('#hruler'), L.$('#vruler'), L.$('#rcorner'));
     if (L.panes) { L.panes.task.mount(L.$('#taskpane')); L.panes.docmap.mount(L.$('#docmap')); if (L.panes.reviewing) L.panes.reviewing.mount(L.$('#revpane')); }
     /* the open task pane follows the selected object to its tool set (common/ribbon.js) */
-    if (L.panes) L.ribbonUI.follow({ task: L.panes.task, sets: { picture: true, drawing: true }, on: () => A.opts.paneFollows !== false });
+    if (L.panes) L.ribbonUI.follow({ task: L.panes.task, sets: { picture: true, drawing: true, vbForm: true }, on: () => A.opts.paneFollows !== false });
     setupDrop();
     setupSplitters();
     wire();

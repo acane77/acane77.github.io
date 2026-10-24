@@ -33,7 +33,7 @@
   const DEFAULT_OPTS = {
     startupPane: true, layoutPaneOnNew: true, paneFollows: true, statusBar: true, ruler: false, showPopup: true, showPopbar: true, endBlack: true,
     smartQuotes: true, autocorrect: true, capSentence: true, spell: true, autoPreview: true, gray: false, bw: false, outlinePlain: false, alignToSlide: false,
-    toolbars: { standard: true, formatting: true, drawing: true, outlining: false, picture: 'auto', tables: 'auto', wordart: 'auto', diagram: 'auto' },
+    toolbars: { standard: true, formatting: true, drawing: true, outlining: false, picture: 'auto', tables: 'auto', wordart: 'auto', diagram: 'auto', vbForm: 'auto' },
     grid: { show: false, snap: true, size: 6 }, leftW: 196, notesH: 92, leftOpen: true, taskOpen: true,
   };
   const A = (L.app = Object.assign(L.app || {}, {
@@ -68,7 +68,7 @@
         label: '&View', items: () => ['viewNormal', 'viewSorter', 'showFromStart', 'viewNotes', '-',
           { label: '&Master', sub: ['viewMaster'] },
           { label: 'Co&lor/Grayscale', sub: ['viewColor', 'viewGray', 'viewBW'] }, '-',
-          'taskPane', 'slidesPane', { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_outlining', 'tb_picture', 'tb_tables', 'tb_wordart'] }, 'ruler', 'gridGuides', '-', 'headerFooter', '-', 'zoomDlg', '-', 'vbIde'],
+          'taskPane', 'slidesPane', { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_outlining', 'tb_picture', 'tb_tables', 'tb_wordart', 'tb_vbForm'] }, 'ruler', 'gridGuides', '-', 'headerFooter', '-', 'zoomDlg', '-', 'vbIde', 'runForm'],
       },
       {
         label: '&Insert', items: ['newSlide', 'duplicateSlide', '-', 'insertSlideNumber', 'insertDateTime', 'insertSymbol', '-', 'slidesFromFiles', 'slidesFromOutline', '-',
@@ -213,6 +213,7 @@
         ui.tbDrop('', 'charSpacing', (r) => ui.openMenu([[-3, '&Very Tight'], [-1.5, '&Tight|spacing'], [0, '&Normal'], [2, '&Loose'], [4, 'V&ery Loose']].map(([k, n]) => ({ label: n, run: () => A.waSet({ spc: k }) })), r), 'LettersArt Character Spacing')]),
       master: ui.toolbar('master', 'Slide Master View', ['insertTitleMaster', 'deleteTitleMaster', '|', ui.tbButton('closeMaster', { label: 'Close Master View' })]),
       sorter: ui.toolbar('sorter', 'Slide Sorter', ['hideSlide', 'rehearse', '|', 'summarySlide', 'speakerNotes', '|', ui.tbButton('transitionPane', { label: 'Transition' }), ui.tbButton('slideDesign', { label: 'Design' }), ui.tbButton('newSlide', { label: 'New Slide' })]),
+      vbForm: ui.toolbar('vbForm', 'VB Form', [ui.tbButton('stopForm', { label: 'Stop' })]),
     };
     const row1 = h('div', { class: 'tb-row' }, A.toolbarsEl.standard);
     const row2 = h('div', { class: 'tb-row' }, A.toolbarsEl.formatting, A.toolbarsEl.outlining);
@@ -220,7 +221,7 @@
     const DGM = () => L.diagram;
     A.toolbarsEl.diagram = ui.toolbar('diagram', 'Diagram', [ui.tbSplit('diagramAddShape', (r) => ui.openMenu(['diagramAddAfter', 'diagramAddBefore', 'diagramAddAbove', 'diagramAddBelow'], r)), 'diagramPromote', 'diagramDemote', 'diagramMoveUp', 'diagramMoveDown', '|',
       ui.tbDrop('&Layout', 'layout', (r) => DGM().layoutMenu(r), 'Change Layout'), ui.tbDrop('', 'colorPic', (r) => DGM().colorsMenu(r), 'Change Colors'), ui.tbDrop('', 'themes', (r) => DGM().styleMenu(r), 'IntelliArt Styles'), '|', 'diagramTextPane', 'diagramReset', 'diagramToShapes']);
-    const row3 = h('div', { class: 'tb-row' }, A.toolbarsEl.picture, A.toolbarsEl.tables, A.toolbarsEl.wordart, A.toolbarsEl.diagram, A.toolbarsEl.master, A.toolbarsEl.sorter);
+    const row3 = h('div', { class: 'tb-row' }, A.toolbarsEl.picture, A.toolbarsEl.tables, A.toolbarsEl.wordart, A.toolbarsEl.diagram, A.toolbarsEl.master, A.toolbarsEl.sorter, A.toolbarsEl.vbForm);
     host.append(row1, row2, row3);
     A.tbRows = [row1, row2, row3];
     /* drawing toolbar */
@@ -250,6 +251,7 @@
     if (id === 'tables') return sel.some((s) => s.type === 'table');
     if (id === 'wordart') return sel.some((s) => s.type === 'wordart');
     if (id === 'diagram') return !!(L.diagram && L.diagram.current());
+    if (id === 'vbForm') return !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow());
     return false;
   }
   /** what is selected or shown, for the ribbon's contextual tabs: 'picture', 'table', 'wordart', 'shape', 'diagram', 'master' */
@@ -267,7 +269,7 @@
   A.updateToolbars = function () {
     if (!A.toolbarsEl) return;
     if (E.holdLayout && E.holdLayout(A.updateToolbars)) return;   /* not under a press on the slide (editor.js) */
-    for (const id of ['standard', 'formatting', 'drawing', 'outlining', 'picture', 'tables', 'wordart', 'diagram']) A.toolbarsEl[id].hidden = !A.tbShown(id) || (A.view === 'preview');
+    for (const id of ['standard', 'formatting', 'drawing', 'outlining', 'picture', 'tables', 'wordart', 'diagram', 'vbForm']) A.toolbarsEl[id].hidden = !A.tbShown(id) || (A.view === 'preview');
     A.toolbarsEl.outlining.hidden = !(A.opts.toolbars.outlining === true || (L.panes.left.tab === 'outline' && A.view === 'normal' && A.opts.toolbars.outlining !== false && false));
     A.toolbarsEl.master.hidden = A.view !== 'master';
     A.toolbarsEl.sorter.hidden = A.view !== 'sorter';
@@ -2252,7 +2254,7 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     L.panes.notes.mount(L.$('#notes'));
     L.panes.task.mount(L.$('#taskpane'));
     /* the open task pane follows the selected object to its tool set (common/ribbon.js) */
-    L.ribbonUI.follow({ task: L.panes.task, sets: { smartart: 'diagramText', picture: true, drawing: true, table: true, wordart: true }, on: () => A.opts.paneFollows !== false, close: () => A.toggleTask(false) });
+    L.ribbonUI.follow({ task: L.panes.task, sets: { smartart: 'diagramText', picture: true, drawing: true, table: true, wordart: true, vbForm: true }, on: () => A.opts.paneFollows !== false, close: () => A.toggleTask(false) });
     E.mount(L.$('#editorwrap'));
     A.altView = h('div', { id: 'altview', style: 'flex:1;min-width:0;position:relative', hidden: true });
     L.$('#main').insertBefore(A.altView, L.$('#taskpane'));

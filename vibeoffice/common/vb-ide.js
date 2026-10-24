@@ -627,7 +627,7 @@
       if (stopRequested) return;
       await begun.vm.start();
     } catch (e) {
-      if (token === generation) appendOutput(e && e.message ? e.message : String(e));
+      if (token === generation && !(e && e.quiet)) appendOutput(e && e.message ? e.message : String(e));
     } finally {
       if (begun && host) host.debugEnd();
       if (token === generation) {

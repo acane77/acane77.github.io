@@ -91,7 +91,7 @@
   cmd('showFormulas', { label: 'Formula Auditing &Mode', icon: 'showFormulas', key: 'Ctrl+`', checked: () => !!sh().view.formulas, run: () => { sh().view.formulas = !sh().view.formulas; G().paint(); ui.refresh(); } });
   cmd('gridlinesView', { label: '&Gridlines', checked: () => sh().view.grid !== false, run: () => { sh().view.grid = sh().view.grid === false; G().paint(); } });
   cmd('headingsView', { label: 'Row & Column &Headers', checked: () => sh().view.headings !== false, run: () => { sh().view.headings = sh().view.headings === false; G().paint(); } });
-  for (const [id, label] of [['standard', '&Standard'], ['formatting', '&Formatting'], ['drawing', '&Drawing'], ['chart', '&Chart'], ['auditing', 'Formula &Auditing'], ['reviewing', '&Reviewing'], ['picture', '&Picture'], ['borders', '&Borders'], ['pivot', 'PivotTa&ble'], ['forms', 'For&ms'], ['list', '&List']]) {
+  for (const [id, label] of [['standard', '&Standard'], ['formatting', '&Formatting'], ['drawing', '&Drawing'], ['chart', '&Chart'], ['auditing', 'Formula &Auditing'], ['reviewing', '&Reviewing'], ['picture', '&Picture'], ['borders', '&Borders'], ['pivot', 'PivotTa&ble'], ['forms', 'For&ms'], ['list', '&List'], ['vbForm', '&VB Form']]) {
     cmd('tb_' + id, { label, checked: () => A().toolbarVisible(id), run: () => A().toggleToolbar(id) });
   }
   cmd('customize', { label: '&Customize...', run: run(() => D().customize()) });
@@ -203,6 +203,8 @@
   cmd('options', { label: '&Options...', run: run(() => D().options()) });
   cmd('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => L.macros && L.macros.open() });
   cmd('vbIde', { label: 'VibeOffice Visual Basic', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
+  cmd('runForm', { label: '&Run Form...', icon: 'runForm', run: () => window.VO && VO.vbForms && L.vb && VO.vbForms.pick(function () { return L.vb.session(); }) });
+  cmd('stopForm', { label: '&Stop', icon: 'stopForm', tip: 'Stop Form', enabled: () => !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow()), run: () => window.VO && VO.vbForms && VO.vbForms.stopCurrent && VO.vbForms.stopCurrent() });
   cmd('domConsole', { label: 'Ledger DOM &Console', icon: 'help', run: () => L.domConsole && L.domConsole.open() });
   cmd('addIns', { label: 'Add-&Ins...', run: () => ui.msg('Analysis ToolPak functions (engineering, financial, date) are built in.', { icon: 'info' }) });
 

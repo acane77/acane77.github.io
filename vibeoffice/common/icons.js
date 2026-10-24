@@ -354,6 +354,8 @@
     arrangeAll: `<rect x="1.5" y="1.5" width="13" height="6" fill="#fff" stroke="#556"/><path d="M1.5 2.8h13" stroke="${B2}" stroke-width="1.6"/><rect x="1.5" y="8.5" width="13" height="6" fill="#fff" stroke="#556"/><path d="M1.5 9.8h13" stroke="${B2}" stroke-width="1.6"/>`,
     macros: `<rect x="1.5" y="2.5" width="13" height="11" fill="#fff" stroke="#556"/><path d="M6 5.2v5.6L11 8z" fill="${G}" stroke="#1f6f28" stroke-linejoin="round"/>`,
     vbIde: `<rect x="1.5" y="1.5" width="13" height="13" fill="#fff" stroke="#556"/><path d="M3.2 5h9.6M3.2 8h6.2M3.2 11h7.6" stroke="${B}"/>`,
+    runForm: `<rect x="1.5" y="1.5" width="13" height="13" fill="#fff" stroke="#556"/><path d="M6.2 5.2l4.2 2.8-4.2 2.8z" fill="#2a7"/>`,
+    stopForm: `<rect x="1.5" y="1.5" width="13" height="13" fill="#fff" stroke="#556"/><rect x="5" y="5" width="6" height="6" fill="#c33"/>`,
     headingRows: `<rect x="1.5" y="2.5" width="13" height="11" fill="#fff" stroke="#556"/><rect x="2" y="3" width="12" height="3" fill="${B2}"/><path d="M1.5 9.5h13M6 6v7.5M10 6v7.5" stroke="#556" stroke-width=".8"/>`,
     selectTable: `<rect x="2.5" y="3.5" width="11" height="9" fill="#fff" stroke="#556"/><path d="M2.5 6.5h11M2.5 9.5h11M6.5 3.5v9M10 3.5v9" stroke="#556" stroke-width=".7"/><rect x="0.5" y="1.5" width="15" height="13" fill="none" stroke="${B}" stroke-dasharray="1.5 1"/>`,
     splitTable: `<rect x="1.5" y="1.5" width="13" height="5" fill="#fff" stroke="#556"/><rect x="1.5" y="9.5" width="13" height="5" fill="#fff" stroke="#556"/><path d="M6 1.5v5M10 1.5v5M6 9.5v5M10 9.5v5" stroke="#556" stroke-width=".7"/><path d="M0.5 8h15" stroke="${R}" stroke-dasharray="1.5 1"/>`,

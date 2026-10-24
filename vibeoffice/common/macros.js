@@ -84,6 +84,7 @@
       paint();
     }
     function fail(e) {
+      if (e && e.quiet) return;
       const msg = e && e.message ? e.message : String(e || '');
       ui.msg(msg || 'The macro could not run.', { icon: 'error', title: 'Macros' });
     }

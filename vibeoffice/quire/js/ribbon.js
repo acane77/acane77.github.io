@@ -12,7 +12,7 @@
       insertObject: 'object', insertFile: 'insertFile', themeDlg: 'themes', autoFormat: 'tableAutoFormat', printedWatermark: 'watermark', hyphenation: 'hyphenation', tabsDlg: 'tabStops',
       indexTables: 'toc', insertFootnoteNow: 'footnote', insertEndnoteNow: 'endnote', footnotes: 'footnote', insertCaption: 'caption', letterWizard: 'templates', thesaurus: 'thesaurus',
       setLanguage: 'language', deleteAllComments: 'delete', showComments: 'comment', compareDocs: 'compare', newWindow: 'newWindow', arrangeAll: 'arrangeAll', splitWindow: 'split',
-      macros: 'macros', vbIde: 'vbIde', headingRows: 'headingRows', splitTable: 'splitTable', tableToText: 'tableToText', formulaDlg: 'fx', wordartEdit: 'editText', hfClose: 'close' },
+      macros: 'macros', vbIde: 'vbIde', runForm: 'runForm', headingRows: 'headingRows', splitTable: 'splitTable', tableToText: 'tableToText', formulaDlg: 'fx', wordartEdit: 'editText', hfClose: 'close' },
     qat: ['save', { split: 'undo', menu: (r) => A().historyMenu(r, 'undo') }, { split: 'redo', menu: (r) => A().historyMenu(r, 'redo') }],
     file: () => ['new', 'open', 'close', 'templates', 'fileSearch', '-', 'save', 'saveAs', 'saveWeb', 'webPreview', '-', 'properties', 'permission', 'links', '-', 'pageSetup', 'printPreview', 'print', '-', 'exportPDF', 'sendMail', '-', 'optionsDlg', 'help', 'domConsole', ui.themeMenu(), ui.languageMenu(), 'about', '-', 'exitApp'],
     tabs: [
@@ -75,7 +75,7 @@
         { label: 'Show', items: ['ruler', 'docMap', 'thumbnails', 'taskPane'] },
         { label: 'Zoom', items: [{ cmd: 'zoomDlg', size: 'large', label: 'Zoom' }, { make: () => A().parts.zoom({ width: 90, id: 'rb-zoom' }) }, 'fullScreen'] },
         { label: 'Window', items: [{ cmd: 'newWindow', size: 'large', label: 'New Window' }, 'arrangeAll', 'splitWindow'] },
-        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }] },
+        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }, { cmd: 'runForm', size: 'large', label: 'Run Form' }] },
       ] },
     ],
     contextual: [
@@ -116,6 +116,11 @@
           { label: 'Navigation', items: [{ cmd: 'hfSwitch', size: 'large', label: 'Go to Footer' }, 'hfPrev', 'hfNext', 'hfLinkPrev'] },
           { label: 'Options', items: ['hfShowText', 'pageSetup'] },
           { label: 'Close', items: [{ cmd: 'hfClose', size: 'large', label: 'Close Header and Footer' }] },
+        ] },
+      ] },
+      { id: 'vbForm', set: 'VB Form Tools', open: true, when: ctx('vbForm'), tabs: [
+        { id: 'vbFormTools', label: 'Form', groups: [
+          { label: 'Run', items: [{ cmd: 'stopForm', size: 'large', label: 'Stop' }] },
         ] },
       ] },
       { id: 'outlining', set: L.N('Outline'), open: true, when: ctx('outlining'), tabs: [

@@ -262,7 +262,7 @@
   C('viewReading', { label: 'R&eading Layout', icon: 'read', tip: 'Read', radio: true, checked: () => A.view === 'reading', run: () => A.setView(A.view === 'reading' ? A.prevView || 'print' : 'reading') });
   C('viewOutline', { label: '&Outline', icon: 'outlineView', key: 'Ctrl+Alt+O', radio: true, checked: () => A.view === 'outline', run: () => A.setView('outline') });
   C('taskPane', { label: 'Tas&k Pane', icon: 'taskpane', key: 'Ctrl+F1', checked: () => A.taskOpen(), run: () => A.toggleTask() });
-  const TBNAMES = { standard: L.N('Standard'), formatting: L.N('Formatting'), drawing: L.N('Drawing'), tables: 'Tables and Borders', reviewing: L.N('Reviewing'), picture: L.N('Picture'), outlining: L.N('Outlining'), headerFooter: 'Header and Footer', mailMerge: 'Mail Merge', wordart: L.N('LettersArt') };
+  const TBNAMES = { standard: L.N('Standard'), formatting: L.N('Formatting'), drawing: L.N('Drawing'), tables: 'Tables and Borders', reviewing: L.N('Reviewing'), picture: L.N('Picture'), outlining: L.N('Outlining'), headerFooter: 'Header and Footer', mailMerge: 'Mail Merge', wordart: L.N('LettersArt'), vbForm: 'VB Form' };
   for (const k in TBNAMES) C('tb_' + k, { label: TBNAMES[k], tip: TBNAMES[k], checked: () => A.tbShown(k), run: () => A.toggleToolbar(k) });
   C('ruler', { label: '&Ruler', icon: 'ruler', checked: () => !!A.opts.ruler, run: () => { A.opts.ruler = !A.opts.ruler; A.saveOpts(); A.updateRulers(); } });
   C('docMap', { label: '&Document Map', icon: 'docMap', checked: () => !!A.opts.docMap, run: () => A.toggleDocMap() });
@@ -409,6 +409,8 @@
   C('letterWizard', { label: '&Letter Wizard...', run: dlg('letterWizard') });
   C('macros', { label: '&Macros...', key: 'Alt+F8', run: dlg('macros') });
   C('vbIde', { label: 'VibeOffice Visual Basic', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
+  C('runForm', { label: '&Run Form...', icon: 'runForm', run: () => window.VO && VO.vbForms && L.vb && VO.vbForms.pick(function () { return L.vb.session(); }) });
+  C('stopForm', { label: '&Stop', icon: 'stopForm', tip: 'Stop Form', enabled: () => !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow()), run: () => window.VO && VO.vbForms && VO.vbForms.stopCurrent && VO.vbForms.stopCurrent() });
   C('templates', { label: 'Templates and Add-&Ins...', run: dlg('templates') });
   C('autocorrectDlg', { label: '&AutoCorrect Options...', run: dlg('autocorrect') });
   C('customize', { label: '&Customize...', run: dlg('customize') });

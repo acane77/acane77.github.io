@@ -24,7 +24,7 @@
   const LOCALE = (L.locale && L.locale.get().sheet) || {};
   const DEFAULT_OPTS = {
     statusBar: true, formulaBar: true, taskOpen: true, paneFollows: true, moveAfterEnter: true, enterDir: 'down', autoComplete: true, dragDrop: true,
-    toolbars: { standard: true, formatting: true, drawing: false, chart: 'auto', auditing: false, reviewing: false, picture: 'auto', borders: false, list: 'auto' },
+    toolbars: { standard: true, formatting: true, drawing: false, chart: 'auto', auditing: false, reviewing: false, picture: 'auto', borders: false, list: 'auto', vbForm: 'auto' },
     userName: 'Ledger User', recent: [], defaultFont: LOCALE.font || '等线', defaultSize: LOCALE.sz || 10, sheetsInNew: 3, r1c1: false, calcMode: 'auto', iterate: false, iterateCount: 100, iterateDelta: 0.001, autoCalcFn: 'SUM',
   };
   const A = (L.app = Object.assign(L.app || {}, { opts: L.clone(DEFAULT_OPTS), books: [], cur: -1, lastFill: '#FFFF00', lastFontColor: '#FF0000', lastBorder: 'bottom' }));
@@ -505,8 +505,8 @@
       },
       {
         label: '&View', items: () => ['viewNormal', 'viewPageBreak', '-', 'taskPane',
-          { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_borders', 'tb_chart', 'tb_drawing', 'tb_auditing', 'tb_reviewing', 'tb_picture', 'tb_list', '-', 'customize'] },
-          'formulaBar', 'statusBar', '-', 'headerFooter', 'showComments', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde'],
+          { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_borders', 'tb_chart', 'tb_drawing', 'tb_auditing', 'tb_reviewing', 'tb_picture', 'tb_list', 'tb_vbForm', '-', 'customize'] },
+          'formulaBar', 'statusBar', '-', 'headerFooter', 'showComments', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde', 'runForm'],
       },
       {
         label: '&Insert', items: () => ['insertCells', 'insertRows', 'insertCols', 'insertSheet', 'insertChart', 'insertSymbol', 'insertPageBreak', '-', 'insertFunction',
@@ -569,9 +569,10 @@
     TB.chart = ui.toolbar('chart', 'Chart', [ui.tbDrop('Chart Type', 'chart', (at) => L.chartWizard && L.chartWizard.typeMenu(at)), ui.tbButton('formatObject', { label: 'Format' })]);
     TB.drawing = ui.toolbar('drawing', 'Drawing', [ui.tbDrop('D&raw', 'draw', A.menus.draw), '|',
       ui.tbButton('insertShape', { icon: 'rect' }), ui.tbButton('insertTextBox'), ui.tbButton('insertPicture'), '|', ui.tbButton('fillColorApply')]);
+    TB.vbForm = ui.toolbar('vbForm', 'VB Form', [ui.tbButton('stopForm', { label: 'Stop' })]);
     const row1 = h('div', { class: 'tb-row' }), row2 = h('div', { class: 'tb-row' });
     row1.append(TB.standard, TB.formatting);
-    row2.append(TB.borders, TB.auditing, TB.reviewing, TB.list, TB.chart, TB.drawing);
+    row2.append(TB.borders, TB.auditing, TB.reviewing, TB.list, TB.chart, TB.drawing, TB.vbForm);
     host.append(row1, row2);
     A.updateToolbars();
   }
@@ -587,9 +588,10 @@
       return box;
     } }], { left: r.left, bottom: r.bottom }, { cls: 'grid-menu' });
   }
-  A.toolbarVisible = (id) => { const v = A.opts.toolbars[id]; if (v === 'auto') return id === 'chart' ? !!(G().selectedObject() && G().selectedObject().kind === 'chart') : id === 'picture' ? !!(G().selectedObject() && G().selectedObject().kind === 'image') : id === 'list' ? !!A.tableAt() : false; return !!v; };
-  /** what is selected, for the ribbon's contextual tabs: 'chart', 'picture', 'shape', 'list' */
+  A.toolbarVisible = (id) => { const v = A.opts.toolbars[id]; if (v === 'auto') return id === 'chart' ? !!(G().selectedObject() && G().selectedObject().kind === 'chart') : id === 'picture' ? !!(G().selectedObject() && G().selectedObject().kind === 'image') : id === 'list' ? !!A.tableAt() : id === 'vbForm' ? !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow()) : false; return !!v; };
+  /** what is selected, for the ribbon's contextual tabs: 'chart', 'picture', 'shape', 'list', 'vbForm' */
   A.inContext = (k) => {
+    if (k === 'vbForm') return !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow());
     const o = G().selectedObject();
     if (k === 'list') return !!A.tableAt();
     return !!o && (k === 'chart' ? o.kind === 'chart' : k === 'picture' ? o.kind === 'image' : k === 'shape' ? o.kind === 'shape' : false);
@@ -1458,7 +1460,7 @@
     buildNameBox();
     if (L.panes) L.panes.task.mount(L.$('#taskpane'));
     /* the open task pane follows the selected object to its tool set (common/ribbon.js) */
-    if (L.panes) L.ribbonUI.follow({ task: L.panes.task, sets: { chart: true, picture: true, drawing: true }, on: () => A.opts.paneFollows !== false });
+    if (L.panes) L.ribbonUI.follow({ task: L.panes.task, sets: { chart: true, picture: true, drawing: true, vbForm: true }, on: () => A.opts.paneFollows !== false });
     A.addBook(w, tpl ? tpl.name.replace(/\s+/g, '') + '1' : 'Book1', { type: 'xlsx', untitled: true });
     setupDrop();
     L.bus.on('selection', () => { updateStatus(); ui.refresh(); A.updateToolbars(); });

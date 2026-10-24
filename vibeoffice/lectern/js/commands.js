@@ -60,7 +60,7 @@
   C('viewBW', { label: '&Pure Black and White', radio: true, checked: () => !!A().opts.bw, run: () => A().setColorMode('bw') });
   C('taskPane', { label: 'Tas&k Pane', icon: 'taskpane', key: 'Ctrl+F1', checked: () => A().taskOpen(), run: () => A().toggleTask() });
   C('slidesPane', { label: 'Slides and Outline Pane', checked: () => A().leftOpen(), run: () => A().toggleLeft() });
-  for (const [id, label] of [['standard', '&Standard'], ['formatting', '&Formatting'], ['drawing', '&Drawing'], ['outlining', '&Outlining'], ['picture', '&Picture'], ['tables', '&Tables and Borders'], ['wordart', '&LettersArt']]) {
+  for (const [id, label] of [['standard', '&Standard'], ['formatting', '&Formatting'], ['drawing', '&Drawing'], ['outlining', '&Outlining'], ['picture', '&Picture'], ['tables', '&Tables and Borders'], ['wordart', '&LettersArt'], ['vbForm', '&VB Form']]) {
     C('tb_' + id, { label, checked: () => A().tbShown(id), run: () => A().toggleToolbar(id) });
   }
   C('ruler', { label: '&Ruler', icon: 'ruler', checked: () => !!A().opts.ruler, run: () => { A().opts.ruler = !A().opts.ruler; A().saveOpts(); E().layout(); } });
@@ -150,6 +150,8 @@
   C('domConsole', { label: 'Lectern DOM &Console', run: () => L.domConsole && L.domConsole.open() });
   C('macros', { label: '&Macros...', key: 'Alt+F8', icon: 'macros', run: () => L.dlg.macros() });
   C('vbIde', { label: 'VibeOffice Visual Basic', icon: 'vbIde', run: () => L.vbIde && L.vbIde.open() });
+  C('runForm', { label: '&Run Form...', icon: 'runForm', run: () => window.VO && VO.vbForms && L.vb && VO.vbForms.pick(function () { return L.vb.session(); }) });
+  C('stopForm', { label: '&Stop', icon: 'stopForm', tip: 'Stop Form', enabled: () => !!(window.VO && VO.vbForms && VO.vbForms.runningNow && VO.vbForms.runningNow()), run: () => window.VO && VO.vbForms && VO.vbForms.stopCurrent && VO.vbForms.stopCurrent() });
   C('about', { label: '&About Lectern', icon: 'about', run: () => L.dlg.about() });
   C('gettingStarted', { label: '&Getting Started', run: () => L.panes.task.show('getting-started') });
 

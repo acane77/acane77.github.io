@@ -1,12 +1,23 @@
 /* Lectern VB host. Immediate VM for evalVB6, a second VM for runVB6,
    and a debug VM for the Visual Basic IDE (debugBegin / debugEnd).
    There is no document-macro VM: a presentation does not store or run macros.
-   Form slots stay empty until a form project is loaded.
+   createForm stays null until loadProject (public/common/vb-forms.js).
    Build the engine first: node tools/vb6/build-engine.mjs */
 (function () {
   'use strict';
   const L = window.L;
-  const SLOTS = ['createForm', 'beginModal', 'msgBox', 'inputBox', 'openFile', 'saveFile', 'loadProject'];
+  const SLOTS = ['createForm', 'beginModal', 'msgBox', 'inputBox', 'openFile', 'saveFile'];
+
+  async function formBusy(host) {
+    const forms = window.VO && VO.vbForms;
+    if (!forms || !forms.running(host)) return;
+    if (forms.block && await forms.block(host)) {
+      const err = new Error('A VB form is running');
+      err.quiet = true;
+      throw err;
+    }
+    if (!forms.block) throw new Error('A VB form is running');
+  }
   const CALL_PARAMS = [];
   for (let i = 1; i <= 16; i++) CALL_PARAMS.push({ name: 'Arg' + i, optional: true });
 
@@ -76,6 +87,12 @@
       'Public Property Get ActiveWindow() As Object',
       '    Set ActiveWindow = Lectern.ActiveWindow',
       'End Property',
+      '',
+      'Public Sub InsertText(Text)',
+      '    Dim Box As Object',
+      '    Set Box = ActivePresentation.Slides(1).Shapes.AddTextbox(ppTextOrientationHorizontal, 72, 36, 240, 40)',
+      '    Box.TextFrame.TextRange.Text = CStr(Text)',
+      'End Sub',
       '',
     ];
     const names = Object.keys(L.dom).filter(function (key) {
@@ -310,6 +327,7 @@
 
   /* Script VM. Its Automation maps replace the Immediate maps only while it runs. */
   LecternVbHost.prototype.run = async function (source, entry, args) {
+    await formBusy(this);
     if (this.script) throw new Error('A VB script is running');
     if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
     if (!this.vm || this.vm.state === 'stopped' || !this.ir || !this.engine) {
@@ -384,6 +402,7 @@
   };
 
   LecternVbHost.prototype.loadMacros = async function (macros) {
+    await formBusy(this);
     if (this.script || (this.vm && this.vm.debugEvaluation)) {
       const err = new Error(this.script ? 'A VB script is running' : 'A VB statement is running');
       err.code = 'vb-busy';
@@ -416,6 +435,7 @@
   };
 
   LecternVbHost.prototype.runSaved = async function (name) {
+    await formBusy(this);
     if (this.script) throw new Error('A VB script is running');
     if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
     if (!this.macroMachine || !this.macroMaps) throw new Error('The document macros are not loaded');
@@ -440,6 +460,7 @@
 
   /* The editor buffer plus the other saved macros, on a machine that is thrown away. */
   LecternVbHost.prototype.runDraft = async function (macros, entry) {
+    await formBusy(this);
     if (this.script) throw new Error('A VB script is running');
     if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
     if (!this.vm || this.vm.state === 'stopped' || !this.ir || !this.engine) {
@@ -498,6 +519,7 @@
 
   /* Debug VM for the Visual Basic IDE. The Immediate VM stays. Maps stay swapped until debugEnd. */
   LecternVbHost.prototype.debugBegin = async function (source) {
+    await formBusy(this);
     if (this.script) throw new Error('A VB script is running');
     if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
     if (!this.vm || this.vm.state === 'stopped' || !this.ir || !this.engine) {
@@ -567,12 +589,33 @@
   };
 
   LecternVbHost.prototype.eval = function (text) {
+    const forms = window.VO && VO.vbForms;
+    if (forms) {
+      const routed = forms.eval(this, text);
+      if (routed) return routed;
+    }
     if (this.script) return Promise.reject(new Error('A VB script is running'));
     if (!this.vm || this.vm.state === 'stopped') return Promise.reject(new Error('The VB runtime is not running'));
     return this.vm.immediate(String(text));
   };
 
+  LecternVbHost.prototype.loadProject = async function (project) {
+    if (!this.vm || this.vm.state === 'stopped' || !this.engine) await this.start();
+    if (this.script) throw new Error('A VB script is running');
+    if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
+    const forms = window.VO && VO.vbForms;
+    if (!forms) throw new Error('The form runtime is not loaded');
+    const host = this;
+    return forms.load(this, project, {
+      id: 'lectern-vb-form',
+      name: 'Lectern',
+      domModule: function () { return { id: 'lectern-dom', name: 'LecternDOM', kind: 'module', code: moduleCode() }; },
+      bind: function (machine) { return host.bindLectern(machine); },
+    });
+  };
+
   LecternVbHost.prototype.close = function () {
+    if (window.VO && VO.vbForms) VO.vbForms.stop(this);
     this.debugEnd();
     this.unloadMacros();
     const script = this.script;

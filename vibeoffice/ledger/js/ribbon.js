@@ -12,7 +12,7 @@
       nameCreate: 'nameBox', nameApply: 'nameBox', functionsHelp: 'help', calcSheet: 'calcNow', errorChecking: 'traceError', showAll: 'filter', advancedFilter: 'filterOn', consolidate: 'subtotal',
       groupRows: 'group', ungroupRows: 'ungroup', showDetail: 'expand', hideDetail: 'collapse', autoOutline: 'group', clearOutline: 'ungroup', importText: 'textToCols', refreshData: 'redo',
       protectWorkbook: 'protect', allowEditRanges: 'protect', deleteComment: 'delete', showHideComment: 'comment', showComments: 'comment', viewNormal: 'normalGrid', newWindow: 'newWindow',
-      arrangeWindows: 'arrangeAll', macros: 'macros', vbIde: 'vbIde', formulaBar: 'fx', statusBar: 'layout', gridlinesView: 'grid', headingsView: 'headingRows', setPrintArea: 'pageSetup', insertPageBreak: 'pageBreak',
+      arrangeWindows: 'arrangeAll', macros: 'macros', vbIde: 'vbIde', runForm: 'runForm', formulaBar: 'fx', statusBar: 'layout', gridlinesView: 'grid', headingsView: 'headingRows', setPrintArea: 'pageSetup', insertPageBreak: 'pageBreak',
       resetPageBreaks: 'pageBreak', sheetBackground: 'background', createList: 'table', totalRow: 'autoSum', convertToRange: 'tableToText', newSheetChart: 'chart', exportCSV: 'excel', conditionalFormat: 'condFormat', styleDlg: 'stylesPane', headerFooter: 'headerFooter', formatObject: 'formatPicture' },
     qat: ['save', 'undo', 'redo'],
     file: () => ['newBook', 'open', 'close', '-', 'save', 'saveAs', 'saveWeb', '-', 'properties', 'links', '-', 'pageSetup', 'printPreview', 'print', '-', 'exportPDF', 'exportCSV', '-', 'options', 'addIns', 'help', 'domConsole', ui.themeMenu(), ui.languageMenu(), 'about', '-', 'exitApp'],
@@ -77,7 +77,7 @@
         { label: 'Show', items: ['formulaBar', { cmd: 'gridlinesView', label: 'Gridlines' }, { cmd: 'headingsView', label: 'Headings' }, 'statusBar', 'taskPane'] },
         { label: 'Zoom', items: [{ cmd: 'zoomDlg', size: 'large', label: 'Zoom' }, { make: () => A().parts.zoom({ width: 70, id: 'rb-zoom' }) }] },
         { label: 'Window', items: [{ cmd: 'newWindow', size: 'large', label: 'New Window' }, 'arrangeWindows', { cmd: 'freezePanes', size: 'large', label: 'Freeze Panes' }, 'splitWindow'] },
-        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }] },
+        { label: 'Macros', items: [{ cmd: 'macros', size: 'large', label: 'Macros' }, { cmd: 'vbIde', size: 'large', label: 'VibeOffice Visual Basic' }, { cmd: 'runForm', size: 'large', label: 'Run Form' }] },
       ] },
     ],
     contextual: [
@@ -96,6 +96,11 @@
           { label: 'Insert Shapes', items: [{ cmd: 'insertShape', size: 'large', label: 'Shapes', icon: 'autoshapes' }, 'insertTextBox'] },
           { label: 'Shape Styles', launcher: 'formatObject', items: [{ cmd: 'fillColorApply', size: 'large', label: 'Shape Fill' }] },
           { label: 'Arrange', items: [{ drop: 'Arrange', icon: 'bringFront', size: 'large', menu: (r) => A().menus.draw(r) }] },
+        ] },
+      ] },
+      { id: 'vbForm', set: 'VB Form Tools', open: true, when: ctx('vbForm'), tabs: [
+        { id: 'vbFormTools', label: 'Form', groups: [
+          { label: 'Run', items: [{ cmd: 'stopForm', size: 'large', label: 'Stop' }] },
         ] },
       ] },
       { id: 'list', set: 'Table Tools', when: ctx('list'), tabs: [
