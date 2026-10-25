@@ -26,6 +26,33 @@
   R.spaceEm = (font) => SPACE_EM[L.fontKey(font)] || 0.25;
   /* Word's balanceSingleByteDoubleByteWidth draws an ASCII space as half a fullwidth em */
   R.balanceSBCS = (d) => !!(d && d.settings && /<w:balanceSingleByteDoubleByteWidth[\s/>]/.test(d.settings.compatXML || ''));
+  /** LibreOffice BalanceCjkSpaces (tdf#88908): a normal space becomes half an ideographic em when the
+      portion is CJK, or it touches another space, or it is the first or last character of the portion.
+      A single space between Latin letters keeps the font's own width. Ideographic space is left alone. */
+  R.balancedSpaceParts = function (text, cjk) {
+    if (!text.includes(' ')) return [{ text, half: false }];
+    const parts = [];
+    let buf = '', half = false;
+    const flush = () => { if (buf) { parts.push({ text: buf, half }); buf = ''; } };
+    for (let i = 0; i < text.length; i++) {
+      let h = false;
+      if (text.charAt(i) === ' ') {
+        const prev = i === 0 || !!cjk || text.charAt(i - 1) === ' ';
+        const next = i === text.length - 1 || !!cjk || text.charAt(i + 1) === ' ';
+        h = prev || next;
+      }
+      if (buf && h !== half) flush();
+      half = h;
+      buf += text.charAt(i);
+    }
+    flush();
+    return parts;
+  };
+  /** Extra letter-spacing (px) so one ASCII space advances half an em. Zero when the font's space is already that wide. */
+  R.halfEmSpace = (font, sz) => {
+    const add = 0.5 - R.spaceEm(font);
+    return add > 0.02 ? L.round(add * R.px(sz || 12), 2) : 0;
+  };
   /** one fullwidth East Asian advance (ideographs and fullwidth punctuation, not halfwidth kana) */
   R.fullWidthChar = (ch) => {
     const c = ch.codePointAt(0);
@@ -674,7 +701,7 @@
     if (el.childNodes.length === 1 && el.firstChild.nodeType === 3) return el.firstChild;
     return null;
   }
-  /** Cut `el` so its text ends at UTF-16 index `end`; the rest is the next sibling. The copy keeps a margin already set. */
+  /** Cut `el` so its text ends at UTF-16 index `end`; the rest is the next sibling. The copy keeps letter-spacing already set. */
   function splitSpanAt(el, end) {
     const text = el.firstChild.data;
     const right = el.cloneNode(false);
@@ -688,7 +715,17 @@
     }
     el.after(right);
   }
-  /** Put the automatic space on the rendered paragraph: a margin after the first of each pair. */
+  /** The gap follows one character. Letter-spacing sits in that character's box, so a selection
+      paints across it; a margin would leave a hole in the highlight. */
+  function autoSpaceGap(el, at, gap) {
+    const node = el.firstChild;
+    if (!node || node.nodeType !== 3 || el.childNodes.length !== 1) return;
+    if (at > 0) splitSpanAt(el, at);
+    const gapEl = at > 0 ? el.nextElementSibling : el;
+    const prev = parseFloat(gapEl.style.letterSpacing) || 0;
+    gapEl.style.letterSpacing = L.round(prev + gap, 2) + 'px';
+  }
+  /** Put the automatic space on the rendered paragraph, after the first of each pair. */
   R.applyAutoSpace = function (pc, pPr, ctx) {
     const flags = R.autoSpaceFlags(pPr, ctx);
     if (!flags.de && !flags.dn) return;
@@ -722,12 +759,10 @@
       list.sort((a, b) => b.i - a.i);
       for (const g of list) {
         const node = el.firstChild;
+        if (!node || node.nodeType !== 3 || el.childNodes.length !== 1) continue;
         const end = g.i + g.len;
-        if (!node || node.nodeType !== 3 || end < node.data.length) {
-          if (!node || node.nodeType !== 3 || el.childNodes.length !== 1) continue;
-          splitSpanAt(el, end);
-        }
-        el.style.marginInlineEnd = L.round(g.gap, 2) + 'px';
+        if (end < node.data.length) splitSpanAt(el, end);
+        autoSpaceGap(el, g.i, g.gap);
       }
     }
   };
@@ -951,33 +986,40 @@
           const ea = piece.ea && !!r.fontEA;
           const rr = ea ? Object.assign({}, r, { font: r.fontEA, eaText: true }) : (distinct ? Object.assign({}, r, { fontEA: undefined }) : r);
           const lang = ea && r.langEA ? r.langEA : !ea && r.lang && !/^en/i.test(r.lang) ? r.lang : '';
-          /* a run of spaces under Word's "balance single-byte and double-byte characters" is half a fullwidth
-             em each (the underlined blanks on an East Asian cover). Letter-spacing is part of that advance. */
-          let pieceExtra = extra;
-          if (R.balanceSBCS(d) && /^ +$/.test(piece.text)) {
-            const add = 0.5 - R.spaceEm(rr.font);
-            if (add > 0.02) pieceExtra += `;letter-spacing:${L.round(add * R.px(rr.sz || 12), 2)}px`;
+          /* "balance single-byte and double-byte characters": each qualifying ASCII space is half a
+             fullwidth em (LibreOffice BalanceCjkSpaces). That includes the spaces after a heading
+             number, which share a run with the digits, not only a run of nothing but spaces.
+             Letter-spacing keeps the extra inside the space, so a selection stays continuous.
+             word-spacing:0 keeps the paragraph's justified-space shrink off this advance. */
+          const parts = R.balanceSBCS(d) ? R.balancedSpaceParts(piece.text, ea) : [{ text: piece.text, half: false }];
+          for (const part of parts) {
+            let pieceExtra = extra;
+            if (part.half) {
+              pieceExtra += ';word-spacing:0';
+              const gap = R.halfEmSpace(rr.font, rr.sz);
+              if (gap) pieceExtra += `;letter-spacing:${gap}px`;
+            }
+            const css = R.runCSS(rr, mult, ctx.dkPara ? { autoWhite: true, key: 'w' } : null) + pieceExtra;
+            const clsS = cls.join(' ') + (lang ? '|' + lang : '');
+            if (lastSpan && lastCss === css + '|' + clsS && +lastSpan.dataset.o + +lastSpan.dataset.n === at) {
+              lastSpan.firstChild.appendData(part.text);
+              lastSpan.dataset.n = +lastSpan.dataset.n + part.text.length;
+            } else {
+              el = document.createElement('span');
+              el.appendChild(document.createTextNode(part.text));
+              el.style.cssText = css;
+              if (cls.length) el.className = cls.join(' ');
+              el.dataset.o = at;
+              el.dataset.n = part.text.length;
+              if (r.link || rp.link) el.dataset.link = linkStr(r.link || rp.link);
+              if (r.noProof) el.spellcheck = false;
+              if (lang) el.lang = lang;
+              controlSpan(el);
+              pc.appendChild(el);
+              lastSpan = el; lastCss = css + '|' + clsS;
+            }
+            at += part.text.length;
           }
-          const css = R.runCSS(rr, mult, ctx.dkPara ? { autoWhite: true, key: 'w' } : null) + pieceExtra;
-          const clsS = cls.join(' ') + (lang ? '|' + lang : '');
-          if (lastSpan && lastCss === css + '|' + clsS && +lastSpan.dataset.o + +lastSpan.dataset.n === at) {
-            lastSpan.firstChild.appendData(piece.text);
-            lastSpan.dataset.n = +lastSpan.dataset.n + piece.text.length;
-          } else {
-            el = document.createElement('span');
-            el.appendChild(document.createTextNode(piece.text));
-            el.style.cssText = css;
-            if (cls.length) el.className = cls.join(' ');
-            el.dataset.o = at;
-            el.dataset.n = piece.text.length;
-            if (r.link || rp.link) el.dataset.link = linkStr(r.link || rp.link);
-            if (r.noProof) el.spellcheck = false;
-            if (lang) el.lang = lang;
-            controlSpan(el);
-            pc.appendChild(el);
-            lastSpan = el; lastCss = css + '|' + clsS;
-          }
-          at += piece.text.length;
         }
         continue;
       }
