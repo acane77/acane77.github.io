@@ -1,0 +1,133 @@
+{
+ "ecrivaine": [
+  {
+   "id": "",
+   "name": "Blank Document",
+   "img": "ecrivaine/templates/blank.jpg"
+  },
+  {
+   "id": "letter",
+   "name": "Contemporary Letter",
+   "img": "ecrivaine/templates/letter.jpg"
+  },
+  {
+   "id": "memo",
+   "name": "Professional Memo",
+   "img": "ecrivaine/templates/memo.jpg"
+  },
+  {
+   "id": "fax",
+   "name": "Elegant Fax",
+   "img": "ecrivaine/templates/fax.jpg"
+  },
+  {
+   "id": "resume",
+   "name": "Contemporary Résumé",
+   "img": "ecrivaine/templates/resume.jpg"
+  },
+  {
+   "id": "report",
+   "name": "Professional Report",
+   "img": "ecrivaine/templates/report.jpg"
+  },
+  {
+   "id": "agenda",
+   "name": "Meeting Agenda",
+   "img": "ecrivaine/templates/agenda.jpg"
+  },
+  {
+   "id": "minutes",
+   "name": "Meeting Minutes",
+   "img": "ecrivaine/templates/minutes.jpg"
+  },
+  {
+   "id": "todo",
+   "name": "To-Do Checklist",
+   "img": "ecrivaine/templates/todo.jpg"
+  },
+  {
+   "id": "flyer",
+   "name": "Event Flyer",
+   "img": "ecrivaine/templates/flyer.jpg"
+  },
+  {
+   "id": "recipe",
+   "name": "Recipe",
+   "img": "ecrivaine/templates/recipe.jpg"
+  }
+ ],
+ "matheuse": [
+  {
+   "id": "",
+   "name": "Blank Workbook",
+   "img": "matheuse/templates/blank.jpg"
+  },
+  {
+   "id": "loan",
+   "name": "Loan Amortization",
+   "img": "matheuse/templates/loan.jpg"
+  },
+  {
+   "id": "expense",
+   "name": "Expense Statement",
+   "img": "matheuse/templates/expense.jpg"
+  },
+  {
+   "id": "invoice",
+   "name": "Sales Invoice",
+   "img": "matheuse/templates/invoice.jpg"
+  },
+  {
+   "id": "timecard",
+   "name": "Timecard",
+   "img": "matheuse/templates/timecard.jpg"
+  },
+  {
+   "id": "budget",
+   "name": "Personal Monthly Budget",
+   "img": "matheuse/templates/budget.jpg"
+  },
+  {
+   "id": "tasks",
+   "name": "Task Tracker",
+   "img": "matheuse/templates/tasks.jpg"
+  },
+  {
+   "id": "shopping",
+   "name": "Shopping List",
+   "img": "matheuse/templates/shopping.jpg"
+  },
+  {
+   "id": "schedule",
+   "name": "Weekly Schedule",
+   "img": "matheuse/templates/schedule.jpg"
+  }
+ ],
+ "oratrice": [
+  {
+   "id": "",
+   "name": "Blank Presentation",
+   "img": "oratrice/templates/blank.jpg"
+  },
+  {
+   "id": "status",
+   "name": "Project Status Report",
+   "img": "oratrice/templates/status.jpg"
+  },
+  {
+   "id": "meeting",
+   "name": "Team Meeting",
+   "img": "oratrice/templates/meeting.jpg"
+  },
+  {
+   "id": "lesson",
+   "name": "Lesson",
+   "img": "oratrice/templates/lesson.jpg"
+  },
+  {
+   "id": "event",
+   "name": "Event Announcement",
+   "img": "oratrice/templates/event.jpg"
+  }
+ ]
+}

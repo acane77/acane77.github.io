@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title translate="no">Melina Office</title>
+<meta name="description" content="A free office suite that runs in your browser: a word processor, a spreadsheet and a presentation editor. Your files never leave your computer.">
+<meta name="theme-color" content="#FF6699">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script src="common/lang.js"></script>
+<link rel="stylesheet" href="fonts/brand.css">
+<style>
+  /* The Start Center does not follow a look. Colours are the opening screen's own. */
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: #eee; color: #222; font: 400 16px/1.4 "Google Sans Flex", sans-serif; font-synthesis: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 1px solid #0B76A0; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .page { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card {  box-shadow: 0 6px 20px rgba(0, 0, 0, .12); width: min(920px, 100%); height: min(640px, calc(100vh - 48px)); min-height: 420px; display: flex; flex-direction: column;
+    background: #fff; border: 1px solid #A6A6A6; border-radius: 36px; position: relative; }
+  .stage { flex: 1; min-height: 0; position: relative; }
+  .stage[data-view="home"] { display: flex; align-items: center; justify-content: center; overflow: auto; }
+
+  .cluster { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px; }
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: default; }
+  .stage:not([data-view="home"]) .brand { cursor: pointer; }
+  .brand img { width: 86px; height: 86px; display: block; }
+  .word { font-size: clamp(20pt, 8vw, 32pt); line-height: 1.1; color: #0B76A0; font-weight: 400; white-space: nowrap; }
+  .apps { display: flex; gap: 36px; }
+  .apps a { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 84px; color: #4E95D9; font-size: 10pt; }
+  .apps svg { width: 72px; height: 72px; }
+  .apps a:hover span:last-child { text-decoration: underline; }
+  .actions { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .act { display: flex; align-items: center; gap: 10px; min-height: 32px; color: #595959; font-size: 10pt; }
+  .act svg { width: 22px; height: 22px; flex: none; }
+  .act:hover { color: #222; }
+
+  .pane, .sub { display: none; min-width: 0; min-height: 0; }
+  .pane { flex-direction: column; position: relative; }
+  .pane-fit { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: 28px 28px 8px 12px; }
+  .pane-fit > h1, .sub h1 { margin: 0 0 12px; font-size: 24pt; font-weight: 400; line-height: 1.15; color: #222; }
+  .pane-body { flex: 1; min-height: 0; overflow: auto; }
+  .sub { flex-direction: column; padding: 22px 28px 8px; }
+  .back { align-self: flex-start; color: #4E95D9; font-size: 16pt; line-height: 1.2; }
+  .back::before { content: "< "; }
+  .back:hover { text-decoration: underline; }
+  .about { display: none; flex: 1; min-height: 0; overflow: auto; font-size: 9pt; line-height: 1.45; color: #A6A6A6; }
+  .stage[data-view="about"] .about { display: block; }
+  .about p { margin: 0 0 10px; }
+  .about a { color: #4E95D9; text-decoration: underline; }
+
+  .status { margin: 0; padding: 0 20px; min-height: 0; color: #8d1d1d; font-size: 12px; }
+  .status:empty { display: none; }
+  .foot { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 8px; padding: 8px 18px 14px; }
+  .lang { position: relative; justify-self: start; }
+  .langbtn { display: inline-flex; align-items: center; gap: 6px; color: #404040; font-size: 9pt; }
+  .langbtn svg { width: 14px; height: 14px; }
+  .langmenu { position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 4; min-width: 148px; margin: 0; padding: 4px;
+    background: #fff; border: 1px solid #A6A6A6; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+  .langmenu button { display: block; width: 100%; text-align: left; padding: 6px 10px; border-radius: 4px; color: #404040; font-size: 9pt; }
+  .langmenu button:hover, .langmenu button:focus-visible { background: #f3f6f8; }
+  .langmenu button[aria-checked="true"] { color: #0B76A0; }
+  .links { justify-self: center; margin: 0; color: #BFBFBF; font-size: 7pt; text-align: center; }
+  .links a, .links button { color: #BFBFBF; font-size: 7pt; }
+  .links a:hover, .links button:hover { text-decoration: underline; }
+  .links > * + *::before { content: " · "; }
+
+  .grid { display: grid; gap: 18px 14px; align-content: start; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .doc { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid transparent; border-radius: 3px; }
+  .doc:hover, .doc:focus-within { background: #f3f6f8; border-color: #d5dde6; }
+  .thumb { display: flex; align-items: center; justify-content: center; height: 132px; background: #f7f7f7; border: 1px solid #e0e0e0; overflow: hidden; }
+  .thumb img { max-width: 100%; max-height: 100%; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .thumb svg { height: 100%; }
+  .doc a { outline: none; }
+  .doc a.name::after { content: ""; position: absolute; inset: 0; }
+  .doc .name { font-size: 10pt; color: #222; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .doc .meta { color: #595959; font-size: 11px; display: flex; align-items: center; gap: 5px; }
+  .doc .meta i { width: 8px; height: 8px; border-radius: 2px; }
+  .doc .unsaved { align-self: flex-start; padding: 0 5px; border-radius: 3px; background: #fff1e4; color: #b85c00; font-size: 11px; }
+  .doc .alt { position: relative; z-index: 1; align-self: flex-start; font-size: 11px; color: #4E95D9; text-decoration: underline; }
+  .doc .rm { position: absolute; top: 4px; right: 4px; z-index: 1; width: 20px; height: 20px; border: 1px solid transparent; border-radius: 3px;
+    background: rgba(255,255,255,.9); color: #333; opacity: 0; line-height: 1; }
+  .doc:hover .rm, .doc:focus-within .rm { opacity: 1; }
+  .doc .rm:hover { border-color: #A6A6A6; }
+  .gallery h2 { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px; font-size: 13px; font-weight: 400; color: #222; }
+  .gallery h2 small { color: #595959; }
+  .gallery h2 svg { width: 24px; height: 30px; }
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 180px; text-align: center; color: #595959; font-size: 10pt; }
+  .empty b { font-size: 16px; font-weight: 400; color: #222; }
+
+  .drop { position: fixed; inset: 16px; z-index: 6; display: flex; align-items: center; justify-content: center; border: 2px dashed #0B76A0;
+    border-radius: 12px; background: rgba(255,255,255,.9); font-size: 16px; color: #0B76A0; pointer-events: none; }
+
+  /* wide: the same home cluster moves to the left; the right side is the list. The mark returns to the centred arrangement. */
+  @media (min-width: 701px) {
+    .stage[data-view="templates"], .stage[data-view="recent"] { display: grid; grid-template-columns: 376px minmax(0, 1fr); overflow: hidden; }
+    .stage[data-view="templates"] .cluster, .stage[data-view="recent"] .cluster { align-items: flex-start; justify-content: flex-start; gap: 18px; padding: 36px 8px 12px 28px; }
+    .stage[data-view="templates"] .brand, .stage[data-view="recent"] .brand { flex-direction: row; align-items: center; gap: 12px; }
+    .stage[data-view="templates"] .brand img, .stage[data-view="recent"] .brand img { width: 44px; height: 44px; }
+    .stage[data-view="templates"] .pane, .stage[data-view="recent"] .pane { display: flex; }
+    .stage[data-view="about"] { display: flex; flex-direction: column; overflow: hidden; }
+    .stage[data-view="about"] .cluster, .stage[data-view="about"] .pane { display: none; }
+    .stage[data-view="about"] .sub { display: flex; flex: 1; }
+  }
+
+  /* narrow: home is only the centred cluster. Templates, Recent Files and About are the same kind of page. */
+  @media (max-width: 700px) {
+    .page { padding: 12px; }
+    .card { width: 100%; height: calc(100vh - 24px); min-height: 0; border-radius: 28px; }
+    .stage[data-view="templates"], .stage[data-view="recent"], .stage[data-view="about"] { display: flex; flex-direction: column; overflow: hidden; }
+    .stage[data-view="templates"] .cluster, .stage[data-view="recent"] .cluster, .stage[data-view="about"] .cluster { display: none; }
+    .stage[data-view="templates"] .sub, .stage[data-view="recent"] .sub, .stage[data-view="about"] .sub { display: flex; }
+    .stage[data-view="about"] .sub { flex: 1; }
+    .stage[data-view="templates"] .pane, .stage[data-view="recent"] .pane { display: flex; flex: 1; }
+    .stage[data-view="templates"] .pane-fit > h1, .stage[data-view="recent"] .pane-fit > h1 { display: none; }
+    .stage[data-view="templates"] .pane-fit, .stage[data-view="recent"] .pane-fit { padding-top: 0; }
+    .stage[data-view="about"] .pane { display: none; }
+    .foot { grid-template-columns: 1fr; justify-items: start; }
+    .links { justify-self: start; text-align: left; }
+  }
+
+  @keyframes vo-pane { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+  @keyframes vo-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-8px); } }
+  @keyframes vo-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .pane.enter { animation: vo-pane 280ms cubic-bezier(0.22, 1, 0.36, 1) 90ms both; }
+  .pane .ghost { position: absolute; left: 0; right: 0; top: 0; z-index: 1; pointer-events: none; animation: vo-out 180ms ease both; }
+  .pane-fit.in { animation: vo-in 180ms ease both; }
+  @media (prefers-reduced-motion: reduce) {
+    .pane.enter, .pane .ghost, .pane-fit.in { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <div class="stage" id="stage" data-view="home">
+    <script>try{(function(){var v=location.hash;document.getElementById('stage').dataset.view=v==='#templates'||v==='#create'?'templates':v==='#recent'?'recent':v==='#about'?'about':'home'})()}catch(e){}</script>
+      <div class="cluster" id="cluster">
+        <button class="brand" id="brand" type="button">
+          <img id="logo" src="icons/icon.svg" alt="">
+          <b class="word" id="word" translate="no">Melina Office</b>
+        </button>
+        <div class="apps" id="apps">
+          <a href="ecrivaine/" data-go><span data-icon="ecrivaine"></span><span>Ecrivaine</span></a>
+          <a href="matheuse/" data-go><span data-icon="matheuse"></span><span>Matheuse</span></a>
+          <a href="oratrice/" data-go><span data-icon="oratrice"></span><span>Oratrice</span></a>
+        </div>
+        <div class="actions" id="actions">
+          <button class="act" id="act-open" type="button"><svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="currentColor" d="m1955 1533l-163-162v677h-128v-677l-163 162l-90-90l317-317l317 317zM256 1920h1280v128H128V0h1115l549 549v475h-128V640h-512V128H256zM1280 512h293l-293-293z"/></svg>Open</button>
+          <button class="act" id="act-templates" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="2" stroke-width="1.5"><path d="M13.75 2.75h-9v18.5h14.5v-13Z"/><path d="M13.75 2.75v5.5h5.5m-11 2.5h7.5v2.5h-7.5Zm0 5h3v2.5h-3ZM14 16h1.75M14 18h1.75"/></g></svg>New File from Template</button>
+          <button class="act" id="act-recent" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 8H12v5l4.28 2.54l.72-1.21l-3.5-2.08zM13 3a9 9 0 0 0-9 9H1l3.96 4.03L9 12H6a7 7 0 0 1 7-7a7 7 0 0 1 7 7a7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.9 8.9 0 0 0 13 21a9 9 0 0 0 9-9a9 9 0 0 0-9-9"/></svg>Recent Files</button>
+        </div>
+      </div>
+      <div class="sub" id="sub">
+        <button class="back" id="back" type="button">Back</button>
+        <h1 id="subtitle">About Melina Office</h1>
+        <div class="about" id="about"></div>
+      </div>
+      <div class="pane" id="pane">
+        <div class="pane-fit" id="panefit">
+          <h1 id="panetitle">Templates</h1>
+          <div class="pane-body" id="panebody">
+            <div class="gallery" id="gallery" hidden></div>
+            <div class="grid" id="grid" hidden></div>
+            <div class="empty" id="empty" hidden>
+              <b>Welcome to Melina Office.</b>
+              <span>Drop a document here or pick an app on the left side to create one.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="status" id="status" role="status"></p>
+    <footer class="foot">
+      <div class="lang" id="lang">
+        <button class="langbtn" id="langbtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="langmenu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8.125 21.213q-1.825-.788-3.187-2.15t-2.15-3.188T2 11.988t.788-3.875t2.15-3.175t3.187-2.15T12.013 2t3.875.788t3.175 2.15t2.15 3.175t.787 3.875t-.787 3.887t-2.15 3.188t-3.175 2.15t-3.875.787t-3.888-.787M12 19.95q.65-.9 1.125-1.875T13.9 16h-3.8q.3 1.1.775 2.075T12 19.95m-2.6-.4q-.45-.825-.787-1.713T8.05 16H5.1q.725 1.25 1.813 2.175T9.4 19.55m5.2 0q1.4-.45 2.488-1.375T18.9 16h-2.95q-.225.95-.562 1.838T14.6 19.55M4.25 14h3.4q-.075-.5-.112-.987T7.5 12t.038-1.012T7.65 10h-3.4q-.125.5-.187.988T4 12t.063 1.013t.187.987m5.4 0h4.7q.075-.5.113-.987T14.5 12t-.038-1.012T14.35 10h-4.7q-.075.5-.112.988T9.5 12t.038 1.013t.112.987m6.7 0h3.4q.125-.5.188-.987T20 12t-.062-1.012T19.75 10h-3.4q.075.5.113.988T16.5 12t-.038 1.013t-.112.987m-.4-6h2.95q-.725-1.25-1.812-2.175T14.6 4.45q.45.825.788 1.713T15.95 8M10.1 8h3.8q-.3-1.1-.775-2.075T12 4.05q-.65.9-1.125 1.875T10.1 8m-5 0h2.95q.225-.95.563-1.838T9.4 4.45Q8 4.9 6.912 5.825T5.1 8"/></svg>
+          <span id="langname" translate="no">English</span>
+        </button>
+        <div class="langmenu" id="langmenu" role="menu" hidden></div>
+      </div>
+      <p class="links">
+        <a href="https://github.com/acane77/MelinaOffice/blob/main/LICENSE" target="_blank" rel="noopener">Apache License 2.0</a>
+        <a href="https://github.com/acane77/MelinaOffice" target="_blank" rel="noopener">Feedback on GitHub</a>
+        <a href="https://github.com/acane77/melinaoffice/oss-licenses.html" target="_blank" rel="noopener">OSS Software Licenses</a>
+        <button id="aboutbtn" type="button">About</button>
+      </p>
+    </footer>
+  </div>
+</div>
+<div class="drop" id="drop" hidden>Drop to open</div>
+<input type="file" id="picker" hidden>
+<script src="common/suite.js"></script>
+<script src="common/i18n.js"></script>
+<script>
+VO.i18n.whenReady(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const mobileQuery = window.matchMedia('(max-width: 700px)');
+  const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobile = () => mobileQuery.matches;
+  const reduced = () => reduceQuery.matches;
+  /* Safari's Lockdown Mode takes IndexedDB away (the name is undefined), which Recent Files and opening files from here need */
+  const noStorage = typeof indexedDB === 'undefined';
+  if (noStorage) alert(VO.t('Melina Office keeps Recent Files and unsaved changes in this browser, and Safari\'s Lockdown Mode turns that off.\n\nTo allow it for this site only: tap aA in the address bar, tap Website Settings, and turn off Lockdown Mode. Safari reloads the page.'));
+  const T = (s) => (typeof s === 'string' ? VO.t(s) : s);
+  const h = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag), tr = attrs && attrs.translate === 'no' ? (s) => s : T;
+    for (const k in attrs || {}) if (attrs[k] != null) el.setAttribute(k, k === 'title' || k === 'aria-label' || k === 'placeholder' ? tr(attrs[k]) : attrs[k]);
+    el.append(...kids.filter((k) => k != null).map(tr));
+    return el;
+  };
+  const COLOR = { ecrivaine: '#2a64c8', matheuse: '#1f8a4c', oratrice: '#e0682d' };
+
+  /* app pictures: the suite's folded paper (VO.appIcon); small for a heading, large when a file has no thumbnail */
+  function picture(app, ext) {
+    return VO.appIcon(app, ext ? 80 : 24, { height: ext ? 80 : 24, ext: ext || '' });
+  }
+  for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = picture(el.dataset.icon);
+
+  const status = (text) => { $('status').textContent = text || ''; };
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-go]');
+    if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
+    e.preventDefault();
+    VO.go(a.href);
+  });
+
+  /* ---------- views: home is centred; wide templates and recent move that group left; narrow ones match About ---------- */
+  const stage = $('stage');
+  let view = stage.dataset.view || 'home';
+  const urlFor = (next) => location.pathname + location.search + (next === 'home' ? '' : '#' + next);
+  const viewFromHash = () => {
+    const hash = location.hash;
+    if (hash === '#templates' || hash === '#create') return 'templates';
+    if (hash === '#recent') return 'recent';
+    if (hash === '#about') return 'about';
+    return 'home';
+  };
+  const stripIds = (root) => { root.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id')); root.removeAttribute('id'); };
+
+  function bootHistory() {
+    const initial = viewFromHash();
+    if (initial === 'home') { history.replaceState({ view: 'home' }, '', urlFor('home')); return; }
+    /* a subpage opened directly keeps the centred home behind it, so Back returns there.
+       On a wide window, templates and recent replace the home entry instead: they are the home, shifted. */
+    if (mobile() || initial === 'about') {
+      history.replaceState({ view: 'home' }, '', urlFor('home'));
+      history.pushState({ view: initial, back: 'home' }, '', urlFor(initial));
+      return;
+    }
+    history.replaceState({ view: initial }, '', urlFor(initial));
+  }
+
+  function paint(next) {
+    if (next === 'templates') $('act-templates').setAttribute('aria-current', 'page'); else $('act-templates').removeAttribute('aria-current');
+    if (next === 'recent') $('act-recent').setAttribute('aria-current', 'page'); else $('act-recent').removeAttribute('aria-current');
+    if (next === 'templates') { $('panetitle').textContent = VO.t('Templates'); $('subtitle').textContent = VO.t('Templates'); }
+    else if (next === 'recent') { $('panetitle').textContent = VO.t('Recent Files'); $('subtitle').textContent = VO.t('Recent Files'); }
+    else if (next === 'about') { $('subtitle').textContent = VO.t('About Melina Office'); fillAbout(); }
+    $('gallery').hidden = next !== 'templates';
+    if (next !== 'recent') { $('grid').hidden = true; $('empty').hidden = true; }
+  }
+
+  let flipGen = 0;
+  function runFlip(first) {
+    const gen = ++flipGen;
+    const ease = 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)';
+    first.forEach((box, i) => {
+      const el = [$('logo'), $('word'), $('apps'), $('act-open'), $('act-templates'), $('act-recent')][i];
+      const last = el.getBoundingClientRect();
+      const sx = last.width ? box.width / last.width : 1;
+      const sy = last.height ? box.height / last.height : 1;
+      const dx = box.left - last.left, dy = box.top - last.top;
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5 && Math.abs(sx - 1) < 0.02 && Math.abs(sy - 1) < 0.02) return;
+      el.style.transformOrigin = '0 0';
+      el.style.transition = 'none';
+      el.style.transform = `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+      void el.offsetWidth;
+      el.style.transition = ease;
+      el.style.transform = '';
+      el.addEventListener('transitionend', () => { if (gen !== flipGen) return; el.style.transition = ''; el.style.transformOrigin = ''; }, { once: true });
+    });
+  }
+
+  function runFade(snap) {
+    stage.style.opacity = '0';
+    void stage.offsetWidth;
+    stage.style.transition = 'opacity 200ms linear';
+    snap.style.transition = 'opacity 200ms linear';
+    stage.style.opacity = '1';
+    snap.style.opacity = '0';
+    const done = () => { if (!snap.isConnected) return; snap.remove(); stage.style.transition = ''; stage.style.opacity = ''; };
+    snap.addEventListener('transitionend', done, { once: true });
+    setTimeout(done, 400);
+  }
+
+  function apply(next, animate) {
+    const from = view;
+    if (from === next) return;
+    const motion = animate && !reduced();
+    const mob = mobile();
+    const flip = motion && !mob && ((from === 'home' && (next === 'templates' || next === 'recent')) || (next === 'home' && (from === 'templates' || from === 'recent')));
+    const swap = motion && !mob && ((from === 'templates' && next === 'recent') || (from === 'recent' && next === 'templates'));
+    const fadeOn = motion && !flip && !swap && (next === 'about' || from === 'about' || mob);
+    const first = flip ? [$('logo'), $('word'), $('apps'), $('act-open'), $('act-templates'), $('act-recent')].map((el) => el.getBoundingClientRect()) : null;
+    let snap = null;
+    if (fadeOn) {
+      snap = stage.cloneNode(true);
+      stripIds(snap);
+      snap.classList.add('snap');
+      snap.setAttribute('aria-hidden', 'true');
+      snap.inert = true;
+      snap.querySelectorAll('script').forEach((n) => n.remove());
+      const r = stage.getBoundingClientRect(), c = stage.parentElement.getBoundingClientRect();
+      snap.style.position = 'absolute';
+      snap.style.left = (r.left - c.left) + 'px';
+      snap.style.top = (r.top - c.top) + 'px';
+      snap.style.width = r.width + 'px';
+      snap.style.height = r.height + 'px';
+      snap.style.margin = '0';
+      snap.style.pointerEvents = 'none';
+      snap.style.zIndex = '2';
+      stage.parentElement.appendChild(snap);
+    }
+    let ghost = null;
+    if (swap) {
+      ghost = $('panefit').cloneNode(true);
+      stripIds(ghost);
+      ghost.classList.add('ghost');
+      ghost.inert = true;
+    }
+    if (flip && next !== 'home') $('pane').style.opacity = '0';
+    view = next;
+    stage.dataset.view = next;
+    paint(next);
+    if (first) runFlip(first);
+    if (flip && next !== 'home') {
+      const pane = $('pane');
+      pane.classList.remove('enter');
+      void pane.offsetWidth;
+      pane.classList.add('enter');
+      pane.style.opacity = '';
+      pane.addEventListener('animationend', () => pane.classList.remove('enter'), { once: true });
+    }
+    if (ghost) {
+      $('pane').querySelectorAll('.ghost').forEach((g) => g.remove());
+      $('pane').appendChild(ghost);
+      $('panefit').classList.remove('in');
+      void $('panefit').offsetWidth;
+      $('panefit').classList.add('in');
+      ghost.addEventListener('animationend', () => ghost.remove(), { once: true });
+      $('panefit').addEventListener('animationend', () => $('panefit').classList.remove('in'), { once: true });
+    }
+    if (snap) runFade(snap);
+    if (next === 'templates') renderGallery();
+    if (next === 'recent') render();
+  }
+
+  function go(next) {
+    if (next === view) return;
+    const mob = mobile();
+    if (mob && next !== 'home') {
+      if (view === 'home') history.pushState({ view: next, back: 'home' }, '', urlFor(next));
+      else history.replaceState({ view: next, back: 'home' }, '', urlFor(next));
+      apply(next, true);
+      return;
+    }
+    if (!mob && (next === 'templates' || next === 'recent')) {
+      history.replaceState({ view: next }, '', urlFor(next));
+      apply(next, true);
+      return;
+    }
+    if (!mob && next === 'about') {
+      const back = (view === 'templates' || view === 'recent') ? view : 'home';
+      history.pushState({ view: 'about', back }, '', urlFor('about'));
+      apply('about', true);
+      return;
+    }
+    if (next === 'home') {
+      if (history.state && history.state.back) history.back();
+      else { history.pushState({ view: 'home' }, '', urlFor('home')); apply('home', true); }
+    }
+  }
+
+  /* the mark and the name return to the centred start; the shifted address is replaced, as arriving there was */
+  $('brand').addEventListener('click', () => {
+    if (view === 'home') return;
+    history.replaceState({ view: 'home' }, '', urlFor('home'));
+    apply('home', true);
+  });
+  $('act-templates').addEventListener('click', () => go('templates'));
+  $('act-recent').addEventListener('click', () => go('recent'));
+  $('aboutbtn').addEventListener('click', () => go('about'));
+  $('back').addEventListener('click', () => go('home'));
+  window.addEventListener('popstate', () => apply(viewFromHash(), true));
+  mobileQuery.addEventListener('change', () => {
+    if (!mobile() || view === 'home') return;
+    if (history.state && history.state.back === 'home') return;
+    const next = view;
+    history.replaceState({ view: 'home' }, '', urlFor('home'));
+    history.pushState({ view: next, back: 'home' }, '', urlFor(next));
+  });
+
+  /* ---------- language: a name only. Auto is judged, never stored as that name ---------- */
+  const langName = () => {
+    const stored = VO.lang.get();
+    const id = stored === 'auto' ? VO.lang.resolve('auto', navigator.languages || [navigator.language]) : stored;
+    const hit = VO.lang.list().find((l) => l.id === id);
+    return hit ? hit.name : 'English';
+  };
+  const closeLang = () => { $('langmenu').hidden = true; $('langbtn').setAttribute('aria-expanded', 'false'); };
+  function drawLang() {
+    $('langname').textContent = langName();
+    const stored = VO.lang.get();
+    $('langmenu').replaceChildren(...VO.lang.list().filter((l) => l.id !== 'auto').map((l) => {
+      const b = h('button', { type: 'button', role: 'menuitemradio', 'aria-checked': stored === l.id ? 'true' : 'false', translate: 'no' }, l.name);
+      b.addEventListener('click', () => {
+        closeLang();
+        if (VO.lang.get() === l.id) return;
+        VO.lang.set(l.id);
+        location.reload();
+      });
+      return b;
+    }));
+  }
+  drawLang();
+  $('langbtn').addEventListener('click', () => {
+    const open = $('langmenu').hidden;
+    $('langmenu').hidden = !open;
+    $('langbtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) { const first = $('langmenu').querySelector('button'); if (first) first.focus(); }
+  });
+  document.addEventListener('click', (e) => { if (!$('langmenu').hidden && !$('lang').contains(e.target)) closeLang(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('langmenu').hidden) { closeLang(); $('langbtn').focus(); } });
+
+  /* ---------- opening files ---------- */
+  async function openFile(file) {
+    status('');
+    if (!file) return;
+    if (!(await VO.handoff(file))) status(VO.t('Melina Office can\'t open “{0}”. It opens documents (.docx, .rtf), spreadsheets (.xlsx, .csv) and presentations (.pptx).', file.name));
+  }
+  $('picker').accept = VO.accept();
+  $('act-open').addEventListener('click', () => { $('picker').value = ''; $('picker').click(); });
+  $('picker').addEventListener('change', () => openFile($('picker').files[0]));
+  let depth = 0;
+  const hasFiles = (e) => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+  document.addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; depth++; $('drop').hidden = false; });
+  document.addEventListener('dragleave', () => { if (--depth <= 0) { depth = 0; $('drop').hidden = true; } });
+  document.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
+  document.addEventListener('drop', (e) => { if (!hasFiles(e)) return; e.preventDefault(); depth = 0; $('drop').hidden = true; openFile(e.dataTransfer.files[0]); });
+  VO.host.onFiles((files) => openFile(files[0]));
+
+  /* ---------- Recent Files ---------- */
+  const day = (t) => new Date(t).toDateString();
+  const when = (t) => {
+    const time = new Date(t).toLocaleTimeString(VO.i18n.dates, { hour: '2-digit', minute: '2-digit' });
+    if (day(t) === day(Date.now())) return VO.t('Today, {0}', time);
+    if (day(t) === day(Date.now() - 86400000)) return VO.t('Yesterday, {0}', time);
+    return new Date(t).toLocaleDateString(VO.i18n.dates, { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+  let urls = [];
+  async function render() {
+    let list = [];
+    if (!noStorage) try { list = await VO.recent.list(); } catch (e) { status(VO.t('Recent Files are not available in this browser ({0}).', e.message)); }
+    if (view !== 'recent') return;
+    for (const u of urls) URL.revokeObjectURL(u);
+    urls = [];
+    const grid = $('grid');
+    grid.replaceChildren(...list.map((e) => {
+      const thumb = h('div', { class: 'thumb' });
+      if (e.thumb) { const u = URL.createObjectURL(e.thumb); urls.push(u); thumb.append(h('img', { src: u, alt: '' })); }
+      else thumb.innerHTML = picture(e.app, VO.ext(e.name));
+      const rm = h('button', { class: 'rm', type: 'button', title: e.draft ? 'Discard the unsaved changes' : 'Remove from list' }, '×');
+      rm.setAttribute('aria-label', e.draft ? VO.t('Discard the unsaved changes to {0}', e.name) : VO.t('Remove from the list: {0}', e.name));
+      rm.addEventListener('click', async () => {
+        if (e.draft) { if (confirm(e.file ? VO.t('Discard the unsaved changes to “{0}”? The saved version stays in the list.', e.name) : VO.t('Discard the unsaved changes to “{0}”?', e.name))) await VO.recent.discardDraft(e.key); }
+        else await VO.recent.remove(e.key);
+        render();
+      });
+      const app = VO.APPS[e.app] || { name: e.app };
+      const dot = h('i'); dot.style.background = COLOR[e.app] || '#888';
+      const card = h('div', { class: 'doc' },
+        thumb,
+        h('a', { class: 'name', href: VO.url(e.app, e.draft ? { recent: e.key, draft: true } : { recent: e.key }), 'data-go': '', translate: 'no' }, e.name),
+        h('div', { class: 'meta', translate: 'no' }, dot, app.name + ' · ' + when(e.time)),
+        e.draft ? h('span', { class: 'unsaved' }, e.file ? 'Unsaved changes' : 'Never saved') : null,
+        e.draft && e.file ? h('a', { class: 'alt', href: VO.url(e.app, { recent: e.key }), 'data-go': '', title: 'Open the version saved before the changes' }, 'Saved version') : null,
+        rm);
+      card.title = `${e.name}\n${app.name}` + (e.file ? ' · ' + VO.t('{0} KB', (e.size / 1024).toFixed(0)) : '') + ` · ${new Date(e.time).toLocaleString(VO.i18n.dates)}` + (e.draft ? '\n' + VO.t('Unsaved changes') : '');
+      return card;
+    }));
+    grid.hidden = !list.length;
+    $('empty').hidden = !!list.length;
+  }
+  VO.onRecentChange(() => { if (view === 'recent') render(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && view === 'recent') render(); });
+
+  /* ---------- templates: the gallery the Start Center already had ---------- */
+  const KIND = { ecrivaine: VO.N('Documents'), matheuse: VO.N('Spreadsheets'), oratrice: VO.N('Presentations') };
+  const NEW = { ecrivaine: [VO.N('New blank document'), VO.N('New document from “{0}”')], matheuse: [VO.N('New blank spreadsheet'), VO.N('New spreadsheet from “{0}”')], oratrice: [VO.N('New blank presentation'), VO.N('New presentation from “{0}”')] };
+  let galleryBuilt = false;
+  async function renderGallery() {
+    if (galleryBuilt) return;
+    galleryBuilt = true;
+    const gallery = $('gallery');
+    let cat = {};
+    try { cat = await (await fetch('common/templates.json')).json(); } catch (e) { status(VO.t('The templates could not be loaded.')); }
+    for (const app of Object.keys(KIND)) {
+      const list = cat[app] || [{ id: '', name: 'Blank', img: null }];
+      gallery.append(h('h2', null, h('span', { 'data-icon': app }), KIND[app], h('small', null, '· ' + VO.APPS[app].name)),
+        h('div', { class: 'grid' }, ...list.map((t) => {
+          const thumb = h('div', { class: 'thumb' });
+          if (t.img) thumb.append(h('img', { src: t.img, alt: '', loading: 'lazy' })); else thumb.innerHTML = picture(app);
+          return h('div', { class: 'doc', title: t.id ? VO.t(NEW[app][1], VO.t(t.name)) : VO.t(NEW[app][0]) },
+            thumb, h('a', { class: 'name', href: VO.url(app, t.id ? { template: t.id } : { new: true }), 'data-go': '' }, t.name));
+        })));
+    }
+    for (const el of gallery.querySelectorAll('[data-icon]')) el.innerHTML = picture(el.dataset.icon);
+  }
+
+  /* ---------- About ---------- */
+  let aboutFilled = false;
+  function fillAbout() {
+    if (aboutFilled) return;
+    aboutFilled = true;
+    const link = (href, label) => h('a', { href, target: '_blank', rel: 'noopener' }, label);
+    const sentence = (text, href, label) => {
+      const p = h('p');
+      p.append(...VO.t(text).split('{0}').flatMap((part, i) => (i ? [link(href, label), part] : [part])));
+      return p;
+    };
+    $('about').append(
+      h('p', null, 'Melina Office: Ecrivaine (documents), Matheuse (spreadsheets) and Oratrice (presentations).'),
+      h('p', null, 'Everything runs in your browser; documents are opened and saved on your own computer. The Recent Files list keeps a copy of each file in this browser so it can be reopened; Clear Recent Documents removes them.'),
+      h('p', { translate: 'no' }, VO.t('Version {0}', VO.VERSION)),
+      sentence('Made possible by open source software: {0}.', 'https://acane77.github.io/melinaoffice/oss-licenses.html', 'Open source licenses'),
+      sentence('This project is a derivative of {0}, which is licensed under the Apache License 2.0.', 'https://github.com/tcchen2026/VibeOffice', 'VibeOffice'),
+      h('p', null, 'Open source under the Apache License 2.0, provided as is, without warranty. Melina Office is an independent project. Product names in its documentation are trademarks of their owners; Melina Office is not affiliated with them.'),
+      sentence('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. Melina Office is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.', 'https://codex-pets.net/#/pets/nikki-bloom-poetry', 'a sprite published at codex-pets.net'),
+      h('p', null, 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. Melina Office renders text with the fonts installed on your computer. Where a specified font is not installed, Melina Office substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. Melina Office does not include or distribute any commercial font software.'));
+  }
+
+  /* a direct address paints once the lists it reads exist */
+  bootHistory();
+  paint(view);
+  if (view === 'templates') renderGallery();
+  if (view === 'recent') render();
+  if (view === 'about') fillAbout();
+
+});
+</script>
+</body>
+</html>
