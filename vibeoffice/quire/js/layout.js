@@ -1210,6 +1210,8 @@
       /* East Asian document grid: lines snap to the section's line pitch */
       const dg = sec.sect.docGrid;
       ctx.grid = dg && /^(lines|linesAndChars|snapToChars)$/.test(dg.type || '') && dg.linePitch > 0 ? px(dg.linePitch / 20) : 0;
+      /* character grid: East Asian characters sit in cells, so Word adds no extra Latin gap (R.applyAutoSpace) */
+      ctx.charGrid = !!(dg && /^(linesAndChars|snapToChars)$/.test(dg.type || ''));
       const res = LY.flow(fr, blocks, st, sec.to, ctx);
       st = res.st;
       /* an empty paragraph that only carries the section break, pushed off a full page or past a page break (unless it

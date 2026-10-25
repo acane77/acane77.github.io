@@ -514,6 +514,8 @@
       }
     }
     R.fillRuns(pc, p, from, to, ctx, pPr, ls, tctx, runLine);
+    /* quarter-em between East Asian text and Latin letters or digits (Word's autoSpaceDE / autoSpaceDN) */
+    R.applyAutoSpace(pc, pPr, ctx);
     /* Justified and distributed lines squeeze fullwidth punctuation (down to half an em)
        before wrapping, which is why a line left alignment would break still fits here. */
     if ((pPr.jc === 'distribute' || pPr.jc === 'both') && ctx.contentWidth && R.fitDistribute(pc, ctx.contentWidth - R.px((l || 0) + (r || 0) + (fl > 0 ? fl : 0)), pPr.jc, d)) {
@@ -594,6 +596,142 @@
     }
     return s;
   }
+
+  /* Automatic space between East Asian text and Latin letters or digits (w:autoSpaceDE, w:autoSpaceDN).
+     Word's PDF of a Chinese document puts about a quarter of the East Asian character's font size
+     between 院 and 94 at 16 pt (JIS X 4051; wordcraft layout::tests_autospace). LibreOffice inserts
+     the same kind of gap at a script change, a fifth of the font height, and only when the line is
+     not on a character grid (sw/source/core/text/itrform2.cxx, tdf#89288, tdf#136663). The quarter
+     follows the first of the two characters. East Asian text here is ideographs, kana and bopomofo,
+     not their punctuation and not Hangul; Latin is any other letter, digits are ASCII. A character
+     grid the paragraph snaps to turns both off. */
+  const ALNUM = /^(?:\p{Alphabetic}|\p{N})$/u;
+  const ALPHA = /^\p{Alphabetic}$/u;
+  function eastAsianCp(cp) {
+    return (cp >= 0x2E80 && cp <= 0x2FFF) || (cp >= 0x3001 && cp <= 0x303F) || (cp >= 0x3040 && cp <= 0x3098)
+      || (cp >= 0x309B && cp <= 0x30FF) || (cp >= 0x3100 && cp <= 0x312F) || (cp >= 0x3190 && cp <= 0x31FF)
+      || (cp >= 0x3400 && cp <= 0x4DBF) || (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0xF900 && cp <= 0xFAFF)
+      || (cp >= 0xFE30 && cp <= 0xFE4F) || (cp >= 0xFF01 && cp <= 0xFFEF) || (cp >= 0x20000 && cp <= 0x3FFFF);
+  }
+  function hangulCp(cp) {
+    return (cp >= 0x1100 && cp <= 0x11FF) || (cp >= 0x3130 && cp <= 0x318F) || (cp >= 0xA960 && cp <= 0xA97F)
+      || (cp >= 0xAC00 && cp <= 0xD7FF) || (cp >= 0xFFA0 && cp <= 0xFFDC);
+  }
+  function asianText(ch) {
+    const cp = ch.codePointAt(0);
+    return eastAsianCp(cp) && ALNUM.test(ch) && !hangulCp(cp);
+  }
+  function latinLetter(ch) {
+    const cp = ch.codePointAt(0);
+    return ALPHA.test(ch) && !eastAsianCp(cp) && !hangulCp(cp);
+  }
+  /** 'left' or 'right': which of the two touching characters is the East Asian one. '' when they take no gap. */
+  R.autoSpaceSide = function (a, b, de, dn) {
+    const spaced = (ch) => (de && latinLetter(ch)) || (dn && ch.length === 1 && ch >= '0' && ch <= '9');
+    if (asianText(a) && spaced(b)) return 'left';
+    if (asianText(b) && spaced(a)) return 'right';
+    return '';
+  };
+  /**
+   * Gap after each character, in the same unit as `sizes` (a quarter of the East Asian size).
+   * `chars` entries are one character, or null where a tab, break or object separates the text.
+   * flags.de / flags.dn default on.
+   */
+  R.autoSpaceGaps = function (chars, sizes, flags) {
+    const de = !flags || flags.de !== false;
+    const dn = !flags || flags.dn !== false;
+    const gaps = chars.map(() => 0);
+    if (!de && !dn) return gaps;
+    for (let i = 0; i < chars.length - 1; i++) {
+      const a = chars[i], b = chars[i + 1];
+      if (a == null || b == null) continue;
+      const side = R.autoSpaceSide(a, b, de, dn);
+      if (!side) continue;
+      const asian = side === 'left' ? sizes[i] : sizes[i + 1];
+      if (asian > 0 && isFinite(asian)) gaps[i] = asian / 4;
+    }
+    return gaps;
+  };
+  /** Which of the paragraph's automatic-spacing flags are on. A character grid the paragraph snaps to turns both off. */
+  R.autoSpaceFlags = function (pPr, ctx) {
+    if (ctx && ctx.charGrid && !(pPr && pPr.noSnap)) return { de: false, dn: false };
+    return { de: !pPr || pPr.autoSpaceDE !== false, dn: !pPr || pPr.autoSpaceDN !== false };
+  };
+  const AUTO_SKIP = ['zw', 'ms', 'cmk', 'anc', 'bmk'];
+  const AUTO_BREAK = ['tb', 'img', 'shp', 'obj-missing', 'mml', 'hbrk', 'fnsep', 'sectmark', 'flt'];
+  function autoFontPx(el) {
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
+      const n = parseFloat(e.style.fontSize);
+      if (n > 0) return n;
+    }
+    return 0;
+  }
+  function autoText(el) {
+    if (el.nodeName === 'RUBY') {
+      for (const n of el.childNodes) if (n.nodeType === 3 && n.data) return n;
+      return null;
+    }
+    if (el.childNodes.length === 1 && el.firstChild.nodeType === 3) return el.firstChild;
+    return null;
+  }
+  /** Cut `el` so its text ends at UTF-16 index `end`; the rest is the next sibling. The copy keeps a margin already set. */
+  function splitSpanAt(el, end) {
+    const text = el.firstChild.data;
+    const right = el.cloneNode(false);
+    right.appendChild(document.createTextNode(text.slice(end)));
+    el.firstChild.data = text.slice(0, end);
+    if (el.dataset.o != null) {
+      const o = +el.dataset.o;
+      right.dataset.o = String(o + end);
+      right.dataset.n = String(text.length - end);
+      el.dataset.n = String(end);
+    }
+    el.after(right);
+  }
+  /** Put the automatic space on the rendered paragraph: a margin after the first of each pair. */
+  R.applyAutoSpace = function (pc, pPr, ctx) {
+    const flags = R.autoSpaceFlags(pPr, ctx);
+    if (!flags.de && !flags.dn) return;
+    const items = [];
+    for (const el of pc.childNodes) {
+      if (el.nodeType !== 1) continue;
+      const c = el.classList;
+      if (AUTO_SKIP.some((k) => c.contains(k))) continue;
+      if (el.nodeName === 'BR' || el.nodeName === 'IMG' || AUTO_BREAK.some((k) => c.contains(k))) { items.push(null); continue; }
+      const tn = autoText(el);
+      if (!tn) { items.push(null); continue; }
+      const size = autoFontPx(el);
+      const data = tn.data;
+      for (let i = 0; i < data.length;) {
+        const ch = String.fromCodePoint(data.codePointAt(i));
+        if (ch === '\n' || ch === '\r') { items.push(null); i += ch.length; continue; }
+        if (ch === '\u200b' || ch === '\u00ad' || ch === '\ufeff') { i += ch.length; continue; }
+        items.push({ el, i, len: ch.length, ch, size });
+        i += ch.length;
+      }
+    }
+    const gaps = R.autoSpaceGaps(items.map((it) => it && it.ch), items.map((it) => it ? it.size : 0), flags);
+    const byEl = new Map();
+    for (let i = 0; i < gaps.length; i++) {
+      if (!(gaps[i] > 0) || !items[i]) continue;
+      let list = byEl.get(items[i].el);
+      if (!list) byEl.set(items[i].el, list = []);
+      list.push({ i: items[i].i, len: items[i].len, gap: gaps[i] });
+    }
+    for (const [el, list] of byEl) {
+      list.sort((a, b) => b.i - a.i);
+      for (const g of list) {
+        const node = el.firstChild;
+        const end = g.i + g.len;
+        if (!node || node.nodeType !== 3 || end < node.data.length) {
+          if (!node || node.nodeType !== 3 || el.childNodes.length !== 1) continue;
+          splitSpanAt(el, end);
+        }
+        el.style.marginInlineEnd = L.round(g.gap, 2) + 'px';
+      }
+    }
+  };
+
   /** Apply distributed spacing, or the punctuation squeeze that keeps a justified line together.
       Returns false when the browser should wrap the line itself. */
   R.fitDistribute = function (pc, inner, jc, doc) {

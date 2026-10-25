@@ -376,7 +376,10 @@
           case 'pPrChange': p.chg = Object.assign(rev(c), { old: pPr(kid(c, 'pPr')) }); break;
           case 'snapToGrid': if (!bool(c)) p.noSnap = true; break;
           case 'textAlignment': p.textAlign = at(c, 'val'); break;
-          case 'kinsoku': case 'wordWrap': case 'overflowPunct': case 'autoSpaceDE': case 'autoSpaceDN': case 'adjustRightInd': case 'topLinePunct': break;
+          /* on unless the file turns them off (Word's default); absent stays undefined so a style can inherit */
+          case 'autoSpaceDE': p.autoSpaceDE = bool(c); break;
+          case 'autoSpaceDN': p.autoSpaceDN = bool(c); break;
+          case 'kinsoku': case 'wordWrap': case 'overflowPunct': case 'adjustRightInd': case 'topLinePunct': break;
           default: break;
         }
       }
