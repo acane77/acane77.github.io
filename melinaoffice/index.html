@@ -7,8 +7,9 @@
 <meta name="description" content="A free office suite that runs in your browser: a word processor, a spreadsheet and a presentation editor. Your files never leave your computer.">
 <meta name="theme-color" content="#FF6699">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
 <script src="common/lang.js"></script>
 <link rel="stylesheet" href="fonts/brand.css">
 <style>
@@ -222,7 +223,7 @@ VO.i18n.whenReady(function () {
   function picture(app, ext) {
     return VO.appIcon(app, ext ? 80 : 24, { height: ext ? 80 : 24, ext: ext || '' });
   }
-  for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = picture(el.dataset.icon);
+  for (const el of document.querySelectorAll('#apps [data-icon]')) el.innerHTML = VO.appIcon(el.dataset.icon, 72);
 
   const status = (text) => { $('status').textContent = text || ''; };
 

@@ -79,23 +79,19 @@
       + `<linearGradient id="${id}-fold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe6ef"/><stop offset="1" stop-color="#ff6699"/></linearGradient>`
       + `<linearGradient id="${id}-edge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ff6699" stop-opacity="0.55"/></linearGradient>`
       + `<clipPath id="${id}-tile"><rect x="44" y="32" width="424" height="424" rx="94.5"/></clipPath>`
-      + `<filter id="${id}-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter>`
-      + `<filter id="${id}-lift" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#ff6699" flood-opacity=".34"/></filter>`
-      + `<filter id="${id}-mac" x="-20%" y="-12%" width="140%" height="150%"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#1a0a10" flood-opacity="0.28"/><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1a0a10" flood-opacity="0.12"/></filter>`
       + `</defs>`
-      + `<g filter="url(#${id}-mac)">`
+      + `<rect x="50" y="38" width="412" height="420" rx="92" fill="#1a0a10" opacity="0.12"/>`
+      + `<rect x="47" y="35" width="418" height="418" rx="93" fill="#1a0a10" opacity="0.18"/>`
       + `<rect x="44" y="32" width="424" height="424" rx="94.5" fill="${plate}"/>`
       + `<g clip-path="url(#${id}-tile)">`
       + `<g transform="translate(256 244) scale(.902) translate(-250 -262)">`
-      + `<ellipse cx="250" cy="262" rx="150" ry="176" fill="#ff6699" opacity="0.2" filter="url(#${id}-glow)"/>`
-      + `<g filter="url(#${id}-lift)">`
       + `<path d="${sheet}" fill="url(#${id}-sheet)"/>`
       + `<path d="${sheet}" fill="url(#${id}-glass)"/>`
       + `<path d="${sheet}" fill="none" stroke="url(#${id}-edge)" stroke-width="3"/>`
       + `<path d="M302 92v60a16 16 0 0 0 16 16h60z" fill="url(#${id}-fold)"/>`
       + `<path d="M302 92l76 76h-60a16 16 0 0 1-16-16z" fill="#ffffff" opacity="0.62"/>`
       + art
-      + `</g></g>${badge}</g></g></svg>`;
+      + `</g></g>${badge}</svg>`;
   };
   /** VO.url('ecrivaine', { new: true }) -> .../ecrivaine/?new */
   VO.url = (app, params) => {
