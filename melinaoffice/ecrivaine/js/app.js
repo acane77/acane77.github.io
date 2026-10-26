@@ -370,8 +370,14 @@
   function styleState() {
     const d = doc();
     if (!E.sel) return '';
-    const it = D.itemBefore(E.sel.f.p, E.sel.f.o) || D.itemAfter(E.sel.f.p, E.sel.f.o);
-    if (it && it.rPr && it.rPr.style && d.styles[it.rPr.style] && it.rPr.style !== 'DefaultParagraphFont') return D.styleDisplayName(d.styles[it.rPr.style]);
+    /* a collapsed caret reports the style the next character will have, which stops at the end of a hyperlink */
+    if (E.collapsed()) {
+      const st = E.curRun().style;
+      if (st && d.styles[st] && st !== 'DefaultParagraphFont') return D.styleDisplayName(d.styles[st]);
+    } else {
+      const it = D.itemBefore(E.sel.f.p, E.sel.f.o) || D.itemAfter(E.sel.f.p, E.sel.f.o);
+      if (it && it.rPr && it.rPr.style && d.styles[it.rPr.style] && it.rPr.style !== 'DefaultParagraphFont') return D.styleDisplayName(d.styles[it.rPr.style]);
+    }
     const sid = E.sel.f.p.pPr.style || 'Normal';
     const s = d.styles[sid];
     let name = s ? D.styleDisplayName(s) : sid;

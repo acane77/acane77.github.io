@@ -536,7 +536,7 @@
         const k = Math.min(text.length, n - pos.o);
         if (k > 0) O.deleteRange(pos, D.pos(pos.p, pos.o + k));
       }
-      const r = E.pending ? D.mergeRPr(O.inheritRPr(pos), E.pending) : null;
+      const r = E.pending ? withPending(O.inheritRPr(pos)) : null;
       const st = d.settings;
       void st;
       pos = O.insertText(pos, text, r);
@@ -579,7 +579,7 @@
   E.insertItem = function (item, label) {
     E.edit(label || L.N('Insert'), () => O.insertItem(E.deleteSelection(), item));
   };
-  E.insertTextAt = (text, label) => E.edit(label || L.N('Insert'), () => O.insertPlain(E.deleteSelection(), text, E.pending ? D.mergeRPr(O.inheritRPr(E.sel.f), E.pending) : null));
+  E.insertTextAt = (text, label) => E.edit(label || L.N('Insert'), () => O.insertPlain(E.deleteSelection(), text, E.pending ? withPending(O.inheritRPr(E.sel.f)) : null));
   E.backspace = function (word) {
     if (!E.sel) return;
     const d = doc();
@@ -747,14 +747,29 @@
     if (!on && val === undefined) props[key] = false;
     E.formatRun(props, label);
   };
-  /** formatting the toolbar shows: run props at the selection start (with pending) */
+  /** pending formatting: an undefined value clears that property (a link just inserted must not stick) */
+  function withPending(rPr) {
+    if (!E.pending) return rPr;
+    const o = Object.assign({}, rPr);
+    for (const k in E.pending) { if (E.pending[k] === undefined) delete o[k]; else o[k] = E.pending[k]; }
+    return o;
+  }
+  /** formatting the toolbar shows: run props at the selection start (with pending).
+      A collapsed caret shows what the next typed character will get, so a caret
+      just after a hyperlink does not show the Hyperlink style. */
   E.curRun = function () {
     if (!E.sel) return {};
     const [a, b] = E.range();
     let pos = a;
     if (!E.collapsed() && a.o >= D.plen(a.p) && a.p !== b.p) { const np = D.nextPara(doc(), a.p); if (np) pos = D.pos(np, 0); }
-    let r = E.collapsed() ? O.rPrAt(pos) : runAfter(pos);
-    if (E.pending) r = D.mergeRPr(r, E.pending);
+    let r;
+    if (E.collapsed()) {
+      const ctx = L.layout && L.layout.tblCtx ? L.layout.tblCtx(pos.p) : null;
+      r = D.rProps(doc(), pos.p, { rPr: withPending(O.inheritRPr(pos)) }, ctx);
+    } else {
+      r = runAfter(pos);
+      if (E.pending) r = withPending(r);
+    }
     return r;
   };
   function runAfter(pos) {

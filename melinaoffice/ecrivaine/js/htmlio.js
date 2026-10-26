@@ -344,9 +344,15 @@
         const r2 = elRPr(ch, rPr);
         if (tag === 'A' && ch.getAttribute('href')) {
           const href = ch.getAttribute('href');
+          const own = elRPr(ch, {});
           r2.link = href.startsWith('#') ? { anchor: href.slice(1) } : { url: href };
           r2.style = 'Hyperlink';
           if (!d.styles.Hyperlink) d.styles.Hyperlink = D.builtinStyles().Hyperlink;
+          /* the character style supplies the link's colour and underline; the anchor's own
+             paint must not become direct formatting that continues after the link */
+          if (own.color && r2.color === own.color && rPr.color !== own.color) delete r2.color;
+          if (own.u && r2.u === own.u && rPr.u !== own.u) delete r2.u;
+          if (own.uColor && r2.uColor === own.uColor && rPr.uColor !== own.uColor) delete r2.uColor;
         }
         await inline(ch, r2, pPr, ctxList);
       }

@@ -12,23 +12,51 @@
   O.tracking = () => !!doc().settings.track;
 
   /* ---------- inserting text ---------- */
-  /** formatting new text should get at pos when no explicit pending format exists */
+  /* Colours Word and browsers write for the hyperlink character style itself
+     (theme hyperlink, CSS link blue, the classic blue and purple). A colour the
+     user picked is kept; these are the link's own paint. */
+  const LINK_PAINT = { '0000FF': 1, '0000EE': 1, '0563C1': 1, '467886': 1, '800080': 1, '954F72': 1, '96607D': 1, '551A8B': 1 };
+  function sameLink(a, b) {
+    if (a === b) return true;
+    if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
+  /** caret is strictly inside one hyperlink (not on either end of it) */
+  function insideLink(p, o) {
+    const before = D.itemBefore(p, o);
+    const after = D.itemAfter(p, o);
+    if (!before || !before.rPr || !before.rPr.link) return false;
+    if (!after || !after.rPr || !after.rPr.link) return false;
+    return before === after || sameLink(before.rPr.link, after.rPr.link);
+  }
+  /** drop the link and the character style that belongs to it; keep other direct formatting */
+  function stripLinkFmt(r) {
+    const d = doc();
+    const sid = r.style && D.hyperlinkCharStyle(d, r.style) ? r.style : 'Hyperlink';
+    const st = (d.styles[sid] ? D.charStyleProps(d, sid) : null) || (D.builtinStyles()[sid] && D.builtinStyles()[sid].rPr) || D.builtinStyles().Hyperlink.rPr || {};
+    const color = r.color ? String(r.color).replace(/^#/, '').toUpperCase() : '';
+    const styleColor = st.color ? String(st.color).replace(/^#/, '').toUpperCase() : '';
+    delete r.link;
+    if (r.style && D.hyperlinkCharStyle(d, r.style)) delete r.style;
+    if (color && (color === styleColor || LINK_PAINT[color])) delete r.color;
+    if (r.u && st.u && r.u === st.u) { delete r.u; delete r.uColor; }
+  }
+  /** formatting new text should get at pos when no explicit pending format exists.
+      A hyperlink does not expand at either end (LibreOffice stores it as a nesting
+      attribute, SwTextINetFormat, with DontExpand and DontExpandStart). Its character
+      style travels with the link, so text typed just before or just after is not a link.
+      Text typed strictly inside the link stays in it. */
   O.inheritRPr = function (pos) {
     const p = pos.p;
     let src = D.itemBefore(p, pos.o);
-    let fromBefore = !!src;
     if (src && (src.t === 'fn' || src.t === 'en' || src.t === 'img' || src.t === 'shape' || src.t === 'group' || src.t === 'chart')) src = null;
-    if (!src) { src = D.itemAfter(p, pos.o); fromBefore = false; }
+    if (!src) src = D.itemAfter(p, pos.o);
     if (src && (src.t === 'img' || src.t === 'shape' || src.t === 'group' || src.t === 'fn' || src.t === 'en' || src.t === 'chart')) src = null;
     const r = L.clone(src ? src.rPr : p.rPr) || {};
     delete r.ins; delete r.del; delete r.chg;
-    /* typing after a footnote/endnote reference or hyperlink end should not continue the reference style */
+    /* typing after a footnote/endnote reference should not continue the reference style */
     if (r.style === 'FootnoteReference' || r.style === 'EndnoteReference' || r.style === 'CommentReference') { delete r.style; delete r.vert; }
-    if (fromBefore && r.link) {
-      /* only stay inside the link when there is more link text after the caret */
-      const nx = D.itemAfter(p, pos.o);
-      if (!nx || !nx.rPr || nx.rPr.link !== src.rPr.link && JSON.stringify(nx.rPr.link) !== JSON.stringify(src.rPr.link)) { delete r.link; if (r.style === 'Hyperlink') delete r.style; }
-    }
+    if (r.link && !insideLink(p, pos.o)) stripLinkFmt(r);
     return r;
   };
   O.insertText = function (pos, text, rPr) {
@@ -259,8 +287,15 @@
         }
         D.normalize(p);
       }
-      /* when a whole paragraph is covered (or the selection crosses its mark), the paragraph mark gets the formatting too */
-      if ((p !== b.p) || (s === 0 && e === D.plen(p) && e > 0)) p.rPr = fn(Object.assign({}, p.rPr), null, p) || {};
+      /* when a whole paragraph is covered (or the selection crosses its mark), the paragraph mark gets the formatting too.
+         A hyperlink does not belong to the mark: the next paragraph would otherwise start as a link. */
+      if ((p !== b.p) || (s === 0 && e === D.plen(p) && e > 0)) {
+        p.rPr = fn(Object.assign({}, p.rPr), null, p) || {};
+        if (p.rPr.link) {
+          if (p.rPr.style && D.hyperlinkCharStyle(d, p.rPr.style)) delete p.rPr.style;
+          delete p.rPr.link;
+        }
+      }
     }
   };
   /** set or clear run properties. props: {key: value|undefined} */
@@ -274,7 +309,7 @@
       if (O.tracking() && !p.pPr.chg && JSON.stringify(before) !== JSON.stringify(p.pPr)) p.pPr.chg = Object.assign(O.revStamp(), { old: before });
     }
   };
-  /** current resolved run formatting at a position (what the toolbar shows) */
+  /** resolved formatting of the character before pos (the character after, at the start of a paragraph) */
   O.rPrAt = function (pos) {
     const d = doc();
     const it = D.itemBefore(pos.p, pos.o) || D.itemAfter(pos.p, pos.o);

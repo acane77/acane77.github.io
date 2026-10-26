@@ -1827,23 +1827,50 @@
       top: (from.y + scroll.top) * ratio - to.y,
     };
   };
+  /** Where a zoom percent sits on the status-bar slider: 0 at the minimum, 1 at the maximum.
+      100% is the middle, so the left half runs from the minimum to 100% and the right half
+      from 100% to the maximum. A range that does not contain 100% stays linear. */
+  ui.zoomTrack = function (pct, min, max) {
+    min = Number(min); max = Number(max);
+    pct = Math.min(max, Math.max(min, Number(pct)));
+    if (!(min < 100 && max > 100)) return max === min ? 0 : (pct - min) / (max - min);
+    if (pct <= 100) return (pct - min) / (100 - min) * 0.5;
+    return 0.5 + (pct - 100) / (max - 100) * 0.5;
+  };
+  /** Zoom percent at track position t (0..1). The inverse of ui.zoomTrack. */
+  ui.zoomFromTrack = function (t, min, max) {
+    min = Number(min); max = Number(max);
+    t = Math.min(1, Math.max(0, Number(t) || 0));
+    if (!(min < 100 && max > 100)) return min + t * (max - min);
+    if (t <= 0.5) return min + (t / 0.5) * (100 - min);
+    return 100 + ((t - 0.5) / 0.5) * (max - 100);
+  };
   /** status-bar zoom: −, a slider, +, and a percent that can be typed. o.min/o.max are percents.
       o.value() is the current percent; o.onChange(pct) runs as the slider moves and as a typed
-      number settles. Listens for 'zoom' (and 'layout-done') to catch up. */
+      number settles. The slider's middle is 100% (ui.zoomTrack). Listens for 'zoom' (and
+      'layout-done') to catch up. */
   ui.zoomBar = function (o) {
-    const min = o.min, max = o.max, step = o.step || 10;
+    const min = o.min, max = o.max, step = o.step || 10, scale = 1000;
     const minus = h('button', { type: 'button', class: 'sb-zoom-btn', tabindex: '-1', 'aria-label': 'Zoom Out', text: '−' });
-    const range = h('input', { type: 'range', class: 'sb-zoom-range', min: String(min), max: String(max), step: '1', value: '100', 'aria-label': 'Zoom' });
+    const range = h('input', { type: 'range', class: 'sb-zoom-range', min: '0', max: String(scale), step: '1', value: String(scale / 2), 'aria-label': 'Zoom' });
     const plus = h('button', { type: 'button', class: 'sb-zoom-btn', tabindex: '-1', 'aria-label': 'Zoom In', text: '+' });
     const pct = h('input', { type: 'text', class: 'sb-zoom-pct', value: '100%', 'aria-label': 'Zoom', inputmode: 'numeric', spellcheck: 'false', autocomplete: 'off' });
     const box = h('div', { class: 'sb-zoom' }, minus, range, plus, pct);
-    let typing = false, revert = false, typeGen = 0;
+    let typing = false, revert = false, typeGen = 0, sliding = false;
     const read = () => {
       const n = Math.round(Number(o.value()));
       return n >= min && n <= max ? n : Math.round(L.clamp(Number(o.value()) || 100, min, max));
     };
     const show = (n) => {
-      if (String(range.value) !== String(n)) range.value = String(n);
+      /* while the pointer is down the thumb follows it; snapping onto the percent would fight the drag */
+      if (!sliding) {
+        const pos = String(Math.round(ui.zoomTrack(n, min, max) * scale));
+        if (range.value !== pos) range.value = pos;
+      }
+      range.setAttribute('aria-valuemin', String(min));
+      range.setAttribute('aria-valuemax', String(max));
+      range.setAttribute('aria-valuenow', String(n));
+      range.setAttribute('aria-valuetext', n + '%');
       if (document.activeElement !== pct) pct.value = n + '%';
       /* the accent runs to the thumb's centre, half a thumb in from each end */
       const lo = Number(range.min) || 0, hi = Number(range.max);
@@ -1856,22 +1883,43 @@
       const n = read();
       apply(dir < 0 ? Math.floor((n - 1) / step) * step : Math.ceil((n + 1) / step) * step);
     };
+    const fromSlider = () => Math.round(L.clamp(ui.zoomFromTrack(Number(range.value) / scale, min, max), min, max));
     const liveType = L.debounce((gen) => {
       if (gen !== typeGen || !typing) return;
       const m = /^(\d{1,4})\s*%?$/.exec(pct.value.trim());
       if (!m) return;
       const n = Number(m[1]);
-      if (n >= min && n <= max) { o.onChange(n); if (String(range.value) !== String(n)) range.value = String(n); }
+      if (n >= min && n <= max) { o.onChange(n); show(n); }
     }, 250);
     minus.addEventListener('click', () => stepTo(-1));
     plus.addEventListener('click', () => stepTo(1));
-    range.addEventListener('input', () => apply(Number(range.value)));
+    range.addEventListener('pointerdown', () => { sliding = true; });
+    range.addEventListener('input', () => {
+      const n = fromSlider();
+      if (n !== read()) o.onChange(n);
+      show(read());
+    });
+    const endSlide = () => { if (!sliding) return; sliding = false; show(read()); };
     range.addEventListener('pointerup', () => {
+      endSlide();
       range.blur();
       setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) ui.hooks.refocus(); }, 0);
     });
+    range.addEventListener('pointercancel', endSlide);
+    range.addEventListener('blur', endSlide);
     range.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); range.blur(); ui.hooks.refocus(); }
+      if (e.key === 'Escape') { e.preventDefault(); range.blur(); ui.hooks.refocus(); return; }
+      /* the track's own steps are positions, not percents, so the keys move the zoom itself */
+      let n = null;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') n = read() - 1;
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') n = read() + 1;
+      else if (e.key === 'PageDown') n = read() - step;
+      else if (e.key === 'PageUp') n = read() + step;
+      else if (e.key === 'Home') n = min;
+      else if (e.key === 'End') n = max;
+      if (n === null) return;
+      e.preventDefault();
+      apply(n);
     });
     pct.addEventListener('focus', () => { typing = true; pct.value = String(read()); pct.select(); });
     pct.addEventListener('input', () => liveType(++typeGen));
