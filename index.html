@@ -1,1 +1,419 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"><link rel="icon" href="/favicon.ico"><link rel="manifest" href="/manifest.webmanifest"><title>Beautiful Album</title><meta name="theme-color" content="#a0fff9"><link href="/css/app.fe6e4c4d.css" rel="preload" as="style"><link href="/js/app.ee3fec61.js" rel="preload" as="script"><link href="/js/chunk-vendors.52cb6f72.js" rel="preload" as="script"><link href="/css/app.fe6e4c4d.css" rel="stylesheet"></head><body><style></style><noscript><strong>We're sorry but beautiful-album doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script src="/js/chunk-vendors.52cb6f72.js"></script><script src="/js/app.ee3fec61.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>面朝大海，春暖花开</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="fonts/dancingscript.css" rel="stylesheet">
+    <link rel="stylesheet" href="fonts/beautiful-morning.css">
+    <link rel="stylesheet" href="style.css?time=20250816220101">
+    <link rel="icon" href="/favicon.png">
+    <meta name="theme-color" content="#F5D3DF">
+    <link rel="manifest" href="/manifest.json">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.ripples.min.js"></script>
+    <style>
+        /* 确保背景层充满屏幕且允许交互 */
+        .season-rel.cover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* 关键：让挡在前面的 mask 层不阻碍鼠标事件 */
+        .season-rel.mask, .container.main-container, .container-relative {
+            pointer-events: none; /* 鼠标划过时会穿透 mask 直达 cover */
+            z-index: -1;
+        }
+        .container.main-container a {
+            pointer-events: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container.main-container {
+            z-index: 0;
+        }
+
+        .container.main-container .container-relative {
+            z-index: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container season-rel cache cover"></div>
+    <div class="container season-rel cover"></div>
+    <div class="container season-rel mask"></div>
+
+    <script>
+    var _args_init = false;
+    var _args = {};
+
+    function parse_args() {
+        _args_init = true;
+        args = location.href.split("?")[1];
+        if (typeof args == "undefined")
+            return;
+        args.split('&').forEach(function(item) {
+            var s = item.split('=');
+            _args[s[0]] = s[1];
+        });
+        console.log(_args);
+    }
+    parse_args();
+
+    function remove_blur(selector) {
+        return function() {
+            var doms = document.querySelectorAll(selector);
+            for (var i = 0; i<doms.length; i++) {
+                doms[i].style.filter = "initial";
+            }
+        };
+    }
+
+    var ShowState = {
+        Hidden: "Hidden",
+        HerizontalOnly: "HerizontalOnly",
+        VerticalOnly: "VerticalOnly",
+        Visible: "Visible"  // Default, no need to set explictly
+    }
+
+    var background_image_list = {
+        spring: {
+            title: '面朝大海，春暖花开',
+            image: 'images/spring.jpg',
+            cacheImage: 'images/cache/spring.jpg',
+            positionY: 'bottom',
+            mask: 'rgba(254,213,231,0.3)'
+        },
+        summer: {
+            title: '面朝大海，春暖花开',
+            image: 'images/summer.jpg',
+            cacheImage: 'images/cache/summer.jpg',
+            positionY: 'center',
+            mask: 'rgba(255, 255, 255, 0.2)'
+        },
+        autumn: {
+            title: '面朝大海，春暖花开',
+            image: 'images/autumn.jpg',
+            cacheImage: 'images/cache/autumn.jpg',
+            positionY: 'center',
+            mask: 'rgba(254,213,231,0.3)'
+        },
+        sakura: {
+            title: '面朝大海，春暖花开',
+            image: 'images/sakura.png',
+            cacheImage: 'images/cache/sakura.png',
+            positionY: 'center',
+            mask: 'transparent'
+        },
+        universe: {
+            title: 'Facing the sea, with spring blossoms',
+            image: 'images/universe.png',
+            cacheImage: 'images/cache/universe.png',
+            positionY: 'center',
+            mask: 'rgba(71, 8, 94, 0.2)',
+            footer: {
+                image_name: "Carina Nebula",
+                image_url: "https://webbtelescope.org/contents/media/images/2022/031/01G77PKB8NKR7S8Z6HBXMYATGJ?Type=Observations&page=4&filterUUID=91dfa083-c258-4f9f-bef1-8f40c26f4c97",
+                image_source: "Webb Space Telescope",
+                source_url: "https://webbtelescope.org/"
+            }
+            // action: [ remove_blur(".season-rel") ],
+            // show: ShowState.Hidden
+        },
+        spacex: {
+            title: '面朝大海，春暖花开',
+            image: 'images/spacex.jpg',
+            cacheImage: 'images/cache/spacex.jpg',
+            positionY: 'center',
+            mask: 'rgba(0, 0, 0, 0.2)',
+            footer: {
+                image_name: "KPLO Mission",
+                image_url: "https://www.flickr.com/photos/spacex/52264517689/",
+                image_source: "SpaceX",
+                source_url: "https://www.spacex.com/"
+            },
+        },
+        spacex2: {
+            title: '面朝大海，春暖花开',
+            image: 'images/spacex2.jpg',
+            cacheImage: 'images/cache/spacex2.jpg',
+            positionY: 'center',
+            mask: 'rgba(0, 0, 0, 0.2)',
+            footer: {
+                image_name: "Starship Full Stack",
+                image_url: "https://www.flickr.com/photos/spacex/52264517689/",
+                image_source: "SpaceX",
+                source_url: "https://www.spacex.com/"
+            },
+        }
+        // cute: {
+        //     title: '面朝大海，春暖花开',
+        //     image: 'images/cute.png',
+        //     cacheImage: 'images/cache/cute.png',
+        //     positionY: 'bottom',
+        //     mask: 'transparent',
+        //     show: ShowState.VerticalOnly
+        // },
+        // luotianyi: {
+        //     title: '面朝大海，春暖花开',
+        //     image: 'images/luotianyi.jpg',
+        //     cacheImage: 'images/cache/luotianyi.jpg',
+        //     positionY: 'center',
+        //     mask: 'transparent',
+        //     show: ShowState.HerizontalOnly
+        // }
+    };
+
+    function is_background_enabled(bg_name, config) {
+        var show = config.show;
+        if (typeof show == "undefined") return true;
+        if (show == ShowState.Hidden) return false;
+        if (show == ShowState.HerizontalOnly) {
+            return window.innerWidth / innerHeight > 1.2;
+        }
+        if (show == ShowState.VerticalOnly) {
+            return window.innerHeight / innerWidth > 1.2;
+        }
+        return true;
+    }
+
+    function get_enabled_background_list() {
+        var enabled = {};
+        Object.keys(background_image_list).forEach(function(bg_name) {
+            if (is_background_enabled(bg_name, background_image_list[bg_name])) {
+                enabled[bg_name] = background_image_list[bg_name];
+            }
+        });
+        return enabled;
+    }
+
+    function pick_background_key() {
+        var backgrounds = get_enabled_background_list();
+        var backgrounds_names = Object.keys(backgrounds);
+
+        var blur_flag = _args["blur"];
+        if (blur_flag === "false" || blur_flag === "0") {
+            remove_blur(".season-rel")();
+        }
+
+        var bg = _args["background"];
+        if (typeof bg != "undefined" && typeof backgrounds[bg] != "undefined") {
+            return bg;
+        }
+
+        // 随机选择一个背景，使用 localStorage 保证连续两次不重复
+        var idx;
+        do {
+            idx = parseInt(Math.random() * backgrounds_names.length);
+            if (typeof window.localStorage != "undefined") {
+                var st = window.localStorage;
+                var last_id = st.getItem("_last_image_id");
+                if (typeof last_id == "undefined" || last_id == null) {
+                    idx = 0;
+                    st.setItem("_last_image_id", idx);
+                    break;
+                }
+                if (parseInt(last_id) != idx) {
+                    st.setItem("_last_image_id", idx);
+                    break;
+                }
+            } else {
+                break;
+            }
+        } while (true);
+        return backgrounds_names[idx];
+    }
+
+    function apply_background(config) {
+        var position = 'center ' + (config.positionY || 'bottom');
+        var imageUrl = "url('" + config.image + "')";
+        var cacheUrl = "url('" + config.cacheImage + "')";
+
+        document.querySelectorAll(".season-rel.cover.cache").forEach(function(el) {
+            el.style.backgroundImage = cacheUrl;
+            el.style.backgroundPosition = position;
+        });
+        document.querySelectorAll(".season-rel.cover:not(.cache)").forEach(function(el) {
+            el.style.backgroundImage = imageUrl;
+            el.style.backgroundPosition = position;
+        });
+        document.querySelectorAll(".season-rel.mask").forEach(function(el) {
+            el.style.background = config.mask || 'transparent';
+        });
+    }
+    </script>
+
+    <style>
+        .underlined:hover {
+            border-bottom: 1px solid #FF3399;
+            color: #FF3399 !important;
+            text-shadow: 0 0 12px #ddd, 0 0 5px #ddd !important;
+        }
+    </style>
+    <div class="container main-container">
+        <div class="container-relative">
+            <div class="main">
+                <div class="avatar-container">
+                    <div class="avatar-shadow"></div>
+                    <div class="avatar"></div>
+                </div>
+                <h1 class="main-title">
+                    <!--span style="color: darkred">Love</span-->
+                    <span style="color: purple;">Melina</span>
+                </h1>
+                <div style="text-align: center; padding: 20px; margin: 15px auto; margin-bottom: 0; color: white !important" class="btnbox">
+                    <p class="beauty shadowed2"><script>
+                        var season_key = pick_background_key();
+                        var season = background_image_list[season_key];
+                        document.write(season.title);
+                        // document.title = season.title;
+                        apply_background(season);
+                    </script><noscript>面朝大海，春暖花开</noscript></p>
+                    <p class="beauty shadowed2"><a class="underlined" href="/projects.html">Go to My Projects</a></p>    
+                    <p class="beauty shadowed2"><a class="underlined" href="https://acane.net/">My Personal Website</a></p>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="follow-me" onclick="location.href = 'https://github.com/acane77'">
+        <div style="position: relative;">
+            <span></span>
+            <div class="follow-me-line"></div>
+        </div>
+    </div>
+    
+   
+    <div class="footer shadowed2">
+        <span>&copy; 2026 Melina</span>
+        
+        <span id="additional_info" style="display: none"></span>
+        <script>
+    function is_null_or_empty_string(str) {
+        return typeof str == "undefined" || str == null || str == "";
+    }
+    
+    function write_image_source(dom, conf) {
+        var inner_html = "Image: <a href='" + 
+            (is_null_or_empty_string(conf.image_url) ? "javascript:void(0)" : conf.image_url) + 
+            "'>" + conf.image_name + "</a>";
+        if (!is_null_or_empty_string(conf.image_source)) {
+            inner_html += " from <a href='" +
+                (is_null_or_empty_string(conf.source_url) ? "javascript:void(0)" : conf.source_url) + 
+                "'>" + conf.image_source +  "</a>";
+        }
+        dom.style.display = 'inline-block';
+        dom.innerHTML = inner_html;
+    }
+
+    function call_additional_action(func) {
+        func();
+    }
+    
+    function write_additional_footer() {
+        if (typeof season.footer == "undefined" || season.footer == null) {
+            return;
+        }
+        if (typeof season.footer.image_name != "undefined") {
+            write_image_source(document.getElementById("additional_info"), season.footer);
+        }
+        if (typeof season.action == "function") {
+            call_additional_action(season.action);
+        } else if (typeof season.action == "object") {
+            season.action.map(function(f) { call_additional_action(f); });
+        }
+    }
+
+    write_additional_footer();
+        </script>
+    </div>
+
+    <script>
+    (function() {
+        /** 按设备能力选择涟漪参数（resolution 对 GPU 负载影响最大） */
+        function getRipplesOptions() {
+            var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (prefersReducedMotion) {
+                return null;
+            }
+
+            var coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+            var narrowViewport = window.matchMedia("(max-width: 768px)").matches;
+            var saveData = navigator.connection && navigator.connection.saveData;
+            var lowCores = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+            var mobileLike = coarsePointer || narrowViewport || saveData;
+
+            if (mobileLike || lowCores) {
+                return {
+                    resolution: 256,
+                    dropRadius: 12,
+                    perturbance: 0.04,
+                    interactive: true
+                };
+            }
+
+            var tabletLike = window.matchMedia("(max-width: 1024px)").matches;
+            if (tabletLike) {
+                return {
+                    resolution: 384,
+                    dropRadius: 8,
+                    perturbance: 0.045,
+                    interactive: true
+                };
+            }
+
+            return {
+                resolution: 512,
+                dropRadius: 5,
+                perturbance: 0.05,
+                interactive: true
+            };
+        }
+
+        function initRipples($cover, options) {
+            try {
+                $cover.ripples(options);
+
+                document.addEventListener("visibilitychange", function() {
+                    if (!$cover.data("ripples")) {
+                        return;
+                    }
+                    $cover.ripples(document.hidden ? "pause" : "play");
+                });
+            } catch (e) {
+                console.error("WebGL Ripple 效果初始化失败，请检查浏览器是否支持 WebGL", e);
+            }
+        }
+
+        $(document).ready(function() {
+            var $cover = $(".season-rel.cover:not(.cache)");
+            var options = getRipplesOptions();
+            if (!options || typeof season == "undefined") {
+                return;
+            }
+
+            // 内联 background-image 时插件可能无法解析，显式传入 imageUrl
+            options.imageUrl = season.image;
+
+            var img = new Image();
+            img.onload = function() { initRipples($cover, options); };
+            img.onerror = function() {
+                console.error("背景图加载失败，无法初始化涟漪效果:", season.image);
+            };
+            img.src = season.image;
+        });
+    })();
+    </script>
+
+    <script>
+        try { console.log('哼~ 你这么关心我~ 不会是喜欢我吧~'); }
+        catch { console.log('哼~'); }
+    </script>
+</body>
+</html>

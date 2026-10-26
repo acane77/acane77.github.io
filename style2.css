@@ -1,0 +1,101 @@
+
+    body {
+        background: #fff;
+        
+    }
+    div.title-bg {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 120px;
+        background: linear-gradient(rgba(252, 129, 184, 0.33), #fff);
+        background: linear-gradient(#FC81B855, #fff);
+        z-index: -1;
+    }
+    div.footer-bg {
+        position: fixed;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        height: 60px;
+        background: linear-gradient(transparent,  rgba(252, 129, 184, 0.33));
+        z-index: 200;
+    }
+    div.footer-bg-bg {
+        position: fixed;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        height: 60px;
+        background: linear-gradient(rgba(255,255,255,0.67), #fff);
+        background: linear-gradient(#ffffffaa, #fff);
+        z-index: 199;
+    }
+    * {
+        font-family: 'Times New Roman', Times, simsun, 'Songti SC' !important;
+    }
+    a.btn {
+        background: transparent;
+        border: 1px solid transparent;
+        padding: 5px;
+        display: inline-block;
+        color: #222;
+        text-decoration: none;
+    }
+
+    .main-title {
+        font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    }
+    a.btn {
+        color: #ff0099
+    }
+    a.btn:hover {
+        background: rgba(252, 129, 184, 0.20);
+        background: #FC81B833;
+        border: 1px solid rgba(252, 129, 184, 0.87);
+        border: 1px solid #FC81B8dd;
+    }
+    a.btn:active {
+        background: rgba(252, 129, 184, 0.53);
+        background: #FC81B888;
+        border: 1px solid rgba(252, 129, 184, 0.87);
+        border: 1px solid #FC81B8dd;
+    }
+    a:hover {
+        color: #222;
+        
+    }
+    .container {
+        margin: 0 auto;
+        max-width: 1150px;
+        width: 90%;
+    }
+    .rarrow {
+        margin-bottom: 2px;
+        margin-left: -6px;
+        width: 5px;
+        height: 5px;
+        border-top: 2px solid #ff6699;
+        border-right: 2px solid #ff6699;
+        transform: rotate(45deg);
+        display: inline-block;
+    }
+    p.d, span.d {
+        padding-left: 15px;
+        display: block;
+        margin: 5px 0 0 0;
+    }
+
+    .footer *, .heiti, .heiti * {
+        font-family: 'PingFang SC', 'Microsoft Yahei UI', 'Microsoft Yahei' !important;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+    a:hover {
+        color: purple;
+        border-bottom: 1px solid purple ;
+    }

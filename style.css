@@ -1,101 +1,202 @@
+body {
+    background: #F5D3DF;
+    background-color: #F5D3DF;
+    margin: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+* {
+    font-family: 'PingFang SC', 'Microsoft Yahei UI', 'Microsoft Yahei';
+}
+a.btn {
+    background: transparent;
+    border: none;
+    height: 40px;
+    font-size: 15px;
+    display: inline-block;
+    color: #333;
+    text-decoration: none;
+    line-height: 40px;
+}
+.main-title, .main-title * {
+    font-family: 'Dancing Script', 'Times New Roman', Times;
+    text-shadow:  0 0 3px #aaa, 0 0 5px #aaa !important;
+}
 
-    body {
-        background: #fff;
-        
-    }
-    div.title-bg {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 120px;
-        background: linear-gradient(rgba(252, 129, 184, 0.33), #fff);
-        background: linear-gradient(#FC81B855, #fff);
-        z-index: -1;
-    }
-    div.footer-bg {
-        position: fixed;
-        bottom: 0px;
-        left: 0px;
-        width: 100%;
-        height: 60px;
-        background: linear-gradient(transparent,  rgba(252, 129, 184, 0.33));
-        z-index: 200;
-    }
-    div.footer-bg-bg {
-        position: fixed;
-        bottom: 0px;
-        left: 0px;
-        width: 100%;
-        height: 60px;
-        background: linear-gradient(rgba(255,255,255,0.67), #fff);
-        background: linear-gradient(#ffffffaa, #fff);
-        z-index: 199;
-    }
-    * {
-        font-family: 'Times New Roman', Times, simsun, 'Songti SC' !important;
-    }
-    a.btn {
-        background: transparent;
-        border: 1px solid transparent;
-        padding: 5px;
-        display: inline-block;
-        color: #222;
-        text-decoration: none;
-    }
+.main-title { 
+    font-size: 80px; 
+    margin: 0;
+}
 
-    .main-title {
-        font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    }
-    a.btn {
-        color: #ff0099
-    }
-    a.btn:hover {
-        background: rgba(252, 129, 184, 0.20);
-        background: #FC81B833;
-        border: 1px solid rgba(252, 129, 184, 0.87);
-        border: 1px solid #FC81B8dd;
-    }
-    a.btn:active {
-        background: rgba(252, 129, 184, 0.53);
-        background: #FC81B888;
-        border: 1px solid rgba(252, 129, 184, 0.87);
-        border: 1px solid #FC81B8dd;
-    }
-    a:hover {
-        color: #222;
-        
-    }
-    .container {
-        margin: 0 auto;
-        max-width: 1150px;
-        width: 90%;
-    }
-    .rarrow {
-        margin-bottom: 2px;
-        margin-left: -6px;
-        width: 5px;
-        height: 5px;
-        border-top: 2px solid #ff6699;
-        border-right: 2px solid #ff6699;
-        transform: rotate(45deg);
-        display: inline-block;
-    }
-    p.d, span.d {
-        padding-left: 15px;
-        display: block;
-        margin: 5px 0 0 0;
-    }
+a.btn:hover {
+    color: purple !important;
+    text-shadow:  0 0 12px #aaa, 0 0 5px #aaa !important;
+    border: none;
+}
+a {
+    text-decoration: none !important;
+    color: inherit;
+}
+a:hover {
+    color: purple;
+}
 
-    .footer *, .heiti, .heiti * {
-        font-family: 'PingFang SC', 'Microsoft Yahei UI', 'Microsoft Yahei' !important;
-    }
+.btnbox, .btnbox * {
+    font-family: 'Dancing Script', 'Beautiful Morning', 'Times New Roman', simsun, Times;
+    font-size: 30px !important;
+    color: black !important;
+}
 
-    a {
-        text-decoration: none;
-        color: inherit;
+.container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.cover {
+    background-size: cover;
+    filter: blur(3px);
+    -webkit-filter: blur(3px);
+    background-position-x: center;
+    background-position-y: bottom;
+}
+
+/* 移动端减弱模糊，减轻与 WebGL 涟漪叠加时的 GPU 压力 */
+@media (max-width: 768px), (pointer: coarse) {
+    .cover {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
     }
-    a:hover {
-        color: purple;
-        border-bottom: 1px solid purple ;
-    }
+}
+
+/* ====== Conatainer Positions ====== */
+
+.container-relative {
+    position: relative; 
+    height: 100%; 
+    width: 100%; 
+    margin: 0 0
+}
+
+.container .main {
+    position: absolute;
+    margin: 0;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    text-align: center;
+}
+
+.shadowed, .shadowed * {
+    text-shadow:  0 0 3px #ddd, 0 0 5px #ddd !important;
+}
+
+.shadowed2, .shadowed2 * {
+    text-shadow:  0 0 12px #ddd, 0 0 5px #ddd !important;
+}
+
+.footer {
+    position: fixed; 
+    left: 0; 
+    bottom: 0; 
+    text-align: center; 
+    color: #000; 
+    padding-bottom: 10px; 
+    width: 100%; 
+    font-size: 12px; 
+    padding-top: 15px;
+    padding-bottom: 15px; 
+    background: rgba(255,255,255, 0.15);
+}
+
+.footer * {
+    font-family: 'Times New Roman';
+}
+
+div.avatar-container, 
+div.avatar,
+div.avatar-shadow {
+    height: 300px;
+    width: 300px;
+    background: #fff;
+    background-color: rgba(255,255,255,0.5);
+    background-position: center;
+    background-size:  100% 100%;
+    border-radius: 50%;
+    margin: 0 auto;
+    /* box-shadow: 0px 0px 10px rgb(0 0 0 / 50%); */
+    z-index: 13144;
+}
+
+div.avatar,
+div.avatar-shadow {
+    position: absolute;
+    background-image: url('https://avatars.githubusercontent.com/u/9192383?v=4');
+}
+
+div.avatar {
+    top: 0px;
+}
+
+div.avatar-shadow {
+    height: 320px;
+    width: 320px;
+    left: calc(50% - 160px);
+    top: -10px;
+    filter: blur(8px);
+    opacity: 0.55;
+}
+
+.footer span {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-bottom: 0px !important;
+    display: inline-block;
+}
+
+
+div.follow-me {
+    position: fixed;
+    transform: rotate(-45deg);
+    top: 50px;
+    left: -60px;
+    height: 50px;
+    width: 280px;
+    background-color: #fff;
+    background-color: rgba(255,255,255,0.9);
+    transition: 0.2s background-color, 0.2s box-shadow;
+    text-align: center;
+    line-height: 50px;
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+}
+div.follow-me:hover {
+    background-color: #fff;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.9);
+}
+div.follow-me-line {
+    position: absolute;
+    border: none;
+    height: 42px;
+    width: 300px;
+    top: 3px;
+    left: 0;
+    border: 1px dashed pink;
+    border-left: none;
+    border-right: none;
+}
+div.follow-me span {
+    font-family: 'Dancing Script','Times New Roman', serif;
+    font-size: 22px;
+    color: pink;
+}
+div.follow-me span::before {
+    content: 'Follow me on GitHub';
+}
