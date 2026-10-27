@@ -11,7 +11,7 @@
   G.wb = null;
   G.zoomOf = (sh) => (sh.view.zoom || 100) / 100;
   G.state = { marquee: null, hl: null, fillTo: null, dragTo: null, pages: null };
-  let wrap, canvas, layer, vbar, hbar, inp, touchN = 0;
+  let wrap, canvas, layer, vbar, hbar, inp, touchN = 0, touchSawTwo = false;
   let dirty = true, raf = 0;
 
   G.sheet = () => G.wb.sheets[G.wb.active];
@@ -52,9 +52,9 @@
     wrap.addEventListener('pointerdown', onPointerDown);
     wrap.addEventListener('pointermove', onHover);
     wrap.addEventListener('dblclick', onDblClick);
-    wrap.addEventListener('touchstart', (e) => { touchN = e.touches.length; }, true);
-    wrap.addEventListener('touchend', (e) => { touchN = e.touches.length; }, true);
-    wrap.addEventListener('touchcancel', (e) => { touchN = e.touches.length; }, true);
+    wrap.addEventListener('touchstart', (e) => { touchN = e.touches.length; if (touchN > 1) touchSawTwo = true; }, true);
+    wrap.addEventListener('touchend', (e) => { touchN = e.touches.length; if (!touchN) setTimeout(() => { touchSawTwo = false; }, 0); }, true);
+    wrap.addEventListener('touchcancel', (e) => { touchN = e.touches.length; if (!touchN) setTimeout(() => { touchSawTwo = false; }, 0); }, true);
     wrap.addEventListener('contextmenu', onContext);
     wrap.addEventListener('focus', () => G.focus());
     inp.addEventListener('keydown', onKey);
@@ -899,14 +899,15 @@
     G.paint();
     L.bus.emit('zoom');
   };
-  /* touch: pan to scroll, tap to select, long press for the context menu */
+  /* touch: pan to scroll, tap to select, long press for the context menu. A second finger is a
+     right-click (common/ui.js), so this press does not also select or edit when it lifts. */
   function startTouch(e, p) {
     const sh = G.sheet();
     const z0 = zone(p);
     let last = p, acc = { x: 0, y: 0 }, moved = false;
     const fr = G.frame();
     const g = LY.geo(sh);
-    const lp = setTimeout(() => { if (!moved) { if (z0.kind === 'cell') G.select(z0.r, z0.c, { noScroll: true }); L.app.contextMenu({ clientX: e.clientX, clientY: e.clientY, preventDefault() {} }, z0); } }, 600);
+    const lp = setTimeout(() => { if (!moved && !touchSawTwo) { if (z0.kind === 'cell') G.select(z0.r, z0.c, { noScroll: true }); L.app.contextMenu({ clientX: e.clientX, clientY: e.clientY, preventDefault() {} }, z0); } }, 600);
     const mv = (ev) => {
       if (touchN > 1) { moved = true; clearTimeout(lp); return; }
       const q = pt(ev);
@@ -922,7 +923,7 @@
     const up = () => {
       clearTimeout(lp);
       wrap.removeEventListener('pointermove', mv); wrap.removeEventListener('pointerup', up); wrap.removeEventListener('pointercancel', up);
-      if (moved) return;
+      if (moved || touchSawTwo) return;
       const ed = L.editor;
       if (ed && ed.active) { if (ed.canPoint() && z0.kind === 'cell') { ed.pointStart({ r1: z0.r, c1: z0.c, r2: z0.r, c2: z0.c }); ed.pointEnd(); return; } if (!ed.commit()) return; }
       if (z0.kind === 'cell') {

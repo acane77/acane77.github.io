@@ -74,7 +74,7 @@
       b.addEventListener('click', (e) => ui.exec(g.launcher, undefined, e));
       label.append(b);
     }
-    /* in a narrow window the group folds into one button that opens it below (fit()) */
+    /* on a wider window that is still short of room the group folds into one button that opens it below (fit()) */
     const first = g.items.flatMap((x) => (x && x.row) || [x]).find((x) => x !== '|' && !(x && x.make));
     const icon = g.icon || (first && (typeof first === 'string' ? (spec.icons || {})[first] || (ui.cmds[first] || {}).icon : first.icon || (spec.icons || {})[first.cmd || first.split] || (ui.cmds[first.cmd || first.split] || {}).icon));
     const fold = h('button', { class: 'tb-btn rb-large rb-fold tb-drop with-label', type: 'button', 'aria-label': g.label, 'data-tip': g.label, html: (icon ? L.icons.get(icon, 32) : '') + `<span class="tb-lbl">${L.esc(L.dropCjkAccess(L.t(g.label)))}</span><span class="dd-arrow"></span>` });
@@ -111,13 +111,54 @@
     document.removeEventListener('keydown', esc, true);
     foldOpen = null;
   }
-  /** fold groups from the right until the tab fits the window */
+  /* phones and small tablets (the same cutoff as the ribbon rules in ui.css / looks.css) */
+  const NARROW = '(max-width: 960px)';
+  const narrowRibbon = () => typeof matchMedia === 'function' && matchMedia(NARROW).matches;
+  /** on a small screen the panel scrolls; on a wider one, fold groups from the right until the tab fits */
   function fit() {
     if (!el || !panelEl.firstChild) return;
     closeFold();
     const groups = [...panelEl.querySelectorAll(':scope > .rb-groups > .rb-group')];
     groups.forEach((g) => g.classList.remove('folded'));
+    if (narrowRibbon()) return;
     for (let i = groups.length - 1; i > 0 && panelEl.scrollWidth > panelEl.clientWidth + 1; i--) groups[i].classList.add('folded');
+  }
+  /* a drag along the panel scrolls it. Button presses cancel the touch's own pan, so the panel does this itself. */
+  function bindPanelPan() {
+    let pid = null, x0 = 0, left0 = 0, moved = false;
+    const end = (e) => {
+      if (e.pointerId !== pid) return;
+      if (moved) {
+        const swallow = (ev) => { ev.preventDefault(); ev.stopPropagation(); panelEl.removeEventListener('click', swallow, true); };
+        panelEl.addEventListener('click', swallow, true);
+      }
+      pid = null;
+      moved = false;
+    };
+    panelEl.addEventListener('pointerdown', (e) => {
+      if (!narrowRibbon() || e.button > 0 || e.target.closest('input, textarea, select')) return;
+      pid = e.pointerId; x0 = e.clientX; left0 = panelEl.scrollLeft; moved = false;
+    });
+    panelEl.addEventListener('pointermove', (e) => {
+      if (e.pointerId !== pid) return;
+      const dx = e.clientX - x0;
+      if (!moved && Math.abs(dx) < 8) return;
+      moved = true;
+      panelEl.scrollLeft = left0 - dx;
+      if (!panelEl.hasPointerCapture(e.pointerId)) panelEl.setPointerCapture(e.pointerId);
+    });
+    panelEl.addEventListener('pointerup', end);
+    panelEl.addEventListener('pointercancel', end);
+  }
+  /* the Quick Access commands, as menu rows: Save, Undo, Redo, and whatever else the app put there */
+  function qatMenuItems() {
+    const out = [];
+    for (const x of spec.qat || []) {
+      if (typeof x === 'string') out.push(x);
+      else if (x && x.split) out.push(x.split);
+      else if (x && x.cmd) out.push(x.cmd);
+    }
+    return out;
   }
 
   const allTabs = () => spec.tabs.concat(...(spec.contextual || []).map((c) => c.tabs.map((t) => Object.assign({ ctx: c }, t))));
@@ -165,6 +206,7 @@
     cur = id;
     panelEl.textContent = '';
     panelEl.append(panelFor(id));
+    panelEl.scrollLeft = 0;
     for (const b of tabsEl.querySelectorAll('.rb-tab')) b.classList.toggle('on', b.dataset.tab === cur);
     if (el.classList.contains('collapsed') && !(opts && opts.peek === false)) peek(true);
     fit();
@@ -251,7 +293,7 @@
     clearTips(true);
     const items = [];
     if (level === 'tabs') {
-      L.$$('.rb-qat:not(.rb-search) > *', el).forEach((x, i) => items.push({ el: x.matches('.tb-split') ? x.firstChild : x, key: String(i + 1) }));
+      L.$$('.rb-qat:not(.rb-search) > *', el).filter((x) => x.getClientRects().length).forEach((x, i) => items.push({ el: x.matches('.tb-split') ? x.firstChild : x, key: String(i + 1) }));
       L.$$('.rb-tab', tabsEl).forEach((x) => { const t = x.dataset.tab === 'file' ? { label: '&File' } : allTabs().find((y) => y.id === x.dataset.tab); items.push({ el: x, label: ui.stripAmp(t.label), en: ui.plainAmp(t.label), key: accessKey(t.label), tab: x.dataset.tab }); });
     } else {
       L.$$(ACT, panelEl).forEach((x) => { if (!x.getClientRects().length) return; const c = ui.cmds[x.dataset.cmd] || {}; items.push({ el: x, label: x.getAttribute('aria-label') || x.textContent || x.dataset.tip || ui.stripAmp(c.label || ""), en: ui.plainAmp(c.label || '') }); });
@@ -296,8 +338,14 @@
   function build() {
     spec = L.ribbonSpec();
     const qat = h('div', { class: 'rb-qat', role: 'toolbar', 'aria-label': 'Quick Access Toolbar' }, ...(spec.qat || []).map((x) => item(typeof x === 'string' ? { cmd: x, size: 'small' } : Object.assign({ size: 'small' }, x)).el));
+    if (qatMenuItems().length) {
+      const more = ui.tbDrop('', 'save', (r) => ui.openMenu(qatMenuItems(), r), cmdLabel('save') || 'Save');
+      more.classList.add('rb-qat-more');
+      qat.prepend(more);
+    }
     tabsEl = h('div', { class: 'rb-tabs', role: 'tablist' });
     panelEl = h('div', { class: 'rb-panel' });
+    bindPanelPan();
     const pin = h('button', { class: 'rb-pin', type: 'button', 'aria-label': 'Collapse the Ribbon (Ctrl+F1)', 'data-tip': 'Collapse the Ribbon (Ctrl+F1)', html: '<svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 5l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>' });
     pin.addEventListener('click', () => RB.collapse());
     const search = h('div', { class: 'rb-qat rb-search' }, ui.searchBox());

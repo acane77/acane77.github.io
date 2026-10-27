@@ -223,6 +223,20 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .sb-zoom-pct:hover { background: var(--menu-hot); }
 .sb-zoom-pct:focus { background: var(--surface); color: var(--ink); border-color: var(--field-border); outline: none; text-align: left; }
 @media (max-width: 640px) { .sb-zoom-range { width: 72px; } }
+/* a phone or a small tablet: the status cells leave the bar for a Document Status button. The zoom control stays. */
+.sb-docstatus { display: none; flex: 0 1 auto; min-width: 0; height: 18px; margin-right: 8px; padding: 0 8px; border: 1px solid transparent; border-radius: var(--ctl-radius); background: none; color: inherit; font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; }
+.sb-docstatus:hover { background: var(--menu-hot); }
+@media (max-width: 960px) {
+  .statusbar > .sb-cell { display: none; }
+  .sb-docstatus { display: inline-flex; align-items: center; }
+}
+.dlg.sb-status-dlg { box-sizing: border-box; width: 100px; max-width: 100px; }
+.dlg.sb-status-dlg .dlg-title { height: auto; min-height: 22px; align-items: center; }
+.dlg.sb-status-dlg .dlg-ttl { position: static; left: auto; right: auto; flex: 1; min-width: 0; white-space: normal; line-height: 1.2; text-align: left; pointer-events: none; }
+.dlg.sb-status-dlg .dlg-body { padding: 4px 6px 6px; }
+.sb-status-list { display: flex; flex-direction: column; }
+.sb-status-list > .sb-cell { display: block; flex: none; width: auto; max-width: 100%; height: auto; min-height: 0; margin: 0; padding: 3px 0; border: 0; box-shadow: none; line-height: 1.35; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+.sb-status-list > .sb-cell:empty { display: none; }
 
 /* the formatting bar after a text selection (common/minibar.js): above the front window, under every menu.
    ui.placeMinibar sets the z-index; 2000 is the place when no window is open. */
@@ -479,6 +493,7 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .rb-bar { display: flex; align-items: flex-end; gap: 8px; padding: 4px 8px 0; min-height: 31px; }
 .rb-qat { display: flex; align-items: center; gap: 1px; align-self: center; padding: 0 8px 3px 0; margin-right: 2px; border-right: 1px solid var(--rb-line); }
 .rb-qat.rb-search { border: 0; margin: 0; padding: 0; background: none; box-shadow: none; }
+.rb-qat-more { display: none; }
 .rb-tabs { display: flex; align-items: flex-end; gap: 1px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .rb-tabs::-webkit-scrollbar { display: none; }
 .rb-tab { flex: none; border: 1px solid transparent; border-bottom: 0; background: none; padding: 4px 11px 5px; color: var(--rb-tab-ink); cursor: default; white-space: nowrap; border-radius: var(--ctl-radius) var(--ctl-radius) 0 0; font: inherit; }
@@ -523,6 +538,19 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .rb-group.folded > .rb-fold { display: flex; margin-top: 2px; }
 .rb-pop { position: fixed; z-index: 990; height: 96px; padding: 3px 6px 0; border: 1px solid var(--rb-line); border-right: 1px solid var(--rb-line); background: var(--rb-panel); box-shadow: 0 4px 12px var(--shadow-c); }
 .rb-keytip { position: fixed; z-index: 3500; transform: translateX(-50%); min-width: 14px; padding: 0 3px; border: 1px solid var(--tip-line); border-radius: 2px; background: var(--tip-bg); color: var(--ink); font: bold 10px/13px var(--ui-font); text-align: center; pointer-events: none; box-shadow: 1px 1px 2px var(--tip-shadow-c); }
+
+/* a phone or a small tablet: the command panel slides sideways, Save is one menu button, and Search commands is hidden */
+@media (max-width: 960px) {
+  .rb-panel {
+    overflow-x: auto; overflow-y: hidden; padding-right: 26px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: none; overscroll-behavior-x: contain;
+  }
+  .rb-panel::-webkit-scrollbar { display: none; }
+  .rb-groups { flex: none; min-width: max-content; }
+  .rb-qat:not(.rb-search) > :not(.rb-qat-more) { display: none; }
+  .rb-qat-more { display: inline-flex; height: 28px; padding: 0 6px; }
+  .rb-bar > .rb-search { display: none; }
+}
 
 /* Visual Basic IDE (View). Colours come from the look. */
 .dlg.vb-ide-dlg { display: flex; flex-direction: column; }

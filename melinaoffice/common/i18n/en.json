@@ -984,7 +984,7 @@
   "where": [
    "common/macros.js:41",
    "ecrivaine/js/app.js:86",
-   "ecrivaine/js/app.js:1136",
+   "ecrivaine/js/app.js:1142",
    "ecrivaine/js/dialogs2.js:428"
   ]
  },
@@ -1161,7 +1161,7 @@
  },
  "&Edit Comment": {
   "where": [
-   "ecrivaine/js/app.js:1143"
+   "ecrivaine/js/app.js:1149"
   ]
  },
  "&Edit Field...": {
@@ -1181,7 +1181,7 @@
  },
  "&Edit Wrap Points": {
   "where": [
-   "ecrivaine/js/app.js:445"
+   "ecrivaine/js/app.js:451"
   ]
  },
  "&Edit...": {
@@ -1329,9 +1329,9 @@
  },
  "&File": {
   "where": [
-   "common/ribbon.js:153",
-   "common/ribbon.js:255",
-   "common/search.js:96",
+   "common/ribbon.js:194",
+   "common/ribbon.js:297",
+   "common/search.js:100",
    "ecrivaine/js/app.js:59"
   ]
  },
@@ -1632,7 +1632,7 @@
  },
  "&Grid...": {
   "where": [
-   "ecrivaine/js/app.js:441"
+   "ecrivaine/js/app.js:447"
   ]
  },
  "&Gridlines": {
@@ -1875,7 +1875,7 @@
   "where": [
    "ecrivaine/js/app.js:70",
    "ecrivaine/js/app.js:85",
-   "ecrivaine/js/app.js:1136",
+   "ecrivaine/js/app.js:1142",
    "ecrivaine/js/dialogs2.js:214"
   ]
  },
@@ -2457,7 +2457,7 @@
  "&No": {
   "where": [
    "common/vb-forms.js:794",
-   "ecrivaine/js/app.js:754",
+   "ecrivaine/js/app.js:760",
    "ecrivaine/js/dialogs.js:312",
    "ecrivaine/js/dialogs.js:848"
   ]
@@ -2551,7 +2551,7 @@
  },
  "&Open Hyperlink": {
   "where": [
-   "ecrivaine/js/app.js:1135",
+   "ecrivaine/js/app.js:1141",
    "matheuse/js/app.js:836"
   ]
  },
@@ -2592,7 +2592,7 @@
  },
  "&Order": {
   "where": [
-   "ecrivaine/js/app.js:440",
+   "ecrivaine/js/app.js:446",
    "oratrice/js/app.js:156",
    "oratrice/js/app.js:1779"
   ]
@@ -2995,7 +2995,7 @@
  },
  "&Remove Hyperlink": {
   "where": [
-   "ecrivaine/js/app.js:1135",
+   "ecrivaine/js/app.js:1141",
    "ecrivaine/js/commands.js:304",
    "matheuse/js/commands.js:123"
   ]
@@ -3675,7 +3675,7 @@
  },
  "&Text Wrapping": {
   "where": [
-   "ecrivaine/js/app.js:442",
+   "ecrivaine/js/app.js:448",
    "ecrivaine/js/dialogs3.js:73"
   ]
  },
@@ -4144,7 +4144,7 @@
  "&Yes": {
   "where": [
    "common/vb-forms.js:794",
-   "ecrivaine/js/app.js:754",
+   "ecrivaine/js/app.js:760",
    "ecrivaine/js/dialogs.js:312",
    "ecrivaine/js/dialogs.js:848"
   ]
@@ -4252,7 +4252,7 @@
  },
  "(This page intentionally left blank by a section break)": {
   "where": [
-   "ecrivaine/js/app.js:1417"
+   "ecrivaine/js/app.js:1423"
   ]
  },
  "(Top 10...)": {
@@ -4933,7 +4933,7 @@
  },
  "A macOS ribbon: a white toolbar, liquid-glass tabs and menus, and traffic-light windows.": {
   "where": [
-   "common/suite.js:528"
+   "common/suite.js:524"
   ]
  },
  "A new window is not this call.": {
@@ -4968,7 +4968,7 @@
  },
  "A picture is not in the .md file and shows as a box. Open a .zip holding the file and its pictures to see them.": {
   "where": [
-   "ecrivaine/js/app.js:819"
+   "ecrivaine/js/app.js:825"
   ]
  },
  "A pivot is listed, not rebuilt.": {
@@ -5033,7 +5033,7 @@
  },
  "A small table": {
   "where": [
-   "ecrivaine/js/app.js:1388"
+   "ecrivaine/js/app.js:1394"
   ]
  },
  "A solid fill and a line. Gradients, patterns and arrows fail.": {
@@ -5130,13 +5130,13 @@
  },
  "About": {
   "where": [
-   "index.html:192"
+   "index.html:193"
   ]
  },
  "About Melina Office": {
   "where": [
-   "index.html:162",
-   "index.html:267"
+   "index.html:163",
+   "index.html:268"
   ]
  },
  "About {0}": {
@@ -6209,7 +6209,7 @@
  },
  "Apache License 2.0": {
   "where": [
-   "index.html:189"
+   "index.html:190"
   ]
  },
  "Appear": {
@@ -6455,7 +6455,7 @@
  "Arrow Style": {
   "where": [
    "ecrivaine/js/app.js:320",
-   "ecrivaine/js/app.js:463",
+   "ecrivaine/js/app.js:469",
    "oratrice/js/app.js:231",
    "oratrice/js/ribbon.js:98"
   ]
@@ -6564,7 +6564,7 @@
  },
  "At {0}": {
   "where": [
-   "ecrivaine/js/app.js:530"
+   "ecrivaine/js/app.js:536"
   ]
  },
  "Attaching a template with \"Automatically update document styles\" copies its styles into this document.": {
@@ -6996,7 +6996,7 @@
    "ecrivaine/js/panes.js:18",
    "matheuse/js/panes.js:17",
    "oratrice/js/panes.js:484",
-   "index.html:161"
+   "index.html:162"
   ]
  },
  "Background": {
@@ -7217,18 +7217,18 @@
  },
  "Blank Document": {
   "where": [
-   "common/suite.js:527",
+   "common/suite.js:523",
    "ecrivaine/js/dialogs3.js:787"
   ]
  },
  "Blank Presentation": {
   "where": [
-   "common/suite.js:527"
+   "common/suite.js:523"
   ]
  },
  "Blank Workbook": {
   "where": [
-   "common/suite.js:527"
+   "common/suite.js:523"
   ]
  },
  "Blank document": {
@@ -7406,7 +7406,7 @@
  },
  "Bookmark \"{0}\" not found.": {
   "where": [
-   "ecrivaine/js/app.js:1115"
+   "ecrivaine/js/app.js:1121"
   ]
  },
  "Bookmark names must begin with a letter and contain only letters, numbers and underscores.": {
@@ -7635,7 +7635,7 @@
  },
  "Brightness": {
   "where": [
-   "ecrivaine/js/app.js:472",
+   "ecrivaine/js/app.js:478",
    "oratrice/js/app.js:1344"
   ]
  },
@@ -7674,57 +7674,57 @@
  },
  "Browse": {
   "where": [
-   "common/suite.js:461"
+   "common/suite.js:457"
   ]
  },
  "Browse by Comment": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Edits": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Endnote": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Field": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Footnote": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Graphic": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Heading": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Page": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Section": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse by Table": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Browse...": {
@@ -8199,8 +8199,8 @@
   "where": [
    "common/charts.js:438",
    "common/macros.js:43",
-   "common/suite.js:903",
-   "common/suite.js:1044"
+   "common/suite.js:899",
+   "common/suite.js:1040"
   ]
  },
  "Cancel an entry": {
@@ -8382,7 +8382,7 @@
  },
  "Cell Alignment": {
   "where": [
-   "ecrivaine/js/app.js:1136",
+   "ecrivaine/js/app.js:1142",
    "ecrivaine/js/tables.js:565"
   ]
  },
@@ -8685,12 +8685,12 @@
  },
  "Chapter One": {
   "where": [
-   "ecrivaine/js/app.js:1397"
+   "ecrivaine/js/app.js:1403"
   ]
  },
  "Chapter Two": {
   "where": [
-   "ecrivaine/js/app.js:1398"
+   "ecrivaine/js/app.js:1404"
   ]
  },
  "Chapter starts with style:": {
@@ -8883,7 +8883,7 @@
  },
  "Check Box": {
   "where": [
-   "ecrivaine/js/editor.js:1358"
+   "ecrivaine/js/editor.js:1373"
   ]
  },
  "Check grammar as you type": {
@@ -8940,7 +8940,7 @@
  },
  "Checking spelling and grammar as you type in this document.": {
   "where": [
-   "ecrivaine/js/app.js:496"
+   "ecrivaine/js/app.js:502"
   ]
  },
  "Checks whether a condition is met, and returns one value if TRUE, and another value if FALSE.": {
@@ -9046,7 +9046,7 @@
  },
  "Chinese (PRC)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Chinese Simplified (GB18030)": {
@@ -9066,7 +9066,7 @@
  },
  "Choose Blank or a template:": {
   "where": [
-   "common/suite.js:1042"
+   "common/suite.js:1038"
   ]
  },
  "Choose a Theme:": {
@@ -9139,7 +9139,7 @@
  },
  "Classic": {
   "where": [
-   "common/suite.js:534",
+   "common/suite.js:530",
    "ecrivaine/js/dialogs2.js:311"
   ]
  },
@@ -9160,7 +9160,7 @@
  },
  "Classic 7": {
   "where": [
-   "common/suite.js:532"
+   "common/suite.js:528"
   ]
  },
  "Classic FormatConditions, cell is and expression, are implemented. Data bars, colour scales and icon sets stay display-only. Sort is the three-key sort. SortFields fails.": {
@@ -9170,7 +9170,7 @@
  },
  "Classic XP": {
   "where": [
-   "common/suite.js:533"
+   "common/suite.js:529"
   ]
  },
  "Classic cell-is and expression rules.": {
@@ -9232,8 +9232,8 @@
   "where": [
    "ecrivaine/js/app.js:284",
    "ecrivaine/js/app.js:285",
-   "ecrivaine/js/app.js:1306",
-   "ecrivaine/js/app.js:1307"
+   "ecrivaine/js/app.js:1312",
+   "ecrivaine/js/app.js:1313"
   ]
  },
  "Clear Outline": {
@@ -9545,8 +9545,8 @@
  },
  "Col {0}": {
   "where": [
-   "ecrivaine/js/app.js:534",
-   "ecrivaine/js/app.js:540"
+   "ecrivaine/js/app.js:540",
+   "ecrivaine/js/app.js:546"
   ]
  },
  "Col&umn": {
@@ -9567,7 +9567,7 @@
  },
  "Collapse the Ribbon (Ctrl+F1)": {
   "where": [
-   "common/ribbon.js:301"
+   "common/ribbon.js:349"
   ]
  },
  "Collapses this range. The Selection stays where it is.": {
@@ -9830,7 +9830,7 @@
  },
  "Column|position": {
   "where": [
-   "ecrivaine/js/app.js:480"
+   "ecrivaine/js/app.js:486"
   ]
  },
  "Comb Horizontal": {
@@ -9860,7 +9860,7 @@
  },
  "Commands": {
   "where": [
-   "common/search.js:238"
+   "common/search.js:250"
   ]
  },
  "Commas": {
@@ -10162,7 +10162,7 @@
  },
  "Content Control &Value...": {
   "where": [
-   "ecrivaine/js/app.js:1140"
+   "ecrivaine/js/app.js:1146"
   ]
  },
  "Content Layouts": {
@@ -10233,7 +10233,7 @@
  },
  "Contrast": {
   "where": [
-   "ecrivaine/js/app.js:472",
+   "ecrivaine/js/app.js:478",
    "oratrice/js/app.js:1344"
   ]
  },
@@ -10832,7 +10832,7 @@
  },
  "Creating PDF... (page {0} of {1})": {
   "where": [
-   "ecrivaine/js/app.js:989",
+   "ecrivaine/js/app.js:995",
    "oratrice/js/app.js:563"
   ]
  },
@@ -11369,7 +11369,7 @@
  "Cut": {
   "where": [
    "ecrivaine/js/commands.js:243",
-   "ecrivaine/js/editor.js:1131"
+   "ecrivaine/js/editor.js:1146"
   ]
  },
  "Cut Through Black": {
@@ -11471,7 +11471,7 @@
  },
  "Danish": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Dark": {
@@ -11548,7 +11548,7 @@
  "Dash Style": {
   "where": [
    "ecrivaine/js/app.js:320",
-   "ecrivaine/js/app.js:459",
+   "ecrivaine/js/app.js:465",
    "oratrice/js/app.js:231",
    "oratrice/js/ribbon.js:98"
   ]
@@ -11952,7 +11952,7 @@
  },
  "Delete Co&mment": {
   "where": [
-   "ecrivaine/js/app.js:1143",
+   "ecrivaine/js/app.js:1149",
    "matheuse/js/commands.js:116"
   ]
  },
@@ -12369,27 +12369,27 @@
  },
  "Discard the changes": {
   "where": [
-   "common/suite.js:1208"
+   "common/suite.js:1204"
   ]
  },
  "Discard the unsaved changes": {
   "where": [
-   "index.html:481"
+   "index.html:482"
   ]
  },
  "Discard the unsaved changes to {0}": {
   "where": [
-   "index.html:482"
+   "index.html:483"
   ]
  },
  "Discard the unsaved changes to “{0}”?": {
   "where": [
-   "index.html:484"
+   "index.html:485"
   ]
  },
  "Discard the unsaved changes to “{0}”? The saved version stays in the list.": {
   "where": [
-   "index.html:484"
+   "index.html:485"
   ]
  },
  "Display and package parts, with no editor.": {
@@ -12604,7 +12604,7 @@
  },
  "Do you want to save the changes to {0}?": {
   "where": [
-   "ecrivaine/js/app.js:754"
+   "ecrivaine/js/app.js:760"
   ]
  },
  "Do you want to save the changes you made to '{0}'?": {
@@ -12650,6 +12650,11 @@
    "oratrice/js/panes.js:528"
   ]
  },
+ "Document Status": {
+  "where": [
+   "common/ui.js:1952"
+  ]
+ },
  "Document contents:": {
   "where": [
    "ecrivaine/js/dialogs3.js:687"
@@ -12693,7 +12698,7 @@
  },
  "Documents": {
   "where": [
-   "index.html:507"
+   "index.html:508"
   ]
  },
  "Dodecagon": {
@@ -12834,12 +12839,12 @@
  },
  "Double-click to hide white space": {
   "where": [
-   "ecrivaine/js/editor.js:907"
+   "ecrivaine/js/editor.js:922"
   ]
  },
  "Double-click to show white space": {
   "where": [
-   "ecrivaine/js/editor.js:907"
+   "ecrivaine/js/editor.js:922"
   ]
  },
  "Double|line spacing": {
@@ -12888,7 +12893,7 @@
  },
  "Drag and Drop": {
   "where": [
-   "ecrivaine/js/editor.js:1192"
+   "ecrivaine/js/editor.js:1207"
   ]
  },
  "Drag in the worksheet to insert the AutoShape. Press Esc to cancel.": {
@@ -13000,12 +13005,12 @@
  },
  "Drop a document here or pick an app on the left side to create one.": {
   "where": [
-   "index.html:173"
+   "index.html:174"
   ]
  },
  "Drop a document to open it, or pictures to insert them": {
   "where": [
-   "ecrivaine/js/app.js:1271"
+   "ecrivaine/js/app.js:1277"
   ]
  },
  "Drop a workbook to open it, or pictures to insert them": {
@@ -13015,7 +13020,7 @@
  },
  "Drop to open": {
   "where": [
-   "index.html:197"
+   "index.html:198"
   ]
  },
  "Drop-cap data is stored. There is no DropCap object.": {
@@ -13063,7 +13068,7 @@
  },
  "Dutch (Netherlands)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "E&mphasis": {
@@ -13139,7 +13144,7 @@
  },
  "EXT": {
   "where": [
-   "ecrivaine/js/app.js:484"
+   "ecrivaine/js/app.js:490"
   ]
  },
  "Each item in a circle, its sub-items on a card beside it.": {
@@ -13160,7 +13165,7 @@
  },
  "Ecrivaine": {
   "where": [
-   "index.html:150",
+   "index.html:151",
    "ecrivaine/index.html:33"
   ]
  },
@@ -13188,7 +13193,7 @@
   "where": [
    "ecrivaine/js/app.js:26",
    "ecrivaine/js/app.js:42",
-   "ecrivaine/js/app.js:904",
+   "ecrivaine/js/app.js:910",
    "ecrivaine/js/autocorrect.js:299"
   ]
  },
@@ -13277,7 +13282,7 @@
  },
  "Ecrivaine word processor": {
   "where": [
-   "ecrivaine/index.html:383"
+   "ecrivaine/index.html:385"
   ]
  },
  "Edge": {
@@ -13684,22 +13689,22 @@
  },
  "English": {
   "where": [
-   "index.html:184"
+   "index.html:185"
   ]
  },
  "English (Australia)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "English (Canada)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "English (U.K.)": {
   "where": [
-   "ecrivaine/js/app.js:547",
+   "ecrivaine/js/app.js:553",
    "ecrivaine/js/dialogs2.js:118",
    "ecrivaine/js/spell.js:403",
    "matheuse/js/dialogs.js:811"
@@ -13707,7 +13712,7 @@
  },
  "English (U.S.)": {
   "where": [
-   "ecrivaine/js/app.js:547",
+   "ecrivaine/js/app.js:553",
    "ecrivaine/js/dialogs2.js:118",
    "ecrivaine/js/panes.js:502",
    "ecrivaine/js/spell.js:403"
@@ -13721,7 +13726,7 @@
  },
  "Enter": {
   "where": [
-   "matheuse/index.html:22"
+   "matheuse/index.html:24"
   ]
  },
  "Enter + and − to move relative to the current location. Example: +4 will move forward four items.": {
@@ -14119,12 +14124,12 @@
  },
  "Even Page Footer": {
   "where": [
-   "ecrivaine/js/app.js:1050"
+   "ecrivaine/js/app.js:1056"
   ]
  },
  "Even Page Header": {
   "where": [
-   "ecrivaine/js/app.js:1050"
+   "ecrivaine/js/app.js:1056"
   ]
  },
  "Even page": {
@@ -14165,7 +14170,7 @@
  },
  "Everything runs in your browser; documents are opened and saved on your own computer. The Recent Files list keeps a copy of each file in this browser so it can be reopened; Clear Recent Documents removes them.": {
   "where": [
-   "index.html:542"
+   "index.html:543"
   ]
  },
  "Exactly": {
@@ -14287,7 +14292,7 @@
  },
  "Extend selection": {
   "where": [
-   "ecrivaine/js/app.js:481",
+   "ecrivaine/js/app.js:487",
    "ecrivaine/js/panes.js:107"
   ]
  },
@@ -14495,7 +14500,7 @@
  },
  "Feedback on GitHub": {
   "where": [
-   "index.html:190"
+   "index.html:191"
   ]
  },
  "Fi&nd": {
@@ -14703,8 +14708,8 @@
  },
  "Fill Color": {
   "where": [
-   "ecrivaine/js/app.js:451",
-   "ecrivaine/js/app.js:452",
+   "ecrivaine/js/app.js:457",
+   "ecrivaine/js/app.js:458",
    "ecrivaine/js/commands.js:502",
    "matheuse/js/app.js:995"
   ]
@@ -14881,7 +14886,7 @@
  },
  "Find and Replace": {
   "where": [
-   "ecrivaine/js/app.js:1390",
+   "ecrivaine/js/app.js:1396",
    "ecrivaine/js/find.js:364",
    "matheuse/js/dialogs.js:538"
   ]
@@ -14919,7 +14924,7 @@
  },
  "Find...": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Find:": {
@@ -14959,7 +14964,7 @@
  },
  "Finnish": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Fir&st column": {
@@ -14990,12 +14995,12 @@
  },
  "First Page Footer": {
   "where": [
-   "ecrivaine/js/app.js:1050"
+   "ecrivaine/js/app.js:1056"
   ]
  },
  "First Page Header": {
   "where": [
-   "ecrivaine/js/app.js:1050"
+   "ecrivaine/js/app.js:1056"
   ]
  },
  "First Record": {
@@ -15350,7 +15355,7 @@
  "Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. Melina Office renders text with the fonts installed on your computer. Where a specified font is not installed, Melina Office substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. Melina Office does not include or distribute any commercial font software.": {
   "where": [
    "common/ui.js:1309",
-   "index.html:548"
+   "index.html:549"
   ]
  },
  "Font size": {
@@ -15410,8 +15415,8 @@
  },
  "Footer": {
   "where": [
-   "ecrivaine/js/app.js:1023",
-   "ecrivaine/js/app.js:1050",
+   "ecrivaine/js/app.js:1029",
+   "ecrivaine/js/app.js:1056",
    "matheuse/js/dialogs3.js:400"
   ]
  },
@@ -15576,7 +15581,7 @@
  },
  "Format Painter": {
   "where": [
-   "ecrivaine/js/app.js:1355",
+   "ecrivaine/js/app.js:1361",
    "ecrivaine/js/commands.js:346",
    "matheuse/js/commands.js:172",
    "matheuse/js/ops.js:446"
@@ -15781,7 +15786,7 @@
  },
  "Formula Bar": {
   "where": [
-   "matheuse/index.html:23"
+   "matheuse/index.html:25"
   ]
  },
  "Formula Is": {
@@ -15903,12 +15908,12 @@
  },
  "French (Canada)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "French (France)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Fro&m center": {
@@ -16134,7 +16139,7 @@
  },
  "German (Germany)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Get External Data": {
@@ -16176,12 +16181,12 @@
  },
  "Getting around": {
   "where": [
-   "ecrivaine/js/app.js:1383"
+   "ecrivaine/js/app.js:1389"
   ]
  },
  "Glass buttons and dialogs. The menus stay the blue of Office 2003.": {
   "where": [
-   "common/suite.js:532"
+   "common/suite.js:528"
   ]
  },
  "Globe": {
@@ -16231,7 +16236,7 @@
  },
  "Go To...": {
   "where": [
-   "ecrivaine/js/app.js:1152"
+   "ecrivaine/js/app.js:1158"
   ]
  },
  "Go back to previous edit": {
@@ -16295,27 +16300,27 @@
  },
  "Golden Gate": {
   "where": [
-   "common/suite.js:528"
+   "common/suite.js:524"
   ]
  },
  "Golden Gate (Dark)": {
   "where": [
-   "common/suite.js:529"
+   "common/suite.js:525"
   ]
  },
  "Golden Gate (Follow VS Code Color Theme)": {
   "where": [
-   "common/suite.js:530"
+   "common/suite.js:526"
   ]
  },
  "Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.": {
   "where": [
-   "common/suite.js:529"
+   "common/suite.js:525"
   ]
  },
  "Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.": {
   "where": [
-   "common/suite.js:530"
+   "common/suite.js:526"
   ]
  },
  "Good afternoon! I'm Nikki. I'll keep you company while you work.": {
@@ -16611,8 +16616,8 @@
  },
  "Header": {
   "where": [
-   "ecrivaine/js/app.js:1023",
-   "ecrivaine/js/app.js:1050",
+   "ecrivaine/js/app.js:1029",
+   "ecrivaine/js/app.js:1056",
    "matheuse/js/dialogs3.js:400"
   ]
  },
@@ -16863,7 +16868,7 @@
  "Highlight": {
   "where": [
    "ecrivaine/js/app.js:202",
-   "ecrivaine/js/app.js:1368",
+   "ecrivaine/js/app.js:1374",
    "ecrivaine/js/commands.js:348",
    "ecrivaine/js/dialogs3.js:613"
   ]
@@ -17619,7 +17624,7 @@
    "matheuse/js/dialogs3.js:78",
    "matheuse/js/panes.js:132",
    "matheuse/js/ribbon.js:58",
-   "matheuse/index.html:22"
+   "matheuse/index.html:24"
   ]
  },
  "Insert Greeting Line": {
@@ -17708,7 +17713,7 @@
  },
  "Insert Picture": {
   "where": [
-   "ecrivaine/js/app.js:1194",
+   "ecrivaine/js/app.js:1200",
    "ecrivaine/js/commands.js:293",
    "matheuse/js/app.js:1294",
    "oratrice/js/app.js:1311"
@@ -17835,7 +17840,7 @@
  },
  "Insert footnote": {
   "where": [
-   "ecrivaine/js/app.js:1390"
+   "ecrivaine/js/app.js:1396"
   ]
  },
  "Insert hyperlinks": {
@@ -17895,7 +17900,7 @@
  },
  "Insert ▸ Reference": {
   "where": [
-   "ecrivaine/js/app.js:1390"
+   "ecrivaine/js/app.js:1396"
   ]
  },
  "Insert ▸ Reference ▸ Footnote (Ctrl+Alt+F footnote, Ctrl+Alt+D endnote), Caption, Cross-reference and Index and Tables (table of contents, figures, index). Right-click a field and choose Update Field, or press F9. Alt+F9 shows field codes.": {
@@ -18175,7 +18180,7 @@
  },
  "Italian (Italy)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Italic": {
@@ -18262,7 +18267,7 @@
  },
  "Japanese": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Japanese (Shift-JIS)": {
@@ -18375,7 +18380,7 @@
  },
  "Korean": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Korean (EUC-KR)": {
@@ -18447,7 +18452,7 @@
  "Language": {
   "where": [
    "common/vb-dom-ref.js:84",
-   "ecrivaine/js/app.js:482",
+   "ecrivaine/js/app.js:488",
    "ecrivaine/js/dialogs.js:1093",
    "ecrivaine/js/dialogs.js:1094"
   ]
@@ -19066,7 +19071,7 @@
  },
  "Line Color": {
   "where": [
-   "ecrivaine/js/app.js:453",
+   "ecrivaine/js/app.js:459",
    "ecrivaine/js/commands.js:503",
    "oratrice/js/app.js:1170",
    "oratrice/js/commands.js:125"
@@ -19101,7 +19106,7 @@
    "ecrivaine/js/app.js:292",
    "ecrivaine/js/app.js:301",
    "ecrivaine/js/app.js:320",
-   "ecrivaine/js/app.js:458"
+   "ecrivaine/js/app.js:464"
   ]
  },
  "Line Weight": {
@@ -19190,7 +19195,7 @@
  },
  "Line|position": {
   "where": [
-   "ecrivaine/js/app.js:480"
+   "ecrivaine/js/app.js:486"
   ]
  },
  "Link to Previous": {
@@ -19336,7 +19341,7 @@
  },
  "Ln {0}": {
   "where": [
-   "ecrivaine/js/app.js:533"
+   "ecrivaine/js/app.js:539"
   ]
  },
  "Load all fonts on your computer...": {
@@ -19494,7 +19499,7 @@
  },
  "Luna windows and menus, on the classic blue toolbars.": {
   "where": [
-   "common/suite.js:533"
+   "common/suite.js:529"
   ]
  },
  "M&acros in:": {
@@ -19625,7 +19630,7 @@
    "common/macros.js:89",
    "common/macros.js:99",
    "common/macros.js:128",
-   "ecrivaine/js/app.js:899"
+   "ecrivaine/js/app.js:905"
   ]
  },
  "Macros created by Microsoft Excel are not executed in Matheuse. A VBA project in a .xlsm file is kept in the package and is not run.": {
@@ -19646,7 +19651,7 @@
  "Made possible by open source software: {0}.": {
   "where": [
    "common/ui.js:1303",
-   "index.html:544"
+   "index.html:545"
   ]
  },
  "Magnification": {
@@ -19918,7 +19923,7 @@
  },
  "Matheuse": {
   "where": [
-   "index.html:151",
+   "index.html:152",
    "matheuse/index.html:1"
   ]
  },
@@ -20027,7 +20032,7 @@
  },
  "Matheuse spreadsheet": {
   "where": [
-   "matheuse/index.html:15"
+   "matheuse/index.html:17"
   ]
  },
  "Matrix": {
@@ -20120,7 +20125,7 @@
    "common/core.js:12",
    "common/host-audit.js:343",
    "common/host-audit.js:350",
-   "common/suite.js:1216"
+   "common/suite.js:1212"
   ]
  },
  "Melina Office Visual Basic": {
@@ -20133,17 +20138,17 @@
  },
  "Melina Office can't open “{0}”. It opens documents (.docx, .rtf), spreadsheets (.xlsx, .csv) and presentations (.pptx).": {
   "where": [
-   "index.html:448"
+   "index.html:449"
   ]
  },
  "Melina Office keeps Recent Files and unsaved changes in this browser, and Safari's Lockdown Mode turns that off.\n\nTo allow it for this site only: tap aA in the address bar, tap Website Settings, and turn off Lockdown Mode. Safari reloads the page.": {
   "where": [
-   "index.html:211"
+   "index.html:212"
   ]
  },
  "Melina Office: Ecrivaine (documents), Matheuse (spreadsheets) and Oratrice (presentations).": {
   "where": [
-   "index.html:541"
+   "index.html:542"
   ]
  },
  "Memos": {
@@ -20428,7 +20433,7 @@
  },
  "More Lines...": {
   "where": [
-   "ecrivaine/js/app.js:458",
+   "ecrivaine/js/app.js:464",
    "oratrice/js/app.js:127"
   ]
  },
@@ -20471,7 +20476,7 @@
  },
  "Move": {
   "where": [
-   "ecrivaine/js/editor.js:1192",
+   "ecrivaine/js/editor.js:1207",
    "matheuse/js/clipboard.js:422"
   ]
  },
@@ -20675,7 +20680,7 @@
  },
  "Name Box": {
   "where": [
-   "matheuse/index.html:21"
+   "matheuse/index.html:23"
   ]
  },
  "Name and headers and footers. Shapes, layouts, design and background fail.": {
@@ -20760,7 +20765,7 @@
  },
  "Names": {
   "where": [
-   "matheuse/index.html:21"
+   "matheuse/index.html:23"
   ]
  },
  "Names in &workbook:": {
@@ -20822,7 +20827,7 @@
  },
  "Never saved": {
   "where": [
-   "index.html:494"
+   "index.html:495"
   ]
  },
  "Never show this message again": {
@@ -20873,13 +20878,13 @@
  },
  "New Document": {
   "where": [
-   "common/suite.js:1044",
+   "common/suite.js:1040",
    "ecrivaine/js/panes.js:81"
   ]
  },
  "New File from Template": {
   "where": [
-   "index.html:156"
+   "index.html:157"
   ]
  },
  "New Label": {
@@ -20889,7 +20894,7 @@
  },
  "New Presentation": {
   "where": [
-   "common/suite.js:1044",
+   "common/suite.js:1040",
    "oratrice/js/panes.js:544"
   ]
  },
@@ -20913,12 +20918,12 @@
  },
  "New Spreadsheet": {
   "where": [
-   "common/suite.js:1044"
+   "common/suite.js:1040"
   ]
  },
  "New Style": {
   "where": [
-   "ecrivaine/js/app.js:405",
+   "ecrivaine/js/app.js:411",
    "ecrivaine/js/dialogs.js:1062",
    "ecrivaine/js/dialogs.js:1070"
   ]
@@ -20941,17 +20946,17 @@
  },
  "New blank document": {
   "where": [
-   "index.html:508"
+   "index.html:509"
   ]
  },
  "New blank presentation": {
   "where": [
-   "index.html:508"
+   "index.html:509"
   ]
  },
  "New blank spreadsheet": {
   "where": [
-   "index.html:508"
+   "index.html:509"
   ]
  },
  "New chart": {
@@ -20968,7 +20973,7 @@
  },
  "New document from “{0}”": {
   "where": [
-   "index.html:508"
+   "index.html:509"
   ]
  },
  "New line in a cell": {
@@ -20989,7 +20994,7 @@
  },
  "New presentation from “{0}”": {
   "where": [
-   "index.html:508"
+   "index.html:509"
   ]
  },
  "New slide": {
@@ -20999,7 +21004,7 @@
  },
  "New spreadsheet from “{0}”": {
   "where": [
-   "index.html:508"
+   "index.html:509"
   ]
  },
  "New, Open, Save": {
@@ -21102,7 +21107,7 @@
  "Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. Melina Office is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.": {
   "where": [
    "common/ui.js:1308",
-   "index.html:547"
+   "index.html:548"
   ]
  },
  "Nikki, the assistant": {
@@ -21124,7 +21129,7 @@
  "No Border": {
   "where": [
    "ecrivaine/js/app.js:214",
-   "ecrivaine/js/app.js:469",
+   "ecrivaine/js/app.js:475",
    "matheuse/js/app.js:579",
    "oratrice/js/app.js:189"
   ]
@@ -21179,7 +21184,7 @@
  },
  "No Shadow": {
   "where": [
-   "ecrivaine/js/app.js:467",
+   "ecrivaine/js/app.js:473",
    "oratrice/js/app.js:145"
   ]
  },
@@ -21221,7 +21226,7 @@
  },
  "No commands match “{0}”": {
   "where": [
-   "common/search.js:245"
+   "common/search.js:263"
   ]
  },
  "No fields were updated.": {
@@ -21338,7 +21343,7 @@
  },
  "No unsaved versions are waiting.": {
   "where": [
-   "common/suite.js:1212"
+   "common/suite.js:1208"
   ]
  },
  "No-Width Non Break": {
@@ -21405,7 +21410,7 @@
  },
  "Norwegian (Bokmål)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Not": {
@@ -21612,7 +21617,7 @@
  },
  "Nud&ge": {
   "where": [
-   "ecrivaine/js/app.js:441",
+   "ecrivaine/js/app.js:447",
    "oratrice/js/app.js:157"
   ]
  },
@@ -21829,12 +21834,12 @@
  },
  "OSS Software Licenses": {
   "where": [
-   "index.html:191"
+   "index.html:192"
   ]
  },
  "OVR": {
   "where": [
-   "ecrivaine/js/app.js:484"
+   "ecrivaine/js/app.js:490"
   ]
  },
  "Oak": {
@@ -21897,12 +21902,12 @@
  },
  "Odd Page Footer": {
   "where": [
-   "ecrivaine/js/app.js:1050"
+   "ecrivaine/js/app.js:1056"
   ]
  },
  "Odd Page Header": {
   "where": [
-   "ecrivaine/js/app.js:1050"
+   "ecrivaine/js/app.js:1056"
   ]
  },
  "Odd page": {
@@ -22183,23 +22188,23 @@
  "Open source licenses": {
   "where": [
    "common/ui.js:1304",
-   "index.html:544"
+   "index.html:545"
   ]
  },
  "Open source under the Apache License 2.0, provided as is, without warranty. Melina Office is an independent project. Product names in its documentation are trademarks of their owners; Melina Office is not affiliated with them.": {
   "where": [
    "common/ui.js:1307",
-   "index.html:546"
+   "index.html:547"
   ]
  },
  "Open the unsaved version": {
   "where": [
-   "common/suite.js:1205"
+   "common/suite.js:1201"
   ]
  },
  "Open the version saved before the changes": {
   "where": [
-   "index.html:495"
+   "index.html:496"
   ]
  },
  "Open the welcome document": {
@@ -22219,7 +22224,7 @@
  },
  "Open “{0}” from the Explorer.": {
   "where": [
-   "common/suite.js:676"
+   "common/suite.js:672"
   ]
  },
  "Open, Close": {
@@ -22229,7 +22234,7 @@
  },
  "Opened a template. Save keeps its template format.": {
   "where": [
-   "ecrivaine/js/app.js:816"
+   "ecrivaine/js/app.js:822"
   ]
  },
  "Opening an address is not this call.": {
@@ -22251,12 +22256,12 @@
  },
  "Opening the file. Please wait...": {
   "where": [
-   "common/suite.js:895"
+   "common/suite.js:891"
   ]
  },
  "Opening {0}...": {
   "where": [
-   "ecrivaine/js/app.js:800",
+   "ecrivaine/js/app.js:806",
    "matheuse/js/app.js:142",
    "oratrice/js/app.js:418",
    "oratrice/js/app.js:445"
@@ -22269,7 +22274,7 @@
  },
  "Opening...": {
   "where": [
-   "ecrivaine/js/app.js:842"
+   "ecrivaine/js/app.js:848"
   ]
  },
  "Opens .xlsx, .xlsm, .xltx, .csv, .txt and XML Spreadsheet 2003 files; drop a file anywhere on the window to open it. Saves .xlsx, .xlsm, .xltx, .csv, .txt, .htm, .xml and PDF.": {
@@ -22340,7 +22345,7 @@
  },
  "Oratrice": {
   "where": [
-   "index.html:152",
+   "index.html:153",
    "oratrice/index.html:8"
   ]
  },
@@ -22376,7 +22381,7 @@
  },
  "Oratrice presentation editor": {
   "where": [
-   "oratrice/index.html:303"
+   "oratrice/index.html:305"
   ]
  },
  "Order": {
@@ -22653,7 +22658,7 @@
  },
  "Overtype (double-click to toggle)": {
   "where": [
-   "ecrivaine/js/app.js:481"
+   "ecrivaine/js/app.js:487"
   ]
  },
  "Overtype mode": {
@@ -22726,7 +22731,7 @@
  },
  "Page": {
   "where": [
-   "ecrivaine/js/app.js:480",
+   "ecrivaine/js/app.js:486",
    "ecrivaine/js/dialogs.js:829",
    "ecrivaine/js/dialogs3.js:61",
    "ecrivaine/js/dialogs3.js:62"
@@ -22759,7 +22764,7 @@
  },
  "Page / pages": {
   "where": [
-   "ecrivaine/js/app.js:480"
+   "ecrivaine/js/app.js:486"
   ]
  },
  "Page Background": {
@@ -22927,8 +22932,8 @@
  },
  "Page {0}": {
   "where": [
-   "ecrivaine/js/app.js:523",
-   "ecrivaine/js/app.js:537",
+   "ecrivaine/js/app.js:529",
+   "ecrivaine/js/app.js:543",
    "matheuse/js/render.js:880"
   ]
  },
@@ -23021,7 +23026,7 @@
  },
  "Paragraph Formatting": {
   "where": [
-   "ecrivaine/js/editor.js:789"
+   "ecrivaine/js/editor.js:804"
   ]
  },
  "Paragraph Mark": {
@@ -23173,8 +23178,8 @@
   "where": [
    "ecrivaine/js/dom-console.js:640",
    "ecrivaine/js/dom-console.js:707",
-   "ecrivaine/js/editor.js:1162",
-   "ecrivaine/js/editor.js:1169"
+   "ecrivaine/js/editor.js:1177",
+   "ecrivaine/js/editor.js:1184"
   ]
  },
  "Paste &Link": {
@@ -23492,7 +23497,7 @@
  },
  "Picture Color": {
   "where": [
-   "ecrivaine/js/app.js:471",
+   "ecrivaine/js/app.js:477",
    "oratrice/js/app.js:1343"
   ]
  },
@@ -23735,7 +23740,7 @@
  },
  "Polish": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Por&trait": {
@@ -23750,12 +23755,12 @@
  },
  "Portuguese (Brazil)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Portuguese (Portugal)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Position": {
@@ -23870,7 +23875,7 @@
  },
  "Presentations": {
   "where": [
-   "index.html:507"
+   "index.html:508"
   ]
  },
  "Preserve formatting during updates": {
@@ -24504,8 +24509,8 @@
  },
  "Quick Access Toolbar": {
   "where": [
-   "common/ribbon.js:298",
-   "common/search.js:95"
+   "common/ribbon.js:340",
+   "common/search.js:99"
   ]
  },
  "R&eading Layout": {
@@ -24547,7 +24552,7 @@
  },
  "REC": {
   "where": [
-   "ecrivaine/js/app.js:484"
+   "ecrivaine/js/app.js:490"
   ]
  },
  "Radar": {
@@ -24732,13 +24737,13 @@
  },
  "Recent Files": {
   "where": [
-   "index.html:157",
-   "index.html:266"
+   "index.html:158",
+   "index.html:267"
   ]
  },
  "Recent Files are not available in this browser ({0}).": {
   "where": [
-   "index.html:472"
+   "index.html:473"
   ]
  },
  "Recently Used Fonts": {
@@ -24748,7 +24753,7 @@
  },
  "Recently used": {
   "where": [
-   "common/search.js:244"
+   "common/search.js:262"
   ]
  },
  "Recently used file &list": {
@@ -24799,7 +24804,7 @@
  },
  "Record macro": {
   "where": [
-   "ecrivaine/js/app.js:481"
+   "ecrivaine/js/app.js:487"
   ]
  },
  "Recorded by": {
@@ -24814,7 +24819,7 @@
  },
  "Recovered the unsaved changes. Save the document to keep them.": {
   "where": [
-   "ecrivaine/js/app.js:1458"
+   "ecrivaine/js/app.js:1464"
   ]
  },
  "Recovered the unsaved changes. Save the presentation to keep them.": {
@@ -24860,12 +24865,12 @@
  },
  "Redo {0} Action": {
   "where": [
-   "ecrivaine/js/app.js:424"
+   "ecrivaine/js/app.js:430"
   ]
  },
  "Redo {0} Actions": {
   "where": [
-   "ecrivaine/js/app.js:424"
+   "ecrivaine/js/app.js:430"
   ]
  },
  "Redo(Times).": {
@@ -25102,12 +25107,12 @@
  },
  "Remove from list": {
   "where": [
-   "index.html:481"
+   "index.html:482"
   ]
  },
  "Remove from the list: {0}": {
   "where": [
-   "index.html:482"
+   "index.html:483"
   ]
  },
  "Remove personal information from file properties on save": {
@@ -25366,7 +25371,7 @@
  },
  "Resize Picture": {
   "where": [
-   "ecrivaine/js/editor.js:1467"
+   "ecrivaine/js/editor.js:1482"
   ]
  },
  "Respectfully yours,": {
@@ -27126,7 +27131,7 @@
  },
  "Ribbon 2010": {
   "where": [
-   "common/suite.js:531"
+   "common/suite.js:527"
   ]
  },
  "Rice Paper": {
@@ -27291,7 +27296,7 @@
  },
  "Rotate or Fl&ip": {
   "where": [
-   "ecrivaine/js/app.js:442",
+   "ecrivaine/js/app.js:448",
    "oratrice/js/app.js:159"
   ]
  },
@@ -27553,7 +27558,7 @@
  },
  "Russian": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "S&cale:": {
@@ -27629,7 +27634,7 @@
  },
  "Same as Previous": {
   "where": [
-   "ecrivaine/js/app.js:1417"
+   "ecrivaine/js/app.js:1423"
   ]
  },
  "Same as the whole &table": {
@@ -27667,7 +27672,7 @@
  },
  "Sample document": {
   "where": [
-   "ecrivaine/js/app.js:1404"
+   "ecrivaine/js/app.js:1410"
   ]
  },
  "Sample:": {
@@ -27692,10 +27697,10 @@
  },
  "Save": {
   "where": [
+   "common/ribbon.js:342",
    "ecrivaine/js/dialogs3.js:617",
    "ecrivaine/js/dom-console.js:826",
-   "ecrivaine/js/dom-console.js:855",
-   "ecrivaine/js/dom-console.js:930"
+   "ecrivaine/js/dom-console.js:855"
   ]
  },
  "Save &As...": {
@@ -27707,7 +27712,7 @@
  },
  "Save .md &without them": {
   "where": [
-   "ecrivaine/js/app.js:918"
+   "ecrivaine/js/app.js:924"
   ]
  },
  "Save As": {
@@ -27752,7 +27757,7 @@
  },
  "Save anyway": {
   "where": [
-   "ecrivaine/js/app.js:899",
+   "ecrivaine/js/app.js:905",
    "oratrice/js/app.js:481"
   ]
  },
@@ -27770,7 +27775,7 @@
  },
  "Save as .&zip": {
   "where": [
-   "ecrivaine/js/app.js:918"
+   "ecrivaine/js/app.js:924"
   ]
  },
  "Save as P&DF...": {
@@ -27810,7 +27815,7 @@
  },
  "Save was cancelled.": {
   "where": [
-   "common/suite.js:777"
+   "common/suite.js:773"
   ]
  },
  "SaveAs, SaveAs2": {
@@ -27832,7 +27837,7 @@
  },
  "Saved a copy next to this file. This file still has unsaved changes.": {
   "where": [
-   "common/suite.js:777"
+   "common/suite.js:773"
   ]
  },
  "Saved a copy to attach to your e-mail message.": {
@@ -27842,24 +27847,24 @@
  },
  "Saved to Downloads folder: {0}": {
   "where": [
-   "common/suite.js:461"
+   "common/suite.js:457"
   ]
  },
  "Saved version": {
   "where": [
-   "index.html:495"
+   "index.html:496"
   ]
  },
  "Saved {0}": {
   "where": [
-   "common/suite.js:338",
-   "ecrivaine/js/app.js:935",
+   "common/suite.js:334",
+   "ecrivaine/js/app.js:941",
    "oratrice/js/app.js:496"
   ]
  },
  "Saving timed out.": {
   "where": [
-   "common/suite.js:330"
+   "common/suite.js:326"
   ]
  },
  "Sc&enarios...": {
@@ -27940,6 +27945,11 @@
    "matheuse/js/dialogs.js:46"
   ]
  },
+ "Scout, the assistant": {
+  "where": [
+   "common/scout/scout.js:2185"
+  ]
+ },
  "Screen readers and web pages use alternative text to describe the object.": {
   "where": [
    "oratrice/js/dialogs.js:528"
@@ -28015,12 +28025,13 @@
  },
  "Search commands": {
   "where": [
-   "common/search.js:211"
+   "common/search.js:216",
+   "common/search.js:217"
   ]
  },
  "Search commands (Alt+Q)": {
   "where": [
-   "common/search.js:211"
+   "common/search.js:216"
   ]
  },
  "Search for": {
@@ -28081,8 +28092,8 @@
  },
  "Sec {0}": {
   "where": [
-   "ecrivaine/js/app.js:524",
-   "ecrivaine/js/app.js:538"
+   "ecrivaine/js/app.js:530",
+   "ecrivaine/js/app.js:544"
   ]
  },
  "Second level": {
@@ -28102,7 +28113,7 @@
  },
  "Section": {
   "where": [
-   "ecrivaine/js/app.js:480",
+   "ecrivaine/js/app.js:486",
    "ecrivaine/js/dialogs.js:829",
    "ecrivaine/js/dialogs2.js:173",
    "ecrivaine/js/find.js:249"
@@ -28130,7 +28141,7 @@
  },
  "Section Break (Next Page)": {
   "where": [
-   "ecrivaine/js/app.js:1418",
+   "ecrivaine/js/app.js:1424",
    "ecrivaine/js/render.js:588"
   ]
  },
@@ -28275,7 +28286,7 @@
  },
  "Select a drawing object first.": {
   "where": [
-   "ecrivaine/js/app.js:449"
+   "ecrivaine/js/app.js:455"
   ]
  },
  "Select a functio&n:": {
@@ -28389,7 +28400,7 @@
  },
  "Select text to highlight. Press Esc to stop.": {
   "where": [
-   "ecrivaine/js/app.js:1369"
+   "ecrivaine/js/app.js:1375"
   ]
  },
  "Select text, then use the Formatting toolbar or Format ▸ Font. Bullets and numbering live under Format ▸ Bullets and Numbering. Press Tab at the start of a bullet to demote it.": {
@@ -28424,7 +28435,7 @@
  },
  "Select the text to apply the formatting to.": {
   "where": [
-   "ecrivaine/js/app.js:1364"
+   "ecrivaine/js/app.js:1370"
   ]
  },
  "Select the text you want to store as AutoText first.": {
@@ -28698,7 +28709,7 @@
  },
  "Shadow": {
   "where": [
-   "ecrivaine/js/app.js:467",
+   "ecrivaine/js/app.js:473",
    "ecrivaine/js/ribbon.js:107",
    "oratrice/js/app.js:1192",
    "oratrice/js/app.js:1214"
@@ -28707,7 +28718,7 @@
  "Shadow Style": {
   "where": [
    "ecrivaine/js/app.js:320",
-   "ecrivaine/js/app.js:467",
+   "ecrivaine/js/app.js:473",
    "oratrice/js/app.js:145",
    "oratrice/js/app.js:231"
   ]
@@ -28823,7 +28834,7 @@
  },
  "Sheets": {
   "where": [
-   "matheuse/index.html:33"
+   "matheuse/index.html:35"
   ]
  },
  "Sheets in new work&book:": {
@@ -30004,12 +30015,12 @@
  },
  "Spanish (Mexico)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Spanish (Spain)": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Sparkle Text": {
@@ -30093,22 +30104,22 @@
  },
  "Spelling and grammar are checked as you type. Click to stop.": {
   "where": [
-   "ecrivaine/js/app.js:501"
+   "ecrivaine/js/app.js:507"
   ]
  },
  "Spelling and grammar are no longer marked in this document.": {
   "where": [
-   "ecrivaine/js/app.js:496"
+   "ecrivaine/js/app.js:502"
   ]
  },
  "Spelling and grammar are not checked as you type. Click to check this document.": {
   "where": [
-   "ecrivaine/js/app.js:501"
+   "ecrivaine/js/app.js:507"
   ]
  },
  "Spelling and grammar status": {
   "where": [
-   "ecrivaine/js/app.js:482"
+   "ecrivaine/js/app.js:488"
   ]
  },
  "Spelling is checked as you type: misspelled words get a wavy red underline while you edit text.\nHold Shift and right-click a flagged word to see your browser's suggestions.": {
@@ -30224,7 +30235,7 @@
  },
  "Spreadsheets": {
   "where": [
-   "index.html:507"
+   "index.html:508"
   ]
  },
  "Square": {
@@ -30440,7 +30451,7 @@
  },
  "Starting {0}": {
   "where": [
-   "common/suite.js:897"
+   "common/suite.js:893"
   ]
  },
  "StartingSlide, EndingSlide": {
@@ -30712,7 +30723,7 @@
  "Style": {
   "where": [
    "ecrivaine/js/app.js:271",
-   "ecrivaine/js/app.js:416",
+   "ecrivaine/js/app.js:422",
    "ecrivaine/js/commands.js:182",
    "ecrivaine/js/commands.js:185"
   ]
@@ -30955,7 +30966,7 @@
  },
  "Swedish": {
   "where": [
-   "ecrivaine/js/app.js:547"
+   "ecrivaine/js/app.js:553"
   ]
  },
  "Switch Between Header and Footer": {
@@ -30965,7 +30976,7 @@
  },
  "Switch views with the buttons in the lower-left corner: Normal, Web Layout, Print Layout, Outline and Reading Layout.": {
   "where": [
-   "ecrivaine/js/app.js:1386"
+   "ecrivaine/js/app.js:1392"
   ]
  },
  "Switches the session to this document.": {
@@ -31043,7 +31054,7 @@
  },
  "TRK": {
   "where": [
-   "ecrivaine/js/app.js:484"
+   "ecrivaine/js/app.js:490"
   ]
  },
  "Ta&b leader:": {
@@ -31303,7 +31314,7 @@
  },
  "Tabs, leaders and fields": {
   "where": [
-   "ecrivaine/js/app.js:1396"
+   "ecrivaine/js/app.js:1402"
   ]
  },
  "Tab|key": {
@@ -31589,7 +31600,7 @@
  },
  "Text W&rapping": {
   "where": [
-   "ecrivaine/js/app.js:1133"
+   "ecrivaine/js/app.js:1139"
   ]
  },
  "Text Width": {
@@ -31603,7 +31614,7 @@
   "where": [
    "ecrivaine/js/app.js:301",
    "ecrivaine/js/app.js:307",
-   "ecrivaine/js/app.js:444"
+   "ecrivaine/js/app.js:450"
   ]
  },
  "Text alignment": {
@@ -31779,13 +31790,13 @@
  },
  "That file is no longer available here. Open it again from the Explorer.": {
   "where": [
-   "common/suite.js:949"
+   "common/suite.js:945"
   ]
  },
  "That file is no longer available here. Open it again from your computer.": {
   "where": [
-   "common/suite.js:968",
-   "common/suite.js:985"
+   "common/suite.js:964",
+   "common/suite.js:981"
   ]
  },
  "That form could not be run: {0}": {
@@ -31811,12 +31822,12 @@
  },
  "The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.": {
   "where": [
-   "common/suite.js:531"
+   "common/suite.js:527"
   ]
  },
  "The PDF could not be created: {0}": {
   "where": [
-   "ecrivaine/js/app.js:1000",
+   "ecrivaine/js/app.js:1006",
    "ecrivaine/js/dialogs3.js:737",
    "oratrice/js/app.js:586"
   ]
@@ -31931,7 +31942,7 @@
  },
  "The classic blue toolbars and menus.": {
   "where": [
-   "common/suite.js:534"
+   "common/suite.js:530"
   ]
  },
  "The code could not be compiled.": {
@@ -32106,12 +32117,12 @@
  },
  "The editor did not build a document.": {
   "where": [
-   "common/suite.js:933"
+   "common/suite.js:929"
   ]
  },
  "The editor did not send the file.": {
   "where": [
-   "common/suite.js:267"
+   "common/suite.js:263"
   ]
  },
  "The editor refused this operation.": {
@@ -32172,30 +32183,30 @@
  "The file could not be read.": {
   "where": [
    "common/host-audit.js:195",
-   "common/suite.js:303"
+   "common/suite.js:299"
   ]
  },
  "The file could not be saved to the Downloads folder.": {
   "where": [
-   "common/suite.js:462"
+   "common/suite.js:458"
   ]
  },
  "The file could not be saved.": {
   "where": [
-   "common/suite.js:336"
+   "common/suite.js:332"
   ]
  },
  "The file could not be saved: {0}": {
   "where": [
-   "ecrivaine/js/app.js:940",
+   "ecrivaine/js/app.js:946",
    "oratrice/js/app.js:501"
   ]
  },
  "The file is not open in the editor yet.": {
   "where": [
-   "common/suite.js:316",
-   "common/suite.js:815",
-   "common/suite.js:849"
+   "common/suite.js:312",
+   "common/suite.js:811",
+   "common/suite.js:845"
   ]
  },
  "The file is saved to your browser's downloads.": {
@@ -32333,7 +32344,7 @@
  },
  "The macros in this document cannot be stored in this file type. Save as a Word document to keep them.": {
   "where": [
-   "ecrivaine/js/app.js:899"
+   "ecrivaine/js/app.js:905"
   ]
  },
  "The macros in this document could not be compiled. {0}": {
@@ -32552,7 +32563,7 @@
  },
  "The password is incorrect. {0} cannot open the document.": {
   "where": [
-   "ecrivaine/js/app.js:846"
+   "ecrivaine/js/app.js:852"
   ]
  },
  "The password is not correct.": {
@@ -32659,7 +32670,7 @@
  },
  "The result was a VB object. Use Debug.Print to return a string, number, or Boolean.": {
   "where": [
-   "common/suite.js:836"
+   "common/suite.js:832"
   ]
  },
  "The revised span text. No story index.": {
@@ -32825,7 +32836,7 @@
  },
  "The templates could not be loaded.": {
   "where": [
-   "index.html:515"
+   "index.html:516"
   ]
  },
  "The terminal library did not load.": {
@@ -33259,7 +33270,7 @@
  },
  "This browser blocked the page image.": {
   "where": [
-   "ecrivaine/js/app.js:991"
+   "ecrivaine/js/app.js:997"
   ]
  },
  "This chart will be saved as ordinary shapes, because it was edited here.": {
@@ -33279,7 +33290,7 @@
  },
  "This document has pictures that a .md file cannot hold. Save it as Markdown with pictures (.zip), which holds the .md file and its pictures?": {
   "where": [
-   "ecrivaine/js/app.js:918"
+   "ecrivaine/js/app.js:924"
   ]
  },
  "This document is already one page long.": {
@@ -33289,7 +33300,7 @@
  },
  "This document is encrypted in a way {0} cannot read.": {
   "where": [
-   "ecrivaine/js/app.js:846"
+   "ecrivaine/js/app.js:852"
   ]
  },
  "This document is protected from unintentional editing.": {
@@ -33299,27 +33310,27 @@
  },
  "This document is protected: comments only": {
   "where": [
-   "ecrivaine/js/app.js:820"
+   "ecrivaine/js/app.js:826"
   ]
  },
  "This document is protected: filling in forms": {
   "where": [
-   "ecrivaine/js/app.js:820"
+   "ecrivaine/js/app.js:826"
   ]
  },
  "This document is protected: no changes (read only)": {
   "where": [
-   "ecrivaine/js/app.js:820"
+   "ecrivaine/js/app.js:826"
   ]
  },
  "This document is protected: restricted": {
   "where": [
-   "ecrivaine/js/app.js:820"
+   "ecrivaine/js/app.js:826"
   ]
  },
  "This document is protected: tracked changes": {
   "where": [
-   "ecrivaine/js/app.js:820"
+   "ecrivaine/js/app.js:826"
   ]
  },
  "This document is read-only.": {
@@ -33415,9 +33426,9 @@
  },
  "This page is not inside the editor.": {
   "where": [
-   "common/suite.js:156",
-   "common/suite.js:263",
-   "common/suite.js:318"
+   "common/suite.js:152",
+   "common/suite.js:259",
+   "common/suite.js:314"
   ]
  },
  "This page lists what this app runs. It is not the full Microsoft VBA reference.": {
@@ -33454,7 +33465,7 @@
  "This project is a derivative of {0}, which is licensed under the Apache License 2.0.": {
   "where": [
    "common/ui.js:1305",
-   "index.html:545"
+   "index.html:546"
   ]
  },
  "This punctuation mark is repeated.": {
@@ -33868,7 +33879,7 @@
  },
  "Today, {0}": {
   "where": [
-   "index.html:465"
+   "index.html:466"
   ]
  },
  "Toggle between text and object selection": {
@@ -34024,7 +34035,7 @@
  },
  "Track Changes (double-click to toggle)": {
   "where": [
-   "ecrivaine/js/app.js:481"
+   "ecrivaine/js/app.js:487"
   ]
  },
  "Track Changes is off.": {
@@ -34039,7 +34050,7 @@
  },
  "Track changes": {
   "where": [
-   "ecrivaine/js/app.js:1390",
+   "ecrivaine/js/app.js:1396",
    "ecrivaine/js/panes.js:107"
   ]
  },
@@ -34297,7 +34308,7 @@
    "ecrivaine/js/editor.js:532",
    "ecrivaine/js/editor.js:571",
    "ecrivaine/js/editor.js:714",
-   "ecrivaine/js/editor.js:981"
+   "ecrivaine/js/editor.js:996"
   ]
  },
  "Typing and selecting": {
@@ -34413,12 +34424,12 @@
  },
  "Undo {0} Action": {
   "where": [
-   "ecrivaine/js/app.js:424"
+   "ecrivaine/js/app.js:430"
   ]
  },
  "Undo {0} Actions": {
   "where": [
-   "ecrivaine/js/app.js:424"
+   "ecrivaine/js/app.js:430"
   ]
  },
  "Undo(Times).": {
@@ -34562,18 +34573,18 @@
  },
  "Unsaved changes": {
   "where": [
-   "index.html:494",
-   "index.html:497"
+   "index.html:495",
+   "index.html:498"
   ]
  },
  "Unsaved changes from {0}": {
   "where": [
-   "common/suite.js:1202"
+   "common/suite.js:1198"
   ]
  },
  "Unsaved changes from {0} (never saved)": {
   "where": [
-   "common/suite.js:1202"
+   "common/suite.js:1198"
   ]
  },
  "Unselect, Delete, Copy, Cut, Paste": {
@@ -34975,7 +34986,7 @@
  },
  "Version {0}": {
   "where": [
-   "index.html:543"
+   "index.html:544"
   ]
  },
  "Vertical": {
@@ -35042,7 +35053,7 @@
  },
  "Vertical position": {
   "where": [
-   "ecrivaine/js/app.js:480"
+   "ecrivaine/js/app.js:486"
   ]
  },
  "Vertical ruler (Print view only)": {
@@ -35162,7 +35173,7 @@
  },
  "Visual Basic is not available in this editor.": {
   "where": [
-   "common/suite.js:819"
+   "common/suite.js:815"
   ]
  },
  "Vivid": {
@@ -35298,13 +35309,13 @@
  },
  "Welcome to Ecrivaine": {
   "where": [
-   "ecrivaine/js/app.js:1379",
-   "ecrivaine/js/app.js:1381"
+   "ecrivaine/js/app.js:1385",
+   "ecrivaine/js/app.js:1387"
   ]
  },
  "Welcome to Melina Office.": {
   "where": [
-   "index.html:172"
+   "index.html:173"
   ]
  },
  "Welcome to Page Break Preview\n\nYou can adjust where the page breaks are by clicking and dragging them with your mouse.": {
@@ -35748,8 +35759,8 @@
  },
  "Working...": {
   "where": [
-   "common/ui.js:2025",
-   "common/ui.js:2027"
+   "common/ui.js:2115",
+   "common/ui.js:2117"
   ]
  },
  "Worksheet": {
@@ -35760,7 +35771,7 @@
  },
  "Worksheet grid": {
   "where": [
-   "matheuse/index.html:27"
+   "matheuse/index.html:29"
   ]
  },
  "WorksheetFunction calls a name in the Matheuse function catalog. A dotted name such as BINOM.DIST is also BINOM_DIST. A name that is not in the catalog is absent.": {
@@ -35876,7 +35887,7 @@
  },
  "Yesterday, {0}": {
   "where": [
-   "index.html:466"
+   "index.html:467"
   ]
  },
  "You cannot change part of an array.": {
@@ -35998,21 +36009,21 @@
  },
  "Zoom": {
   "where": [
-   "common/ui.js:1836",
-   "common/ui.js:1838",
+   "common/ui.js:1855",
+   "common/ui.js:1857",
    "ecrivaine/js/app.js:278",
    "ecrivaine/js/dialogs3.js:702"
   ]
  },
  "Zoom In": {
   "where": [
-   "common/ui.js:1837",
+   "common/ui.js:1856",
    "matheuse/js/commands.js:89"
   ]
  },
  "Zoom Out": {
   "where": [
-   "common/ui.js:1835",
+   "common/ui.js:1854",
    "matheuse/js/commands.js:90"
   ]
  },
@@ -36045,7 +36056,7 @@
  },
  "[object]": {
   "where": [
-   "ecrivaine/js/app.js:1418",
+   "ecrivaine/js/app.js:1424",
    "ecrivaine/js/panes.js:201",
    "ecrivaine/js/review.js:38"
   ]
@@ -36088,7 +36099,7 @@
  },
  "comment": {
   "where": [
-   "common/search.js:26"
+   "common/search.js:30"
   ]
  },
  "contains": {
@@ -36562,12 +36573,12 @@
  },
  "{0} (unsaved changes)": {
   "where": [
-   "common/suite.js:1165"
+   "common/suite.js:1161"
   ]
  },
  "{0} (unsaved)": {
   "where": [
-   "common/suite.js:1181"
+   "common/suite.js:1177"
   ]
  },
  "{0} ({1} seconds)": {
@@ -36587,7 +36598,7 @@
  },
  "{0} -Section {1}-": {
   "where": [
-   "ecrivaine/js/app.js:1057"
+   "ecrivaine/js/app.js:1063"
   ]
  },
  "{0} Column": {
@@ -36607,7 +36618,7 @@
  },
  "{0} KB": {
   "where": [
-   "index.html:497"
+   "index.html:498"
   ]
  },
  "{0} Minutes": {
@@ -36644,7 +36655,7 @@
  },
  "{0} can't open {1}. {2}": {
   "where": [
-   "ecrivaine/js/app.js:831"
+   "ecrivaine/js/app.js:837"
   ]
  },
  "{0} can't read {1}. {2}\nMake sure the file is a PowerPoint 2007 or later presentation (.pptx).": {
@@ -36719,7 +36730,7 @@
  },
  "{0} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.": {
   "where": [
-   "common/suite.js:1216"
+   "common/suite.js:1212"
   ]
  },
  "{0} key sentence highlighted. Undo to restore.": {
@@ -36801,13 +36812,13 @@
  },
  "{0} pictures are not in the .md file and show as a box. Open a .zip holding the file and its pictures to see them.": {
   "where": [
-   "ecrivaine/js/app.js:819"
+   "ecrivaine/js/app.js:825"
   ]
  },
  "{0} pt": {
   "where": [
-   "ecrivaine/js/app.js:458",
-   "ecrivaine/js/app.js:470",
+   "ecrivaine/js/app.js:464",
+   "ecrivaine/js/app.js:476",
    "oratrice/js/app.js:127",
    "oratrice/js/app.js:202"
   ]
@@ -36829,7 +36840,7 @@
  },
  "{0} toolbar": {
   "where": [
-   "common/search.js:100"
+   "common/search.js:104"
   ]
  },
  "{0} x {1} Pages": {
@@ -36844,12 +36855,12 @@
  },
  "{0} — open in this window": {
   "where": [
-   "common/suite.js:1203"
+   "common/suite.js:1199"
   ]
  },
  "{0} — unsaved changes from {1}": {
   "where": [
-   "common/suite.js:1177"
+   "common/suite.js:1173"
   ]
  },
  "{0}% normal size": {

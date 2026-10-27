@@ -4315,3 +4315,17 @@ body:is(.vscode-dark, .vscode-high-contrast) [data-look="vscodegg"] {
 :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b:disabled::before {
   background: var(--gg-spin-glyph-off);
 }
+
+/* a phone or a small tablet: Save sits beside the tabs, Search commands is hidden, and the command panel slides */
+@media (max-width: 960px) {
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-bar {
+    display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 4px;
+  }
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-qat { flex: none; }
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-search { display: none; }
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-tabs {
+    flex: 0 1 auto; min-width: 0; width: auto; max-width: 100%;
+  }
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-panel { justify-content: safe center; }
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-groups { margin: 0; }
+}

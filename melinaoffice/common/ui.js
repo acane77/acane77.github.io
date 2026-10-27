@@ -1818,6 +1818,35 @@
       dy: (a1.y + b1.y) / 2 - (a0.y + b0.y) / 2,
     };
   };
+  /** A two-finger tap is a right-click. g is the gesture so far, or null. ev is
+      { type: 'start'|'move'|'end'|'cancel', t, touches: [{ id, x, y }] } with the fingers still down.
+      Both fingers up within 500ms, the first finger within 14px of where it was and the span between
+      them within 18px (or a fifth of that span), is a tap: menu is that first finger's point.
+      cancelDrag is set while two fingers are down, so the press does not also drag. */
+  ui.twoFingerTap = function (g, ev) {
+    const touches = ev.touches || [];
+    const at = (id) => touches.find((t) => t.id === id);
+    if (ev.type === 'cancel' || (ev.type === 'start' && touches.length > 2)) return { g: null };
+    if (ev.type === 'start' && touches.length === 2 && !g) {
+      const first = touches[0].id < touches[1].id ? touches[0] : touches[1];
+      const other = first === touches[0] ? touches[1] : touches[0];
+      return { g: { id: first.id, oid: other.id, x: first.x, y: first.y, t: ev.t, span: Math.hypot(other.x - first.x, other.y - first.y), native: false }, cancelDrag: true };
+    }
+    if (!g) return { g: null };
+    if (ev.type === 'move') {
+      const a = at(g.id);
+      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > 14) return { g: null, cancelDrag: touches.length > 1 };
+      const b = at(g.oid);
+      if (b && Math.abs(Math.hypot(b.x - a.x, b.y - a.y) - g.span) > Math.max(18, g.span * 0.2)) return { g: null, cancelDrag: true };
+      return { g, cancelDrag: touches.length > 1 };
+    }
+    if (ev.type === 'end') {
+      if (touches.length > 0) return { g, cancelDrag: touches.length > 1 };
+      if (g.native || ev.t - g.t > 500) return { g: null };
+      return { g: null, menu: { x: g.x, y: g.y }, cancelDrag: true };
+    }
+    return { g };
+  };
   /** scroll position that keeps the point under `from` under `to` after oldZ becomes newZ.
       `from` and `to` are viewport coordinates; `scroll` is the element's scrollLeft/scrollTop. */
   ui.zoomScroll = function (scroll, oldZ, newZ, from, to) {
@@ -1941,8 +1970,50 @@
     });
     if (L.bus) { L.bus.on('zoom', sync); L.bus.on('layout-done', sync); }
     sync();
+    queueMicrotask(() => installDocStatus(box));
     return box;
   };
+  /* on a phone the status cells are one button; the zoom control stays on the right. The same cells move into the window, so they keep updating. */
+  const narrowStatus = () => typeof matchMedia === 'function' && matchMedia('(max-width: 960px)').matches;
+  function installDocStatus(zoom) {
+    const sb = zoom.parentElement;
+    if (!sb || sb.id !== 'statusbar' || sb.querySelector('.sb-docstatus')) return;
+    const btn = h('button', { type: 'button', class: 'sb-docstatus', text: 'Document Status' });
+    sb.insertBefore(btn, zoom);
+    let session = null;
+    const restore = (cells) => {
+      const z = sb.querySelector('.sb-zoom');
+      for (const c of cells) sb.insertBefore(c, z);
+      session = null;
+    };
+    btn.addEventListener('click', () => {
+      if (session) { session.close(null); return; }
+      const cells = [...sb.querySelectorAll(':scope > .sb-cell')];
+      const list = h('div', { class: 'sb-status-list' });
+      for (const c of cells) list.append(c);
+      session = ui.dialog({
+        title: '',
+        body: list,
+        width: 100,
+        modeless: true,
+        buttons: [],
+        onOpen(dlg) {
+          dlg.classList.add('sb-status-dlg');
+          const place = () => {
+            const b = btn.getBoundingClientRect();
+            const w = dlg.offsetWidth || 100;
+            const top = b.top - dlg.offsetHeight - 6;
+            dlg.style.left = Math.max(4, Math.min(b.left, window.innerWidth - w - 4)) + 'px';
+            dlg.style.top = Math.max(4, top) + 'px';
+          };
+          place();
+          requestAnimationFrame(place);
+        },
+        onClose() { restore(cells); },
+      });
+    });
+    window.addEventListener('resize', () => { if (session && !narrowStatus()) session.close(null); });
+  }
   /** Pinch and two-finger pan on an editing surface. o.zoom() is a fraction (1 = 100%), o.setZoom(z)
       applies one, o.min/o.max bound it. o.about(oldZ, newZ, x0, y0, x1, y1) replaces the default,
       which scrolls `el`. o.wheelScroll(e) handles a two-finger swipe that is not a pinch; without it
@@ -2009,6 +2080,39 @@
     const stopGesture = (e) => e.preventDefault();
     window.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
     window.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
+    /* a two-finger tap opens the right-click menu at the finger that landed first */
+    let fingers = null, eatClick = 0, opened = 0;
+    const touchesOf = (e) => [...e.touches].map((t) => ({ id: t.identifier, x: t.clientX, y: t.clientY }));
+    const take = (e, type) => {
+      const r = ui.twoFingerTap(fingers, { type, t: Date.now(), touches: touchesOf(e) });
+      fingers = r.g;
+      if (r.cancelDrag) ui.dragCancel();
+      if (!r.menu) return;
+      const el = document.elementFromPoint(r.menu.x, r.menu.y);
+      if (!el) return;
+      const at = { bubbles: true, cancelable: true, view: window, clientX: r.menu.x, clientY: r.menu.y, screenX: r.menu.x, screenY: r.menu.y, button: 2, buttons: 2 };
+      try { el.dispatchEvent(new PointerEvent('pointerdown', Object.assign({ pointerId: 1, pointerType: 'touch', isPrimary: true }, at))); } catch (err) { /* the menu event below still opens it */ }
+      opened = Date.now();
+      if (el.dispatchEvent(new MouseEvent('contextmenu', at))) { opened = 0; return; }
+      e.preventDefault();
+      eatClick = Date.now() + 500;
+    };
+    window.addEventListener('touchstart', (e) => take(e, 'start'), { capture: true, passive: true });
+    window.addEventListener('touchmove', (e) => take(e, 'move'), { capture: true, passive: true });
+    window.addEventListener('touchend', (e) => take(e, 'end'), { capture: true, passive: false });
+    window.addEventListener('touchcancel', (e) => take(e, 'cancel'), { capture: true, passive: true });
+    window.addEventListener('contextmenu', (e) => {
+      if (!e.isTrusted) return;
+      if (fingers) fingers.native = true;
+      /* the tap already opened the menu; the system's own right-click for the same tap does not open another */
+      if (opened && Date.now() - opened < 400) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+    window.addEventListener('click', (e) => {
+      if (!eatClick || Date.now() > eatClick) return;
+      eatClick = 0;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
   }
 
   /* ---------- status bar & misc ---------- */

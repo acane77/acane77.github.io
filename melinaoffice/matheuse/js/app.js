@@ -22,7 +22,7 @@
   /* a new workbook as the Office of the UI's language makes it (common/locales.js): its font and paper */
   const LOCALE = (L.locale && L.locale.get().sheet) || {};
   const DEFAULT_OPTS = {
-    statusBar: true, formulaBar: true, taskOpen: true, paneFollows: true, moveAfterEnter: true, enterDir: 'down', autoComplete: true, dragDrop: true,
+    statusBar: true, formulaBar: true, taskOpen: false, paneFollows: true, moveAfterEnter: true, enterDir: 'down', autoComplete: true, dragDrop: true,
     toolbars: { standard: true, formatting: true, drawing: false, chart: 'auto', auditing: false, reviewing: false, picture: 'auto', borders: false, list: 'auto', vbForm: 'auto' },
     userName: 'Matheuse User', recent: [], defaultFont: LOCALE.font || '等线', defaultSize: LOCALE.sz || 10, sheetsInNew: 3, r1c1: false, calcMode: 'auto', iterate: false, iterateCount: 100, iterateDelta: 0.001, autoCalcFn: 'SUM',
   };

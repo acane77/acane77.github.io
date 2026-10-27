@@ -33,7 +33,7 @@
     startupPane: true, layoutPaneOnNew: true, paneFollows: true, statusBar: true, ruler: false, showPopup: true, showPopbar: true, endBlack: true,
     smartQuotes: true, autocorrect: true, capSentence: true, spell: true, autoPreview: true, gray: false, bw: false, outlinePlain: false, alignToSlide: false,
     toolbars: { standard: true, formatting: true, drawing: true, outlining: false, picture: 'auto', tables: 'auto', wordart: 'auto', diagram: 'auto', vbForm: 'auto' },
-    grid: { show: false, snap: true, size: 6 }, leftW: 196, notesH: 92, leftOpen: true, taskOpen: true,
+    grid: { show: false, snap: true, size: 6 }, leftW: 196, notesH: 92, leftOpen: true, taskOpen: false,
   };
   const A = (L.app = Object.assign(L.app || {}, {
     view: 'normal', prevView: null, fileName: 'Presentation1', fileType: 'pptx', saved: false,
@@ -341,7 +341,7 @@
     A.opts.taskOpen = show;
     if (show && on == null && !L.panes.task.current) L.panes.task.show('getting-started');
     else if (show && changed && on == null) L.panes.task.render();
-    if (changed) { E.layout(); if (A.view === 'sorter') L.panes.sorter.render(); }
+    if (changed) { A.saveOpts(); E.layout(); if (A.view === 'sorter') L.panes.sorter.render(); }
     ui.refresh();
   };
   A.taskOpen = () => !L.$('#taskpane').hidden;
@@ -2269,9 +2269,7 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     setupDrop();
     wire();
     A.loadPres(L.pres, 'Presentation1');
-    const wantTask = A.opts.taskOpen;
-    L.panes.task.show('getting-started');
-    if (!wantTask) { L.$('#taskpane').hidden = true; A.opts.taskOpen = false; }
+    if (A.opts.taskOpen) L.panes.task.show('getting-started');
     A.applyOpts();
     E.layout();
     const prompt = window.self !== window.top ? null : null;

@@ -18,7 +18,7 @@
   };
 
   const DEFAULT_OPTS = {
-    statusBar: true, ruler: true, vruler: true, whiteSpace: true, taskOpen: true, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
+    statusBar: true, ruler: true, vruler: true, whiteSpace: true, taskOpen: false, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
     toolbars: { standard: true, formatting: true, drawing: true, tables: false, reviewing: 'auto', picture: 'auto', outlining: 'auto', headerFooter: 'auto', mailMerge: false, wordart: 'auto', vbForm: 'auto' },
     showMarks: false, marks: { tabs: false, spaces: false, para: false, hidden: false, all: false }, textBoundaries: true, fieldShading: 'selected', bookmarks: false,
     smartQuotes: true, autocorrect: true, autoFormat: true, capSentence: true, autoBullets: true, autoNumbers: true, autoBorders: true, autoHeadings: false, autoUrl: true, ordinals: true, fractions: true, dashes: true,
