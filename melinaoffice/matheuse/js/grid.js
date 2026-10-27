@@ -11,7 +11,7 @@
   G.wb = null;
   G.zoomOf = (sh) => (sh.view.zoom || 100) / 100;
   G.state = { marquee: null, hl: null, fillTo: null, dragTo: null, pages: null };
-  let wrap, canvas, layer, vbar, hbar, inp, touchN = 0, touchSawTwo = false;
+  let wrap, canvas, layer, vbar, hbar, inp, touchN = 0;
   let dirty = true, raf = 0;
 
   G.sheet = () => G.wb.sheets[G.wb.active];
@@ -52,9 +52,9 @@
     wrap.addEventListener('pointerdown', onPointerDown);
     wrap.addEventListener('pointermove', onHover);
     wrap.addEventListener('dblclick', onDblClick);
-    wrap.addEventListener('touchstart', (e) => { touchN = e.touches.length; if (touchN > 1) touchSawTwo = true; }, true);
-    wrap.addEventListener('touchend', (e) => { touchN = e.touches.length; if (!touchN) setTimeout(() => { touchSawTwo = false; }, 0); }, true);
-    wrap.addEventListener('touchcancel', (e) => { touchN = e.touches.length; if (!touchN) setTimeout(() => { touchSawTwo = false; }, 0); }, true);
+    wrap.addEventListener('touchstart', (e) => { touchN = e.touches.length; }, true);
+    wrap.addEventListener('touchend', (e) => { touchN = e.touches.length; }, true);
+    wrap.addEventListener('touchcancel', (e) => { touchN = e.touches.length; }, true);
     wrap.addEventListener('contextmenu', onContext);
     wrap.addEventListener('focus', () => G.focus());
     inp.addEventListener('keydown', onKey);
@@ -899,8 +899,8 @@
     G.paint();
     L.bus.emit('zoom');
   };
-  /* touch: pan to scroll, tap to select. A long press and a second finger are right-clicks
-     (common/ui.js), so this press does not also select or edit when it lifts. */
+  /* touch: pan to scroll, tap to select. A long press is a right-click (common/ui.js), so the
+     lift does not also select or edit. */
   function startTouch(e, p) {
     const sh = G.sheet();
     const z0 = zone(p);
@@ -921,7 +921,7 @@
     };
     const up = () => {
       wrap.removeEventListener('pointermove', mv); wrap.removeEventListener('pointerup', up); wrap.removeEventListener('pointercancel', up);
-      if (moved || touchSawTwo || (L.ui.touchHeld && L.ui.touchHeld())) return;
+      if (moved || (L.ui.touchHeld && L.ui.touchHeld())) return;
       const ed = L.editor;
       if (ed && ed.active) { if (ed.canPoint() && z0.kind === 'cell') { ed.pointStart({ r1: z0.r, c1: z0.c, r2: z0.r, c2: z0.c }); ed.pointEnd(); return; } if (!ed.commit()) return; }
       if (z0.kind === 'cell') {

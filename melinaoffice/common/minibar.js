@@ -17,6 +17,10 @@
     const opacity = over ? 1 : (dist >= FADE ? 0 : REST * (1 - dist / FADE));
     return { opacity, latched: !over && opacity <= 0 };
   }
+  /** the show() anchor that puts the bar on the line above a caret line {x, y, h} */
+  function aboveCaret(line) {
+    return { x: line.x - GAP, y: line.y - (line.h > 0 ? line.h : 0) };
+  }
   /** top-left of a bar of size {w,h} placed up-right of anchor, gap px clear of it, inside view {w,h} */
   function place(anchor, size, view, gap) {
     const g = gap == null ? GAP : gap;
@@ -31,7 +35,7 @@
     return { x, y };
   }
 
-  L.minibar = { FADE, REST, GAP, fade, place };
+  L.minibar = { FADE, REST, GAP, fade, place, aboveCaret };
   if (!root.document) return;
 
   let build = null, bar = null, anchor = null;
@@ -67,8 +71,35 @@
     return x >= r.left && x < r.right && y >= r.top && y < r.bottom;
   }
 
+  /** the caret's line while text is selected (the touch selection handles are showing), or null */
+  function caretLine() {
+    const s = root.getSelection && root.getSelection();
+    if (!s || !s.rangeCount || s.isCollapsed) return null;
+    const node = s.focusNode;
+    const el = node && (node.nodeType === 1 ? node : node.parentElement);
+    if (!el || (el.closest && el.closest('input, textarea, .minibar, .menu, .dlg'))) return null;
+    let r = null;
+    try {
+      const rng = root.document.createRange();
+      rng.setStart(node, s.focusOffset);
+      rng.collapse(true);
+      const list = rng.getClientRects();
+      for (let i = 0; i < list.length; i++) if (list[i].height >= 1 && list[i].height < 240) r = list[i];
+      if (!r) { const b = rng.getBoundingClientRect(); if (b.height >= 1 && b.height < 240) r = b; }
+    } catch (e) { r = null; }
+    if (!r && s.getRangeAt(0).getClientRects) { const all = s.getRangeAt(0).getClientRects(); if (all.length) r = all[all.length - 1]; }
+    if (!r || r.height < 1) return null;
+    return { x: r.left, y: r.top, h: r.height };
+  }
+  L.minibar.caretLine = caretLine;
+
   L.minibar.show = function (x, y) {
     if (!build || (ui() && ui().dialogOpen())) return;
+    /* a touch selection puts the bar on the line above the caret, not up-right of the finger */
+    if (x == null && ui() && ui().touchSelection && ui().touchSelection()) {
+      const line = caretLine();
+      if (line) { const a = aboveCaret(line); x = a.x; y = a.y; }
+    }
     if (x == null) { x = pointer.x; y = pointer.y; }
     if (!bar) {
       bar = L.h('div', { class: 'minibar', role: 'toolbar', 'aria-label': 'Formatting' });

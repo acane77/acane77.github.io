@@ -1818,38 +1818,12 @@
       dy: (a1.y + b1.y) / 2 - (a0.y + b0.y) / 2,
     };
   };
-  /** A two-finger tap is a right-click. g is the gesture so far, or null. ev is
-      { type: 'start'|'move'|'end'|'cancel', t, touches: [{ id, x, y }] } with the fingers still down.
-      Both fingers up within 500ms, the first finger within 14px of where it was and the span between
-      them within 18px (or a fifth of that span), is a tap: menu is that first finger's point.
-      cancelDrag is set while two fingers are down, so the press does not also drag. */
-  ui.twoFingerTap = function (g, ev) {
-    const touches = ev.touches || [];
-    const at = (id) => touches.find((t) => t.id === id);
-    if (ev.type === 'cancel' || (ev.type === 'start' && touches.length > 2)) return { g: null };
-    if (ev.type === 'start' && touches.length === 2 && !g) {
-      const first = touches[0].id < touches[1].id ? touches[0] : touches[1];
-      const other = first === touches[0] ? touches[1] : touches[0];
-      return { g: { id: first.id, oid: other.id, x: first.x, y: first.y, t: ev.t, span: Math.hypot(other.x - first.x, other.y - first.y), native: false }, cancelDrag: true };
-    }
-    if (!g) return { g: null };
-    if (ev.type === 'move') {
-      const a = at(g.id);
-      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > 14) return { g: null, cancelDrag: touches.length > 1 };
-      const b = at(g.oid);
-      if (b && Math.abs(Math.hypot(b.x - a.x, b.y - a.y) - g.span) > Math.max(18, g.span * 0.2)) return { g: null, cancelDrag: true };
-      return { g, cancelDrag: touches.length > 1 };
-    }
-    if (ev.type === 'end') {
-      if (touches.length > 0) return { g, cancelDrag: touches.length > 1 };
-      if (g.native || ev.t - g.t > 500) return { g: null };
-      return { g: null, menu: { x: g.x, y: g.y }, cancelDrag: true };
-    }
-    return { g };
-  };
-  /** A one-finger press that stays within 10px for 500ms is a right-click at that point.
-      ev matches ui.twoFingerTap, plus type 'hold' when the wait elapses. wait is how long the
-      caller waits after a new press. A slide, a second finger or a lift before then is not a menu. */
+  /** A finger held still, with no slide, is a right-click at the press. g is the gesture so far, or null.
+      ev: { type: 'start'|'move'|'end'|'cancel'|'hold', t, touches: [{ id, x, y }], selecting }.
+      The fingers in touches are the ones still down. hold is the moment the wait elapses.
+      wait is how long the caller waits after a new press, or the time still left when hold comes early.
+      A slide past 10px (slid), a second finger, a lift before 500ms, or selecting (the text selection
+      handles are showing) is not a menu. */
   ui.LONG_PRESS = 500;
   ui.longPress = function (g, ev) {
     const touches = ev.touches || [];
@@ -1865,7 +1839,7 @@
     if (ev.type === 'move') {
       if (touches.length !== 1) return { g: null };
       const a = finger();
-      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > 10) return { g: null };
+      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > 10) return { g: null, slid: true };
       return { g };
     }
     if (ev.type === 'end') return finger() ? { g } : { g: null };
@@ -1873,6 +1847,7 @@
       if (g.native) return { g: null };
       const left = ui.LONG_PRESS - (ev.t - g.t);
       if (left > 0) return { g, wait: left };
+      if (ev.selecting) return { g: null, bar: true };
       return { g: null, menu: { x: g.x, y: g.y }, cancelDrag: true };
     }
     return { g };
@@ -2110,24 +2085,17 @@
     const stopGesture = (e) => e.preventDefault();
     window.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
     window.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
-    /* a two-finger tap, or a one-finger press held still, opens the right-click menu there */
-    let fingers = null, hold = null, holdTimer = 0, eatClick = 0, opened = 0, eatLift = false, touchHeld = false;
+    /* a finger held still, and only that, opens the right-click menu. A slide, or a press while
+       text is selected, shows the formatting bar one line above the caret instead. */
+    let hold = null, holdTimer = 0, opened = 0, eatClick = 0, eatLift = false, touchHeld = false, touchSelection = false;
     ui.touchHeld = () => touchHeld;
+    ui.touchSelection = () => touchSelection;
+    const textSelected = () => !!(L.minibar && L.minibar.caretLine && L.minibar.caretLine());
+    const keepSelection = () => { touchSelection = true; };
+    const releaseSelection = () => { if (touchSelection) setTimeout(() => { touchSelection = false; }, 400); };
     const touchesOf = (e) => [...e.touches].map((t) => ({ id: t.identifier, x: t.clientX, y: t.clientY }));
     const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = 0; } };
-    const armHold = (ms) => {
-      clearHold();
-      holdTimer = setTimeout(() => {
-        holdTimer = 0;
-        const fired = ui.longPress(hold, { type: 'hold', t: Date.now(), touches: [] });
-        hold = fired.g;
-        if (fired.wait && hold) { armHold(fired.wait); return; }
-        if (!fired.menu) return;
-        touchHeld = true;
-        if (openTouchMenu(fired.menu, null)) eatLift = true;
-      }, ms);
-    };
-    const openTouchMenu = (pt, e) => {
+    const openTouchMenu = (pt) => {
       const el = document.elementFromPoint(pt.x, pt.y);
       if (!el) return false;
       ui.dragCancel();
@@ -2135,22 +2103,32 @@
       try { el.dispatchEvent(new PointerEvent('pointerdown', Object.assign({ pointerId: 1, pointerType: 'touch', isPrimary: true }, at))); } catch (err) { /* the menu event below still opens it */ }
       opened = Date.now();
       if (el.dispatchEvent(new MouseEvent('contextmenu', at))) { opened = 0; return false; }
-      if (e) { e.preventDefault(); eatClick = Date.now() + 500; }
       return true;
     };
+    const armHold = (ms) => {
+      clearHold();
+      holdTimer = setTimeout(() => {
+        holdTimer = 0;
+        const fired = ui.longPress(hold, { type: 'hold', t: Date.now(), touches: [], selecting: textSelected() });
+        hold = fired.g;
+        if (fired.wait && hold) { armHold(fired.wait); return; }
+        if (fired.bar) { keepSelection(); touchHeld = true; eatLift = true; if (L.minibar) L.minibar.show(); return; }
+        if (!fired.menu) return;
+        touchHeld = true;
+        if (!openTouchMenu(fired.menu)) touchHeld = false;
+        else eatLift = true;
+      }, ms);
+    };
     const take = (e, type) => {
-      const sample = { type, t: Date.now(), touches: touchesOf(e) };
-      const r = ui.twoFingerTap(fingers, sample);
-      fingers = r.g;
-      if (r.cancelDrag) ui.dragCancel();
-      if (r.menu) openTouchMenu(r.menu, e);
-      const h = ui.longPress(hold, sample);
+      const h = ui.longPress(hold, { type, t: Date.now(), touches: touchesOf(e) });
       hold = h.g;
+      if (h.slid) keepSelection();
       if (h.wait && hold) armHold(h.wait);
       else if (!hold) clearHold();
       if (type === 'end' && !e.touches.length) {
         if (eatLift) { e.preventDefault(); eatLift = false; eatClick = Date.now() + 700; }
         if (touchHeld) setTimeout(() => { touchHeld = false; }, 0);
+        releaseSelection();
       }
     };
     window.addEventListener('touchstart', (e) => take(e, 'start'), { capture: true, passive: true });
@@ -2159,9 +2137,8 @@
     window.addEventListener('touchcancel', (e) => take(e, 'cancel'), { capture: true, passive: true });
     window.addEventListener('contextmenu', (e) => {
       if (!e.isTrusted) return;
-      if (fingers) fingers.native = true;
       if (hold) hold.native = true;
-      /* this press already opened the menu; the system's own right-click for it does not open another */
+      /* this press already opened the menu; the system's own callout for it does not open another */
       if (opened && Date.now() - opened < 400) { e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
     window.addEventListener('click', (e) => {
