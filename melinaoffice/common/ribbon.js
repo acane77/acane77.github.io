@@ -251,7 +251,7 @@
     clearTips(true);
     const items = [];
     if (level === 'tabs') {
-      L.$$('.rb-qat > *', el).forEach((x, i) => items.push({ el: x.matches('.tb-split') ? x.firstChild : x, key: String(i + 1) }));
+      L.$$('.rb-qat:not(.rb-search) > *', el).forEach((x, i) => items.push({ el: x.matches('.tb-split') ? x.firstChild : x, key: String(i + 1) }));
       L.$$('.rb-tab', tabsEl).forEach((x) => { const t = x.dataset.tab === 'file' ? { label: '&File' } : allTabs().find((y) => y.id === x.dataset.tab); items.push({ el: x, label: ui.stripAmp(t.label), en: ui.plainAmp(t.label), key: accessKey(t.label), tab: x.dataset.tab }); });
     } else {
       L.$$(ACT, panelEl).forEach((x) => { if (!x.getClientRects().length) return; const c = ui.cmds[x.dataset.cmd] || {}; items.push({ el: x, label: x.getAttribute('aria-label') || x.textContent || x.dataset.tip || ui.stripAmp(c.label || ""), en: ui.plainAmp(c.label || '') }); });
@@ -300,7 +300,8 @@
     panelEl = h('div', { class: 'rb-panel' });
     const pin = h('button', { class: 'rb-pin', type: 'button', 'aria-label': 'Collapse the Ribbon (Ctrl+F1)', 'data-tip': 'Collapse the Ribbon (Ctrl+F1)', html: '<svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 5l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>' });
     pin.addEventListener('click', () => RB.collapse());
-    el = h('div', { class: 'ribbon' }, h('div', { class: 'rb-bar' }, qat, tabsEl, ui.searchBox()), h('div', { class: 'rb-panelwrap' }, panelEl, pin));
+    const search = h('div', { class: 'rb-qat rb-search' }, ui.searchBox());
+    el = h('div', { class: 'ribbon' }, h('div', { class: 'rb-bar' }, qat, tabsEl, search), h('div', { class: 'rb-panelwrap' }, panelEl, pin));
     L.$('.cmdbars').prepend(el);
     drawTabs();
     if (L.store.get('ribbonCollapsed', false)) el.classList.add('collapsed');

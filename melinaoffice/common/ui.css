@@ -28,7 +28,7 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .mb-item:hover { background: linear-gradient(var(--hot-a), var(--hot-b)); border-color: var(--hot-border); }
 .mb-item.open { background: linear-gradient(var(--tb-a), var(--menu-open)); border-color: var(--menu-border); border-bottom-color: transparent; position: relative; z-index: 6100; }
 .cmd-search { margin-left: auto; flex: none; position: relative; display: flex; align-items: center; }
-.cmd-search .cs-glass { position: absolute; left: 6px; color: var(--hint-ink); pointer-events: none; }
+.cmd-search .cs-glass { position: absolute; left: 6px; color: var(--hint-ink); pointer-events: none; border: 0; background: none; padding: 0; display: flex; align-items: center; justify-content: center; }
 .cmd-search input { width: 190px; height: 19px; border: 1px solid var(--combo-border); padding: 1px 4px 1px 22px; background: var(--surface); color: var(--ink-3); font: inherit; }
 .cmd-search input::placeholder { color: var(--hint-ink); }
 .cmd-search input::-webkit-search-cancel-button { cursor: pointer; }
@@ -478,6 +478,7 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 [data-layout="ribbon"] .cmdbars { background: var(--rb-bg); }
 .rb-bar { display: flex; align-items: flex-end; gap: 8px; padding: 4px 8px 0; min-height: 31px; }
 .rb-qat { display: flex; align-items: center; gap: 1px; align-self: center; padding: 0 8px 3px 0; margin-right: 2px; border-right: 1px solid var(--rb-line); }
+.rb-qat.rb-search { border: 0; margin: 0; padding: 0; background: none; box-shadow: none; }
 .rb-tabs { display: flex; align-items: flex-end; gap: 1px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .rb-tabs::-webkit-scrollbar { display: none; }
 .rb-tab { flex: none; border: 1px solid transparent; border-bottom: 0; background: none; padding: 4px 11px 5px; color: var(--rb-tab-ink); cursor: default; white-space: nowrap; border-radius: var(--ctl-radius) var(--ctl-radius) 0 0; font: inherit; }

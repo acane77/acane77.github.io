@@ -8,6 +8,10 @@
  *   ui.searchBox() → a new box (each command-bar layout has its own; they share the recent list)
  *   ui.searchCommands(query, layout) → [{ id, label, where, enabled }], best first (tests/search.test.mjs)
  *   ui.searchInput() → the box of the layout in use, or null (the assistant points at it)
+ *
+ * Golden Gate keeps the ribbon box as a magnifying glass in its own Quick Access capsule. A click or
+ * Alt+Q opens the field; it closes again once the field is empty. Its list sits on the same glass as
+ * the other pop-up menus.
  */
 (function (root) {
   'use strict';
@@ -203,17 +207,25 @@
     return out + (open ? '</b>' : '');
   }
 
-  const SEARCH_ICON = '<svg class="cs-glass" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="5" cy="5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.7 7.7L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const SEARCH_ICON = '<svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true"><circle cx="5" cy="5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.7 7.7L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const ggLook = () => /^(goldengate|goldengatedark|vscodegg)$/.test((document.documentElement.dataset.look) || '');
   let uid = 0;
 
   ui.searchBox = function () {
     const listId = 'cs-list-' + ++uid;
     const inp = h('input', { type: 'search', placeholder: 'Search commands', 'aria-label': 'Search commands', 'data-tip': 'Search commands (Alt+Q)', spellcheck: 'false', autocomplete: 'off', role: 'combobox', 'aria-expanded': 'false', 'aria-controls': listId, 'aria-autocomplete': 'list' });
-    const box = h('div', { class: 'cmd-search', role: 'search', html: SEARCH_ICON });
-    box.append(inp);
-    let pop = null, rows = [], act = -1;
+    const glass = h('button', { type: 'button', class: 'cs-glass', tabindex: '-1', 'aria-label': 'Search commands', html: SEARCH_ICON });
+    const box = h('div', { class: 'cmd-search', role: 'search' }, glass, inp);
+    let pop = null, shell = null, rows = [], act = -1;
+    const capsule = () => box.closest('.rb-search');
 
-    const close = () => { if (pop) { pop.remove(); pop = null; } rows = []; act = -1; inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); };
+    const close = () => {
+      if (shell) shell.remove(); else if (pop) pop.remove();
+      pop = null; shell = null; rows = []; act = -1;
+      inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant');
+    };
+    const fold = () => { const host = capsule(); if (host && ggLook() && !inp.value) host.classList.remove('is-open'); };
+    const unfold = () => { const host = capsule(); if (host && ggLook()) host.classList.add('is-open'); };
     const setAct = (i) => {
       if (!rows.length) return;
       act = (i + rows.length) % rows.length;
@@ -237,7 +249,13 @@
       if (!pop) {
         pop = h('div', { class: 'menu cs-pop', id: listId, role: 'listbox', 'aria-label': 'Commands' });
         pop.addEventListener('pointerdown', (e) => e.preventDefault());   // the box keeps the focus
-        document.body.append(pop);
+        /* Golden Gate menus are transparent; the glass shell is their background. This list is not opened by ui.openMenu. */
+        if (ggLook()) {
+          shell = h('div', { class: 'gg-menu-glass' });
+          shell.append(pop);
+          pop.style.position = 'relative';
+          document.body.append(shell);
+        } else document.body.append(pop);
       }
       L.clear(pop);
       rows = [];
@@ -256,20 +274,47 @@
         pop.append(el);
         rows.push({ el, ...r });
       });
-      const b = inp.getBoundingClientRect(), w = Math.min(420, window.innerWidth - 8);
-      pop.style.width = w + 'px';
-      pop.style.left = Math.max(4, Math.min(b.right - w, window.innerWidth - w - 4)) + 'px';
-      pop.style.top = b.bottom + 2 + 'px';
-      pop.style.maxHeight = Math.max(120, window.innerHeight - b.bottom - 10) + 'px';
+      const anchor = (capsule() || inp).getBoundingClientRect(), w = Math.min(420, window.innerWidth - 8);
+      const left = Math.max(4, Math.min(anchor.right - w, window.innerWidth - w - 4)) + 'px';
+      const top = anchor.bottom + 2 + 'px';
+      const maxH = Math.max(120, window.innerHeight - anchor.bottom - 10) + 'px';
+      if (shell) {
+        shell.style.zIndex = '6000';
+        shell.style.width = w + 'px';
+        shell.style.left = left;
+        shell.style.top = top;
+        pop.style.width = 'auto';
+        pop.style.maxHeight = maxH;
+      } else {
+        pop.style.width = w + 'px';
+        pop.style.left = left;
+        pop.style.top = top;
+        pop.style.maxHeight = maxH;
+      }
       inp.setAttribute('aria-expanded', 'true');
       act = -1;
       const first = rows.findIndex((r) => r.enabled);
       if (q && rows.length) setAct(first < 0 ? 0 : first);
     };
 
+    glass.addEventListener('mousedown', (e) => e.preventDefault());
+    document.addEventListener('pointerdown', (e) => {
+      const host = capsule();
+      if (!host || !ggLook() || !host.classList.contains('is-open')) return;
+      if (host.contains(e.target) || (shell && shell.contains(e.target)) || (pop && pop.contains(e.target))) return;
+      close();
+      host.classList.remove('is-open');
+    }, true);
+    box.addEventListener('pointerdown', (e) => {
+      const host = capsule();
+      if (!host || !ggLook() || host.classList.contains('is-open') || e.target === inp) return;
+      e.preventDefault();
+      unfold();
+      inp.focus();
+    });
     inp.addEventListener('input', show);
-    inp.addEventListener('focus', () => { inp.select(); show(); });
-    inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp) close(); }, 0));
+    inp.addEventListener('focus', () => { unfold(); inp.select(); show(); });
+    inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp) { close(); fold(); } }, 0));
     inp.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!pop) show(); else setAct(act + (e.key === 'ArrowDown' ? 1 : -1)); }
       else if (e.key === 'Enter') { e.preventDefault(); run(rows[act]); }
@@ -281,8 +326,8 @@
     return box;
   };
 
-  /** the box of the layout in use (each layout has its own), or null */
-  ui.searchInput = () => L.$$('.cmd-search input').find((x) => x.getClientRects().length) || null;
+  /** the box of the layout in use (each layout has its own), or null. A folded Golden Gate capsule still counts: its field has no size until it opens. */
+  ui.searchInput = () => L.$$('.cmd-search input').find((x) => (x.offsetWidth > 8 && x.getClientRects().length) || (x.closest('.rb-search') && x.closest('.rb-search').getClientRects().length)) || null;
 
   /* Alt+Q, as in Office: to the box of the layout in use */
   if (typeof document !== 'undefined') document.addEventListener('keydown', (e) => {
@@ -291,6 +336,8 @@
     if (!inp) return;
     e.preventDefault();
     e.stopPropagation();
+    const host = inp.closest('.rb-search');
+    if (host) host.classList.add('is-open');
     inp.focus();
   }, true);
 })(typeof window !== 'undefined' ? window : globalThis);

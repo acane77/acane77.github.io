@@ -1023,7 +1023,7 @@
   color-scheme: light;
   --theme-color: #0088ff;
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -1467,18 +1467,34 @@
   gap: 8px; min-height: 40px; padding: 8px 10px;
 }
 [data-look="goldengate"] .rb-qat {
-  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 15px; border: 0; border-radius: 17px;
+  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 5px; border: 0; border-radius: 17px;
   background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengate"] .rb-tabs {
-  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 15px;
+  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 5px;
   max-width: 100%; overflow-x: auto; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengate"] .rb-ctx { margin: 0; background: transparent; border: 0; }
-[data-look="goldengate"] .rb-bar .cmd-search { justify-self: end; align-self: center; margin: 0; }
-[data-look="goldengate"] .rb-bar .cmd-search input {
-  height: 24px; border: 0; border-radius: 12px; background: rgba(0,0,0,.08);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.08); padding: 0 10px 0 22px; color: rgba(0,0,0,.85);
+[data-look="goldengate"] .rb-qat.rb-search {
+  justify-self: end; height: 35px; margin: 0; padding: 0 4px; border: 0; border-radius: 17px;
+  background: var(--gg-glass); box-shadow: var(--gg-glass-edge); color: rgba(0,0,0,.85);
+}
+[data-look="goldengate"] .rb-search .cmd-search { margin: 0; }
+[data-look="goldengate"] .rb-search:not(.is-open) { width: 35px; padding: 0; justify-content: center; }
+[data-look="goldengate"] .rb-search:not(.is-open) .cmd-search { width: 35px; height: 35px; justify-content: center; }
+[data-look="goldengate"] .rb-search:not(.is-open) .cs-glass {
+  position: static; width: 28px; height: 28px; border-radius: 14px; color: inherit; pointer-events: auto; cursor: default;
+}
+[data-look="goldengate"] .rb-search:not(.is-open) .cs-glass:hover { background: var(--gg-hover); }
+[data-look="goldengate"] .rb-search:not(.is-open) .cs-glass:active { background: var(--gg-down); }
+[data-look="goldengate"] .rb-search:not(.is-open) input {
+  position: absolute; width: 0; height: 0; margin: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; box-shadow: none;
+}
+[data-look="goldengate"] .rb-search.is-open { width: auto; padding: 0 8px 0 2px; }
+[data-look="goldengate"] .rb-search.is-open .cs-glass { left: 8px; color: rgba(0,0,0,.55); }
+[data-look="goldengate"] .rb-search.is-open input {
+  width: 168px; height: 28px; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  padding: 0 4px 0 24px; color: rgba(0,0,0,.85);
 }
 [data-look="goldengate"] .rb-tab,
 [data-look="goldengate"] .rb-tab.file,
@@ -1516,7 +1532,7 @@
 [data-look="goldengate"] .rb-groups { margin: 0 auto; }
 [data-look="goldengate"] .rb-group:not(.rb-pop) { border-right: 0; box-shadow: inset -1px 0 rgba(0,0,0,.08); }
 [data-look="goldengate"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) {
-  border: 0; border-radius: 6px; background: transparent; box-shadow: none; margin: 2px 1px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; margin: 2px 1px;
 }
 [data-look="goldengate"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) {
   border: 0; background: var(--gg-hover); box-shadow: none;
@@ -1629,7 +1645,7 @@
 [data-look="goldengate"] .dlg.inactive .btn.primary:not(:disabled) { background: rgba(0,0,0,.08); color: rgba(0,0,0,.85); box-shadow: none; }
 
 [data-look="goldengate"] .tabs-head {
-  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
+  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 5px; width: max-content; max-width: 100%;
   min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
   padding-top: 3px; padding-bottom: 3px;
 }
@@ -1780,6 +1796,9 @@
   font: 510 13px/1.2 var(--ui-font);
   max-height: calc(100vh - 8px); overflow: auto;
 }
+/* the access-key letter stays in the words. The menu bar, the File menu, right-click menus, other pop-ups and dialogs do not underline it. A sample underline in a preview, and the formula step being evaluated, keep theirs. */
+[data-look="goldengate"] :is(.menubar, .menu, .dlg, dialog) u { text-decoration: none; }
+[data-look="goldengate"] :is(.preview-box, .ev-text) u { text-decoration: underline; }
 [data-look="goldengate"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: none; }
 [data-look="goldengate"] .menu > .m-item,
 [data-look="goldengate"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item,
@@ -1940,6 +1959,15 @@
 [data-look="goldengate"] .tp-head { background: #fff; border-bottom: 0.5px solid rgba(0,0,0,.08); }
 [data-look="goldengate"] .readbar,
 [data-look="goldengate"] .preview-bar { background: #fff; border-bottom: 0.5px solid rgba(0,0,0,.08); border-radius: 0; }
+/* No dotted focus rectangle on a field, a tab, a button, a check or the zoom slider. A dialog field and a dialog button keep their blue ring. */
+[data-look="goldengate"] :focus,
+[data-look="goldengate"] :focus-visible,
+[data-look="goldengate"] .tab.on:focus-visible,
+[data-look="goldengate"] .btn.primary:focus:not(:disabled),
+[data-look="goldengate"] dialog form button:focus,
+[data-look="goldengate"] .ck:has(input:focus-visible),
+[data-look="goldengate"] .sb-zoom-range:focus-visible,
+[data-look="goldengate"] .scout-agent:focus-visible { outline: none; }
 
 @media (prefers-reduced-transparency: reduce) {
   [data-look="goldengate"] .gg-menu-glass,
@@ -1961,7 +1989,7 @@
   color-scheme: dark;
   --theme-color: #1E1E1E;
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #2C2C2C; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -2405,18 +2433,34 @@
   gap: 8px; min-height: 40px; padding: 8px 10px;
 }
 [data-look="goldengatedark"] .rb-qat {
-  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 15px; border: 0; border-radius: 17px;
+  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 5px; border: 0; border-radius: 17px;
   background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengatedark"] .rb-tabs {
-  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 15px;
+  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 5px;
   max-width: 100%; overflow-x: auto; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengatedark"] .rb-ctx { margin: 0; background: transparent; border: 0; }
-[data-look="goldengatedark"] .rb-bar .cmd-search { justify-self: end; align-self: center; margin: 0; }
-[data-look="goldengatedark"] .rb-bar .cmd-search input {
-  height: 24px; border: 0; border-radius: 12px; background: rgba(255,255,255,.08);
-  box-shadow: 0 0 0 1px rgba(255,255,255,.12); padding: 0 10px 0 22px; color: rgba(255,255,255,.85);
+[data-look="goldengatedark"] .rb-qat.rb-search {
+  justify-self: end; height: 35px; margin: 0; padding: 0 4px; border: 0; border-radius: 17px;
+  background: var(--gg-glass); box-shadow: var(--gg-glass-edge); color: rgba(255,255,255,.85);
+}
+[data-look="goldengatedark"] .rb-search .cmd-search { margin: 0; }
+[data-look="goldengatedark"] .rb-search:not(.is-open) { width: 35px; padding: 0; justify-content: center; }
+[data-look="goldengatedark"] .rb-search:not(.is-open) .cmd-search { width: 35px; height: 35px; justify-content: center; }
+[data-look="goldengatedark"] .rb-search:not(.is-open) .cs-glass {
+  position: static; width: 28px; height: 28px; border-radius: 14px; color: inherit; pointer-events: auto; cursor: default;
+}
+[data-look="goldengatedark"] .rb-search:not(.is-open) .cs-glass:hover { background: var(--gg-hover); }
+[data-look="goldengatedark"] .rb-search:not(.is-open) .cs-glass:active { background: var(--gg-down); }
+[data-look="goldengatedark"] .rb-search:not(.is-open) input {
+  position: absolute; width: 0; height: 0; margin: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; box-shadow: none;
+}
+[data-look="goldengatedark"] .rb-search.is-open { width: auto; padding: 0 8px 0 2px; }
+[data-look="goldengatedark"] .rb-search.is-open .cs-glass { left: 8px; color: rgba(255,255,255,.55); }
+[data-look="goldengatedark"] .rb-search.is-open input {
+  width: 168px; height: 28px; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  padding: 0 4px 0 24px; color: rgba(255,255,255,.85);
 }
 [data-look="goldengatedark"] .rb-tab,
 [data-look="goldengatedark"] .rb-tab.file,
@@ -2454,7 +2498,7 @@
 [data-look="goldengatedark"] .rb-groups { margin: 0 auto; }
 [data-look="goldengatedark"] .rb-group:not(.rb-pop) { border-right: 0; box-shadow: inset -1px 0 rgba(255,255,255,.10); }
 [data-look="goldengatedark"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) {
-  border: 0; border-radius: 6px; background: transparent; box-shadow: none; margin: 2px 1px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; margin: 2px 1px;
 }
 [data-look="goldengatedark"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) {
   border: 0; background: var(--gg-hover); box-shadow: none;
@@ -2567,7 +2611,7 @@
 [data-look="goldengatedark"] .dlg.inactive .btn.primary:not(:disabled) { background: rgba(255,255,255,.08); color: rgba(255,255,255,.85); box-shadow: none; }
 
 [data-look="goldengatedark"] .tabs-head {
-  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
+  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 5px; width: max-content; max-width: 100%;
   min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
   padding-top: 3px; padding-bottom: 3px;
 }
@@ -2718,6 +2762,9 @@
   font: 510 13px/1.2 var(--ui-font);
   max-height: calc(100vh - 8px); overflow: auto;
 }
+/* the access-key letter stays in the words. The menu bar, the File menu, right-click menus, other pop-ups and dialogs do not underline it. A sample underline in a preview, and the formula step being evaluated, keep theirs. */
+[data-look="goldengatedark"] :is(.menubar, .menu, .dlg, dialog) u { text-decoration: none; }
+[data-look="goldengatedark"] :is(.preview-box, .ev-text) u { text-decoration: underline; }
 [data-look="goldengatedark"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: none; }
 [data-look="goldengatedark"] .menu > .m-item,
 [data-look="goldengatedark"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item,
@@ -2878,6 +2925,15 @@
 [data-look="goldengatedark"] .tp-head { background: #1E1E1E; border-bottom: 0.5px solid rgba(255,255,255,.08); }
 [data-look="goldengatedark"] .readbar,
 [data-look="goldengatedark"] .preview-bar { background: #1E1E1E; border-bottom: 0.5px solid rgba(255,255,255,.08); border-radius: 0; }
+/* No dotted focus rectangle on a field, a tab, a button, a check or the zoom slider. A dialog field and a dialog button keep their blue ring. */
+[data-look="goldengatedark"] :focus,
+[data-look="goldengatedark"] :focus-visible,
+[data-look="goldengatedark"] .tab.on:focus-visible,
+[data-look="goldengatedark"] .btn.primary:focus:not(:disabled),
+[data-look="goldengatedark"] dialog form button:focus,
+[data-look="goldengatedark"] .ck:has(input:focus-visible),
+[data-look="goldengatedark"] .sb-zoom-range:focus-visible,
+[data-look="goldengatedark"] .scout-agent:focus-visible { outline: none; }
 
 @media (prefers-reduced-transparency: reduce) {
   [data-look="goldengatedark"] .gg-menu-glass,
@@ -3186,7 +3242,7 @@
   --vsc-drop-border: var(--vscode-dropdown-border, var(--vscode-widget-border, rgba(0,0,0,.28)));
   --theme-color: var(--vsc-button);
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -3656,18 +3712,34 @@
   gap: 8px; min-height: 40px; padding: 8px 10px;
 }
 [data-look="vscodegg"] .rb-qat {
-  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 15px; border: 0; border-radius: 17px;
+  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 5px; border: 0; border-radius: 17px;
   background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="vscodegg"] .rb-tabs {
-  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 15px;
+  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 5px;
   max-width: 100%; overflow-x: auto; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="vscodegg"] .rb-ctx { margin: 0; background: transparent; border: 0; }
-[data-look="vscodegg"] .rb-bar .cmd-search { justify-self: end; align-self: center; margin: 0; }
-[data-look="vscodegg"] .rb-bar .cmd-search input {
-  height: 24px; border: 0; border-radius: 12px; background: var(--vsc-input);
-  box-shadow: 0 0 0 1px var(--vsc-input-border); padding: 0 10px 0 22px; color: var(--vsc-input-fg);
+[data-look="vscodegg"] .rb-qat.rb-search {
+  justify-self: end; height: 35px; margin: 0; padding: 0 4px; border: 0; border-radius: 17px;
+  background: var(--gg-glass); box-shadow: var(--gg-glass-edge); color: var(--vsc-bar-fg);
+}
+[data-look="vscodegg"] .rb-search .cmd-search { margin: 0; }
+[data-look="vscodegg"] .rb-search:not(.is-open) { width: 35px; padding: 0; justify-content: center; }
+[data-look="vscodegg"] .rb-search:not(.is-open) .cmd-search { width: 35px; height: 35px; justify-content: center; }
+[data-look="vscodegg"] .rb-search:not(.is-open) .cs-glass {
+  position: static; width: 28px; height: 28px; border-radius: 14px; color: inherit; pointer-events: auto; cursor: default;
+}
+[data-look="vscodegg"] .rb-search:not(.is-open) .cs-glass:hover { background: var(--gg-hover); }
+[data-look="vscodegg"] .rb-search:not(.is-open) .cs-glass:active { background: var(--gg-down); }
+[data-look="vscodegg"] .rb-search:not(.is-open) input {
+  position: absolute; width: 0; height: 0; margin: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; box-shadow: none;
+}
+[data-look="vscodegg"] .rb-search.is-open { width: auto; padding: 0 8px 0 2px; }
+[data-look="vscodegg"] .rb-search.is-open .cs-glass { left: 8px; color: var(--vsc-bar-fg); }
+[data-look="vscodegg"] .rb-search.is-open input {
+  width: 168px; height: 28px; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  padding: 0 4px 0 24px; color: var(--vsc-input-fg);
 }
 [data-look="vscodegg"] .rb-tab,
 [data-look="vscodegg"] .rb-tab.file,
@@ -3705,7 +3777,7 @@
 [data-look="vscodegg"] .rb-groups { margin: 0 auto; }
 [data-look="vscodegg"] .rb-group:not(.rb-pop) { border-right: 0; box-shadow: inset -1px 0 var(--vsc-border); }
 [data-look="vscodegg"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) {
-  border: 0; border-radius: 6px; background: transparent; box-shadow: none; margin: 2px 1px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; margin: 2px 1px;
 }
 [data-look="vscodegg"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) {
   border: 0; background: var(--gg-hover); box-shadow: none;
@@ -3818,7 +3890,7 @@
 [data-look="vscodegg"] .dlg.inactive .btn.primary:not(:disabled) { background: var(--gg-plate); color: var(--vsc-fg); box-shadow: none; }
 
 [data-look="vscodegg"] .tabs-head {
-  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
+  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 5px; width: max-content; max-width: 100%;
   min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
   padding-top: 3px; padding-bottom: 3px;
 }
@@ -3962,6 +4034,9 @@
   font: 510 13px/1.2 var(--ui-font);
   max-height: calc(100vh - 8px); overflow: auto;
 }
+/* the access-key letter stays in the words. The menu bar, the File menu, right-click menus, other pop-ups and dialogs do not underline it. A sample underline in a preview, and the formula step being evaluated, keep theirs. */
+[data-look="vscodegg"] :is(.menubar, .menu, .dlg, dialog) u { text-decoration: none; }
+[data-look="vscodegg"] :is(.preview-box, .ev-text) u { text-decoration: underline; }
 [data-look="vscodegg"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: none; }
 [data-look="vscodegg"] .menu > .m-item,
 [data-look="vscodegg"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item,
@@ -4123,6 +4198,15 @@
 [data-look="vscodegg"] .tp-head { background: var(--vsc-side); border-bottom: 0.5px solid var(--vsc-border); }
 [data-look="vscodegg"] .readbar,
 [data-look="vscodegg"] .preview-bar { background: var(--vsc-editor); border-bottom: 0.5px solid var(--vsc-border); border-radius: 0; }
+/* No dotted focus rectangle on a field, a tab, a button, a check or the zoom slider. A dialog field and a dialog button keep their blue ring. */
+[data-look="vscodegg"] :focus,
+[data-look="vscodegg"] :focus-visible,
+[data-look="vscodegg"] .tab.on:focus-visible,
+[data-look="vscodegg"] .btn.primary:focus:not(:disabled),
+[data-look="vscodegg"] dialog form button:focus,
+[data-look="vscodegg"] .ck:has(input:focus-visible),
+[data-look="vscodegg"] .sb-zoom-range:focus-visible,
+[data-look="vscodegg"] .scout-agent:focus-visible { outline: none; }
 
 @media (prefers-reduced-transparency: reduce) {
   [data-look="vscodegg"] .gg-menu-glass,
