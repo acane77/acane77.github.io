@@ -1018,12 +1018,19 @@
       watchGrid.wrap,
       L.h('div', { class: 'vb-ide-row' }, watchRemove, watchRemoveAll));
 
+    stackList = L.h('ul', { class: 'vb-ide-list' });
+    localList = L.h('ul', { class: 'vb-ide-list' });
+    const stackPage = L.h('div', { class: 'vb-ide-page', hidden: true }, stackList);
+    const localsPage = L.h('div', { class: 'vb-ide-page', hidden: true }, localList);
+
     const pages = [
       { name: 'output', el: outputPage },
       { name: 'errors', el: errorsPage },
       { name: 'expression', el: expressionPage },
       { name: 'breakpoints', el: breakPage },
       { name: 'watch', el: watchPage },
+      { name: 'stack', el: stackPage },
+      { name: 'locals', el: localsPage },
     ];
     const tabButtons = [
       ['Output', 'output'],
@@ -1031,6 +1038,8 @@
       ['Expression', 'expression'],
       ['Breakpoints', 'breakpoints'],
       ['Watch', 'watch'],
+      ['Call Stack', 'stack'],
+      ['Object Values', 'locals'],
     ].map((pair) => {
       const button = L.h('button', { class: 'vb-ide-tab', type: 'button', text: pair[1] === 'errors' ? L.t('Errors') : pair[0], dataset: { page: pair[1] } });
       button.addEventListener('click', () => showPage(pages, tabButtons, pair[1]));
@@ -1040,12 +1049,8 @@
     showErrors = () => showPage(pages, tabButtons, 'errors');
     paintErrors();
 
-    stackList = L.h('ul', { class: 'vb-ide-list' });
-    localList = L.h('ul', { class: 'vb-ide-list' });
     lowerPane = L.h('div', { class: 'vb-ide-lower' },
-      L.h('div', { class: 'vb-ide-tabs' }, L.h('div', { class: 'vb-ide-tabbar' }, tabButtons), outputPage, errorsPage, expressionPage, breakPage, watchPage),
-      L.h('div', { class: 'vb-ide-col' }, L.h('div', { class: 'vb-ide-cap', text: 'Call Stack' }), stackList),
-      L.h('div', { class: 'vb-ide-col' }, L.h('div', { class: 'vb-ide-cap', text: 'Object Values' }), localList));
+      L.h('div', { class: 'vb-ide-tabs' }, L.h('div', { class: 'vb-ide-tabbar' }, tabButtons), outputPage, errorsPage, expressionPage, breakPage, watchPage, stackPage, localsPage));
 
     const split = L.h('div', { class: 'splitter h vb-ide-split', role: 'separator' });
     split.addEventListener('pointerdown', (e) => {

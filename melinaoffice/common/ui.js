@@ -1818,13 +1818,14 @@
       dy: (a1.y + b1.y) / 2 - (a0.y + b0.y) / 2,
     };
   };
-  /** A finger held still, with no slide, is a right-click at the press. g is the gesture so far, or null.
-      ev: { type: 'start'|'move'|'end'|'cancel'|'hold', t, touches: [{ id, x, y }], selecting }.
-      The fingers in touches are the ones still down. hold is the moment the wait elapses.
+  /** A finger held still is a right-click at the press, even when text is already selected.
+      g is the gesture so far, or null. ev: { type: 'start'|'move'|'end'|'cancel'|'hold', t,
+      touches: [{ id, x, y }] } with the fingers still down. hold is the moment the wait elapses.
       wait is how long the caller waits after a new press, or the time still left when hold comes early.
-      A slide past 10px (slid), a second finger, a lift before 500ms, or selecting (the text selection
-      handles are showing) is not a menu. */
+      Movement within STILL px of where the finger landed is still in place. Past that (slid), a second
+      finger, or a lift before 500ms is not a menu. */
   ui.LONG_PRESS = 500;
+  ui.STILL = 10;
   ui.longPress = function (g, ev) {
     const touches = ev.touches || [];
     const finger = () => touches.find((t) => g && t.id === g.id);
@@ -1839,7 +1840,7 @@
     if (ev.type === 'move') {
       if (touches.length !== 1) return { g: null };
       const a = finger();
-      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > 10) return { g: null, slid: true };
+      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > ui.STILL) return { g: null, slid: true };
       return { g };
     }
     if (ev.type === 'end') return finger() ? { g } : { g: null };
@@ -1847,7 +1848,6 @@
       if (g.native) return { g: null };
       const left = ui.LONG_PRESS - (ev.t - g.t);
       if (left > 0) return { g, wait: left };
-      if (ev.selecting) return { g: null, bar: true };
       return { g: null, menu: { x: g.x, y: g.y }, cancelDrag: true };
     }
     return { g };
@@ -2085,12 +2085,11 @@
     const stopGesture = (e) => e.preventDefault();
     window.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
     window.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
-    /* a finger held still, and only that, opens the right-click menu. A slide, or a press while
-       text is selected, shows the formatting bar one line above the caret instead. */
+    /* a finger held within 10px opens the right-click menu, selected text or not. A slide past
+       that shows the formatting bar one line above the caret instead. */
     let hold = null, holdTimer = 0, opened = 0, eatClick = 0, eatLift = false, touchHeld = false, touchSelection = false;
     ui.touchHeld = () => touchHeld;
     ui.touchSelection = () => touchSelection;
-    const textSelected = () => !!(L.minibar && L.minibar.caretLine && L.minibar.caretLine());
     const keepSelection = () => { touchSelection = true; };
     const releaseSelection = () => { if (touchSelection) setTimeout(() => { touchSelection = false; }, 400); };
     const touchesOf = (e) => [...e.touches].map((t) => ({ id: t.identifier, x: t.clientX, y: t.clientY }));
@@ -2109,10 +2108,9 @@
       clearHold();
       holdTimer = setTimeout(() => {
         holdTimer = 0;
-        const fired = ui.longPress(hold, { type: 'hold', t: Date.now(), touches: [], selecting: textSelected() });
+        const fired = ui.longPress(hold, { type: 'hold', t: Date.now(), touches: [] });
         hold = fired.g;
         if (fired.wait && hold) { armHold(fired.wait); return; }
-        if (fired.bar) { keepSelection(); touchHeld = true; eatLift = true; if (L.minibar) L.minibar.show(); return; }
         if (!fired.menu) return;
         touchHeld = true;
         if (!openTouchMenu(fired.menu)) touchHeld = false;
