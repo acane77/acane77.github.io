@@ -3,10 +3,10 @@
  * loaded first; each app's own CSS comes after this file and wins. */
 [hidden] { display: none !important; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--dock-b); color: var(--ink); font: var(--ui-size)/1.25 var(--ui-font); overflow: hidden; touch-action: pan-x pan-y; }
+body { margin: 0; background: var(--dock-b); color: var(--ink); font: var(--ui-size)/1.25 var(--ui-font); overflow: hidden; touch-action: pan-x pan-y; -webkit-touch-callout: none; }
 * { box-sizing: border-box; }
 button { font: inherit; color: inherit; }
-input, select, textarea { font: inherit; color: var(--ink); }
+input, select, textarea { font: inherit; color: var(--ink); -webkit-touch-callout: default; }
 /* Selected document text: a translucent gray over the glyphs. The glyphs keep their own colour. */
 :is(.pages, .sl, .outline) ::selection,
 :is(.notes-in, .np-notes, .celledit, .fb-input)::selection {

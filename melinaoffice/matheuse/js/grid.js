@@ -899,19 +899,18 @@
     G.paint();
     L.bus.emit('zoom');
   };
-  /* touch: pan to scroll, tap to select, long press for the context menu. A second finger is a
-     right-click (common/ui.js), so this press does not also select or edit when it lifts. */
+  /* touch: pan to scroll, tap to select. A long press and a second finger are right-clicks
+     (common/ui.js), so this press does not also select or edit when it lifts. */
   function startTouch(e, p) {
     const sh = G.sheet();
     const z0 = zone(p);
     let last = p, acc = { x: 0, y: 0 }, moved = false;
     const fr = G.frame();
     const g = LY.geo(sh);
-    const lp = setTimeout(() => { if (!moved && !touchSawTwo) { if (z0.kind === 'cell') G.select(z0.r, z0.c, { noScroll: true }); L.app.contextMenu({ clientX: e.clientX, clientY: e.clientY, preventDefault() {} }, z0); } }, 600);
     const mv = (ev) => {
-      if (touchN > 1) { moved = true; clearTimeout(lp); return; }
+      if (touchN > 1) { moved = true; return; }
       const q = pt(ev);
-      if (Math.abs(q.x - p.x) + Math.abs(q.y - p.y) > 6) { moved = true; clearTimeout(lp); }
+      if (Math.abs(q.x - p.x) + Math.abs(q.y - p.y) > 6) moved = true;
       if (!moved) return;
       acc.y += last.y - q.y; acc.x += last.x - q.x;
       last = q;
@@ -921,9 +920,8 @@
       if (dc) { acc.x -= dc * cw; G.scrollBy(0, dc); }
     };
     const up = () => {
-      clearTimeout(lp);
       wrap.removeEventListener('pointermove', mv); wrap.removeEventListener('pointerup', up); wrap.removeEventListener('pointercancel', up);
-      if (moved || touchSawTwo) return;
+      if (moved || touchSawTwo || (L.ui.touchHeld && L.ui.touchHeld())) return;
       const ed = L.editor;
       if (ed && ed.active) { if (ed.canPoint() && z0.kind === 'cell') { ed.pointStart({ r1: z0.r, c1: z0.c, r2: z0.r, c2: z0.c }); ed.pointEnd(); return; } if (!ed.commit()) return; }
       if (z0.kind === 'cell') {

@@ -1847,6 +1847,36 @@
     }
     return { g };
   };
+  /** A one-finger press that stays within 10px for 500ms is a right-click at that point.
+      ev matches ui.twoFingerTap, plus type 'hold' when the wait elapses. wait is how long the
+      caller waits after a new press. A slide, a second finger or a lift before then is not a menu. */
+  ui.LONG_PRESS = 500;
+  ui.longPress = function (g, ev) {
+    const touches = ev.touches || [];
+    const finger = () => touches.find((t) => g && t.id === g.id);
+    if (ev.type === 'cancel') return { g: null };
+    if (ev.type === 'start') {
+      if (touches.length !== 1) return { g: null };
+      if (g) return { g };
+      const a = touches[0];
+      return { g: { id: a.id, x: a.x, y: a.y, t: ev.t, native: false }, wait: ui.LONG_PRESS };
+    }
+    if (!g) return { g: null };
+    if (ev.type === 'move') {
+      if (touches.length !== 1) return { g: null };
+      const a = finger();
+      if (!a || Math.hypot(a.x - g.x, a.y - g.y) > 10) return { g: null };
+      return { g };
+    }
+    if (ev.type === 'end') return finger() ? { g } : { g: null };
+    if (ev.type === 'hold') {
+      if (g.native) return { g: null };
+      const left = ui.LONG_PRESS - (ev.t - g.t);
+      if (left > 0) return { g, wait: left };
+      return { g: null, menu: { x: g.x, y: g.y }, cancelDrag: true };
+    }
+    return { g };
+  };
   /** scroll position that keeps the point under `from` under `to` after oldZ becomes newZ.
       `from` and `to` are viewport coordinates; `scroll` is the element's scrollLeft/scrollTop. */
   ui.zoomScroll = function (scroll, oldZ, newZ, from, to) {
@@ -2080,22 +2110,48 @@
     const stopGesture = (e) => e.preventDefault();
     window.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
     window.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
-    /* a two-finger tap opens the right-click menu at the finger that landed first */
-    let fingers = null, eatClick = 0, opened = 0;
+    /* a two-finger tap, or a one-finger press held still, opens the right-click menu there */
+    let fingers = null, hold = null, holdTimer = 0, eatClick = 0, opened = 0, eatLift = false, touchHeld = false;
+    ui.touchHeld = () => touchHeld;
     const touchesOf = (e) => [...e.touches].map((t) => ({ id: t.identifier, x: t.clientX, y: t.clientY }));
-    const take = (e, type) => {
-      const r = ui.twoFingerTap(fingers, { type, t: Date.now(), touches: touchesOf(e) });
-      fingers = r.g;
-      if (r.cancelDrag) ui.dragCancel();
-      if (!r.menu) return;
-      const el = document.elementFromPoint(r.menu.x, r.menu.y);
-      if (!el) return;
-      const at = { bubbles: true, cancelable: true, view: window, clientX: r.menu.x, clientY: r.menu.y, screenX: r.menu.x, screenY: r.menu.y, button: 2, buttons: 2 };
+    const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = 0; } };
+    const armHold = (ms) => {
+      clearHold();
+      holdTimer = setTimeout(() => {
+        holdTimer = 0;
+        const fired = ui.longPress(hold, { type: 'hold', t: Date.now(), touches: [] });
+        hold = fired.g;
+        if (fired.wait && hold) { armHold(fired.wait); return; }
+        if (!fired.menu) return;
+        touchHeld = true;
+        if (openTouchMenu(fired.menu, null)) eatLift = true;
+      }, ms);
+    };
+    const openTouchMenu = (pt, e) => {
+      const el = document.elementFromPoint(pt.x, pt.y);
+      if (!el) return false;
+      ui.dragCancel();
+      const at = { bubbles: true, cancelable: true, view: window, clientX: pt.x, clientY: pt.y, screenX: pt.x, screenY: pt.y, button: 2, buttons: 2 };
       try { el.dispatchEvent(new PointerEvent('pointerdown', Object.assign({ pointerId: 1, pointerType: 'touch', isPrimary: true }, at))); } catch (err) { /* the menu event below still opens it */ }
       opened = Date.now();
-      if (el.dispatchEvent(new MouseEvent('contextmenu', at))) { opened = 0; return; }
-      e.preventDefault();
-      eatClick = Date.now() + 500;
+      if (el.dispatchEvent(new MouseEvent('contextmenu', at))) { opened = 0; return false; }
+      if (e) { e.preventDefault(); eatClick = Date.now() + 500; }
+      return true;
+    };
+    const take = (e, type) => {
+      const sample = { type, t: Date.now(), touches: touchesOf(e) };
+      const r = ui.twoFingerTap(fingers, sample);
+      fingers = r.g;
+      if (r.cancelDrag) ui.dragCancel();
+      if (r.menu) openTouchMenu(r.menu, e);
+      const h = ui.longPress(hold, sample);
+      hold = h.g;
+      if (h.wait && hold) armHold(h.wait);
+      else if (!hold) clearHold();
+      if (type === 'end' && !e.touches.length) {
+        if (eatLift) { e.preventDefault(); eatLift = false; eatClick = Date.now() + 700; }
+        if (touchHeld) setTimeout(() => { touchHeld = false; }, 0);
+      }
     };
     window.addEventListener('touchstart', (e) => take(e, 'start'), { capture: true, passive: true });
     window.addEventListener('touchmove', (e) => take(e, 'move'), { capture: true, passive: true });
@@ -2104,7 +2160,8 @@
     window.addEventListener('contextmenu', (e) => {
       if (!e.isTrusted) return;
       if (fingers) fingers.native = true;
-      /* the tap already opened the menu; the system's own right-click for the same tap does not open another */
+      if (hold) hold.native = true;
+      /* this press already opened the menu; the system's own right-click for it does not open another */
       if (opened && Date.now() - opened < 400) { e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
     window.addEventListener('click', (e) => {
