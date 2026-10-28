@@ -1442,6 +1442,11 @@
   --gg-hover: rgba(0,0,0,.08);
   --gg-on: rgba(0,0,0,.11);
   --gg-down: rgba(0,0,0,.16);
+  /* the cream box and its navy edge are the view button's gray plate */
+  --hot-a: var(--gg-hover); --hot-b: var(--gg-hover);
+  --press-a: var(--gg-down); --press-b: var(--gg-down);
+  --chk-a: var(--gg-on); --chk-b: var(--gg-on);
+  --menu-hot: var(--gg-hover);
   --gg-glass: linear-gradient(#f7f7f7 0%, #f1f1f1 33%, #fff 100%);
   --gg-panel: linear-gradient(#f7f7f788 0%, #f1f1f188 33%, #fff8 100%);
   --gg-glass-edge: 0 0 0 0.5px rgba(0,0,0,.28), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.95), 0 8px 15px rgba(0,0,0,.04);
@@ -2408,6 +2413,11 @@
   --gg-hover: rgba(255,255,255,.08);
   --gg-on: rgba(255,255,255,.12);
   --gg-down: rgba(255,255,255,.18);
+  /* the cream box and its navy edge are the view button's gray plate */
+  --hot-a: var(--gg-hover); --hot-b: var(--gg-hover);
+  --press-a: var(--gg-down); --press-b: var(--gg-down);
+  --chk-a: var(--gg-on); --chk-b: var(--gg-on);
+  --menu-hot: var(--gg-hover);
   --gg-glass: linear-gradient(#3A3A3C 0%, #323234 33%, #2C2C2E 100%);
   --gg-panel: linear-gradient(#3A3A3C88 0%, #32323488 33%, #2C2C2E88 100%);
   --gg-glass-edge: 0 0 0 0.5px rgba(255,255,255,.20), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.08), 0 8px 15px rgba(0,0,0,.35);
@@ -3661,6 +3671,11 @@
   --gg-hover: rgba(0,0,0,.08);
   --gg-on: rgba(0,0,0,.11);
   --gg-down: rgba(0,0,0,.16);
+  /* the cream box and its navy edge are the view button's gray plate */
+  --hot-a: var(--gg-hover); --hot-b: var(--gg-hover);
+  --press-a: var(--gg-down); --press-b: var(--gg-down);
+  --chk-a: var(--gg-on); --chk-b: var(--gg-on);
+  --menu-hot: var(--gg-hover);
   --gg-plate: rgba(0,0,0,.08);
   --gg-plate-hot: rgba(0,0,0,.11);
   --gg-plate-down: rgba(0,0,0,.16);
@@ -4328,4 +4343,112 @@ body:is(.vscode-dark, .vscode-high-contrast) [data-look="vscodegg"] {
   }
   :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-panel { justify-content: safe center; }
   :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .rb-groups { margin: 0; }
+}
+
+/* Golden Gate task pane: the same glass as the ribbon panel. The title bar is the Save
+   toolbar (the Quick Access capsule): the same fill, edge and toolbar buttons. */
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .taskpane {
+  background: var(--gg-panel);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  border: 0; border-radius: 17px; box-shadow: var(--gg-glass-edge); overflow: hidden;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .taskpane .tp-head {
+  box-sizing: border-box; height: 35px; margin: 6px 6px 4px; padding: 0 5px; gap: 1px;
+  border: 0; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .taskpane .tp-head :is(.tp-nav, .tp-title) {
+  box-sizing: border-box; height: 22px; margin: 2px 1px; padding: 0 4px; border: 0; border-radius: 12px;
+  background: transparent; box-shadow: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .taskpane .tp-head .tp-nav {
+  width: 26px; min-width: 26px; padding: 0;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .taskpane .tp-head :is(.tp-nav:not(:disabled):hover, .tp-title:hover) {
+  border: 0; background: var(--gg-hover); box-shadow: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .taskpane .tp-head :is(.tp-nav:not(:disabled):active, .tp-title:active) {
+  border: 0; background: var(--gg-down); box-shadow: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(.taskpane, .leftpane, .docmap) {
+    -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--gg-glass);
+  }
+}
+
+/* Side panes: the ribbon panel's glass. Oratrice's Outline / Slides is the dialog segmented control.
+   Ecrivaine's Document Map and thumbnails share .docmap, on the left. */
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(.leftpane, .docmap) {
+  background: var(--gg-panel);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  border: 0; border-radius: 17px; box-shadow: var(--gg-glass-edge);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane { overflow: hidden; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .docmap { padding: 8px 0; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tabs {
+  position: relative; align-items: center; align-self: center; flex: none;
+  width: max-content; max-width: calc(100% - 44px); min-height: 35px; height: 35px;
+  margin: 6px auto 4px; padding: 3px 5px; gap: 0;
+  border: 0; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tab,
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tab.on {
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+  top: 0; margin: 0; min-width: 0; height: 30px; padding: 0 10px;
+  border: 0; border-radius: 15px; background: transparent; box-shadow: none; font-weight: 510;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tab:hover:not(.on) {
+  background: var(--gg-hover); border: 0;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tab:active:not(.on) {
+  background: var(--gg-down); border: 0; box-shadow: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tab.on,
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-tab.on:hover {
+  background: var(--gg-on); border: 0; font-weight: 510;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-close {
+  position: absolute; left: calc(100% + 6px); top: 6px; margin: 0;
+  width: 26px; height: 22px; border: 0; border-radius: 12px; background: transparent; outline: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-close:hover {
+  background: var(--gg-hover); outline: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .leftpane .lp-close:active {
+  background: var(--gg-down); outline: none;
+}
+
+/* The cream box with a navy edge is the view button: a 6px gray plate.
+   Menus keep their own highlight; these are the lists, galleries and status buttons that still used the old box. */
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(
+  .dm-item, .sf-item, .clip-it, .cb-item, .search-hit, .tp-link.th-word,
+  .shape-grid button, .style-list button, .cp-wide, .border-grid button,
+  .sb-zoom-btn, .sb-zoom-pct, .sb-docstatus, .sb-cell.act,
+  .floatbar .fb-title button, .lay-it, .dsn-it, .sa-cell, .sa-cat, .scheme-it,
+  .ph-content .ph-ico, .ctype-b, .fc-preset, .fc-bb, .help-fn, .fb-btns button,
+  .vb-ide-menu-btn, .vb-ide-list li, .bd-preview .bd-btn
+) {
+  border-radius: 6px; transition: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .docmap .dm-item { margin: 1px 6px; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(
+  .dm-item:hover, .sf-item:hover, .clip-it:hover, .cb-item:hover, .search-hit:hover, .tp-link.th-word:hover,
+  .shape-grid button:hover, .style-list button:hover, .cp-wide:hover, .border-grid button:hover,
+  .sb-zoom-btn:hover, .sb-zoom-pct:hover, .sb-docstatus:hover, .sb-cell.act:hover,
+  .floatbar .fb-title button:hover, .lay-it:hover, .dsn-it:hover, .sa-cell:hover, .sa-cat:hover, .scheme-it:hover,
+  .ph-content .ph-ico:hover, .ctype-b:hover, .fc-preset:hover:not(:disabled), .fc-bb:hover:not(:disabled),
+  .help-fn:hover, .fb-btns button:hover:not(:disabled), .vb-ide-menu-btn:hover
+) {
+  border-color: transparent; outline: none; background: var(--gg-hover); box-shadow: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(
+  .dm-item.on, .dm-item.on:hover, .sf-item.on, .sf-item.on:hover,
+  .lay-it.on, .lay-it.on:hover, .dsn-it.on, .dsn-it.on:hover,
+  .bd-preview .bd-btn.on, .vb-ide-list li.on, .vb-ide-current, .vb-ide-grid tr.on td
+) {
+  border-color: transparent; outline: none; background: var(--gg-on); box-shadow: none; color: inherit;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) :is(
+  .dm-item:active, .dm-item.on:active, .sf-item:active, .lay-it:active, .dsn-it:active
+) {
+  background: var(--gg-down); border-color: transparent; box-shadow: none;
 }
