@@ -154,7 +154,7 @@
     return hit ? hit[0] : 'Custom size';
   };
 
-  /* ================= built-in styles (Word 2003 defaults) ================= */
+  /* ================= built-in styles (Word 2003 defaults; every face is 等线) ================= */
   const S = (id, name, type, o) => Object.assign({ id, name, type, basedOn: type === 'paragraph' && id !== 'Normal' ? 'Normal' : null, next: null, pPr: {}, rPr: {}, builtin: true }, o || {});
   D.builtinStyles = function () {
     const st = [
@@ -219,6 +219,13 @@
     ];
     for (let i = 1; i <= 9; i++) st.push(S('TOC' + i, 'toc ' + i, 'paragraph', { next: 'Normal', pPr: { ind: i > 1 ? { l: (i - 1) * 12 } : {} } }));
     for (let i = 1; i <= 3; i++) st.push(S('Index' + i, 'index ' + i, 'paragraph', { next: 'Normal', pPr: { ind: { l: i * 12, fl: -12 } } }));
+    /* every style of a blank document names 等线 for both faces (Office 365's Simplified Chinese face).
+       Default Paragraph Font stays empty: it means "the paragraph's own font". A language with its own
+       face (D.applyLocale) retargets these. Markdown's modern document swaps them for Calibri. */
+    for (const s of st) {
+      if (s.id === 'DefaultParagraphFont' || s.type === 'numbering') continue;
+      s.rPr = Object.assign({}, s.rPr, { font: '等线', fontEA: '等线' });
+    }
     const o = {};
     for (const s of st) o[s.id] = s;
     return o;
@@ -316,7 +323,7 @@
       props: { title: '', subject: '', creator: L.store.get('userName', 'Ecrivaine User'), keywords: '', description: '', lastModifiedBy: '', category: '', company: '', manager: '', created: new Date().toISOString(), modified: new Date().toISOString(), revision: 1 },
       custom: {},
       macros: [],
-      theme: { major: 'Cambria', minor: 'Calibri' },
+      theme: { major: '等线', minor: '等线', majorEA: '等线', minorEA: '等线' },
       bg: null, watermark: null, rsid: L.uid('r'),
     };
     /* standard list definitions used by the toolbar buttons */
@@ -330,6 +337,15 @@
       doc.defaults.rPr = { font: 'Calibri', sz: 11, lang: 'en-US' };
       doc.defaults.pPr = { sp: { a: 8, line: 1.08, rule: 'auto' } };
       doc.sect.ml = doc.sect.mr = 72;
+      doc.theme = { major: 'Cambria', minor: 'Calibri' };
+      /* faces these styles had before the blank document moved to 等线; the rest inherit Calibri */
+      const keep = { PlainText: 'Courier New', MacroText: 'Courier New', HTMLPreformatted: 'Courier New', BalloonText: 'Tahoma', DocumentMap: 'Tahoma', Heading1: 'Arial', Heading2: 'Arial', Heading3: 'Arial', Heading9: 'Arial', Title: 'Arial', Subtitle: 'Arial', EnvelopeAddress: 'Arial', EnvelopeReturn: 'Arial', IndexHeading: 'Arial' };
+      for (const s of Object.values(doc.styles)) {
+        const r = s.rPr;
+        if (!r || r.font !== '等线') continue;
+        if (keep[s.id]) r.font = keep[s.id]; else delete r.font;
+        delete r.fontEA;
+      }
     }
     const s = L.store.get('defaultSect', null);
     if (s && !opts.modern) Object.assign(doc.sect, s);
@@ -343,7 +359,21 @@
   D.applyLocale = function (doc, loc) {
     if (!loc || !loc.sect) return doc;
     Object.assign(doc.sect, L.clone(loc.sect), L.store.get('defaultSect', null) || {});
-    if (loc.rPr) Object.assign(doc.defaults.rPr, loc.rPr);
+    if (loc.rPr) {
+      const fromFont = doc.defaults.rPr.font, fromEA = doc.defaults.rPr.fontEA;
+      Object.assign(doc.defaults.rPr, loc.rPr);
+      /* styles of the blank document name its face; a language with its own face uses that instead */
+      const face = loc.rPr.font, faceEA = loc.rPr.fontEA;
+      if ((face && face !== fromFont) || (faceEA && faceEA !== fromEA)) {
+        for (const s of Object.values(doc.styles)) {
+          const r = s.rPr;
+          if (!r) continue;
+          if (face && r.font === fromFont) r.font = face;
+          if (faceEA && r.fontEA === fromEA) r.fontEA = faceEA;
+        }
+      }
+      if (face) { doc.theme.major = face; doc.theme.minor = face; }
+    }
     if (loc.pPr && doc.styles.Normal) doc.styles.Normal.pPr = Object.assign({}, doc.styles.Normal.pPr, loc.pPr);
     if (loc.defTab) doc.settings.defTab = loc.defTab;
     if (loc.charSpacing) doc.settings.charSpacing = loc.charSpacing;

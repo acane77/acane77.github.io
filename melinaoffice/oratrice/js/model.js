@@ -79,7 +79,7 @@
   const DESIGNS = [];
   const defDesign = (key, name, o) => DESIGNS.push(Object.assign({ key, name }, o));
 
-  defDesign('default', 'Default Design', { colors: M.COLOR_SCHEMES[0], fonts: { major: 'Arial', minor: 'Arial' }, bg: solid('bg1') });
+  defDesign('default', 'Default Design', { colors: M.COLOR_SCHEMES[0], fonts: { major: '等线', minor: '等线', majorEA: '等线', minorEA: '等线' }, bg: solid('bg1') });
 
   defDesign('azure', 'Azure Horizon', {
     colors: scheme('#FFFFFF', '#1B2A41', '#7F93B2', '#FFFFFF', '#4A7BC8', '#E0A526', '#2D6BB5', '#8E7CC3', '#9BB7E3', '#1F3A6E', '#F2C76E', '#5C88C5'),
@@ -266,6 +266,16 @@
     const o = t.tx || {};
     if (o.title) txs.title[0] = L.deepMerge(txs.title[0], o.title);
     if (o.body) txs.body = txs.body.map((lv, i) => L.deepMerge(lv, (i === 1 || i === 3) && o.body.bu && o.body.bu.ch ? Object.assign({}, o.body, { bu: Object.assign({}, o.body.bu, { ch: '–' }) }) : o.body));
+    /* the default design's title, body and other styles name the theme's East Asian face, and bullets use the body face */
+    if (t.key === 'default') {
+      const face = (t.fonts && t.fonts.minor) || '等线';
+      for (const lv of txs.title) lv.rPr = Object.assign({}, lv.rPr, { fontEA: '+mj-ea' });
+      for (const lv of txs.body) {
+        lv.rPr = Object.assign({}, lv.rPr, { fontEA: '+mn-ea' });
+        if (lv.bu && lv.bu.t === 'char') lv.bu = Object.assign({}, lv.bu, { font: face });
+      }
+      for (const lv of txs.other) lv.rPr = Object.assign({}, lv.rPr, { fontEA: '+mn-ea' });
+    }
     const footer = { algn: 'l', rPr: { sz: 14, color: (o.footer && o.footer.color) || 'tx1' } };
     /* text sizes are designed for a 10 x 7.5 in slide; smaller slides get proportionally smaller text */
     const tk = Math.min(1, W / 720, H / 540);
@@ -534,6 +544,11 @@
       if (loc && loc.font) Object.assign(design.fonts, { major: loc.font, minor: loc.font });
       if (loc && loc.fontEA) Object.assign(design.fonts, { majorEA: loc.fontEA, minorEA: loc.fontEA });
       if (!loc || (!loc.font && !loc.fontEA)) Object.assign(design.fonts, { major: '等线', minor: '等线', majorEA: '等线', minorEA: '等线' });
+      /* bullets follow the body face after the language has chosen it */
+      if ((opts.design || 'default') === 'default') {
+        const bullet = design.fonts.minor || '等线';
+        for (const lv of design.tx.body) if (lv.bu && lv.bu.t === 'char' && lv.bu.font !== bullet) lv.bu = Object.assign({}, lv.bu, { font: bullet });
+      }
     }
     if (opts.empty !== true) pres.slides.push(M.newSlide(pres, 'title', design.id));
     return pres;

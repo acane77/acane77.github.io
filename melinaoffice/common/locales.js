@@ -1,7 +1,8 @@
 /* New documents' defaults for the UI's language (docs/i18n.md, Defaults): what a Japanese, Korean, Chinese, French or German
  * Office gives a blank document, workbook and presentation, in the era each app follows (Office 2003 for the page,
- * the fonts and their sizes, as a blank document uses 等线 12 for both the Latin and East Asian faces, and
- * Excel's English default is Arial 10). Applied only to new documents, never
+ * the fonts and their sizes). A blank document uses 等线 12 for both faces on every built-in style
+ * (Normal, headings, Hyperlink and the rest). A blank workbook uses 等线 10, and that face is the theme's
+ * heading and body fonts. Applied only to new documents, never
  * to a file that is opened; the user's own Default… settings come first. L.locale.get() is this page's.
  *
  * Where the values come from (python3 tools/locale-defaults.py over the corpora):

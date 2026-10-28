@@ -883,7 +883,7 @@
     /* the East Asian font as the theme's font for the document's East Asian script, as a Japanese Word writes it */
     const ea = ((doc.settings && doc.settings.themeLang) || {}).eastAsia || '';
     const script = /^ja/i.test(ea) ? 'Jpan' : /^ko/i.test(ea) ? 'Hang' : /^zh-(cn|sg)/i.test(ea) ? 'Hans' : /^zh/i.test(ea) ? 'Hant' : null;
-    const fnt = (f, eaFont) => `<a:latin typeface="${X(f)}"/><a:ea typeface=""/><a:cs typeface=""/>` + (script && eaFont ? `<a:font script="${script}" typeface="${X(eaFont)}"/>` : '');
+    const fnt = (f, eaFont) => `<a:latin typeface="${X(f)}"/><a:ea typeface="${X(eaFont || '')}"/><a:cs typeface=""/>` + (script && eaFont ? `<a:font script="${script}" typeface="${X(eaFont)}"/>` : '');
     const ph = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>';
     const ln = (w) => `<a:ln w="${w}" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/></a:ln>`;
     return HEAD + `<a:theme xmlns:a="${NS.a}" name="Office Theme"><a:themeElements><a:clrScheme name="Office">${['dk1', 'lt1', 'dk2', 'lt2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6', 'hlink', 'folHlink'].map(sc).join('')}</a:clrScheme>` +

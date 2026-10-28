@@ -119,6 +119,8 @@
       this.names = []; /* {name, ref, scope: sheetIndex|null, hidden, comment} */
       this.tables = [];
       this.theme = JSON.parse(JSON.stringify(M.DEFAULT_THEME));
+      /* a workbook started with a font uses that face for the theme's heading and body fonts too */
+      if (opts.font && opts.font.name) this.theme.major = this.theme.minor = this.theme.majorEA = this.theme.minorEA = opts.font.name;
       this.styles = new StyleTable(M.defaultStyle(opts.font));
       this.cellStyles = [{ name: 'Normal', builtinId: 0, style: 0 }];
       this.dxfs = []; /* differential formats for conditional formatting */

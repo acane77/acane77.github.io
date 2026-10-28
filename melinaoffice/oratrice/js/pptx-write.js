@@ -673,7 +673,7 @@
     const sc = (k) => `<a:${k}><a:srgbClr val="${(c[k] || '#000000').replace('#', '').toUpperCase()}"/></a:${k}>`;
     /* the East Asian font as the theme's font for the script of the presentation's language, as PowerPoint writes it */
     const script = /^ja/i.test(textLang) ? 'Jpan' : /^ko/i.test(textLang) ? 'Hang' : /^zh-(cn|sg)/i.test(textLang) ? 'Hans' : /^zh/i.test(textLang) ? 'Hant' : null;
-    const fnt = (f, ea) => `<a:latin typeface="${X(f)}"/><a:ea typeface=""/><a:cs typeface=""/>` + (script && ea ? `<a:font script="${script}" typeface="${X(ea)}"/>` : '');
+    const fnt = (f, ea) => `<a:latin typeface="${X(f)}"/><a:ea typeface="${X(ea || '')}"/><a:cs typeface=""/>` + (script && ea ? `<a:font script="${script}" typeface="${X(ea)}"/>` : '');
     const ph = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>';
     const ln = (w) => `<a:ln w="${w}" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/></a:ln>`;
     /* the style matrix of L.model.FMT */
